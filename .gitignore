@@ -1,0 +1,8 @@
+.classpath
+.project
+.settings
+bin
+hs_err_pid*.log
+lib/
+*.dll
+tessdata/
