@@ -1,5 +1,10 @@
 package de.uniwue.ub.util;
 
+/**
+ * Distance metrics for strings.
+ * 
+ * @author Paul Vorbach
+ */
 public class StringDistance {
   private static StringDistance instance = null;
 
@@ -7,7 +12,7 @@ public class StringDistance {
   }
 
   /**
-   * @return instance of this class.
+   * @return singleton instance of this class
    */
   public static StringDistance getInstance() {
     if (instance == null)
@@ -16,6 +21,18 @@ public class StringDistance {
     return instance;
   }
 
+  /**
+   * Calculates the Levenshtein distance of two <code>String</code>s.
+   * 
+   * This implementation has a complexity of O(<i>nm</i>), where <i>n</i> is the
+   * length of <code>a</code> and <i>m</i> <code>b</code>.
+   * 
+   * @param a
+   *          first string
+   * @param b
+   *          second string
+   * @return Levenshtein distance between <code>a</code> and <code>b</code>
+   */
   public int levenshtein(String a, String b) {
     int[] costs = new int[b.length() + 1];
 

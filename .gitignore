@@ -1,8 +1,10 @@
 .classpath
+.gradle
 .project
 .settings
+*.dll
 bin
+build
 hs_err_pid*.log
 lib/
-*.dll
 tessdata/

@@ -18,7 +18,7 @@ public class FileIO {
   }
 
   /**
-   * @return instance of this class.
+   * @return singleton instance of this class.
    */
   public static FileIO getInstance() {
     if (instance == null)
@@ -36,7 +36,7 @@ public class FileIO {
    *          character encoding of the file
    * @return string representation of the file
    * @throws IOException
-   *           if the file could not be read
+   *           if the file could not be read.
    */
   public String readFile(File file, Charset encoding) throws IOException {
     byte[] encoded = Files.readAllBytes(file.toPath());

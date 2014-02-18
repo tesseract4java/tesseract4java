@@ -40,7 +40,7 @@ public class UnicharsetExtractor {
     final File first = it.next();
 
     final List<String> command = new LinkedList<String>();
-    command.add(Tesseract.getPathForCommand(executable));
+    command.add(Tesseract.getInstance().getPathForCommand(executable));
     command.add(first.getPath());
     while (it.hasNext())
       command.add(it.next().getPath());

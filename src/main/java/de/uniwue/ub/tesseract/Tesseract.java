@@ -8,6 +8,21 @@ import java.io.File;
  * @author Paul Vorbach
  */
 public class Tesseract {
+  private static Tesseract instance = null;
+
+  private Tesseract() {
+  }
+
+  /**
+   * @return singleton instance of this class.
+   */
+  public static Tesseract getInstance() {
+    if (instance == null)
+      instance = new Tesseract();
+
+    return instance;
+  }
+
   /**
    * Path to Tesseract.
    * 
@@ -15,7 +30,7 @@ public class Tesseract {
    * <code>null</code>. Otherwise it has to point to the directory that contains
    * Tesseract's executables.
    */
-  public static File path = null;
+  public File path = null;
 
   /**
    * Returns the path of the given command's executable file.
@@ -24,7 +39,7 @@ public class Tesseract {
    *          name of the command
    * @return path of given command's executable file
    */
-  public static String getPathForCommand(String command) {
+  public String getPathForCommand(String command) {
     if (path == null)
       return command;
     else
