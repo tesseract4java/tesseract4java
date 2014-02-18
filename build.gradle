@@ -1,0 +1,20 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+organization = 'de.uniwue.ub'
+
+version = '0.0.1'
+sourceCompatibility = 1.7
+
+// include all JAR files in lib
+dependencies {
+  compile fileTree(dir: 'lib', includes: ['*.jar'])
+}
+
+// custom javadoc generation task
+// will include res/overview.html
+task doc(type: Javadoc) {
+  source = sourceSets.main.allSource
+  classpath = sourceSets.main.compileClasspath
+  options.addStringOption('overview', 'res/overview.html')
+}
