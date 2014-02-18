@@ -15,13 +15,25 @@ import de.uniwue.ub.tesseract.Tesseract;
  * @author Paul Vorbach
  */
 public class UnicharsetExtractor {
-  /**
-   * Name of the unicharset_extractor executable file.
-   */
-  public final static String executable = "unicharset_extractor";
+  private static UnicharsetExtractor instance = null;
 
   private UnicharsetExtractor() {
   }
+
+  /**
+   * @return singleton instance of this class.
+   */
+  public static UnicharsetExtractor getInstance() {
+    if (instance == null)
+      instance = new UnicharsetExtractor();
+
+    return instance;
+  }
+
+  /**
+   * Name of the unicharset_extractor executable file.
+   */
+  public final String executable = "unicharset_extractor";
 
   /**
    * Extracts the unicode character set file out of a
@@ -30,7 +42,7 @@ public class UnicharsetExtractor {
    * @throws IOException
    * @throws InterruptedException
    */
-  public static void extract(Collection<File> boxFiles) throws IOException,
+  public void extract(Collection<File> boxFiles) throws IOException,
       InterruptedException {
     if (boxFiles.isEmpty())
       return;
