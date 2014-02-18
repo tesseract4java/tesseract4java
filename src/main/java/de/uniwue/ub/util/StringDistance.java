@@ -12,7 +12,7 @@ public class StringDistance {
   }
 
   /**
-   * @return singleton instance of this class
+   * @return singleton instance of this class.
    */
   public static StringDistance getInstance() {
     if (instance == null)
