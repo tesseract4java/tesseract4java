@@ -1,15 +1,39 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-organization = 'de.uniwue.ub'
+group = 'de.uniwue.ub'
 
 version = '0.0.1'
 sourceCompatibility = 1.7
 
+jar {
+  manifest {
+    attributes 'Implementation-Title': 'Tesseract Tools',
+      'Implementation-Version': version
+  }
+}
+
+sourceSets {
+  example {
+    java {
+      srcDir 'src/example/java'
+    }
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
 // include all JAR files in lib
 dependencies {
   compile fileTree(dir: 'lib', includes: ['*.jar'])
+
+  testCompile 'junit:junit:4.+'
 }
+
+// Assume UTF-8 source code
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 // custom javadoc generation task
 // will include res/overview.html
