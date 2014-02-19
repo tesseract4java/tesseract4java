@@ -2,6 +2,7 @@ package de.uniwue.ub.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -53,6 +54,8 @@ public class FileIO {
    */
   public void writeFile(String content, File file, Charset encoding)
       throws IOException {
-    Files.write(file.toPath(), encoding.encode(content).array());
+    final PrintWriter to = new PrintWriter(file, "UTF-8");
+    to.print(content);
+    to.close();
   }
 }
