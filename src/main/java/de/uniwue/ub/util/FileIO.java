@@ -42,4 +42,17 @@ public class FileIO {
     byte[] encoded = Files.readAllBytes(file.toPath());
     return encoding.decode(ByteBuffer.wrap(encoded)).toString();
   }
+
+  /**
+   * Creates or replaces the given file and writes the content.
+   * 
+   * @param content
+   * @param file
+   * @param encoding
+   * @throws IOException
+   */
+  public void writeFile(String content, File file, Charset encoding)
+      throws IOException {
+    Files.write(file.toPath(), encoding.encode(content).array());
+  }
 }
