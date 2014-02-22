@@ -3,27 +3,31 @@ package de.uniwue.ub.tesseract.training;
 import java.util.regex.Pattern;
 
 public class CharacterProperties {
-  public final boolean isAlpha;
-  public final boolean isDigit;
-  public final boolean isUpper;
-  public final boolean isLower;
-  public final boolean isPunct;
+  private final static int BIT_ALPHA = 0;
+  private final static int BIT_LOWER = 1;
+  private final static int BIT_UPPER = 2;
+  private final static int BIT_DIGIT = 3;
+  private final static int BIT_PUNCT = 4;
+
+  private final byte code;
 
   private CharacterProperties(byte code) {
-    isAlpha = (code & 1) == 1;
-    isLower = ((code >> 1) & 1) == 1;
-    isUpper = ((code >> 2) & 1) == 1;
-    isDigit = ((code >> 3) & 1) == 1;
-    isPunct = ((code >> 4) & 1) == 1;
+    this.code = code;
+  }
+
+  private boolean getBit(int bit) {
+    return ((code >> bit) & 1) == 1;
   }
 
   public CharacterProperties(boolean isAlpha, boolean isDigit, boolean isUpper,
       boolean isLower, boolean isPunct) {
-    this.isAlpha = isAlpha;
-    this.isDigit = isDigit;
-    this.isUpper = isUpper;
-    this.isLower = isLower;
-    this.isPunct = isPunct;
+    byte code = 0;
+    code |= isAlpha ? 1 : 0;
+    code |= isLower ? 2 : 0;
+    code |= isUpper ? 4 : 0;
+    code |= isDigit ? 8 : 0;
+    code |= isPunct ? 16 : 0;
+    this.code = code;
   }
 
   public static CharacterProperties forByteCode(byte code) {
@@ -57,23 +61,37 @@ public class CharacterProperties {
     return new CharacterProperties(isAlpha, isDigit, isUpper, isLower, isPunct);
   }
 
+  public boolean isAlpha() {
+    return getBit(BIT_ALPHA);
+  }
+
+  public boolean isLower() {
+    return getBit(BIT_LOWER);
+  }
+
+  public boolean isUpper() {
+    return getBit(BIT_UPPER);
+  }
+
+  public boolean isDigit() {
+    return getBit(BIT_DIGIT);
+  }
+
+  public boolean isPunct() {
+    return getBit(BIT_PUNCT);
+  }
+
   public byte toByteCode() {
-    byte code = 0;
-    code |= isAlpha ? 1 : 0;
-    code |= isLower ? 2 : 0;
-    code |= isUpper ? 4 : 0;
-    code |= isDigit ? 8 : 0;
-    code |= isPunct ? 16 : 0;
     return code;
   }
 
   public String toHexString() {
-    return Integer.toHexString(toByteCode());
+    return Integer.toHexString(code);
   }
 
   @Override
   public String toString() {
-    return Integer.toBinaryString(toByteCode());
+    return Integer.toBinaryString(code);
   }
 
   @Override
@@ -90,24 +108,16 @@ public class CharacterProperties {
     if (!(obj instanceof CharacterProperties))
       return false;
     CharacterProperties other = (CharacterProperties) obj;
-    if (isAlpha != other.isAlpha)
+    if (isAlpha() != other.isAlpha())
       return false;
-    if (isDigit != other.isDigit)
+    if (isDigit() != other.isDigit())
       return false;
-    if (isLower != other.isLower)
+    if (isLower() != other.isLower())
       return false;
-    if (isPunct != other.isPunct)
+    if (isPunct() != other.isPunct())
       return false;
-    if (isUpper != other.isUpper)
+    if (isUpper() != other.isUpper())
       return false;
     return true;
-  }
-
-  public static void main(String[] args) {
-    System.out.println(CharacterProperties.forCharacter('Ä').toHexString());
-    System.out.println(CharacterProperties.forCharacter('ß').toHexString());
-    System.out.println(CharacterProperties.forCharacter('=').toHexString());
-    System.out.println(CharacterProperties.forCharacter('7').toHexString());
-    System.out.println(CharacterProperties.forCharacter(';').toHexString());
   }
 }
