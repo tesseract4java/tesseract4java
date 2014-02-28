@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'scala'
 apply plugin: 'eclipse'
 
 group = 'de.uniwue.ub'
@@ -28,6 +29,8 @@ repositories {
 // include all JAR files in lib
 dependencies {
   compile fileTree(dir: 'lib', includes: ['*.jar'])
+
+  compile 'com.typesafe.akka:akka-actor_2.10:2.2.+'
 
   testCompile 'junit:junit:4.+'
 }
