@@ -158,7 +158,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
           }
         }
 
-        rerender();
+        render();
       }
     };
 
@@ -201,7 +201,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
 
     final ChangeListener cbListener = new ChangeListener() {
       public void stateChanged(ChangeEvent ev) {
-        rerender();
+        render();
       }
     };
 
@@ -231,7 +231,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
     comboBox.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent ev) {
-        rerender();
+        render();
       }
     });
 
@@ -306,10 +306,10 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
   private SwingWorker<ImagePair, Void> renderer = null;
 
   public void zoomChanged(final int zoom) {
-    rerender();
+    render();
   }
 
-  private void rerender() {
+  private void render() {
     if (renderer != null && !renderer.isDone()) {
       renderer.cancel(true);
     }
