@@ -36,7 +36,6 @@ import de.uniwue.ub.tesseract.util.Box;
 import de.uniwue.ub.tesseract.util.Line;
 import de.uniwue.ub.tesseract.util.Page;
 import de.uniwue.ub.tesseract.util.Point;
-import de.uniwue.ub.tesseract.util.Polynomial;
 import de.uniwue.ub.tesseract.util.Word;
 
 import javax.swing.JComboBox;
@@ -350,54 +349,47 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
       private Graphics2D scanGfx, hocrGfx;
 
       private void drawLineNumber(Line line, int lineNumber, Color color) {
-        // scanGfx.setFont(lineNumberFont);
-        // scanGfx.setColor(color);
-        // scanGfx.drawString(String.valueOf(lineNumber), calcScaled(20,
-        // factor),
-        // calcScaled(line.getBaseline(), factor));
-        //
-        // hocrGfx.setFont(lineNumberFont);
-        // hocrGfx.setColor(color);
-        // hocrGfx.drawString(String.valueOf(lineNumber), calcScaled(20,
-        // factor),
-        // calcScaled(line.getBaseline(), factor));
+        scanGfx.setFont(lineNumberFont);
+        scanGfx.setColor(color);
+        scanGfx.drawString(String.valueOf(lineNumber), calcScaled(20, factor),
+            calcScaled(line.getBaseline(), factor));
+
+        hocrGfx.setFont(lineNumberFont);
+        hocrGfx.setColor(color);
+        hocrGfx.drawString(String.valueOf(lineNumber), calcScaled(20, factor),
+            calcScaled(line.getBaseline(), factor));
       }
 
       private void drawBaseline(Line line, Color color) {
         final Box lineBox = line.getBoundingBox();
-        final Polynomial baseline = line.getBaseline();
-
-        final int y1 = lineBox.getY() + lineBox.getHeight() - baseline.p0;
-        final int y2 = lineBox.getY()
-            - Math.round(baseline.p0 - baseline.p1 * lineBox.getWidth());
 
         scanGfx.setColor(color);
         scanGfx.drawLine(calcScaled(lineBox.getX(), factor),
-            calcScaled(y1, factor),
+            calcScaled(line.getBaseline(), factor),
             calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-            calcScaled(y1, factor));
+            calcScaled(line.getBaseline(), factor));
 
         hocrGfx.setColor(color);
         hocrGfx.drawLine(calcScaled(lineBox.getX(), factor),
-            calcScaled(y1, factor),
+            calcScaled(line.getBaseline(), factor),
             calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-            calcScaled(y1, factor));
+            calcScaled(line.getBaseline(), factor));
       }
 
       private void drawXLine(Line line, Color color) {
         final Box lineBox = line.getBoundingBox();
 
-        // scanGfx.setColor(Color.RED);
-        // scanGfx.drawLine(calcScaled(lineBox.getX(), factor),
-        // calcScaled(line.getBaseline() - line.getXHeight(), factor),
-        // calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-        // calcScaled(line.getBaseline() - line.getXHeight(), factor));
-        //
-        // hocrGfx.setColor(Color.RED);
-        // hocrGfx.drawLine(calcScaled(lineBox.getX(), factor),
-        // calcScaled(line.getBaseline() - line.getXHeight(), factor),
-        // calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-        // calcScaled(line.getBaseline() - line.getXHeight(), factor));
+        scanGfx.setColor(Color.RED);
+        scanGfx.drawLine(calcScaled(lineBox.getX(), factor),
+            calcScaled(line.getBaseline() - line.getXHeight(), factor),
+            calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
+            calcScaled(line.getBaseline() - line.getXHeight(), factor));
+
+        hocrGfx.setColor(Color.RED);
+        hocrGfx.drawLine(calcScaled(lineBox.getX(), factor),
+            calcScaled(line.getBaseline() - line.getXHeight(), factor),
+            calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
+            calcScaled(line.getBaseline() - line.getXHeight(), factor));
       }
 
       private void drawWordBox(Line line, Word word) {
@@ -436,8 +428,8 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
         }
 
         hocrGfx.setColor(Color.BLACK);
-        // hocrGfx.drawString(word.getWord(), calcScaled(box.getX(), factor),
-        // calcScaled(line.getBaseline(), factor));
+        hocrGfx.drawString(word.getWord(), calcScaled(box.getX(), factor),
+            calcScaled(line.getBaseline(), factor));
       }
 
       @Override

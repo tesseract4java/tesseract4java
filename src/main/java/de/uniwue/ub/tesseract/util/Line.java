@@ -6,10 +6,9 @@ import java.util.List;
 public class Line {
   private final Box bbox;
   private final List<Word> words;
-  private final Polynomial baseline;
-  private final int xheight;
+  private final int baseline, xheight;
 
-  public Line(Box bbox, List<Word> words, Polynomial baseline, int xheight) {
+  public Line(Box bbox, List<Word> words, int baseline, int xheight) {
     this.bbox = bbox;
     this.words = words;
     this.baseline = baseline;
@@ -24,7 +23,7 @@ public class Line {
     return bbox;
   }
 
-  public Polynomial getBaseline() {
+  public int getBaseline() {
     return baseline;
   }
 

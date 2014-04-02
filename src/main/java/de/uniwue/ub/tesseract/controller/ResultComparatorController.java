@@ -27,7 +27,6 @@ import de.uniwue.ub.tesseract.util.Box;
 import de.uniwue.ub.tesseract.util.Histogram;
 import de.uniwue.ub.tesseract.util.Line;
 import de.uniwue.ub.tesseract.util.Page;
-import de.uniwue.ub.tesseract.util.Polynomial;
 import de.uniwue.ub.tesseract.util.Project;
 import de.uniwue.ub.tesseract.util.Word;
 import de.uniwue.ub.tesseract.view.ResultComparator;
@@ -139,7 +138,6 @@ public class ResultComparatorController implements ProjectChangeListener,
         private boolean isWord = false;
         private List<Word> line = new Vector<Word>();
         private Box lineBBox = null;
-        private Polynomial baseline = null;
         private int lineNumber = 0;
         private int x1 = -1;
         private int y1 = -1;
@@ -155,28 +153,14 @@ public class ResultComparatorController implements ProjectChangeListener,
             isLine = true;
 
             final String title = attrs.getValue("title");
-            final String[] dfns = title.split(";\\s+");
+            final String[] tokens = title.split("[a-z ]+");
 
-            for (String dfn : dfns) {
-              // parse bbox
-              if (dfn.startsWith("bbox")) {
-                final String[] bbox = dfn.split("\\s+");
-                int x1 = Integer.parseInt(bbox[1]);
-                int y1 = Integer.parseInt(bbox[2]);
-                int x2 = Integer.parseInt(bbox[3]);
-                int y2 = Integer.parseInt(bbox[4]);
+            int x1 = Integer.parseInt(tokens[1]);
+            int y1 = Integer.parseInt(tokens[2]);
+            int x2 = Integer.parseInt(tokens[3]);
+            int y2 = Integer.parseInt(tokens[4]);
 
-                lineBBox = new Box(x1, y1, x2 - x1, y2 - y1);
-              }
-              // parse baseline
-              else if (dfn.startsWith("baseline")) {
-                final String[] base = dfn.split("\\s+");
-                float p1 = Float.parseFloat(base[1]);
-                int p0 = Integer.parseInt(base[2]);
-
-                baseline = new Polynomial(p0, p1);
-              }
-            }
+            lineBBox = new Box(x1, y1, x2 - x1, y2 - y1);
           } else if (!"ocrx_word".equals(attrs.getValue("class"))) {
             isWord = false;
           } else {
@@ -205,11 +189,13 @@ public class ResultComparatorController implements ProjectChangeListener,
         public void endElement(String uri, String localName, String qName) {
           if (!isWord) {
             if (isLine) {
-              final int xheight;
+              final int baseline, xheight;
               if (ascendersEnabled) {
                 int[] ascenders = Histogram.ascenders(histogram, lineBBox);
+                baseline = ascenders[0];
                 xheight = ascenders[1];
               } else {
+                baseline = lineBBox.getY() + lineBBox.getHeight();
                 xheight = lineBBox.getHeight();
               }
 
