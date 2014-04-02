@@ -7,17 +7,10 @@ import java.util.HashMap
 import java.util.Collections
 import java.util.List
 
-object ResultComparatorModel {
-  // TODO
-  val pageIndexChanged = -1
-  val correctionChanged = 0
-  val otherChanged = 1
-}
-
 class ResultComparatorModel(
-  val scanDir: Path,
-  val hocrDir: Path,
-  val pages: ArrayList[String]) extends Observable {
+  scanDir: Path,
+  hocrDir: Path,
+  pages: ArrayList[String]) extends Observable {
 
   // a new model always changes sth.
   setChanged()

@@ -45,4 +45,13 @@ public class Tesseract {
     else
       return new File(path, command).getAbsolutePath();
   }
+
+  /**
+   * Name of the tesseract executable file.
+   */
+  public final String executable = "tesseract";
+
+  public void makeBoxFile(String lang, String font, int num) {
+    
+  }
 }
