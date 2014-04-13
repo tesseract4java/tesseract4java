@@ -1,8 +1,7 @@
 apply plugin: 'java'
-apply plugin: 'scala'
 apply plugin: 'eclipse'
 
-group = 'de.uniwue.ub'
+group = 'de.vorb'
 
 version = '0.0.1'
 sourceCompatibility = 1.7
@@ -28,9 +27,9 @@ repositories {
 
 // include all JAR files in lib
 dependencies {
-  compile fileTree(dir: 'lib', includes: ['*.jar'])
+  compile 'de.vorb:jtesseract:0.0.+'
 
-  compile 'com.typesafe.akka:akka-actor_2.10:2.2.+'
+  compile fileTree(dir: 'lib', includes: ['*.jar'])
 
   testCompile 'junit:junit:4.+'
 }
