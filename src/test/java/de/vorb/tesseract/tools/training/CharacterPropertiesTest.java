@@ -1,8 +1,10 @@
-package de.uniwue.ub.tesseract.training;
+package de.vorb.tesseract.tools.training;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import de.vorb.tesseract.tools.training.CharacterProperties;
 
 public class CharacterPropertiesTest {
   final CharacterProperties semicolon = new CharacterProperties(false, false,
