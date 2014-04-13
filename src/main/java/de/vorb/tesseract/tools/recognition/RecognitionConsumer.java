@@ -1,6 +1,8 @@
 package de.vorb.tesseract.tools.recognition;
 
 public interface RecognitionConsumer {
+  public void setState(RecognitionState state);
+
   public RecognitionState getState();
 
   public void pageBegin();
@@ -23,7 +25,5 @@ public interface RecognitionConsumer {
 
   public void wordEnd();
 
-  public void symbolBegin();
-
-  public void symbolEnd();
+  public void symbol();
 }
