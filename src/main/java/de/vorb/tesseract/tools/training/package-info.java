@@ -3,5 +3,5 @@
  * 
  * @author Paul Vorbach
  */
-package de.uniwue.ub.tesseract.training;
+package de.vorb.tesseract.tools.training;
 

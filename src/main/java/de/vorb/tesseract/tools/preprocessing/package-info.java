@@ -3,4 +3,4 @@
  * 
  * @author Paul Vorbach
  */
-package de.uniwue.ub.tesseract.preprocessing;
+package de.vorb.tesseract.tools.preprocessing;

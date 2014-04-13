@@ -1,4 +1,4 @@
-package de.uniwue.ub.util;
+package de.vorb.util;
 
 /**
  * Distance metrics for strings.

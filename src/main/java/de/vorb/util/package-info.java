@@ -3,5 +3,5 @@
  * 
  * @author Paul Vorbach
  */
-package de.uniwue.ub.util;
+package de.vorb.util;
 

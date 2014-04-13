@@ -1,4 +1,4 @@
-package de.uniwue.ub.tesseract.training;
+package de.vorb.tesseract.tools.training;
 
 import java.io.BufferedWriter;
 import java.io.File;

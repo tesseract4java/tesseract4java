@@ -1,4 +1,4 @@
-package de.uniwue.ub.tesseract.training;
+package de.vorb.tesseract.tools.training;
 
 public class ShapeClustering {
   private static ShapeClustering instance = null;

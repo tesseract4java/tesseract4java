@@ -1,4 +1,4 @@
-package de.uniwue.ub.util;
+package de.vorb.util;
 
 import java.io.File;
 import java.io.IOException;

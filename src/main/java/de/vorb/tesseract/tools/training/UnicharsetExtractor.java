@@ -1,4 +1,4 @@
-package de.uniwue.ub.tesseract.training;
+package de.vorb.tesseract.tools.training;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,8 +6,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import de.uniwue.ub.tesseract.Tesseract;
 
 /**
  * Class for creating unicode character set (unicharset) files.
@@ -52,7 +50,7 @@ public class UnicharsetExtractor {
     final File first = it.next();
 
     final List<String> command = new LinkedList<String>();
-    command.add(Tesseract.getInstance().getPathForCommand(executable));
+    // FIXME command.add(Tesseract.getInstance().getPathForCommand(executable));
     command.add(first.getPath());
     while (it.hasNext())
       command.add(it.next().getPath());

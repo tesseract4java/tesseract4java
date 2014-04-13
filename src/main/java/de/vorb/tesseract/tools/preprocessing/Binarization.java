@@ -1,4 +1,4 @@
-package de.uniwue.ub.tesseract.preprocessing;
+package de.vorb.tesseract.tools.preprocessing;
 
 import ij.ImagePlus;
 import ij.gui.NewImage;
