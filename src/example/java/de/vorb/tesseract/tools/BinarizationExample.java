@@ -1,4 +1,4 @@
-package de.uniwue.ub;
+package de.vorb.tesseract.tools;
 
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
@@ -10,7 +10,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import de.uniwue.ub.tesseract.preprocessing.Binarization;
+import de.vorb.tesseract.tools.preprocessing.Binarization;
 
 public class BinarizationExample {
   public static void main(String[] args) throws IOException {

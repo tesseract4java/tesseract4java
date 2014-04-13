@@ -1,4 +1,4 @@
-package de.uniwue.ub;
+package de.vorb.tesseract.tools;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
-import de.uniwue.ub.tesseract.preprocessing.Batch;
-import de.uniwue.ub.tesseract.preprocessing.Binarization;
+import de.vorb.tesseract.tools.preprocessing.Batch;
+import de.vorb.tesseract.tools.preprocessing.Binarization;
 
 public class BatchExample {
   public static void main(String[] args) throws InterruptedException,
