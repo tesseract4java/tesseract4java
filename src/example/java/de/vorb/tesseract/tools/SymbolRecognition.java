@@ -57,12 +57,20 @@ public class SymbolRecognition extends Recognition {
   public static void main(String[] args) throws IOException {
     BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
 
+    final TessPageIteratorLevel level = TessPageIteratorLevel.RIL_SYMBOL;
+
     new SymbolRecognition().recognize(new DefaultRecognitionConsumer() {
       @Override
+      public void wordBegin() {
+        System.out.println(getState().getBaseline(
+            TessPageIteratorLevel.RIL_WORD));
+      }
+
+      @Override
       public void symbol() {
-        System.out.println(getState().getText(TessPageIteratorLevel.RIL_SYMBOL)
-            + ": "
-            + getState().getBoundingBox(TessPageIteratorLevel.RIL_SYMBOL));
+        System.out.println(getState().getText(level) + ": "
+            + getState().getBoundingBox(level)
+            + ", conf: " + getState().getConfidence(level));
       }
     });
   }
