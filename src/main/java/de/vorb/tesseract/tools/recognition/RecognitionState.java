@@ -1,22 +1,15 @@
 package de.vorb.tesseract.tools.recognition;
 
-import java.awt.Rectangle;
-
 import org.bridj.Pointer;
 
 import de.vorb.tesseract.bridj.Tesseract;
+import de.vorb.tesseract.bridj.Tesseract.TessPageIteratorLevel;
 import de.vorb.tesseract.tools.util.Box;
 
 public class RecognitionState {
   private final Pointer<Tesseract.TessBaseAPI> apiHandle;
   private final Pointer<Tesseract.TessResultIterator> resultIt;
   private final Pointer<Tesseract.TessPageIterator> pageIt;
-
-  // pointers to the bounding box coordinates
-  private final Pointer<Integer> left = Pointer.allocateInt();
-  private final Pointer<Integer> top = Pointer.allocateInt();
-  private final Pointer<Integer> right = Pointer.allocateInt();
-  private final Pointer<Integer> bottom = Pointer.allocateInt();
 
   public RecognitionState(Pointer<Tesseract.TessBaseAPI> apiHandle,
       Pointer<Tesseract.TessResultIterator> resultIt,
@@ -33,7 +26,13 @@ public class RecognitionState {
    *          level of the requested box
    * @return requested box
    */
-  public Box getBoundingBox(Tesseract.TessPageIteratorLevel level) {
+  public Box getBoundingBox(TessPageIteratorLevel level) {
+    // pointers to the bounding box coordinates
+    final Pointer<Integer> left = Pointer.allocateInt();
+    final Pointer<Integer> top = Pointer.allocateInt();
+    final Pointer<Integer> right = Pointer.allocateInt();
+    final Pointer<Integer> bottom = Pointer.allocateInt();
+
     // get bounding box
     Tesseract.TessPageIteratorBoundingBox(pageIt, level, left, top, right,
         bottom);
@@ -45,4 +44,18 @@ public class RecognitionState {
 
     return new Box(x, y, width, height);
   }
+
+  /**
+   * Get the text content at the given iterator level.
+   * 
+   * @param level
+   *          level of the requested text
+   * @return requested text
+   */
+  public String getText(TessPageIteratorLevel level) {
+    return Tesseract.TessResultIteratorGetUTF8Text(resultIt,
+        level).getCString();
+  }
+
+  // TODO implement more getters
 }
