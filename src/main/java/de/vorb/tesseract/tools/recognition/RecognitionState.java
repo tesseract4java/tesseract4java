@@ -4,8 +4,8 @@ import org.bridj.Pointer;
 
 import de.vorb.tesseract.bridj.Tesseract;
 import de.vorb.tesseract.bridj.Tesseract.TessPageIteratorLevel;
-import de.vorb.tesseract.tools.util.Baseline;
-import de.vorb.tesseract.tools.util.Box;
+import de.vorb.tesseract.util.Baseline;
+import de.vorb.tesseract.util.Box;
 
 public class RecognitionState {
   private final Pointer<Tesseract.TessBaseAPI> apiHandle;
