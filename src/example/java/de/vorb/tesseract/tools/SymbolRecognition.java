@@ -63,7 +63,8 @@ public class SymbolRecognition extends Recognition {
       @Override
       public void wordBegin() {
         System.out.println(getState().getBaseline(
-            TessPageIteratorLevel.RIL_WORD));
+            TessPageIteratorLevel.RIL_WORD) + ", attrs: "
+            + getState().getWordFontAttributes());
       }
 
       @Override
