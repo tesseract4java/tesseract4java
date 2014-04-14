@@ -3,4 +3,4 @@
  * 
  * @author Paul Vorbach
  */
-package de.vorb.tesseract.tools.util;
+package de.vorb.tesseract.util;

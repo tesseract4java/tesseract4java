@@ -1,4 +1,4 @@
-package de.vorb.tesseract.tools.util;
+package de.vorb.tesseract.util;
 
 import java.awt.Rectangle;
 

@@ -1,4 +1,4 @@
-package de.vorb.tesseract.tools.util;
+package de.vorb.tesseract.util;
 
 public class XLine extends Baseline {
   public XLine(int yOffset, float slope) {

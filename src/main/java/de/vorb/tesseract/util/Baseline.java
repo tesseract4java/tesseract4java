@@ -1,4 +1,4 @@
-package de.vorb.tesseract.tools.util;
+package de.vorb.tesseract.util;
 
 public class Baseline extends Straight {
   public Baseline(int yOffset, float slope) {

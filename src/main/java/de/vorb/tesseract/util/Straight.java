@@ -1,4 +1,4 @@
-package de.vorb.tesseract.tools.util;
+package de.vorb.tesseract.util;
 
 public abstract class Straight {
   private final float m;
