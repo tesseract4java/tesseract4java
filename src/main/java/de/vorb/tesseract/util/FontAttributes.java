@@ -170,4 +170,19 @@ public class FontAttributes {
   public int getFontID() {
     return fontID;
   }
+
+  /**
+   * @return String representation of the font attributes.
+   */
+  @Override
+  public String toString() {
+    return "FontAttributes(" + size + "pt, " + opt(isBold, "bold, ")
+        + opt(isItalic, "italic, ") + opt(isUnderlined, "underlined, ")
+        + opt(isMonospace, "monospace, ") + opt(isSerif, "serif, ")
+        + opt(isSmallcaps, "smallcaps, ") + "ID = " + fontID + ")";
+  }
+
+  private static String opt(boolean cond, String str) {
+    return cond ? str : "";
+  }
 }
