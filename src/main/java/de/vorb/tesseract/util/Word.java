@@ -8,15 +8,13 @@ public class Word implements Serializable {
 
   private boolean isCorrect = true;
   private final List<Symbol> symbols;
-  private final int line;
   private final Box bbox;
-  private final int conf;
+  private final float conf;
 
   private boolean selected = false;
 
-  public Word(List<Symbol> symbols, int line, Box bbox, int conf) {
+  public Word(List<Symbol> symbols, Box bbox, float conf) {
     this.symbols = symbols;
-    this.line = line;
     this.bbox = bbox;
     this.conf = conf;
   }
@@ -29,12 +27,8 @@ public class Word implements Serializable {
     return bbox;
   }
 
-  public int getConfidence() {
+  public float getConfidence() {
     return conf;
-  }
-
-  public int getLine() {
-    return line;
   }
 
   public boolean isCorrect() {
