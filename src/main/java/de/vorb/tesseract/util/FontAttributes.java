@@ -171,8 +171,10 @@ public class FontAttributes {
     return fontID;
   }
 
-  /**
-   * @return String representation of the font attributes.
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
    */
   @Override
   public String toString() {
@@ -182,6 +184,15 @@ public class FontAttributes {
         + opt(isSmallcaps, "smallcaps, ") + "ID = " + fontID + ")";
   }
 
+  /**
+   * Optionally return given String.
+   * 
+   * @param cond
+   *          condition
+   * @param str
+   *          String
+   * @return str if condition holds, empty String otherwise.
+   */
   private static String opt(boolean cond, String str) {
     return cond ? str : "";
   }

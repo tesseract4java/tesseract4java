@@ -17,6 +17,9 @@ public abstract class Straight {
     return m;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
   @Override
   public String toString() {
     return "f(x) = " + m + " * x + " + c;

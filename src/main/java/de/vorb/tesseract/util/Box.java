@@ -37,6 +37,11 @@ public class Box {
     return !(px < x || px > x + width || py < y || py > y + height);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
+   */
   @Override
   public String toString() {
     return "Box(x = " + x + ", y = " + y + ", width = " + width + ", height = "

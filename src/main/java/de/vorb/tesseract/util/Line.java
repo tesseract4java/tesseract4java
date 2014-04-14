@@ -6,13 +6,12 @@ import java.util.List;
 public class Line {
   private final Box bbox;
   private final List<Word> words;
-  private final int baseline, xheight;
+  private final Baseline baseline;
 
-  public Line(Box bbox, List<Word> words, int baseline, int xheight) {
+  public Line(Box bbox, List<Word> words, Baseline baseline) {
     this.bbox = bbox;
     this.words = words;
     this.baseline = baseline;
-    this.xheight = xheight;
   }
 
   public List<Word> getWords() {
@@ -23,17 +22,16 @@ public class Line {
     return bbox;
   }
 
-  public int getBaseline() {
+  public Baseline getBaseline() {
     return baseline;
   }
 
-  public int getXHeight() {
-    return xheight;
-  }
-
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
   @Override
   public String toString() {
     return "Line(bbox = " + bbox + ", words = [...], baseline = " + baseline
-        + ", xheight = " + xheight + ")";
+        + ")";
   }
 }
