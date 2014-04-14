@@ -1,24 +1,28 @@
 package de.vorb.tesseract.util;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Word implements Serializable {
   private static final long serialVersionUID = 1L;
 
   private boolean isCorrect = true;
-  private final String word;
+  private final List<Symbol> symbols;
   private final int line;
   private final Box bbox;
   private final int conf;
-  private String correction = null;
 
   private boolean selected = false;
 
-  public Word(String word, int line, Box bbox, int conf) {
-    this.word = word;
+  public Word(List<Symbol> symbols, int line, Box bbox, int conf) {
+    this.symbols = symbols;
     this.line = line;
     this.bbox = bbox;
     this.conf = conf;
+  }
+
+  public List<Symbol> getSymbols() {
+    return symbols;
   }
 
   public Box getBoundingBox() {
@@ -29,19 +33,8 @@ public class Word implements Serializable {
     return conf;
   }
 
-  public String getCorrection() {
-    if (correction == null)
-      return word;
-    else
-      return correction;
-  }
-
   public int getLine() {
     return line;
-  }
-
-  public String getWord() {
-    return word;
   }
 
   public boolean isCorrect() {
@@ -50,10 +43,6 @@ public class Word implements Serializable {
 
   public void setCorrect(boolean correct) {
     this.isCorrect = correct;
-  }
-
-  public void setCorrection(String correction) {
-    this.correction = correction;
   }
 
   public boolean isSelected() {
