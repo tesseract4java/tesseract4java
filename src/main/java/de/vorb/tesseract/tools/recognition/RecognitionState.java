@@ -6,8 +6,10 @@ import de.vorb.tesseract.bridj.Tesseract;
 import de.vorb.tesseract.bridj.Tesseract.TessPageIteratorLevel;
 import de.vorb.tesseract.util.Baseline;
 import de.vorb.tesseract.util.Box;
+import de.vorb.tesseract.util.FontAttributes;
 
 public class RecognitionState {
+  @SuppressWarnings("unused")
   private final Pointer<Tesseract.TessBaseAPI> apiHandle;
   private final Pointer<Tesseract.TessResultIterator> resultIt;
   private final Pointer<Tesseract.TessPageIterator> pageIt;
@@ -93,6 +95,30 @@ public class RecognitionState {
    */
   public float getConfidence(TessPageIteratorLevel level) {
     return Tesseract.TessResultIteratorConfidence(resultIt, level);
+  }
+
+  /**
+   * @return font attributes for the current word.
+   */
+  public FontAttributes getWordFontAttributes() {
+    final Pointer<Integer> isBold = Pointer.allocateInt();
+    final Pointer<Integer> isItalic = Pointer.allocateInt();
+    final Pointer<Integer> isUnderlined = Pointer.allocateInt();
+    final Pointer<Integer> isMonospace = Pointer.allocateInt();
+    final Pointer<Integer> isSerif = Pointer.allocateInt();
+    final Pointer<Integer> isSmallcaps = Pointer.allocateInt();
+    final Pointer<Integer> fontSize = Pointer.allocateInt();
+    final Pointer<Integer> fontID = Pointer.allocateInt();
+
+    Tesseract.TessResultIteratorWordFontAttributes(resultIt, isBold,
+        isItalic, isUnderlined, isMonospace, isSerif, isSmallcaps,
+        fontSize, fontID);
+
+    return new FontAttributes.Builder().bold(isBold.getInt() > 0).italic(
+        isItalic.getInt() > 0).underlined(isUnderlined.getInt() > 0).monospace(
+        isMonospace.getInt() > 0).serif(isSerif.getInt() > 0).smallcaps(
+        isSmallcaps.getInt() > 0).size(fontSize.getInt()).fontID(
+        fontID.getInt()).build();
   }
 
   // TODO more getters
