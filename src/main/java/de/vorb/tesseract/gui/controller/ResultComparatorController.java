@@ -16,7 +16,6 @@ import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.bridj.BridJ;
 
@@ -66,14 +65,14 @@ public class ResultComparatorController implements ProjectChangeListener,
     } catch (Exception e) {
     }
 
-    try {
-      pageLoader = new PageLoader();
-    } catch (IOException e) {
-      // won't happen, since PageLoader.init() doesn't do I/O
-    }
-
     view = new ResultComparator();
     view.getLoadProjectDialog().addProjectChangeListener(this);
+
+    try {
+      pageLoader = new PageLoader();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
     view.setVisible(true);
   }
@@ -113,8 +112,8 @@ public class ResultComparatorController implements ProjectChangeListener,
           return loadPageModel(page);
         } catch (IOException e) {
           e.printStackTrace();
+          return null;
         }
-        return null;
       }
 
       @Override
@@ -135,6 +134,7 @@ public class ResultComparatorController implements ProjectChangeListener,
     final Vector<Line> lines = new Vector<Line>();
 
     final BufferedImage originalImg = ImageIO.read(scanFile.toFile());
+
     pageLoader.setImage(originalImg);
 
     final BufferedImage thresholdedImg;
@@ -180,8 +180,6 @@ public class ResultComparatorController implements ProjectChangeListener,
         lines.add(new Line(lineBox, lineWords, baseline));
       }
     });
-
-    System.out.println(lines.size());
 
     final Page result = new Page(scanFile, originalImg, thresholdedImg, lines);
 
