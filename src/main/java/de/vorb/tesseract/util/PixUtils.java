@@ -109,8 +109,11 @@ public class PixUtils {
 
     final DataBufferByte dataBuf =
         (DataBufferByte) bufferedImage.getData().getDataBuffer();
-    final Pointer<Integer> data = Pointer.pointerToInts(ByteBuffer.wrap(
-        dataBuf.getData()).asIntBuffer());
+    final ByteBuffer dataBufBytes = ByteBuffer.wrap(dataBuf.getData());
+
+    // cast this bytebuffer to an int buffer
+    final Pointer<Integer> data = Pointer.pointerToBytes(dataBufBytes).as(
+        Integer.TYPE);
 
     pix.data(data);
 
