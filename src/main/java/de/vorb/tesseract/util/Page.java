@@ -1,11 +1,12 @@
 package de.vorb.tesseract.util;
 
 import java.awt.image.BufferedImage;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
 public class Page {
-  private final String name;
+  private final Path file;
   private final BufferedImage originalImg;
   private final BufferedImage thresholdedImg;
   private final List<Line> lines;
@@ -13,16 +14,16 @@ public class Page {
   private int lineIndex = -1;
   private int wordIndex = -1;
 
-  public Page(String name, BufferedImage originalScan,
+  public Page(Path file, BufferedImage originalScan,
       BufferedImage thresholdedImg, List<Line> lines) {
-    this.name = name;
+    this.file = file;
     this.originalImg = originalScan;
     this.thresholdedImg = thresholdedImg;
     this.lines = lines;
   }
 
-  public String getName() {
-    return name;
+  public Path getFile() {
+    return file;
   }
 
   public BufferedImage getOriginalImage() {
