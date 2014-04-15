@@ -14,14 +14,6 @@ public abstract class DefaultRecognitionConsumer implements RecognitionConsumer 
   }
 
   @Override
-  public void pageBegin() {
-  }
-
-  @Override
-  public void pageEnd() {
-  }
-
-  @Override
   public void blockBegin() {
   }
 

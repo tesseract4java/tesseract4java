@@ -18,16 +18,6 @@ public interface RecognitionConsumer {
   public RecognitionState getState();
 
   /**
-   * Beginning of a page.
-   */
-  public void pageBegin();
-
-  /**
-   * End of a page.
-   */
-  public void pageEnd();
-
-  /**
    * Beginning of a block.
    */
   public void blockBegin();

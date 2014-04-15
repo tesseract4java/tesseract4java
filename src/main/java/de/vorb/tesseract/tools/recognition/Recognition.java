@@ -11,16 +11,16 @@ import de.vorb.tesseract.bridj.Tesseract.TessPageIteratorLevel;
 import de.vorb.tesseract.bridj.Tesseract.TessResultIterator;
 
 public abstract class Recognition {
-  private final Pointer<TessBaseAPI> apiHandle;
+  private final Pointer<TessBaseAPI> handle;
   private boolean closed = false;
 
   public Recognition() throws IOException {
-    apiHandle = Tesseract.TessBaseAPICreate();
+    handle = Tesseract.TessBaseAPICreate();
     init();
   }
 
   public Pointer<TessBaseAPI> getHandle() {
-    return this.apiHandle;
+    return this.handle;
   }
 
   protected abstract void init() throws IOException;
@@ -47,10 +47,11 @@ public abstract class Recognition {
         Tesseract.TessPageIteratorLevel.RIL_SYMBOL;
 
     // set the recognition state
-    consumer.setState(new RecognitionState(apiHandle, resultIt, pageIt));
+    consumer.setState(new RecognitionState(handle, resultIt, pageIt));
+
+    boolean inWord = false;
 
     do {
-
       // beginning of a symbol
       if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
           level) > 0) {
@@ -80,9 +81,15 @@ public abstract class Recognition {
           }
 
           consumer.wordBegin();
+
+          inWord = true;
         }
 
         consumer.symbol();
+      }
+
+      if (!inWord) {
+        continue;
       }
 
       // last symbol in word
@@ -91,6 +98,8 @@ public abstract class Recognition {
           TessPageIteratorLevel.RIL_SYMBOL) > 0) {
 
         consumer.wordEnd();
+
+        inWord = false;
 
         // last word in line
         if (Tesseract.TessPageIteratorIsAtFinalElement(pageIt,
@@ -118,8 +127,6 @@ public abstract class Recognition {
         }
       }
     } while (Tesseract.TessPageIteratorNext(pageIt, level) > 0); // next symbol
-
-    Tesseract.TessBaseAPIClear(apiHandle);
   }
 
   public void reset() throws IOException {
@@ -127,13 +134,11 @@ public abstract class Recognition {
       throw new IllegalStateException("Recognition has been closed.");
     }
 
-    Tesseract.TessBaseAPIClear(apiHandle);
-
     init();
   }
 
   public void close() {
-    Tesseract.TessBaseAPIDelete(apiHandle);
+    Tesseract.TessBaseAPIDelete(handle);
     closed = true;
   }
 }
