@@ -1,43 +1,62 @@
 package de.vorb.tesseract.gui.controller;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
+import org.bridj.BridJ;
 
+import de.vorb.tesseract.bridj.Tesseract.TessPageIteratorLevel;
 import de.vorb.tesseract.gui.event.PageChangeListener;
 import de.vorb.tesseract.gui.event.ProjectChangeListener;
-import de.vorb.tesseract.gui.util.Box;
-import de.vorb.tesseract.gui.util.Histogram;
-import de.vorb.tesseract.gui.util.Line;
-import de.vorb.tesseract.gui.util.Page;
-import de.vorb.tesseract.gui.util.Project;
-import de.vorb.tesseract.gui.util.Word;
 import de.vorb.tesseract.gui.view.ResultComparator;
+import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
+import de.vorb.tesseract.util.Baseline;
+import de.vorb.tesseract.util.Box;
+import de.vorb.tesseract.util.FontAttributes;
+import de.vorb.tesseract.util.Line;
+import de.vorb.tesseract.util.Page;
+import de.vorb.tesseract.util.Project;
+import de.vorb.tesseract.util.Symbol;
+import de.vorb.tesseract.util.Word;
 
 public class ResultComparatorController implements ProjectChangeListener,
     PageChangeListener {
 
   private final ResultComparator view;
-  private SwingWorker<Page, Void> pageLoader = null;
+  private SwingWorker<Page, Void> pageLoaderWorker = null;
+  private PageLoader pageLoader = null;
+
+  // Filter for image files
+  private static final DirectoryStream.Filter<Path> IMG_FILTER =
+      new DirectoryStream.Filter<Path>() {
+        @Override
+        public boolean accept(Path entry) throws IOException {
+          return entry.toString().endsWith(".png")
+              || entry.toString().endsWith(".tif")
+              || entry.toString().endsWith(".tiff")
+              || entry.toString().endsWith(".jpg")
+              || entry.toString().endsWith(".jpeg");
+        }
+      };
 
   public static void main(String[] args) {
+    BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
+
     new ResultComparatorController();
   }
 
@@ -47,6 +66,12 @@ public class ResultComparatorController implements ProjectChangeListener,
     } catch (Exception e) {
     }
 
+    try {
+      pageLoader = new PageLoader();
+    } catch (IOException e) {
+      // won't happen, since PageLoader.init() doesn't do I/O
+    }
+
     view = new ResultComparator();
     view.getLoadProjectDialog().addProjectChangeListener(this);
 
@@ -54,23 +79,23 @@ public class ResultComparatorController implements ProjectChangeListener,
   }
 
   @Override
-  public void projectChanged(Path scanDir, Path hocrDir) {
+  public void projectChanged(Path scanDir) {
     try {
-      final ArrayList<String> pages = new ArrayList<String>();
+      final ArrayList<Path> pages = new ArrayList<>();
 
-      final Iterator<Path> dir = Files.newDirectoryStream(scanDir).iterator();
-      while (dir.hasNext()) {
-        final Path file = dir.next();
+      final Iterator<Path> dirIt = Files.newDirectoryStream(scanDir,
+          IMG_FILTER).iterator();
+
+      while (dirIt.hasNext()) {
+        final Path file = dirIt.next();
 
         if (Files.isDirectory(file))
           continue;
 
-        final String fname = file.getFileName().toString();
-
-        pages.add(fname.substring(0, fname.lastIndexOf('.')));
+        pages.add(file);
       }
 
-      final Project project = new Project(scanDir, hocrDir, pages);
+      final Project project = new Project(scanDir, pages);
       project.addPageChangeListener(this);
 
       view.getPageSelectionPane().setModel(project);
@@ -80,18 +105,12 @@ public class ResultComparatorController implements ProjectChangeListener,
   }
 
   @Override
-  public void pageChanged(int pageIndex, String page) {
-    final Project project = view.getPageSelectionPane().getModel();
-    final Path scanDir = project.getScanDir();
-    final Path hocrDir = project.getHocrDir();
-
-    final Path scanFile = scanDir.resolve(page + ".png");
-    final Path hocrFile = hocrDir.resolve(page + ".html");
-    pageLoader = new SwingWorker<Page, Void>() {
+  public void pageChanged(int pageIndex, final Path page) {
+    pageLoaderWorker = new SwingWorker<Page, Void>() {
       @Override
       protected Page doInBackground() {
         try {
-          return loadPageModel(scanFile, hocrFile);
+          return loadPageModel(page);
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -109,115 +128,63 @@ public class ResultComparatorController implements ProjectChangeListener,
       }
     };
 
-    pageLoader.execute();
+    pageLoaderWorker.execute();
   }
 
-  private final SAXParserFactory parserFactory = SAXParserFactory.newInstance();
-
-  private Page loadPageModel(Path scanFile, Path hocrFile) throws IOException {
+  private Page loadPageModel(Path scanFile) throws IOException {
     final String fname = scanFile.getFileName().toString();
-    final String name = fname.substring(fname.lastIndexOf('.'));
 
-    final BufferedImage scan = ImageIO.read(scanFile.toFile());
     final Vector<Line> lines = new Vector<Line>();
 
-    final Page result = new Page(name, scan, lines);
+    final BufferedImage originalImg = ImageIO.read(scanFile.toFile());
+    pageLoader.setImage(originalImg);
 
-    final boolean ascendersEnabled = result.isAscendersEnabled();
-    final int[] histogram;
-    if (ascendersEnabled) {
-      histogram = Histogram.calculateVerticalHistogram(scan);
+    final BufferedImage thresholdedImg;
+    if (originalImg.getType() == BufferedImage.TYPE_BYTE_BINARY) {
+      thresholdedImg = originalImg;
     } else {
-      histogram = new int[0];
+      thresholdedImg = pageLoader.getThresholdedImage();
     }
 
-    try {
-      final SAXParser parser = parserFactory.newSAXParser();
-      parser.parse(hocrFile.toFile(), new DefaultHandler() {
-        private boolean isLine = false;
-        private boolean isWord = false;
-        private List<Word> line = new Vector<Word>();
-        private Box lineBBox = null;
-        private int lineNumber = 0;
-        private int x1 = -1;
-        private int y1 = -1;
-        private int x2 = -1;
-        private int y2 = -1;
-        private int conf = 0;
-        private String text = "";
+    pageLoader.recognize(new DefaultRecognitionConsumer() {
+      LinkedList<Word> lineWords = null;
+      LinkedList<Symbol> wordSymbols = null;
 
-        @Override
-        public void startElement(String namespaceURI, String localName,
-            String qualName, Attributes attrs) throws SAXException {
-          if ("ocr_line".equals(attrs.getValue("class"))) {
-            isLine = true;
+      @Override
+      public void lineBegin() {
+        lineWords = new LinkedList<>();
+      }
 
-            final String title = attrs.getValue("title");
-            final String[] tokens = title.split("[a-z ]+");
+      @Override
+      public void wordBegin() {
+        wordSymbols = new LinkedList<>();
+      }
 
-            int x1 = Integer.parseInt(tokens[1]);
-            int y1 = Integer.parseInt(tokens[2]);
-            int x2 = Integer.parseInt(tokens[3]);
-            int y2 = Integer.parseInt(tokens[4]);
+      @Override
+      public void wordEnd() {
+        final Box bbox = getState().getBoundingBox(
+            TessPageIteratorLevel.RIL_WORD);
+        final FontAttributes fontAttrs = getState().getWordFontAttributes();
+        final float confidence = getState().getConfidence(
+            TessPageIteratorLevel.RIL_WORD);
 
-            lineBBox = new Box(x1, y1, x2 - x1, y2 - y1);
-          } else if (!"ocrx_word".equals(attrs.getValue("class"))) {
-            isWord = false;
-          } else {
-            final String title = attrs.getValue("title");
-            final String[] tokens = title.split("[a-z_; ]+");
+        lineWords.add(new Word(Collections.unmodifiableList(wordSymbols), bbox,
+            confidence, fontAttrs));
+      }
 
-            x1 = Integer.parseInt(tokens[1]);
-            y1 = Integer.parseInt(tokens[2]);
-            x2 = Integer.parseInt(tokens[3]);
-            y2 = Integer.parseInt(tokens[4]);
+      @Override
+      public void lineEnd() {
+        final Box lineBox = getState().getBoundingBox(
+            TessPageIteratorLevel.RIL_TEXTLINE);
+        final Baseline baseline = getState().getBaseline(
+            TessPageIteratorLevel.RIL_TEXTLINE);
 
-            conf = Integer.parseInt(tokens[5]);
+        lines.add(new Line(lineBox, lineWords, baseline));
+      }
+    });
 
-            isWord = true;
-          }
-        }
+    final Page result = new Page(fname, originalImg, thresholdedImg, lines);
 
-        @Override
-        public void characters(char[] chars, int start, int length) {
-          if (isWord) {
-            text = new String(chars, start, length);
-          }
-        }
-
-        @Override
-        public void endElement(String uri, String localName, String qName) {
-          if (!isWord) {
-            if (isLine) {
-              final int baseline, xheight;
-              if (ascendersEnabled) {
-                int[] ascenders = Histogram.ascenders(histogram, lineBBox);
-                baseline = ascenders[0];
-                xheight = ascenders[1];
-              } else {
-                baseline = lineBBox.getY() + lineBBox.getHeight();
-                xheight = lineBBox.getHeight();
-              }
-
-              lines.add(new Line(lineBBox, line, baseline, xheight));
-              line = new Vector<Word>();
-
-              lineNumber++;
-            }
-
-            isLine = false;
-          } else {
-            final Box bbox = new Box(x1, y1, x2 - x1, y2 - y1);
-            line.add(new Word(text, lineNumber, bbox, conf));
-
-            isWord = false;
-          }
-        }
-      });
-    } catch (ParserConfigurationException | SAXException e) {
-    } catch (IOException e) {
-    }
-
-    return new Page(name, scan, lines);
+    return result;
   }
 }
