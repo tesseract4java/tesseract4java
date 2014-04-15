@@ -4,14 +4,19 @@ import java.awt.Point;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
+import java.nio.ByteBuffer;
 import java.util.Hashtable;
+
+import org.bridj.Pointer;
 
 import de.vorb.tesseract.bridj.Tesseract.Pix;
 
@@ -69,5 +74,46 @@ public class PixUtils {
 
     // create and return the buffered image
     return new BufferedImage(cm, raster, false, new Hashtable<>());
+  }
+
+  public static Pix bufferedImageToPix(BufferedImage bufferedImage) {
+    final Pix pix = new Pix();
+
+    pix.w(bufferedImage.getWidth());
+    pix.h(bufferedImage.getHeight());
+
+    switch (bufferedImage.getType()) {
+    case BufferedImage.TYPE_BYTE_BINARY:
+      pix.d(1);
+      pix.spp(1);
+      break;
+    case BufferedImage.TYPE_BYTE_GRAY:
+      pix.d(8);
+      pix.spp(1);
+      break;
+    default:
+      // if the given image is neither binary or grayscale, convert it to
+      // grayscale
+      final ColorConvertOp op = new ColorConvertOp(
+          ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+      final BufferedImage gray = new BufferedImage(bufferedImage.getWidth(),
+          bufferedImage.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+      op.filter(bufferedImage, gray);
+
+      // replace input image with grayscale version
+      bufferedImage = gray;
+
+      pix.d(8);
+      pix.spp(1);
+    }
+
+    final DataBufferByte dataBuf =
+        (DataBufferByte) bufferedImage.getData().getDataBuffer();
+    final Pointer<Integer> data = Pointer.pointerToInts(ByteBuffer.wrap(
+        dataBuf.getData()).asIntBuffer());
+
+    pix.data(data);
+
+    return pix;
   }
 }
