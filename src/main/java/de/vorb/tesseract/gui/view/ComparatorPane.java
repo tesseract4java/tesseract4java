@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
 
   private final LinkedList<ZoomChangeListener> zoomChangeListeners = new LinkedList<ZoomChangeListener>();
 
-  private Page model = new Page("", new BufferedImage(1, 1,
+  private Page model = new Page(Paths.get(""), new BufferedImage(1, 1,
       BufferedImage.TYPE_BYTE_BINARY), new BufferedImage(1, 1,
       BufferedImage.TYPE_BYTE_BINARY), new LinkedList<Line>());
 

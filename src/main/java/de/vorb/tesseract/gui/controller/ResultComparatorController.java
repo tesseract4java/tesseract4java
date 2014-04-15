@@ -132,8 +132,6 @@ public class ResultComparatorController implements ProjectChangeListener,
   }
 
   private Page loadPageModel(Path scanFile) throws IOException {
-    final String fname = scanFile.getFileName().toString();
-
     final Vector<Line> lines = new Vector<Line>();
 
     final BufferedImage originalImg = ImageIO.read(scanFile.toFile());
@@ -183,7 +181,9 @@ public class ResultComparatorController implements ProjectChangeListener,
       }
     });
 
-    final Page result = new Page(fname, originalImg, thresholdedImg, lines);
+    System.out.println(lines.size());
+
+    final Page result = new Page(scanFile, originalImg, thresholdedImg, lines);
 
     return result;
   }
