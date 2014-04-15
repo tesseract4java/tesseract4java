@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.model;
 
-import de.vorb.tesseract.gui.util.Box;
+import de.vorb.tesseract.util.Box;
 
 public class BoxModel {
   private final Box box;
