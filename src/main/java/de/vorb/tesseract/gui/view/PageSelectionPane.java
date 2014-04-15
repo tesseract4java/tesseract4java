@@ -3,6 +3,7 @@ package de.vorb.tesseract.gui.view;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 
@@ -17,13 +18,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import de.vorb.tesseract.gui.event.LocaleChangeListener;
-import de.vorb.tesseract.gui.util.Project;
 import de.vorb.tesseract.gui.view.i18n.Labels;
+import de.vorb.tesseract.util.Project;
 
 public class PageSelectionPane extends JPanel implements LocaleChangeListener {
   private static final long serialVersionUID = 1L;
 
-  private final JList<String> listPages;
+  private final JList<Path> listPages;
   private final JButton btnPreviousPage;
   private final JButton btnNextPage;
   private Project model;
@@ -44,7 +45,8 @@ public class PageSelectionPane extends JPanel implements LocaleChangeListener {
     JScrollPane scrollPane = new JScrollPane();
     add(scrollPane, BorderLayout.CENTER);
 
-    listPages = new JList<String>();
+    listPages = new JList<Path>();
+    listPages.setCellRenderer(new PageListCellRenderer());
     listPages.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent ev) {
         final int newIndex = Math.max(listPages.getSelectedIndex(), 0);
@@ -88,7 +90,7 @@ public class PageSelectionPane extends JPanel implements LocaleChangeListener {
     });
     panel_1.add(btnNextPage);
 
-    setModel(new Project(Paths.get(""), Paths.get(""), new LinkedList<String>()));
+    setModel(new Project(Paths.get(""), new LinkedList<Path>()));
 
     localeChanged();
   }
@@ -101,8 +103,8 @@ public class PageSelectionPane extends JPanel implements LocaleChangeListener {
     this.model = model;
 
     // initialize list
-    final DefaultListModel<String> pagesModel = new DefaultListModel<String>();
-    for (String page : model.getPages()) {
+    final DefaultListModel<Path> pagesModel = new DefaultListModel<Path>();
+    for (Path page : model.getPages()) {
       pagesModel.addElement(page);
     }
 

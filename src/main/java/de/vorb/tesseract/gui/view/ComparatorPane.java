@@ -32,11 +32,11 @@ import javax.swing.event.ChangeListener;
 
 import de.vorb.tesseract.gui.event.DefaultMouseListener;
 import de.vorb.tesseract.gui.event.ZoomChangeListener;
-import de.vorb.tesseract.gui.util.Box;
-import de.vorb.tesseract.gui.util.Line;
-import de.vorb.tesseract.gui.util.Page;
-import de.vorb.tesseract.gui.util.Point;
-import de.vorb.tesseract.gui.util.Word;
+import de.vorb.tesseract.util.Box;
+import de.vorb.tesseract.util.Line;
+import de.vorb.tesseract.util.Page;
+import de.vorb.tesseract.util.Point;
+import de.vorb.tesseract.util.Word;
 
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
@@ -60,6 +60,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
   private final LinkedList<ZoomChangeListener> zoomChangeListeners = new LinkedList<ZoomChangeListener>();
 
   private Page model = new Page("", new BufferedImage(1, 1,
+      BufferedImage.TYPE_BYTE_BINARY), new BufferedImage(1, 1,
       BufferedImage.TYPE_BYTE_BINARY), new LinkedList<Line>());
 
   /**
@@ -129,7 +130,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                 word.setCorrect(!word.isCorrect());
               }
 
-              tfSelection.setText(word.getWord());
+              tfSelection.setText(word.getText());
               tfConfidence.setText(String.valueOf(word.getConfidence()));
               cbCorrect.setSelected(word.isCorrect());
 
@@ -327,7 +328,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
       textFontName = "Arial Narrow";
     }
 
-    final BufferedImage original = getModel().getOriginalScan();
+    final BufferedImage original = getModel().getOriginalImage();
 
     final int width = original.getWidth();
     final int height = original.getHeight();
@@ -352,44 +353,48 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
         scanGfx.setFont(lineNumberFont);
         scanGfx.setColor(color);
         scanGfx.drawString(String.valueOf(lineNumber), calcScaled(20, factor),
-            calcScaled(line.getBaseline(), factor));
+            calcScaled(line.getBaseline().getYOffset(), factor));
 
         hocrGfx.setFont(lineNumberFont);
         hocrGfx.setColor(color);
         hocrGfx.drawString(String.valueOf(lineNumber), calcScaled(20, factor),
-            calcScaled(line.getBaseline(), factor));
+            calcScaled(line.getBaseline().getYOffset(), factor));
       }
 
       private void drawBaseline(Line line, Color color) {
         final Box lineBox = line.getBoundingBox();
 
         scanGfx.setColor(color);
-        scanGfx.drawLine(calcScaled(lineBox.getX(), factor),
-            calcScaled(line.getBaseline(), factor),
+        scanGfx.drawLine(
+            calcScaled(lineBox.getX(), factor),
+            calcScaled(line.getBaseline().getYOffset(), factor),
             calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-            calcScaled(line.getBaseline(), factor));
+            calcScaled(line.getBaseline().getYOffset() + lineBox.getWidth()
+                * line.getBaseline().getSlope(), factor));
 
         hocrGfx.setColor(color);
         hocrGfx.drawLine(calcScaled(lineBox.getX(), factor),
-            calcScaled(line.getBaseline(), factor),
+            calcScaled(line.getBaseline().getYOffset(), factor),
             calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-            calcScaled(line.getBaseline(), factor));
+            calcScaled(line.getBaseline().getYOffset() + lineBox.getWidth()
+                * line.getBaseline().getSlope(), factor));
       }
 
       private void drawXLine(Line line, Color color) {
         final Box lineBox = line.getBoundingBox();
-
-        scanGfx.setColor(Color.RED);
-        scanGfx.drawLine(calcScaled(lineBox.getX(), factor),
-            calcScaled(line.getBaseline() - line.getXHeight(), factor),
-            calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-            calcScaled(line.getBaseline() - line.getXHeight(), factor));
-
-        hocrGfx.setColor(Color.RED);
-        hocrGfx.drawLine(calcScaled(lineBox.getX(), factor),
-            calcScaled(line.getBaseline() - line.getXHeight(), factor),
-            calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-            calcScaled(line.getBaseline() - line.getXHeight(), factor));
+        /*
+         * scanGfx.setColor(Color.RED);
+         * scanGfx.drawLine(calcScaled(lineBox.getX(), factor),
+         * calcScaled(line.getBaseline() - line.getXHeight(), factor),
+         * calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
+         * calcScaled(line.getBaseline() - line.getXHeight(), factor));
+         * 
+         * hocrGfx.setColor(Color.RED);
+         * hocrGfx.drawLine(calcScaled(lineBox.getX(), factor),
+         * calcScaled(line.getBaseline() - line.getXHeight(), factor),
+         * calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
+         * calcScaled(line.getBaseline() - line.getXHeight(), factor));
+         */
       }
 
       private void drawWordBox(Line line, Word word) {
@@ -428,8 +433,8 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
         }
 
         hocrGfx.setColor(Color.BLACK);
-        hocrGfx.drawString(word.getWord(), calcScaled(box.getX(), factor),
-            calcScaled(line.getBaseline(), factor));
+        hocrGfx.drawString(word.getText(), calcScaled(box.getX(), factor),
+            calcScaled(line.getBaseline().getYOffset(), factor));
       }
 
       @Override
@@ -472,8 +477,8 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
               RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
           // TODO find good minimum font size
-          hocrGfx.setFont(new Font(textFontName, Font.PLAIN, calcScaled(
-              Math.max(line.getXHeight() * 1.9f, 40), factor)));
+          // hocrGfx.setFont(new Font(textFontName, Font.PLAIN, calcScaled(
+          // Math.max(line.getXHeight() * 1.9f, 40), factor)));
 
           for (Word word : line.getWords()) {
             drawWordBox(line, word);
