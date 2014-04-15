@@ -101,6 +101,7 @@ public class RecognitionState {
    * @return font attributes for the current word.
    */
   public FontAttributes getWordFontAttributes() {
+    // pointers to integers for every attribute
     final Pointer<Integer> isBold = Pointer.allocateInt();
     final Pointer<Integer> isItalic = Pointer.allocateInt();
     final Pointer<Integer> isUnderlined = Pointer.allocateInt();
@@ -110,10 +111,12 @@ public class RecognitionState {
     final Pointer<Integer> fontSize = Pointer.allocateInt();
     final Pointer<Integer> fontID = Pointer.allocateInt();
 
+    // set values
     Tesseract.TessResultIteratorWordFontAttributes(resultIt, isBold,
         isItalic, isUnderlined, isMonospace, isSerif, isSmallcaps,
         fontSize, fontID);
 
+    // build and return FontAttributes
     return new FontAttributes.Builder().bold(isBold.getInt() > 0).italic(
         isItalic.getInt() > 0).underlined(isUnderlined.getInt() > 0).monospace(
         isMonospace.getInt() > 0).serif(isSerif.getInt() > 0).smallcaps(
