@@ -1,14 +1,7 @@
 package de.vorb.tesseract.gui.controller;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import javax.imageio.ImageIO;
 
 import org.bridj.Pointer;
 
@@ -28,8 +21,7 @@ public class PageLoader extends Recognition {
     // init Tesseract with data path, language and OCR engine mode
     Tesseract.TessBaseAPIInit2(
         getHandle(),
-        Pointer.pointerToCString(Paths.get(System.getenv("TESSDATA_PREFIX"),
-            "tessdata").toString()),
+        Pointer.pointerToCString("E:\\Masterarbeit\\Ressourcen\\tessdata"),
         Pointer.pointerToCString("deu-frak"), TessOcrEngineMode.OEM_DEFAULT);
 
     // set page segmentation mode
