@@ -1,4 +1,4 @@
-package de.vorb.tesseract.gui.util;
+package de.vorb.tesseract.util;
 
 public class Polynomial {
   public final int p0;

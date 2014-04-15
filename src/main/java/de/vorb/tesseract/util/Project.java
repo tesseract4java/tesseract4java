@@ -1,4 +1,4 @@
-package de.vorb.tesseract.gui.util;
+package de.vorb.tesseract.util;
 
 import java.io.Serializable;
 import java.nio.file.Path;
@@ -11,29 +11,23 @@ import de.vorb.tesseract.gui.event.PageChangeListener;
 public class Project implements Serializable {
   private static final long serialVersionUID = 1L;
 
-  private final Path hocrDir;
   private final Path scanDir;
-  private final List<String> pages;
+  private final List<Path> pages;
   private int pageIndex = 0;
   private final List<PageChangeListener> pageChangeListeners;
 
-  public Project(Path scanDir, Path hocrDir, List<String> pages) {
+  public Project(Path scanDir, List<Path> pages) {
     this.scanDir = scanDir;
-    this.hocrDir = hocrDir;
     this.pages = pages;
 
     this.pageChangeListeners = new LinkedList<PageChangeListener>();
-  }
-
-  public Path getHocrDir() {
-    return hocrDir;
   }
 
   public Path getScanDir() {
     return scanDir;
   }
 
-  public List<String> getPages() {
+  public List<Path> getPages() {
     return Collections.unmodifiableList(this.pages);
   }
 
@@ -57,13 +51,13 @@ public class Project implements Serializable {
     return Math.max(pages.size() - 1, 0);
   }
 
-  public String getSelectedPage() {
+  public Path getSelectedPage() {
     return pages.get(getSelectedPageIndex());
   }
 
   private void pageChanged() {
     final int index = getSelectedPageIndex();
-    final String page = getSelectedPage();
+    final Path page = getSelectedPage();
 
     for (PageChangeListener listener : pageChangeListeners) {
       listener.pageChanged(index, page);

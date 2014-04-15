@@ -5,4 +5,4 @@
  * @author Paul Vorbach
  *
  */
-package de.vorb.tesseract.gui.util;
+package de.vorb.tesseract.util;

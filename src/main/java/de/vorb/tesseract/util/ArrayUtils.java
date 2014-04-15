@@ -1,4 +1,4 @@
-package de.vorb.tesseract.gui.util;
+package de.vorb.tesseract.util;
 
 public class ArrayUtils {
   public static int minPos(int[] xs) {

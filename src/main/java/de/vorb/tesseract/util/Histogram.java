@@ -1,7 +1,9 @@
-package de.vorb.tesseract.gui.util;
+package de.vorb.tesseract.util;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+
+import de.vorb.tesseract.util.Box;
 
 public class Histogram {
   private static final int[] bits;
