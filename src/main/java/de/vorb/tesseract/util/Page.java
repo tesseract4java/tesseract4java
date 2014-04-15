@@ -6,15 +6,18 @@ import java.util.List;
 
 public class Page {
   private final String name;
-  private final BufferedImage originalScan;
+  private final BufferedImage originalImg;
+  private final BufferedImage thresholdedImg;
   private final List<Line> lines;
 
   private int lineIndex = -1;
   private int wordIndex = -1;
 
-  public Page(String name, BufferedImage originalScan, List<Line> lines) {
+  public Page(String name, BufferedImage originalScan,
+      BufferedImage thresholdedImg, List<Line> lines) {
     this.name = name;
-    this.originalScan = originalScan;
+    this.originalImg = originalScan;
+    this.thresholdedImg = thresholdedImg;
     this.lines = lines;
   }
 
@@ -22,8 +25,12 @@ public class Page {
     return name;
   }
 
-  public BufferedImage getOriginalScan() {
-    return originalScan;
+  public BufferedImage getOriginalImage() {
+    return originalImg;
+  }
+
+  public BufferedImage getThresholdedImage() {
+    return thresholdedImg;
   }
 
   public List<Line> getLines() {
@@ -59,6 +66,6 @@ public class Page {
 
   public boolean isAscendersEnabled() {
     // only enabled for binary images
-    return originalScan.getType() == BufferedImage.TYPE_BYTE_BINARY;
+    return originalImg.getType() == BufferedImage.TYPE_BYTE_BINARY;
   }
 }
