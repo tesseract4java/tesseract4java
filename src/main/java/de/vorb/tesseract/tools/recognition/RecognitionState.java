@@ -124,5 +124,24 @@ public class RecognitionState {
         fontID.getInt()).build();
   }
 
-  // TODO more getters
+  /**
+   * @return true if current symbol is a dropcap
+   */
+  public boolean isSymbolDropcap() {
+    return Tesseract.TessResultIteratorSymbolIsDropcap(resultIt) > 0;
+  }
+
+  /**
+   * @return true if current symbol is subscript
+   */
+  public boolean isSymbolSubscript() {
+    return Tesseract.TessResultIteratorSymbolIsSubscript(resultIt) > 0;
+  }
+
+  /**
+   * @return true if current symbol is superscript
+   */
+  public boolean isSymbolSuperscript() {
+    return Tesseract.TessResultIteratorSymbolIsSuperscript(resultIt) > 0;
+  }
 }
