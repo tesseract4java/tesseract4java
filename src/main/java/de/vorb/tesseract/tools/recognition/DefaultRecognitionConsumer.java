@@ -35,8 +35,6 @@ public abstract class DefaultRecognitionConsumer implements RecognitionConsumer 
 
   @Override
   public void paragraphEnd() {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
@@ -45,8 +43,6 @@ public abstract class DefaultRecognitionConsumer implements RecognitionConsumer 
 
   @Override
   public void lineEnd() {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
