@@ -65,6 +65,7 @@ public class SymbolRecognition extends Recognition {
         System.out.println(getState().getBaseline(
             TessPageIteratorLevel.RIL_WORD) + ", attrs: "
             + getState().getWordFontAttributes());
+        System.out.println();
       }
 
       @Override
@@ -72,6 +73,11 @@ public class SymbolRecognition extends Recognition {
         System.out.println(getState().getText(level) + ": "
             + getState().getBoundingBox(level)
             + ", conf: " + getState().getConfidence(level));
+      }
+
+      @Override
+      public void wordEnd() {
+        System.out.println();
       }
     });
   }
