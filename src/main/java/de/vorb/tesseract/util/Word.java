@@ -10,13 +10,16 @@ public class Word implements Serializable {
   private final List<Symbol> symbols;
   private final Box bbox;
   private final float conf;
+  private final FontAttributes fontAttrs;
 
   private boolean selected = false;
 
-  public Word(List<Symbol> symbols, Box bbox, float conf) {
+  public Word(List<Symbol> symbols, Box bbox, float conf,
+      FontAttributes fontAttrs) {
     this.symbols = symbols;
     this.bbox = bbox;
     this.conf = conf;
+    this.fontAttrs = fontAttrs;
   }
 
   public List<Symbol> getSymbols() {
@@ -45,5 +48,19 @@ public class Word implements Serializable {
 
   public void setSelected(boolean selected) {
     this.selected = selected;
+  }
+
+  public FontAttributes getFontAttributes() {
+    return fontAttrs;
+  }
+
+  public String getText() {
+    final StringBuilder text = new StringBuilder();
+
+    for (final Symbol s : symbols) {
+      text.append(s.getText());
+    }
+
+    return text.toString();
   }
 }
