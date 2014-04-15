@@ -49,44 +49,74 @@ public abstract class Recognition {
     // set the recognition state
     consumer.setState(new RecognitionState(apiHandle, resultIt, pageIt));
 
-    boolean isFirstBlock = true;
-
     do {
-      // beginning of a block
-      if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
-          TessPageIteratorLevel.RIL_BLOCK) > 0) {
-        if (!isFirstBlock) {
-          consumer.blockEnd();
-        } else {
-          isFirstBlock = false;
-        }
-
-        consumer.blockBegin();
-      }
-
-      // beginning of a paragraph
-      if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
-          TessPageIteratorLevel.RIL_PARA) > 0) {
-        consumer.paragraphBegin();
-      }
-
-      // beginning of a text line
-      if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
-          TessPageIteratorLevel.RIL_TEXTLINE) > 0) {
-        consumer.lineBegin();
-      }
-
-      // beginning of a word
-      if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
-          TessPageIteratorLevel.RIL_WORD) > 0) {
-        consumer.wordBegin();
-      }
 
       // beginning of a symbol
-      if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt, level) > 0) {
+      if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
+          level) > 0) {
+
+        // beginning of a word
+        if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
+            TessPageIteratorLevel.RIL_WORD) > 0) {
+
+          // beginning of a text line
+          if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
+              TessPageIteratorLevel.RIL_TEXTLINE) > 0) {
+
+            // beginning of a paragraph
+            if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
+                TessPageIteratorLevel.RIL_PARA) > 0) {
+
+              // beginning of a block
+              if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
+                  TessPageIteratorLevel.RIL_BLOCK) > 0) {
+                consumer.blockBegin();
+              }
+
+              consumer.paragraphBegin();
+            }
+
+            consumer.lineBegin();
+          }
+
+          consumer.wordBegin();
+        }
+
         consumer.symbol();
       }
 
+      // last symbol in word
+      if (Tesseract.TessPageIteratorIsAtFinalElement(pageIt,
+          TessPageIteratorLevel.RIL_WORD,
+          TessPageIteratorLevel.RIL_SYMBOL) > 0) {
+
+        consumer.wordEnd();
+
+        // last word in line
+        if (Tesseract.TessPageIteratorIsAtFinalElement(pageIt,
+            TessPageIteratorLevel.RIL_TEXTLINE,
+            TessPageIteratorLevel.RIL_WORD) > 0) {
+
+          consumer.lineEnd();
+
+          // last line in paragraph
+          if (Tesseract.TessPageIteratorIsAtFinalElement(pageIt,
+              TessPageIteratorLevel.RIL_PARA,
+              TessPageIteratorLevel.RIL_TEXTLINE) > 0) {
+
+            consumer.paragraphEnd();
+
+            // last paragraph in a block
+            if (Tesseract.TessPageIteratorIsAtFinalElement(pageIt,
+                TessPageIteratorLevel.RIL_BLOCK,
+                TessPageIteratorLevel.RIL_PARA) > 0) {
+
+              consumer.blockEnd();
+
+            }
+          }
+        }
+      }
     } while (Tesseract.TessPageIteratorNext(pageIt, level) > 0); // next symbol
 
     Tesseract.TessBaseAPIClear(apiHandle);
