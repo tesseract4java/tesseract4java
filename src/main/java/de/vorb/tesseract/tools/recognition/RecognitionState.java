@@ -125,6 +125,20 @@ public class RecognitionState {
   }
 
   /**
+   * @return true if word exists in dictionary
+   */
+  public boolean isWordFromDictionary() {
+    return Tesseract.TessResultIteratorWordIsFromDictionary(resultIt) > 0;
+  }
+
+  /**
+   * @return true if word is numeric
+   */
+  public boolean isWordNumeric() {
+    return Tesseract.TessResultIteratorWordIsNumeric(resultIt) > 0;
+  }
+
+  /**
    * @return true if current symbol is a dropcap
    */
   public boolean isSymbolDropcap() {
