@@ -9,7 +9,6 @@ import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferInt;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
@@ -44,12 +43,13 @@ public class PixUtils {
     final int height = pix.h();
     final int bitDepth = pix.d();
 
-    int sizeInBits = width * height * bitDepth;
-    // binary image data as an int array
-    final int[] pixData = (int[]) pix.data().getArray(sizeInBits / INT_BITS);
+    int sizeInBytes = width * height * bitDepth / 8;
+    // binary image data as an byte array
+    final byte[] pixData = (byte[]) pix.data().as(Byte.TYPE).getArray(
+        sizeInBytes);
 
-    // create int image data buffer
-    final DataBufferInt dataBuf = new DataBufferInt(pixData, pixData.length);
+    // create byte image data buffer
+    final DataBufferByte dataBuf = new DataBufferByte(pixData, pixData.length);
 
     // ... and a writable raster
     final WritableRaster raster = Raster.createPackedRaster(dataBuf, width,
@@ -59,7 +59,7 @@ public class PixUtils {
     // This is partially taken from java.awt.image.BufferedImage
     final ColorModel cm;
     if (bitDepth == 1) {
-      final byte[] arr = { (byte) 0xFF, (byte) 0x00 };
+      final byte[] arr = { (byte) 0x00, (byte) 0xFF };
 
       cm = new IndexColorModel(1, 2, arr, arr, arr);
     } else if (bitDepth == 8) {
