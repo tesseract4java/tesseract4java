@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-group = 'de.uniwue.ub'
+group = 'de.vorb'
 
 version = '0.0.1'
 sourceCompatibility = 1.7
