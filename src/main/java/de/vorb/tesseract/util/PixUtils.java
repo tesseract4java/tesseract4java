@@ -32,50 +32,9 @@ public class PixUtils {
   private static final int INT_BITS = 4 * BYTE_BITS;
 
   /**
-   * Takes a Pix as used by Tesseract and converts it to a BufferedImage.
-   * 
-   * @param pix
-   *          Pix
-   * @return BufferedImage
+   * @param bufferedImage
+   * @return
    */
-  public static BufferedImage pixToBufferedImage(Pix pix) {
-    final int width = pix.w();
-    final int height = pix.h();
-    final int bitDepth = pix.d();
-
-    int sizeInBytes = width * height * bitDepth / 8;
-    // binary image data as an byte array
-    final byte[] pixData = (byte[]) pix.data().as(Byte.TYPE).getArray(
-        sizeInBytes);
-
-    // create byte image data buffer
-    final DataBufferByte dataBuf = new DataBufferByte(pixData, pixData.length);
-
-    // ... and a writable raster
-    final WritableRaster raster = Raster.createPackedRaster(dataBuf, width,
-        height, bitDepth, new Point(0, 0));
-
-    // determine the color model
-    // This is partially taken from java.awt.image.BufferedImage
-    final ColorModel cm;
-    if (bitDepth == 1) {
-      final byte[] arr = { (byte) 0x00, (byte) 0xFF };
-
-      cm = new IndexColorModel(1, 2, arr, arr, arr);
-    } else if (bitDepth == 8) {
-      final ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-      int[] nBits = { 8 };
-      cm = new ComponentColorModel(cs, nBits, false, true, Transparency.OPAQUE,
-          DataBuffer.TYPE_INT);
-    } else {
-      throw new IllegalArgumentException(
-          "Only binary and grayscale images allowed.");
-    }
-
-    // create and return the buffered image
-    return new BufferedImage(cm, raster, false, new Hashtable<>());
-  }
-
   public static Pix bufferedImageToPix(BufferedImage bufferedImage) {
     final Pix pix = new Pix();
 
@@ -107,9 +66,12 @@ public class PixUtils {
       pix.spp(1);
     }
 
+    // calculate words (ints) per line
+    pix.wpl((pix.w() * pix.d() + 31) / 32);
+
     final DataBufferByte dataBuf =
         (DataBufferByte) bufferedImage.getData().getDataBuffer();
-    final ByteBuffer dataBufBytes = ByteBuffer.wrap(dataBuf.getData());
+    ByteBuffer dataBufBytes = ByteBuffer.wrap(dataBuf.getData());
 
     // cast this bytebuffer to an int buffer
     final Pointer<Integer> data = Pointer.pointerToBytes(dataBufBytes).as(
@@ -118,5 +80,98 @@ public class PixUtils {
     pix.data(data);
 
     return pix;
+  }
+
+  /**
+   * Takes a Pix as used by Tesseract and converts it to a BufferedImage.
+   * 
+   * @param pix
+   *          Pix
+   * @return BufferedImage
+   */
+  public static BufferedImage pixToBufferedImage(Pix pix) {
+    final byte[] buf = convertPixToByteBuffer(pix.data(), pix.w(), pix.h(),
+        pix.wpl());
+
+    final DataBufferByte dataBuf = new DataBufferByte(buf, buf.length);
+
+    // ... and a writable raster
+    final WritableRaster raster = Raster.createPackedRaster(dataBuf, pix.w(),
+        pix.h(), pix.d(), new Point(0, 0));
+
+    // determine the color model
+    // This is partially taken from java.awt.image.BufferedImage
+    final ColorModel cm;
+
+    switch (pix.d()) {
+    case 1:
+      final byte[] arr = { (byte) 0xFF, (byte) 0x00 };
+
+      cm = new IndexColorModel(1, 2, arr, arr, arr);
+      break;
+    case 8:
+      final ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+      int[] nBits = { 8 };
+      cm = new ComponentColorModel(cs, nBits, false, true, Transparency.OPAQUE,
+          DataBuffer.TYPE_INT);
+      break;
+    default:
+      throw new IllegalArgumentException(
+          "Only binary and grayscale images allowed.");
+    }
+
+    // create and return the buffered image
+    return new BufferedImage(cm, raster, false, new Hashtable<>());
+  }
+
+  private static byte[] convertPixToByteBuffer(Pointer<Integer> pixData,
+      final int width, final int height, final int wpl) {
+    // size of the underlying int[]
+    final int bufSize = wpl * height * 4;
+
+    final byte[] bufData = new byte[bufSize];
+
+    final ByteBuffer buf = ByteBuffer.wrap(bufData);
+
+    final boolean notMisaligned = width % 32 == 0;
+    final int misalignment;
+    if (notMisaligned)
+      misalignment = 0;
+    else
+      misalignment = (width % 32 + 7) / 8;
+
+    final int bulkSize;
+    if (notMisaligned)
+      bulkSize = wpl * 4;
+    else
+      bulkSize = (wpl - 1) * 4;
+
+    // copy over data
+    for (int y = 0; y < height; ++y, pixData = pixData.next(wpl)) {
+      final byte[] bulk = pixData.getBytes(bulkSize);
+
+      // reorder the bytes
+      for (int b = 0; b < bulkSize; b += 4) {
+        final byte b0 = bulk[b];
+        final byte b1 = bulk[b + 1];
+        bulk[b] = bulk[b + 3];
+        bulk[b + 1] = bulk[b + 2];
+        bulk[b + 2] = b1;
+        bulk[b + 3] = b0;
+      }
+
+      buf.put(bulk, 0, bulkSize);
+
+      if (notMisaligned)
+        continue;
+
+      // append the last int of a line
+      final byte[] lastIntOfLine = pixData.next(wpl - 1).getBytes(4);
+      for (int b = misalignment; b > 0; --b) {
+        buf.put(lastIntOfLine[b]);
+      }
+    }
+
+    return bufData;
   }
 }
