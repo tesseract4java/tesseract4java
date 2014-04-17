@@ -41,8 +41,6 @@ public class PixUtils {
     pix.w(bufferedImage.getWidth());
     pix.h(bufferedImage.getHeight());
 
-    System.out.println(bufferedImage.getType());
-
     switch (bufferedImage.getType()) {
     case BufferedImage.TYPE_BYTE_BINARY:
       pix.d(1);
