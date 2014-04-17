@@ -38,6 +38,9 @@ public class PixUtils {
   public static Pix bufferedImageToPix(BufferedImage bufferedImage) {
     final Pix pix = new Pix();
 
+    final int width = bufferedImage.getWidth();
+    final int height = bufferedImage.getHeight();
+
     pix.w(bufferedImage.getWidth());
     pix.h(bufferedImage.getHeight());
 
@@ -66,20 +69,72 @@ public class PixUtils {
       pix.spp(1);
     }
 
+    final int wpl = (pix.w() * pix.d() + 31) / 32;
     // calculate words (ints) per line
-    pix.wpl((pix.w() * pix.d() + 31) / 32);
+    pix.wpl(wpl);
 
+    // get the raw bytes of the image
     final DataBufferByte dataBuf =
         (DataBufferByte) bufferedImage.getData().getDataBuffer();
-    ByteBuffer dataBufBytes = ByteBuffer.wrap(dataBuf.getData());
+    ByteBuffer bytes = ByteBuffer.wrap(dataBuf.getData());
 
-    // cast this bytebuffer to an int buffer
-    final Pointer<Integer> data = Pointer.pointerToBytes(dataBufBytes).as(
-        Integer.TYPE);
+    // convert the raw bytes to pix data
+    Pointer<Integer> data = convertBytesToPix(bytes, width, height, wpl);
 
     pix.data(data);
 
     return pix;
+  }
+
+  // TODO optimize for speed
+  private static Pointer<Integer> convertBytesToPix(final ByteBuffer bytes,
+      final int width, final int height, final int wpl) {
+    final long dataLength = height * wpl;
+
+    final Pointer<Integer> result = Pointer.allocateInts(dataLength);
+
+    Pointer<Integer> pixData = result;
+
+    final boolean notMisaligned = width % 32 == 0;
+    final int misalignment;
+    if (notMisaligned)
+      misalignment = 0;
+    else
+      misalignment = (width % 32 + 7) / 8;
+
+    final int bulkSize;
+    if (notMisaligned)
+      bulkSize = wpl * 4;
+    else
+      bulkSize = (wpl - 1) * 4;
+
+    final byte[] bulk = new byte[bulkSize];
+    for (int y = 0; y < height; ++y, pixData = pixData.next(wpl)) {
+      bytes.get(bulk);
+
+      // reorder the bytes
+      for (int b = 0; b < bulkSize; b += 4) {
+        final byte b0 = bulk[b];
+        final byte b1 = bulk[b + 1];
+        bulk[b] = bulk[b + 3];
+        bulk[b + 1] = bulk[b + 2];
+        bulk[b + 2] = b1;
+        bulk[b + 3] = b0;
+      }
+
+      pixData.setBytes(bulk);
+
+      if (notMisaligned)
+        continue;
+
+      final Pointer<Integer> lastIntOfLine = pixData.next(bulkSize / 4);
+      for (int b = misalignment; b > 0; --b) {
+        bytes.get();
+      }
+      lastIntOfLine.set(0);
+    }
+
+    return result;
   }
 
   /**
@@ -90,7 +145,7 @@ public class PixUtils {
    * @return BufferedImage
    */
   public static BufferedImage pixToBufferedImage(Pix pix) {
-    final byte[] buf = convertPixToByteBuffer(pix.data(), pix.w(), pix.h(),
+    final byte[] buf = convertPixToBytes(pix.data(), pix.w(), pix.h(),
         pix.wpl());
 
     final DataBufferByte dataBuf = new DataBufferByte(buf, buf.length);
@@ -124,7 +179,7 @@ public class PixUtils {
     return new BufferedImage(cm, raster, false, new Hashtable<>());
   }
 
-  private static byte[] convertPixToByteBuffer(Pointer<Integer> pixData,
+  private static byte[] convertPixToBytes(Pointer<Integer> pixData,
       final int width, final int height, final int wpl) {
     // size of the underlying int[]
     final int bufSize = wpl * height * 4;
