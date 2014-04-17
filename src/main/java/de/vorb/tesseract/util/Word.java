@@ -10,15 +10,17 @@ public class Word implements Serializable {
   private final List<Symbol> symbols;
   private final Box bbox;
   private final float conf;
+  private final Baseline baseline;
   private final FontAttributes fontAttrs;
 
   private boolean selected = false;
 
-  public Word(List<Symbol> symbols, Box bbox, float conf,
+  public Word(List<Symbol> symbols, Box bbox, float conf, Baseline baseline,
       FontAttributes fontAttrs) {
     this.symbols = symbols;
     this.bbox = bbox;
     this.conf = conf;
+    this.baseline = baseline;
     this.fontAttrs = fontAttrs;
   }
 
@@ -48,6 +50,10 @@ public class Word implements Serializable {
 
   public void setSelected(boolean selected) {
     this.selected = selected;
+  }
+
+  public Baseline getBaseline() {
+    return baseline;
   }
 
   public FontAttributes getFontAttributes() {

@@ -8,7 +8,7 @@ package de.vorb.tesseract.util;
  */
 public class Symbol {
   private final String text;
-  private final Box boundingBox;
+  private final Box bbox;
   private final float confidence;
 
   /**
@@ -23,7 +23,7 @@ public class Symbol {
    */
   public Symbol(String text, Box boundingBox, float confidence) {
     this.text = text;
-    this.boundingBox = boundingBox;
+    this.bbox = boundingBox;
     this.confidence = confidence;
   }
 
@@ -41,6 +41,13 @@ public class Symbol {
     return confidence;
   }
 
+  /**
+   * @return bounding box
+   */
+  public Box getBoundingBox() {
+    return bbox;
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -48,7 +55,7 @@ public class Symbol {
    */
   @Override
   public String toString() {
-    return "Symbol(" + text + ", bounds = " + boundingBox + ", conf = "
+    return "Symbol(" + text + ", bounds = " + bbox + ", conf = "
         + confidence + ")";
   }
 }
