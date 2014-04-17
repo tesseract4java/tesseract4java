@@ -44,6 +44,8 @@ public class PixUtils {
     pix.w(bufferedImage.getWidth());
     pix.h(bufferedImage.getHeight());
 
+    System.out.println(bufferedImage.getType());
+
     switch (bufferedImage.getType()) {
     case BufferedImage.TYPE_BYTE_BINARY:
       pix.d(1);
@@ -116,10 +118,10 @@ public class PixUtils {
       for (int b = 0; b < bulkSize; b += 4) {
         final byte b0 = bulk[b];
         final byte b1 = bulk[b + 1];
-        bulk[b] = bulk[b + 3];
-        bulk[b + 1] = bulk[b + 2];
-        bulk[b + 2] = b1;
-        bulk[b + 3] = b0;
+        bulk[b] = (byte) ~bulk[b + 3];
+        bulk[b + 1] = (byte) ~bulk[b + 2];
+        bulk[b + 2] = (byte) ~b1;
+        bulk[b + 3] = (byte) ~b0;
       }
 
       pixData.setBytes(bulk);
@@ -129,9 +131,8 @@ public class PixUtils {
 
       final Pointer<Integer> lastIntOfLine = pixData.next(bulkSize / 4);
       for (int b = misalignment; b > 0; --b) {
-        bytes.get();
+        lastIntOfLine.setByteAtIndex(b, (byte) ~bytes.get());
       }
-      lastIntOfLine.set(0);
     }
 
     return result;
