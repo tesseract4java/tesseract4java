@@ -33,10 +33,12 @@ import javax.swing.event.ChangeListener;
 
 import de.vorb.tesseract.gui.event.DefaultMouseListener;
 import de.vorb.tesseract.gui.event.ZoomChangeListener;
+import de.vorb.tesseract.util.Baseline;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Line;
 import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Point;
+import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
 import javax.swing.JComboBox;
@@ -44,6 +46,13 @@ import javax.swing.DefaultComboBoxModel;
 
 public class ComparatorPane extends JPanel implements ZoomChangeListener {
   private static final long serialVersionUID = 1L;
+
+  private static final int SCROLL_UNITS = 12;
+
+  private static final Color COLOR_CORRECT = new Color(0xFF66CC00);
+  private static final Color COLOR_INCORRECT = Color.RED;
+  private static final Color COLOR_BASELINE = Color.BLUE;
+
   private final JTextField tfSelection;
   private final JTextField tfConfidence;
   private final JCheckBox cbCorrect;
@@ -52,7 +61,8 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
   private final JLabel lblHOCR;
   private final JSlider zoomSlider;
 
-  private final JCheckBox cbBoxes;
+  private final JCheckBox cbWordBoxes;
+  private final JCheckBox cbSymbolBoxes;
   private final JCheckBox cbLineNumbers;
   private final JCheckBox cbBaseline;
   private final JCheckBox cbXLine;
@@ -87,7 +97,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
     tfConfidence = new JTextField();
     tfConfidence.setEditable(false);
     panel.add(tfConfidence);
-    tfConfidence.setColumns(2);
+    tfConfidence.setColumns(8);
 
     cbCorrect = new JCheckBox("Correct?");
     cbCorrect.setEnabled(false);
@@ -100,6 +110,8 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
     add(splitPane, BorderLayout.CENTER);
 
     final JScrollPane spOriginal = new JScrollPane();
+    spOriginal.getHorizontalScrollBar().setUnitIncrement(SCROLL_UNITS);
+    spOriginal.getVerticalScrollBar().setUnitIncrement(SCROLL_UNITS);
     splitPane.setLeftComponent(spOriginal);
 
     MouseListener mouseListener = new DefaultMouseListener() {
@@ -170,6 +182,8 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
     spOriginal.setViewportView(lblOriginal);
 
     final JScrollPane spHOCR = new JScrollPane();
+    spHOCR.getHorizontalScrollBar().setUnitIncrement(SCROLL_UNITS);
+    spHOCR.getVerticalScrollBar().setUnitIncrement(SCROLL_UNITS);
     splitPane.setRightComponent(spHOCR);
 
     lblHOCR = new JLabel();
@@ -201,30 +215,42 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
     flowLayout.setAlignment(FlowLayout.LEFT);
     panel_1.add(panel_3, BorderLayout.WEST);
 
-    final ChangeListener cbListener = new ChangeListener() {
+    final ChangeListener checkBoxListener = new ChangeListener() {
       public void stateChanged(ChangeEvent ev) {
+        if (cbWordBoxes == ev.getSource() && cbWordBoxes.isSelected()) {
+          cbSymbolBoxes.setSelected(false);
+        } else if (cbSymbolBoxes == ev.getSource()
+            && cbSymbolBoxes.isSelected()) {
+          cbWordBoxes.setSelected(false);
+        }
+
         render();
       }
     };
 
-    cbBoxes = new JCheckBox("Boxes");
-    cbBoxes.setSelected(true);
-    cbBoxes.addChangeListener(cbListener);
-    panel_3.add(cbBoxes);
+    cbWordBoxes = new JCheckBox("Word boxes");
+    cbWordBoxes.setSelected(true);
+    cbWordBoxes.addChangeListener(checkBoxListener);
+    panel_3.add(cbWordBoxes);
+
+    cbSymbolBoxes = new JCheckBox("Symbol boxes");
+    cbSymbolBoxes.setSelected(false);
+    cbSymbolBoxes.addChangeListener(checkBoxListener);
+    panel_3.add(cbSymbolBoxes);
 
     cbLineNumbers = new JCheckBox("Line numbers");
     cbLineNumbers.setSelected(true);
-    cbLineNumbers.addChangeListener(cbListener);
+    cbLineNumbers.addChangeListener(checkBoxListener);
     panel_3.add(cbLineNumbers);
 
     cbBaseline = new JCheckBox("Baseline");
     cbBaseline.setSelected(false);
-    cbBaseline.addChangeListener(cbListener);
+    cbBaseline.addChangeListener(checkBoxListener);
     panel_3.add(cbBaseline);
 
     cbXLine = new JCheckBox("x-Line");
     cbXLine.setSelected(false);
-    cbXLine.addChangeListener(cbListener);
+    cbXLine.addChangeListener(checkBoxListener);
     panel_3.add(cbXLine);
 
     comboBox = new JComboBox<String>();
@@ -306,6 +332,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
   }
 
   private SwingWorker<ImagePair, Void> renderer = null;
+  private JCheckBox chckbxSymbolBoxes;
 
   public void zoomChanged(final int zoom) {
     render();
@@ -341,7 +368,8 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
     final Stroke normalStroke = new BasicStroke(1);
     final Stroke selectionStroke = new BasicStroke(3);
 
-    final boolean showBoxes = cbBoxes.isSelected();
+    final boolean showWordBoxes = cbWordBoxes.isSelected();
+    final boolean showSymbolBoxes = cbSymbolBoxes.isSelected();
     final boolean showLineNumbers = cbLineNumbers.isSelected();
     final boolean showBaselines = cbBaseline.isSelected();
     final boolean showXLines = cbXLine.isSelected();
@@ -351,81 +379,93 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
       private Graphics2D scanGfx, hocrGfx;
 
       private void drawLineNumber(Line line, int lineNumber, Color color) {
+        final Box box = line.getBoundingBox();
+
         scanGfx.setFont(lineNumberFont);
         scanGfx.setColor(color);
         scanGfx.drawString(String.valueOf(lineNumber), calcScaled(20, factor),
-            calcScaled(line.getBaseline().getYOffset(), factor));
+            calcScaled(box.getY() + box.getHeight()
+                - line.getBaseline().getYOffset(), factor));
 
         hocrGfx.setFont(lineNumberFont);
         hocrGfx.setColor(color);
         hocrGfx.drawString(String.valueOf(lineNumber), calcScaled(20, factor),
-            calcScaled(line.getBaseline().getYOffset(), factor));
+            calcScaled(box.getY() + box.getHeight()
+                - line.getBaseline().getYOffset(), factor));
       }
 
-      private void drawBaseline(Line line, Color color) {
-        final Box lineBox = line.getBoundingBox();
-
-        scanGfx.setColor(color);
-        scanGfx.drawLine(
-            calcScaled(lineBox.getX(), factor),
-            calcScaled(line.getBaseline().getYOffset(), factor),
-            calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-            calcScaled(line.getBaseline().getYOffset() + lineBox.getWidth()
-                * line.getBaseline().getSlope(), factor));
-
-        hocrGfx.setColor(color);
-        hocrGfx.drawLine(calcScaled(lineBox.getX(), factor),
-            calcScaled(line.getBaseline().getYOffset(), factor),
-            calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-            calcScaled(line.getBaseline().getYOffset() + lineBox.getWidth()
-                * line.getBaseline().getSlope(), factor));
-      }
-
-      private void drawXLine(Line line, Color color) {
-        final Box lineBox = line.getBoundingBox();
-        /*
-         * scanGfx.setColor(Color.RED);
-         * scanGfx.drawLine(calcScaled(lineBox.getX(), factor),
-         * calcScaled(line.getBaseline() - line.getXHeight(), factor),
-         * calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-         * calcScaled(line.getBaseline() - line.getXHeight(), factor));
-         * 
-         * hocrGfx.setColor(Color.RED);
-         * hocrGfx.drawLine(calcScaled(lineBox.getX(), factor),
-         * calcScaled(line.getBaseline() - line.getXHeight(), factor),
-         * calcScaled(lineBox.getX() + lineBox.getWidth(), factor),
-         * calcScaled(line.getBaseline() - line.getXHeight(), factor));
-         */
-      }
-
-      private void drawWordBox(Line line, Word word) {
+      private void drawWord(Line line, Word word) {
         final Box box = word.getBoundingBox();
+        final Baseline bl = word.getBaseline();
 
-        if (showBoxes) {
-          final boolean isSelected = word.isSelected();
+        final boolean isSelected = word.isSelected();
 
-          if (word.isCorrect()) {
-            scanGfx.setColor(Color.GREEN);
-            hocrGfx.setColor(Color.GREEN);
-          } else {
-            scanGfx.setColor(Color.RED);
-            hocrGfx.setColor(Color.RED);
-          }
+        hocrGfx.setFont(new Font(textFontName, Font.PLAIN, calcScaled(
+            Math.max(word.getFontAttributes().getSize(), 40), factor)));
 
+        if (showWordBoxes || showSymbolBoxes) {
           if (isSelected) {
             scanGfx.setStroke(selectionStroke);
             hocrGfx.setStroke(selectionStroke);
           }
 
-          scanGfx.drawRect(calcScaled(box.getX(), factor),
-              calcScaled(box.getY(), factor),
-              calcScaled(box.getWidth(), factor),
-              calcScaled(box.getHeight(), factor));
+          if (showWordBoxes) {
+            if (word.isCorrect()) {
+              scanGfx.setColor(COLOR_CORRECT);
+              hocrGfx.setColor(COLOR_CORRECT);
+            } else {
+              scanGfx.setColor(COLOR_INCORRECT);
+              hocrGfx.setColor(COLOR_INCORRECT);
+            }
 
-          hocrGfx.drawRect(calcScaled(box.getX(), factor),
-              calcScaled(box.getY(), factor),
-              calcScaled(box.getWidth(), factor),
-              calcScaled(box.getHeight(), factor));
+            scanGfx.drawRect(calcScaled(box.getX(), factor),
+                calcScaled(box.getY(), factor),
+                calcScaled(box.getWidth(), factor),
+                calcScaled(box.getHeight(), factor));
+
+            hocrGfx.drawRect(calcScaled(box.getX(), factor),
+                calcScaled(box.getY(), factor),
+                calcScaled(box.getWidth(), factor),
+                calcScaled(box.getHeight(), factor));
+
+            hocrGfx.setColor(Color.BLACK);
+
+            hocrGfx.drawString(
+                word.getText(),
+                calcScaled(box.getX(), factor),
+                calcScaled(box.getY() + box.getHeight()
+                    - line.getBaseline().getYOffset(), factor));
+          } else if (showSymbolBoxes) {
+            for (Symbol sym : word.getSymbols()) {
+              if (word.isCorrect()) {
+                scanGfx.setColor(COLOR_CORRECT);
+                hocrGfx.setColor(COLOR_CORRECT);
+              } else {
+                scanGfx.setColor(COLOR_INCORRECT);
+                hocrGfx.setColor(COLOR_INCORRECT);
+              }
+
+              final Box symBox = sym.getBoundingBox();
+
+              scanGfx.drawRect(calcScaled(symBox.getX(), factor),
+                  calcScaled(symBox.getY(), factor),
+                  calcScaled(symBox.getWidth(), factor),
+                  calcScaled(symBox.getHeight(), factor));
+
+              hocrGfx.drawRect(calcScaled(symBox.getX(), factor),
+                  calcScaled(symBox.getY(), factor),
+                  calcScaled(symBox.getWidth(), factor),
+                  calcScaled(symBox.getHeight(), factor));
+
+              hocrGfx.setColor(Color.BLACK);
+
+              hocrGfx.drawString(
+                  sym.getText(),
+                  calcScaled(symBox.getX(), factor),
+                  calcScaled(box.getY() + box.getHeight()
+                      - word.getBaseline().getYOffset(), factor));
+            }
+          }
 
           if (isSelected) {
             scanGfx.setStroke(normalStroke);
@@ -433,9 +473,19 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
           }
         }
 
-        hocrGfx.setColor(Color.BLACK);
-        hocrGfx.drawString(word.getText(), calcScaled(box.getX(), factor),
-            calcScaled(line.getBaseline().getYOffset(), factor));
+        if (showBaselines) {
+          final int x1 = box.getX();
+          final int x2 = x1 + box.getWidth();
+          final int y1 = box.getY() + box.getHeight() - bl.getYOffset();
+          final int y2 = Math.round(y1 + box.getWidth() * bl.getSlope());
+
+          scanGfx.setColor(COLOR_BASELINE);
+          scanGfx.drawLine(calcScaled(x1, factor), calcScaled(y1, factor),
+              calcScaled(x2, factor), calcScaled(y2, factor));
+          hocrGfx.setColor(COLOR_BASELINE);
+          hocrGfx.drawLine(calcScaled(x1, factor), calcScaled(y1, factor),
+              calcScaled(x2, factor), calcScaled(y2, factor));
+        }
       }
 
       @Override
@@ -460,29 +510,15 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
 
         int lineNumber = 1;
         for (Line line : lines) {
-          if (zoom >= 1) {
-            if (showLineNumbers) {
-              drawLineNumber(line, lineNumber, Color.GRAY);
-            }
-
-            if (showBaselines) {
-              drawBaseline(line, Color.BLUE);
-            }
-
-            if (showXLines) {
-              drawXLine(line, Color.RED);
-            }
+          if (zoom >= 1 && showLineNumbers) {
+            drawLineNumber(line, lineNumber, Color.GRAY);
           }
 
           hocrGfx.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
               RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
-          // TODO find good minimum font size
-          // hocrGfx.setFont(new Font(textFontName, Font.PLAIN, calcScaled(
-          // Math.max(line.getXHeight() * 1.9f, 40), factor)));
-
           for (Word word : line.getWords()) {
-            drawWordBox(line, word);
+            drawWord(line, word);
           }
 
           lineNumber++;
