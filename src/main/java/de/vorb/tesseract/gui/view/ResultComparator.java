@@ -34,6 +34,7 @@ import javax.swing.border.EmptyBorder;
 
 import de.vorb.tesseract.gui.event.LocaleChangeListener;
 import de.vorb.tesseract.gui.view.i18n.Labels;
+import javax.swing.JProgressBar;
 
 /**
  * Swing component that allows to compare the results of Tesseract.
@@ -47,6 +48,7 @@ public class ResultComparator extends JFrame implements LocaleChangeListener {
   private final OpenProjectDialog openProjectDialog;
 
   private final ButtonGroup bgrpLanguage = new ButtonGroup();
+  private final JProgressBar pbLoadPage;
 
   /**
    * Create the application.
@@ -54,12 +56,13 @@ public class ResultComparator extends JFrame implements LocaleChangeListener {
   public ResultComparator() {
     super();
     setLocationByPlatform(true);
-    setMinimumSize(new Dimension(900, 500));
+    setMinimumSize(new Dimension(1024, 680));
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
     openProjectDialog = new OpenProjectDialog(this);
     pageSelectionPane = new PageSelectionPane();
     comparatorPane = new ComparatorPane();
+    pbLoadPage = new JProgressBar();
 
     localeChanged();
   }
@@ -97,7 +100,7 @@ public class ResultComparator extends JFrame implements LocaleChangeListener {
     mnOpenProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
         InputEvent.CTRL_MASK));
     mnFile.add(mnOpenProject);
-    
+
     JMenuItem mntmOcrcomparison = new JMenuItem("OCR-Comparison");
     mnFile.add(mntmOcrcomparison);
 
@@ -179,10 +182,10 @@ public class ResultComparator extends JFrame implements LocaleChangeListener {
     panel.setBorder(new EmptyBorder(5, 5, 5, 5));
     getContentPane().add(panel, BorderLayout.SOUTH);
     GridBagLayout gbl_panel = new GridBagLayout();
-    gbl_panel.columnWidths = new int[] { 111, 84, 46, 0, 46, 417, 50, 40, 0 };
+    gbl_panel.columnWidths = new int[] { 111, 84, 46, 0, 46, 417, 50, 40, 0, 0 };
     gbl_panel.rowHeights = new int[] { 14, 0 };
     gbl_panel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
-        0.0, Double.MIN_VALUE };
+        0.0, 0.0, Double.MIN_VALUE };
     gbl_panel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
     panel.setLayout(gbl_panel);
 
@@ -243,10 +246,17 @@ public class ResultComparator extends JFrame implements LocaleChangeListener {
 
     JLabel label_2 = new JLabel("0");
     GridBagConstraints gbc_label_2 = new GridBagConstraints();
+    gbc_label_2.insets = new Insets(0, 0, 0, 5);
     gbc_label_2.anchor = GridBagConstraints.WEST;
     gbc_label_2.gridx = 7;
     gbc_label_2.gridy = 0;
     panel.add(label_2, gbc_label_2);
+
+    GridBagConstraints gbc_pbRegognitionProgress = new GridBagConstraints();
+    gbc_pbRegognitionProgress.fill = GridBagConstraints.HORIZONTAL;
+    gbc_pbRegognitionProgress.gridx = 8;
+    gbc_pbRegognitionProgress.gridy = 0;
+    panel.add(pbLoadPage, gbc_pbRegognitionProgress);
 
     JSplitPane splitPane = new JSplitPane();
     splitPane.setResizeWeight(0.0);
@@ -283,5 +293,9 @@ public class ResultComparator extends JFrame implements LocaleChangeListener {
 
   public ComparatorPane getComparatorPane() {
     return comparatorPane;
+  }
+
+  public JProgressBar getPageLoadProgressBar() {
+    return pbLoadPage;
   }
 }
