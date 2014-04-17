@@ -28,9 +28,6 @@ public class PixUtils {
   private PixUtils() {
   }
 
-  private static final int BYTE_BITS = 8;
-  private static final int INT_BITS = 4 * BYTE_BITS;
-
   /**
    * @param bufferedImage
    * @return
