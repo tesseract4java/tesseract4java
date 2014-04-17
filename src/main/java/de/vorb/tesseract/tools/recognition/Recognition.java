@@ -11,7 +11,7 @@ import de.vorb.tesseract.bridj.Tesseract.TessPageIteratorLevel;
 import de.vorb.tesseract.bridj.Tesseract.TessResultIterator;
 
 public abstract class Recognition {
-  private final Pointer<TessBaseAPI> handle;
+  protected Pointer<TessBaseAPI> handle;
   private boolean closed = false;
 
   public Recognition() throws IOException {
@@ -127,6 +127,8 @@ public abstract class Recognition {
         }
       }
     } while (Tesseract.TessPageIteratorNext(pageIt, level) > 0); // next symbol
+
+    Tesseract.TessPageIteratorDelete(pageIt);
   }
 
   public void reset() throws IOException {
