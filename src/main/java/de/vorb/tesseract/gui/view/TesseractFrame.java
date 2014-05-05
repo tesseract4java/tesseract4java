@@ -39,7 +39,7 @@ import javax.swing.JProgressBar;
 /**
  * Swing component that allows to compare the results of Tesseract.
  */
-public class ResultComparator extends JFrame implements LocaleChangeListener {
+public class TesseractFrame extends JFrame implements LocaleChangeListener {
   private static final long serialVersionUID = 1L;
   private JLabel lbCanvasOCR;
   private JLabel lbCanvasOriginal;
@@ -53,7 +53,7 @@ public class ResultComparator extends JFrame implements LocaleChangeListener {
   /**
    * Create the application.
    */
-  public ResultComparator() {
+  public TesseractFrame() {
     super();
     setLocationByPlatform(true);
     setMinimumSize(new Dimension(1024, 680));
@@ -111,7 +111,7 @@ public class ResultComparator extends JFrame implements LocaleChangeListener {
         Labels.getLabel(getLocale(), "menu_exit"));
     mntmExit.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        ResultComparator.this.dispose();
+        TesseractFrame.this.dispose();
       }
     });
     mnFile.add(mntmExit);
@@ -140,9 +140,9 @@ public class ResultComparator extends JFrame implements LocaleChangeListener {
 
         Locale.setDefault(Locale.ENGLISH);
         JComponent.setDefaultLocale(Locale.ENGLISH);
-        ResultComparator.this.setLocale(Locale.ENGLISH);
+        TesseractFrame.this.setLocale(Locale.ENGLISH);
 
-        ResultComparator.this.localeChanged();
+        TesseractFrame.this.localeChanged();
       }
     });
     mnView.add(rbtnEnglish);
@@ -153,9 +153,9 @@ public class ResultComparator extends JFrame implements LocaleChangeListener {
 
         Locale.setDefault(Locale.GERMAN);
         JComponent.setDefaultLocale(Locale.GERMAN);
-        ResultComparator.this.setLocale(Locale.GERMAN);
+        TesseractFrame.this.setLocale(Locale.GERMAN);
 
-        ResultComparator.this.localeChanged();
+        TesseractFrame.this.localeChanged();
       }
     });
     mnView.add(rbtnGerman);
@@ -167,7 +167,7 @@ public class ResultComparator extends JFrame implements LocaleChangeListener {
         "menu_about"));
     mntmAbout.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        JOptionPane.showMessageDialog(ResultComparator.this,
+        JOptionPane.showMessageDialog(TesseractFrame.this,
             Labels.getLabel(getLocale(), "about_message"),
             Labels.getLabel(getLocale(), "about_title"),
             JOptionPane.INFORMATION_MESSAGE);
