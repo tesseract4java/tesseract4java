@@ -9,8 +9,8 @@ import java.awt.FlowLayout;
 public class GlyphExportPane extends JPanel {
     private static final long serialVersionUID = 1L;
 
-    private final GlyphSelectionPane glyphSelection;
-    private final GlyphListPane glyphList;
+    private final GlyphSelectionPane glyphSelectionPane;
+    private final GlyphListPane glyphListPane;
 
     /**
      * Create the panel.
@@ -30,11 +30,19 @@ public class GlyphExportPane extends JPanel {
         JSplitPane splitPane = new JSplitPane();
         add(splitPane, BorderLayout.CENTER);
 
-        glyphSelection = new GlyphSelectionPane();
-        glyphList = new GlyphListPane();
+        glyphSelectionPane = new GlyphSelectionPane();
+        glyphListPane = new GlyphListPane();
 
-        splitPane.setLeftComponent(glyphSelection);
-        splitPane.setRightComponent(glyphList);
+        splitPane.setLeftComponent(glyphSelectionPane);
+        splitPane.setRightComponent(glyphListPane);
+    }
+
+    public GlyphSelectionPane getGlyphSelectionPane() {
+        return glyphSelectionPane;
+    }
+
+    public GlyphListPane getGlyphListPane() {
+        return glyphListPane;
     }
 
 }

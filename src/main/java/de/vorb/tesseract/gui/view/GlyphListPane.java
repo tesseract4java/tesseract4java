@@ -1,15 +1,18 @@
 package de.vorb.tesseract.gui.view;
 
-import javax.swing.JPanel;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
-import javax.swing.JSplitPane;
-import javax.swing.JLabel;
 import java.awt.FlowLayout;
+
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import de.vorb.tesseract.util.Symbol;
 
 public class GlyphListPane extends JPanel {
     private static final long serialVersionUID = 1L;
+    private final JList<Symbol> glyphList;
 
     /**
      * Create the panel.
@@ -29,8 +32,12 @@ public class GlyphListPane extends JPanel {
         JScrollPane scrollPane = new JScrollPane();
         add(scrollPane, BorderLayout.CENTER);
 
-        JList list_1 = new JList();
-        scrollPane.setViewportView(list_1);
+        glyphList = new JList<Symbol>();
+        scrollPane.setViewportView(glyphList);
+    }
+
+    public JList<Symbol> getList() {
+        return glyphList;
     }
 
 }
