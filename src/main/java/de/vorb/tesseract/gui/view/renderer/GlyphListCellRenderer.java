@@ -5,14 +5,14 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
 import javax.swing.JList;
+import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
 
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 
-public class GlyphListCellRenderer extends JCheckBox implements
+public class GlyphListCellRenderer extends JToggleButton implements
         ListCellRenderer<Symbol> {
     private static final long serialVersionUID = 1L;
 
@@ -22,6 +22,7 @@ public class GlyphListCellRenderer extends JCheckBox implements
         super();
         this.source = source;
         setOpaque(true);
+        this.setSelected(true);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     }
 

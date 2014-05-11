@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
@@ -14,6 +15,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,8 +61,96 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
     private static final Stroke STROKE_NORMAL = new BasicStroke(1);
     private static final Stroke STROKE_SELECTION = new BasicStroke(3);
 
-    private static final String FONT_FRAKTUR = "UnifrakturMaguntia";
-    private static final String FONT_ANTIQUA = "Arial Narrow";
+    // Fallback fonts
+    private static final Font FONT_FALLBACK_NORMAL = new Font("SansSerif",
+            Font.PLAIN, 12);
+    private static final Font FONT_FALLBACK_ITALIC = new Font("SansSerif",
+            Font.ITALIC, 12);
+    private static final Font FONT_FALLBACK_BOLD = new Font("SansSerif",
+            Font.BOLD, 12);
+    private static final Font FONT_FALLBACK_BOLD_ITALIC = new Font("SansSerif",
+            Font.BOLD | Font.ITALIC, 12);
+
+    private static final Font FONT_ANTIQUA_NORMAL;
+    private static final Font FONT_ANTIQUA_ITALIC;
+    private static final Font FONT_ANTIQUA_BOLD;
+    private static final Font FONT_ANTIQUA_BOLD_ITALIC;
+
+    private static final Font FONT_FRAKTUR_NORMAL;
+    private static final Font FONT_FRAKTUR_BOLD;
+
+    static {
+        // load fonts
+
+        // ---------------------------------------------------------------------
+        // ANTIQUA:
+        // ---------------------------------------------------------------------
+
+        // normal
+        Font loaded = FONT_FALLBACK_NORMAL;
+        try {
+            loaded = Font.createFont(
+                    Font.TRUETYPE_FONT,
+                    ComparatorPane.class.getResourceAsStream("/RobotoCondensed-Regular.ttf"));
+        } catch (FontFormatException | IOException e) {
+            System.err.println("Could not load normal font.");
+            e.printStackTrace();
+        }
+        FONT_ANTIQUA_NORMAL = loaded;
+
+        // bold
+        loaded = FONT_FALLBACK_ITALIC;
+        try {
+            loaded = Font.createFont(
+                    Font.TRUETYPE_FONT,
+                    ComparatorPane.class.getResourceAsStream("/RobotoCondensed-Italic.ttf"));
+        } catch (FontFormatException | IOException e) {
+            System.err.println("Could not load italic font.");
+        }
+        FONT_ANTIQUA_ITALIC = loaded;
+
+        // bold
+        loaded = FONT_FALLBACK_BOLD;
+        try {
+            loaded = Font.createFont(
+                    Font.TRUETYPE_FONT,
+                    ComparatorPane.class.getResourceAsStream("/RobotoCondensed-Bold.ttf"));
+        } catch (FontFormatException | IOException e) {
+            System.err.println("Could not load bold font.");
+        }
+        FONT_ANTIQUA_BOLD = loaded;
+
+        // bold & italic
+        loaded = FONT_FALLBACK_BOLD_ITALIC;
+        try {
+            loaded = Font.createFont(
+                    Font.TRUETYPE_FONT,
+                    ComparatorPane.class.getResourceAsStream("/RobotoCondensed-BoldItalic.ttf"));
+        } catch (FontFormatException | IOException e) {
+            System.err.println("Could not load bold italic font.");
+        }
+        FONT_ANTIQUA_BOLD_ITALIC = loaded;
+
+        // ---------------------------------------------------------------------
+        // FRAKTUR:
+        // ---------------------------------------------------------------------
+
+        // normal
+        loaded = FONT_FALLBACK_NORMAL;
+        try {
+            loaded = Font.createFont(
+                    Font.TRUETYPE_FONT,
+                    ComparatorPane.class.getResourceAsStream("/UnifrakturMaguntia.ttf"));
+        } catch (FontFormatException | IOException e) {
+            System.err.println("Could not load Fraktur font.");
+        }
+        FONT_FRAKTUR_NORMAL = loaded;
+
+        // bold
+        FONT_FRAKTUR_BOLD = loaded;
+
+        // currently there is no bold Fraktur font
+    }
 
     private final JTextField tfSelection;
     private final JTextField tfConfidence;
@@ -365,12 +456,27 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
 
         final List<Line> lines = getModel().getLines();
 
+        // font for line numbers
         final Font lineNumberFont = new Font("Dialog", Font.PLAIN, 12);
-        final String textFontName;
-        if ("Fraktur".equals(comboBox.getSelectedItem())) {
-            textFontName = FONT_FRAKTUR;
+
+        // is Fraktur selected?
+        final boolean useFraktur = "Fraktur".equals(comboBox.getSelectedItem());
+
+        // set the base fonts
+        final Font baseFontNormal;
+        final Font baseFontItalic;
+        final Font baseFontBold;
+        final Font baseFontBoldItalic;
+        if (useFraktur) {
+            baseFontNormal = FONT_FRAKTUR_NORMAL;
+            baseFontItalic = FONT_FRAKTUR_NORMAL;
+            baseFontBold = FONT_FRAKTUR_BOLD;
+            baseFontBoldItalic = FONT_FRAKTUR_BOLD;
         } else {
-            textFontName = FONT_ANTIQUA;
+            baseFontNormal = FONT_ANTIQUA_NORMAL;
+            baseFontItalic = FONT_ANTIQUA_ITALIC;
+            baseFontBold = FONT_ANTIQUA_BOLD;
+            baseFontBoldItalic = FONT_ANTIQUA_BOLD_ITALIC;
         }
 
         final BufferedImage original = getModel().getOriginalImage();
@@ -422,7 +528,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                 final FontAttributes fa = word.getFontAttributes();
 
                 // scaled font size
-                final int scFontSize = scaled(fa.getSize(), factor);
+                final float scFontSize = scaled(fa.getSize(), factor);
 
                 // bold?
                 final boolean bold = fa.isBold();
@@ -449,14 +555,18 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                         factor);
 
                 // set font
-                int fontStyle = Font.PLAIN;
-                if (bold) {
-                    fontStyle |= Font.BOLD;
+                final Font font;
+                if (italic && bold) {
+                    font = baseFontBoldItalic.deriveFont(scFontSize);
                 } else if (italic) {
-                    fontStyle |= Font.ITALIC;
+                    font = baseFontItalic.deriveFont(scFontSize);
+                } else if (bold) {
+                    font = baseFontBold.deriveFont(scFontSize);
+                } else {
+                    font = baseFontNormal.deriveFont(scFontSize);
                 }
 
-                hocrGfx.setFont(new Font(textFontName, fontStyle, scFontSize));
+                hocrGfx.setFont(font);
 
                 if (showWordBoxes || showSymbolBoxes) {
                     if (isSelected) {

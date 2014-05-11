@@ -13,17 +13,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
@@ -36,23 +34,24 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
-import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import de.vorb.tesseract.gui.event.LocaleChangeListener;
 import de.vorb.tesseract.gui.view.i18n.Labels;
+import de.vorb.tesseract.gui.view.renderer.GlyphListCellRenderer;
 import de.vorb.tesseract.util.Line;
 import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
-
-import javax.swing.JProgressBar;
 
 /**
  * Swing component that allows to compare the results of Tesseract.
@@ -71,14 +70,24 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
     private final ButtonGroup bgrpView = new ButtonGroup();
     private final JSplitPane spMain;
 
-    private static final Comparator<Entry<String, List<Symbol>>> glyphComparator =
-            new Comparator<Entry<String, List<Symbol>>>() {
+    private static final Comparator<Entry<String, Set<Symbol>>> glyphComparator =
+            new Comparator<Entry<String, Set<Symbol>>>() {
                 @Override
-                public int compare(Entry<String, List<Symbol>> o1,
-                        Entry<String, List<Symbol>> o2) {
+                public int compare(Entry<String, Set<Symbol>> o1,
+                        Entry<String, Set<Symbol>> o2) {
                     return o2.getValue().size() - o1.getValue().size();
                 }
             };
+
+    private static final Comparator<Symbol> symbolComparator = new Comparator<Symbol>() {
+        @Override
+        public int compare(Symbol o1, Symbol o2) {
+            if (o2.getConfidence() >= o1.getConfidence())
+                return 1;
+
+            return -1;
+        }
+    };
 
     /**
      * Create the application.
@@ -95,6 +104,32 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         glyphExportPane = new GlyphExportPane();
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
+
+        glyphExportPane.getGlyphSelectionPane().getList().addListSelectionListener(
+                new ListSelectionListener() {
+                    public void valueChanged(ListSelectionEvent e) {
+                        if (e.getValueIsAdjusting()) {
+                            return;
+                        }
+
+                        @SuppressWarnings("unchecked")
+                        final JList<Entry<String, Set<Symbol>>> selectionList =
+                                (JList<Entry<String, Set<Symbol>>>) e.getSource();
+
+                        final Set<Symbol> symbols = selectionList.getModel().getElementAt(
+                                selectionList.getSelectedIndex()).getValue();
+
+                        final DefaultListModel<Symbol> model = new DefaultListModel<>();
+                        for (final Symbol symbol : symbols) {
+                            if (symbol.getBoundingBox().getHeight() > 0) {
+                                model.addElement(symbol);
+                            }
+                        }
+
+                        glyphExportPane.getGlyphListPane().getList().setModel(
+                                model);
+                    }
+                });
 
         localeChanged();
     }
@@ -353,12 +388,16 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
     }
 
     private void updateGlyphExport() {
-        final JList<Entry<String, List<Symbol>>> glyphList =
+        final JList<Entry<String, Set<Symbol>>> glyphList =
                 glyphExportPane.getGlyphSelectionPane().getList();
 
-        final HashMap<String, List<Symbol>> glyphs = new HashMap<>();
+        final HashMap<String, Set<Symbol>> glyphs = new HashMap<>();
 
         final Page page = comparatorPane.getModel();
+
+        // set a new renderer that has a reference to the thresholded image
+        glyphExportPane.getGlyphListPane().getList().setCellRenderer(
+                new GlyphListCellRenderer(page.getThresholdedImage()));
 
         // insert all symbols into the map
         for (final Line line : page.getLines()) {
@@ -367,7 +406,7 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
                     final String sym = symbol.getText();
 
                     if (!glyphs.containsKey(sym)) {
-                        glyphs.put(sym, new ArrayList<Symbol>());
+                        glyphs.put(sym, new TreeSet<Symbol>(symbolComparator));
                     }
 
                     glyphs.get(sym).add(symbol);
@@ -375,14 +414,14 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
             }
         }
 
-        final LinkedList<Entry<String, List<Symbol>>> entries = new LinkedList<>(
+        final LinkedList<Entry<String, Set<Symbol>>> entries = new LinkedList<>(
                 glyphs.entrySet());
 
         Collections.sort(entries, glyphComparator);
 
-        final DefaultListModel<Entry<String, List<Symbol>>> model = new DefaultListModel<>();
+        final DefaultListModel<Entry<String, Set<Symbol>>> model = new DefaultListModel<>();
 
-        for (final Entry<String, List<Symbol>> entry : entries) {
+        for (final Entry<String, Set<Symbol>> entry : entries) {
             model.addElement(entry);
         }
 

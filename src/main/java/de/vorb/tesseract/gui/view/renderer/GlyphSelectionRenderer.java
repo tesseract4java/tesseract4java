@@ -1,20 +1,18 @@
 package de.vorb.tesseract.gui.view.renderer;
 
 import java.awt.Component;
-import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
-
 import de.vorb.tesseract.util.Symbol;
 
 public class GlyphSelectionRenderer extends JLabel implements
-        ListCellRenderer<Entry<String, List<Symbol>>> {
+        ListCellRenderer<Entry<String, Set<Symbol>>> {
     private static final long serialVersionUID = 1L;
 
     public GlyphSelectionRenderer() {
@@ -25,8 +23,8 @@ public class GlyphSelectionRenderer extends JLabel implements
 
     @Override
     public Component getListCellRendererComponent(
-            JList<? extends Entry<String, List<Symbol>>> list,
-            Entry<String, List<Symbol>> value, int index, boolean isSelected,
+            JList<? extends Entry<String, Set<Symbol>>> list,
+            Entry<String, Set<Symbol>> value, int index, boolean isSelected,
             boolean cellHasFocus) {
         if (isSelected) {
             setBackground(list.getSelectionBackground());

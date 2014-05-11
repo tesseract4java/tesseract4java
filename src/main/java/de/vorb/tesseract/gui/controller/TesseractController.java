@@ -18,7 +18,7 @@ import javax.swing.UIManager;
 
 import org.bridj.BridJ;
 
-import de.vorb.tesseract.bridj.Tesseract.TessPageIteratorLevel;
+import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.gui.event.PageChangeListener;
 import de.vorb.tesseract.gui.event.ProjectChangeListener;
 import de.vorb.tesseract.gui.view.TesseractFrame;
@@ -52,6 +52,7 @@ public class TesseractController implements ProjectChangeListener,
             };
 
     public static void main(String[] args) {
+        BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
         BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
 
         new TesseractController();
@@ -156,7 +157,7 @@ public class TesseractController implements ProjectChangeListener,
 
             @Override
             public void lineEnd() {
-                final TessPageIteratorLevel level = TessPageIteratorLevel.RIL_TEXTLINE;
+                final PageIteratorLevel level = PageIteratorLevel.TEXTLINE;
                 lines.add(new Line(getState().getBoundingBox(level), lineWords,
                         getState().getBaseline(level)));
             }
@@ -169,17 +170,17 @@ public class TesseractController implements ProjectChangeListener,
             @Override
             public void wordEnd() {
                 final RecognitionState state = getState();
-                final TessPageIteratorLevel level = TessPageIteratorLevel.RIL_WORD;
+                final PageIteratorLevel level = PageIteratorLevel.WORD;
                 final Box bbox = state.getBoundingBox(level);
                 lineWords.add(new Word(wordSymbols, bbox,
                         state.getConfidence(level),
-                        state.getBaseline(TessPageIteratorLevel.RIL_WORD),
+                        state.getBaseline(PageIteratorLevel.WORD),
                         state.getWordFontAttributes()));
             }
 
             @Override
             public void symbol() {
-                final TessPageIteratorLevel level = TessPageIteratorLevel.RIL_SYMBOL;
+                final PageIteratorLevel level = PageIteratorLevel.SYMBOL;
                 wordSymbols.add(new Symbol(getState().getText(level),
                         getState().getBoundingBox(level),
                         getState().getConfidence(level)));

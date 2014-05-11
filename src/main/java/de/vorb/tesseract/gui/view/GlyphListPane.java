@@ -33,6 +33,7 @@ public class GlyphListPane extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         glyphList = new JList<Symbol>();
+        glyphList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         scrollPane.setViewportView(glyphList);
     }
 
