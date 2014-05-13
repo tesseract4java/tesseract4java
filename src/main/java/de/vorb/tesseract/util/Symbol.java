@@ -1,5 +1,11 @@
 package de.vorb.tesseract.util;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import de.vorb.tesseract.util.xml.BoxAdapter;
+
 /**
  * Recognized Symbol. Can either be a single character or a ligature or
  * otherwise combined glyph.
@@ -7,55 +13,61 @@ package de.vorb.tesseract.util;
  * @author Paul Vorbach
  */
 public class Symbol {
-  private final String text;
-  private final Box bbox;
-  private final float confidence;
+    @XmlValue
+    private final String text;
 
-  /**
-   * Creates a new Symbol.
-   * 
-   * @param text
-   *          recognized text
-   * @param boundingBox
-   *          bounding box
-   * @param confidence
-   *          recognition confidence
-   */
-  public Symbol(String text, Box boundingBox, float confidence) {
-    this.text = text;
-    this.bbox = boundingBox;
-    this.confidence = confidence;
-  }
+    @XmlAttribute(name = "bounding-box")
+    @XmlJavaTypeAdapter(BoxAdapter.class)
+    private final Box bbox;
 
-  /**
-   * @return recognized text
-   */
-  public String getText() {
-    return text;
-  }
+    @XmlAttribute
+    private final float confidence;
 
-  /**
-   * @return recognition confidence
-   */
-  public float getConfidence() {
-    return confidence;
-  }
+    /**
+     * Creates a new Symbol.
+     * 
+     * @param text
+     *            recognized text
+     * @param boundingBox
+     *            bounding box
+     * @param confidence
+     *            recognition confidence
+     */
+    public Symbol(String text, Box boundingBox, float confidence) {
+        this.text = text;
+        this.bbox = boundingBox;
+        this.confidence = confidence;
+    }
 
-  /**
-   * @return bounding box
-   */
-  public Box getBoundingBox() {
-    return bbox;
-  }
+    /**
+     * @return recognized text
+     */
+    public String getText() {
+        return text;
+    }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return "Symbol(" + text + ", bounds = " + bbox + ", conf = "
-        + confidence + ")";
-  }
+    /**
+     * @return recognition confidence
+     */
+    public float getConfidence() {
+        return confidence;
+    }
+
+    /**
+     * @return bounding box
+     */
+    public Box getBoundingBox() {
+        return bbox;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "Symbol(" + text + ", bounds = " + bbox + ", conf = "
+                + confidence + ")";
+    }
 }

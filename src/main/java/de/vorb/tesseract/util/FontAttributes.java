@@ -1,5 +1,7 @@
 package de.vorb.tesseract.util;
 
+import javax.xml.bind.annotation.XmlAttribute;
+
 /**
  * Font attributes of a recognized word.
  * 
@@ -11,189 +13,203 @@ package de.vorb.tesseract.util;
  */
 public class FontAttributes {
 
-  /**
-   * FontAttributes builder.
-   * 
-   * @author Paul Vorbach
-   */
-  public static class Builder {
-    private boolean isBold;
-    private boolean isItalic;
-    private boolean isUnderlined;
-    private boolean isMonospace;
-    private boolean isSerif;
-    private boolean isSmallcaps;
-    private int size;
-    private int fontID;
+    /**
+     * FontAttributes builder.
+     * 
+     * @author Paul Vorbach
+     */
+    public static class Builder {
+        private boolean bold;
+        private boolean italic;
+        private boolean underlined;
+        private boolean monospace;
+        private boolean serif;
+        private boolean smallcaps;
+        private int size;
+        private int fontID;
 
-    public Builder() {
+        public Builder() {
+        }
+
+        public Builder bold(boolean bold) {
+            this.bold = bold;
+            return this;
+        }
+
+        public Builder italic(boolean italic) {
+            this.italic = italic;
+            return this;
+        }
+
+        public Builder underlined(boolean underlined) {
+            this.underlined = underlined;
+            return this;
+        }
+
+        public Builder monospace(boolean monospace) {
+            this.monospace = monospace;
+            return this;
+        }
+
+        public Builder serif(boolean serif) {
+            this.serif = serif;
+            return this;
+        }
+
+        public Builder smallcaps(boolean smallcaps) {
+            this.smallcaps = smallcaps;
+            return this;
+        }
+
+        public Builder size(int size) {
+            this.size = size;
+            return this;
+        }
+
+        public Builder fontID(int fontID) {
+            this.fontID = fontID;
+            return this;
+        }
+
+        /**
+         * Finalize the FontAttributes object.
+         * 
+         * @return FontAttributes object
+         */
+        public FontAttributes build() {
+            return new FontAttributes(bold, italic, underlined, monospace,
+                    serif, smallcaps, size, fontID);
+        }
     }
 
-    public Builder bold(boolean isBold) {
-      this.isBold = isBold;
-      return this;
-    }
+    @XmlAttribute
+    private final boolean bold;
 
-    public Builder italic(boolean isItalic) {
-      this.isItalic = isItalic;
-      return this;
-    }
+    @XmlAttribute
+    private final boolean italic;
 
-    public Builder underlined(boolean isUnderlined) {
-      this.isUnderlined = isUnderlined;
-      return this;
-    }
+    @XmlAttribute
+    private final boolean underlined;
 
-    public Builder monospace(boolean isMonospace) {
-      this.isMonospace = isMonospace;
-      return this;
-    }
+    @XmlAttribute
+    private final boolean monospace;
 
-    public Builder serif(boolean isSerif) {
-      this.isSerif = isSerif;
-      return this;
-    }
+    @XmlAttribute
+    private final boolean serif;
 
-    public Builder smallcaps(boolean isSmallcaps) {
-      this.isSmallcaps = isSmallcaps;
-      return this;
-    }
+    @XmlAttribute
+    private final boolean smallcaps;
 
-    public Builder size(int size) {
-      this.size = size;
-      return this;
-    }
+    @XmlAttribute
+    private final int size;
 
-    public Builder fontID(int fontID) {
-      this.fontID = fontID;
-      return this;
+    @XmlAttribute
+    private final int fontID;
+
+    /**
+     * Create a FontAttributes object.
+     * 
+     * @param bold
+     * @param italic
+     * @param underlined
+     * @param monospace
+     * @param serif
+     * @param smallcaps
+     * @param size
+     * @param fontID
+     */
+    protected FontAttributes(boolean bold, boolean italic, boolean underlined,
+            boolean monospace, boolean serif, boolean smallcaps, int size,
+            int fontID) {
+        this.bold = bold;
+        this.italic = italic;
+        this.underlined = underlined;
+        this.monospace = monospace;
+        this.serif = serif;
+        this.smallcaps = smallcaps;
+        this.size = size;
+        this.fontID = fontID;
     }
 
     /**
-     * Finalize the FontAttributes object.
-     * 
-     * @return FontAttributes object
+     * @return true if the word is bold.
      */
-    public FontAttributes build() {
-      return new FontAttributes(isBold, isItalic, isUnderlined, isMonospace,
-          isSerif, isSmallcaps, size, fontID);
+    public boolean isBold() {
+        return bold;
     }
-  }
 
-  private final boolean isBold;
-  private final boolean isItalic;
-  private final boolean isUnderlined;
-  private final boolean isMonospace;
-  private final boolean isSerif;
-  private final boolean isSmallcaps;
-  private final int size;
-  private final int fontID;
+    /**
+     * @return true if the word is italic.
+     */
+    public boolean isItalic() {
+        return italic;
+    }
 
-  /**
-   * Create a FontAttributes object.
-   * 
-   * @param isBold
-   * @param isItalic
-   * @param isUnderlined
-   * @param isMonospace
-   * @param isSerif
-   * @param isSmallcaps
-   * @param size
-   * @param fontID
-   */
-  protected FontAttributes(boolean isBold, boolean isItalic,
-      boolean isUnderlined, boolean isMonospace, boolean isSerif,
-      boolean isSmallcaps, int size,
-      int fontID) {
-    this.isBold = isBold;
-    this.isItalic = isItalic;
-    this.isUnderlined = isUnderlined;
-    this.isMonospace = isMonospace;
-    this.isSerif = isSerif;
-    this.isSmallcaps = isSmallcaps;
-    this.size = size;
-    this.fontID = fontID;
-  }
+    /**
+     * @return true if the word is underlined.
+     */
+    public boolean isUnderlined() {
+        return underlined;
+    }
 
-  /**
-   * @return true if the word is bold.
-   */
-  public boolean isBold() {
-    return isBold;
-  }
+    /**
+     * @return true if the word is set in a monospace font.
+     */
+    public boolean isMonospace() {
+        return monospace;
+    }
 
-  /**
-   * @return true if the word is italic.
-   */
-  public boolean isItalic() {
-    return isItalic;
-  }
+    /**
+     * @return true if the word is set in a font with serifs.
+     */
+    public boolean isSerif() {
+        return serif;
+    }
 
-  /**
-   * @return true if the word is underlined.
-   */
-  public boolean isUnderlined() {
-    return isUnderlined;
-  }
+    /**
+     * @return true if the word is set in small-caps
+     */
+    public boolean isSmallcaps() {
+        return smallcaps;
+    }
 
-  /**
-   * @return true if the word is set in a monospace font.
-   */
-  public boolean isMonospace() {
-    return isMonospace;
-  }
+    /**
+     * @return size of the font in pt.
+     */
+    public int getSize() {
+        return size;
+    }
 
-  /**
-   * @return true if the word is set in a font with serifs.
-   */
-  public boolean isSerif() {
-    return isSerif;
-  }
+    /**
+     * @return ID of the font as defined in the *.traineddata file.
+     */
+    public int getFontID() {
+        return fontID;
+    }
 
-  /**
-   * @return true if the word is set in small-caps
-   */
-  public boolean isSmallcaps() {
-    return isSmallcaps;
-  }
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "FontAttributes(" + size + "pt, " + opt(bold, "bold, ")
+                + opt(italic, "italic, ") + opt(underlined, "underlined, ")
+                + opt(monospace, "monospace, ") + opt(serif, "serif, ")
+                + opt(smallcaps, "smallcaps, ") + "ID = " + fontID + ")";
+    }
 
-  /**
-   * @return size of the font in pt.
-   */
-  public int getSize() {
-    return size;
-  }
-
-  /**
-   * @return ID of the font as defined in the *.traineddata file.
-   */
-  public int getFontID() {
-    return fontID;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return "FontAttributes(" + size + "pt, " + opt(isBold, "bold, ")
-        + opt(isItalic, "italic, ") + opt(isUnderlined, "underlined, ")
-        + opt(isMonospace, "monospace, ") + opt(isSerif, "serif, ")
-        + opt(isSmallcaps, "smallcaps, ") + "ID = " + fontID + ")";
-  }
-
-  /**
-   * Optionally return given String.
-   * 
-   * @param cond
-   *          condition
-   * @param str
-   *          String
-   * @return str if condition holds, empty String otherwise.
-   */
-  private static String opt(boolean cond, String str) {
-    return cond ? str : "";
-  }
+    /**
+     * Optionally return given String.
+     * 
+     * @param cond
+     *            condition
+     * @param str
+     *            string
+     * @return str if condition holds, empty String otherwise.
+     */
+    private static String opt(boolean cond, String str) {
+        return cond ? str : "";
+    }
 }
