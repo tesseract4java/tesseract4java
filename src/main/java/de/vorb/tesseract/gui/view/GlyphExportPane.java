@@ -1,29 +1,14 @@
 package de.vorb.tesseract.gui.view;
 
-import javax.swing.JPanel;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FlowLayout;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JSplitPane;
 import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 
 import de.vorb.tesseract.gui.model.PageModel;
-import de.vorb.tesseract.gui.view.renderer.GlyphListCellRenderer;
-import de.vorb.tesseract.util.Line;
-import de.vorb.tesseract.util.Page;
-import de.vorb.tesseract.util.Symbol;
-import de.vorb.tesseract.util.Word;
-
-import java.awt.FlowLayout;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.Map.Entry;
 
 public class GlyphExportPane extends JPanel implements MainComponent {
     private static final long serialVersionUID = 1L;

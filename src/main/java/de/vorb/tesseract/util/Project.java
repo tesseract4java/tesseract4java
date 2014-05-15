@@ -1,6 +1,5 @@
 package de.vorb.tesseract.util;
 
-import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -8,9 +7,7 @@ import java.util.List;
 
 import de.vorb.tesseract.gui.event.PageChangeListener;
 
-public class Project implements Serializable {
-  private static final long serialVersionUID = 1L;
-
+public class Project {
   private final Path scanDir;
   private final List<Path> pages;
   private int pageIndex = 0;

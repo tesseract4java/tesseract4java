@@ -16,9 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 
-import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.model.PageModel;
-import de.vorb.tesseract.util.Page;
 
 public class BoxFilePane extends JPanel implements MainComponent {
     private static final long serialVersionUID = 1L;
