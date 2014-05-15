@@ -128,7 +128,7 @@ public class TesseractController implements ProjectChangeListener,
             public void done() {
                 try {
                     final PageModel page = get();
-                    view.setModel(page.getPage());
+                    view.setModel(page);
                     view.getPageLoadProgressBar().setIndeterminate(false);
                     view.setCursor(Cursor.getDefaultCursor());
                 } catch (InterruptedException e) {

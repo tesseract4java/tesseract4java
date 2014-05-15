@@ -17,12 +17,13 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 
 import de.vorb.tesseract.gui.model.BoxFileModel;
+import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.util.Page;
 
 public class BoxFilePane extends JPanel implements MainComponent {
     private static final long serialVersionUID = 1L;
 
-    private Page model = null;
+    private PageModel model = null;
     private JTextField textField;
     private JTable table;
 
@@ -161,13 +162,12 @@ public class BoxFilePane extends JPanel implements MainComponent {
     }
 
     @Override
-    public void setModel(Page page) {
+    public void setModel(PageModel page) {
         this.model = page;
-
     }
 
     @Override
-    public Page getModel() {
+    public PageModel getModel() {
         return model;
     }
 

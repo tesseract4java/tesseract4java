@@ -10,6 +10,7 @@ import javax.swing.JList;
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
 
+import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.renderer.GlyphListCellRenderer;
 import de.vorb.tesseract.util.Line;
 import de.vorb.tesseract.util.Page;
@@ -64,12 +65,12 @@ public class GlyphExportPane extends JPanel implements MainComponent {
     }
 
     @Override
-    public void setModel(Page page) {
+    public void setModel(PageModel page) {
         // TODO Auto-generated method stub
     }
 
     @Override
-    public Page getModel() {
+    public PageModel getModel() {
         // TODO Auto-generated method stub
         return null;
     }

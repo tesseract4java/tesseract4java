@@ -46,6 +46,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import de.vorb.tesseract.gui.event.LocaleChangeListener;
+import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.i18n.Labels;
 import de.vorb.tesseract.gui.view.renderer.GlyphListCellRenderer;
 import de.vorb.tesseract.util.Line;
@@ -61,8 +62,9 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
     private JLabel lbCanvasOCR;
     private JLabel lbCanvasOriginal;
     private final PageSelectionPane pageSelectionPane;
-    private final ComparatorPane comparatorPane;
-    private final GlyphExportPane glyphExportPane;
+    private final BoxFilePane trainingPane;
+    private final ComparatorPane recognitionPane;
+    private final GlyphExportPane exportPane;
     private final OpenProjectDialog openProjectDialog;
 
     private final ButtonGroup bgrpLanguage = new ButtonGroup();
@@ -100,12 +102,13 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
 
         openProjectDialog = new OpenProjectDialog(this);
         pageSelectionPane = new PageSelectionPane();
-        comparatorPane = new ComparatorPane();
-        glyphExportPane = new GlyphExportPane();
+        trainingPane = new BoxFilePane();
+        recognitionPane = new ComparatorPane();
+        exportPane = new GlyphExportPane();
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 
-        glyphExportPane.getGlyphSelectionPane().getList().addListSelectionListener(
+        exportPane.getGlyphSelectionPane().getList().addListSelectionListener(
                 new ListSelectionListener() {
                     public void valueChanged(ListSelectionEvent e) {
                         if (e.getValueIsAdjusting()) {
@@ -126,7 +129,7 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
                             }
                         }
 
-                        glyphExportPane.getGlyphListPane().getList().setModel(
+                        exportPane.getGlyphListPane().getList().setModel(
                                 model);
                     }
                 });
@@ -230,43 +233,51 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
             }
         });
 
-        JSeparator separator_1 = new JSeparator();
+        final JSeparator separator_1 = new JSeparator();
         mnView.add(separator_1);
 
-        final JRadioButtonMenuItem rmCompareRecognition = new JRadioButtonMenuItem(
-                "Compare Recognition");
-        bgrpView.add(rmCompareRecognition);
-        mnView.add(rmCompareRecognition);
+        final JRadioButtonMenuItem rmTraining = new JRadioButtonMenuItem(
+                "Training");
+        bgrpView.add(rmTraining);
+        mnView.add(rmTraining);
 
-        final JRadioButtonMenuItem rmExportGlyphImages = new JRadioButtonMenuItem(
-                "Export Glyph Images");
-        bgrpView.add(rmExportGlyphImages);
-        mnView.add(rmExportGlyphImages);
+        final JRadioButtonMenuItem rmRecognition = new JRadioButtonMenuItem(
+                "Recognition");
+        bgrpView.add(rmRecognition);
+        mnView.add(rmRecognition);
+
+        final JRadioButtonMenuItem rmExport = new JRadioButtonMenuItem(
+                "Export");
+        bgrpView.add(rmExport);
+        mnView.add(rmExport);
 
         // on a view change, show the other component (export glyphs or compare
         // results)
         final ActionListener viewChangeListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (rmCompareRecognition.isSelected()
-                        && getMainComponent() != comparatorPane) {
-                    setMainComponent(comparatorPane);
-                } else if (rmExportGlyphImages.isSelected()
-                        && getMainComponent() != glyphExportPane) {
-                    updateGlyphExport();
-
-                    setMainComponent(glyphExportPane);
+                if (rmTraining.isSelected()
+                        && getMainComponent() != trainingPane) {
+                    setMainComponent(trainingPane);
+                } else if (rmRecognition.isSelected()
+                        && getMainComponent() != recognitionPane) {
+                    setMainComponent(recognitionPane);
+                } else if (rmExport.isSelected()
+                        && getMainComponent() != exportPane) {
+                    setMainComponent(exportPane);
                 }
             }
         };
 
-        rmCompareRecognition.addActionListener(viewChangeListener);
-        rmExportGlyphImages.addActionListener(viewChangeListener);
-        bgrpView.setSelected(rmCompareRecognition.getModel(), true);
+        rmTraining.addActionListener(viewChangeListener);
+        rmRecognition.addActionListener(viewChangeListener);
+        rmExport.addActionListener(viewChangeListener);
+        bgrpView.setSelected(rmTraining.getModel(), true);
 
-        JMenu mnHelp = new JMenu(Labels.getLabel(getLocale(), "menu_help"));
+        final JMenu mnHelp = new JMenu(
+                Labels.getLabel(getLocale(), "menu_help"));
         menuBar.add(mnHelp);
 
-        JMenuItem mntmAbout = new JMenuItem(Labels.getLabel(getLocale(),
+        final JMenuItem mntmAbout = new JMenuItem(Labels.getLabel(getLocale(),
                 "menu_about"));
         mntmAbout.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -374,58 +385,27 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         tabbedPane.add(Labels.getLabel(getLocale(), "tab_project"),
                 pageSelectionPane);
 
-        spMain.setRightComponent(comparatorPane);
+        spMain.setRightComponent(trainingPane);
 
         setVisible(wasVisible);
     }
 
-    private Component getMainComponent() {
-        return spMain.getRightComponent();
+    private MainComponent getMainComponent() {
+        final Component main = spMain.getRightComponent();
+        if (main instanceof MainComponent) {
+            return (MainComponent) main;
+        } else {
+            throw new IllegalStateException(
+                    "The current main component is not an instance of MainComponent.");
+        }
     }
 
-    private void setMainComponent(Component comp) {
-        spMain.setRightComponent(comp);
-    }
-
-    private void updateGlyphExport() {
-        final JList<Entry<String, Set<Symbol>>> glyphList =
-                glyphExportPane.getGlyphSelectionPane().getList();
-
-        final HashMap<String, Set<Symbol>> glyphs = new HashMap<>();
-
-        final Page page = comparatorPane.getModel();
-
-        // set a new renderer that has a reference to the thresholded image
-        glyphExportPane.getGlyphListPane().getList().setCellRenderer(
-                new GlyphListCellRenderer(page.getThresholdedImage()));
-
-        // insert all symbols into the map
-        for (final Line line : page.getLines()) {
-            for (final Word word : line.getWords()) {
-                for (final Symbol symbol : word.getSymbols()) {
-                    final String sym = symbol.getText();
-
-                    if (!glyphs.containsKey(sym)) {
-                        glyphs.put(sym, new TreeSet<Symbol>(symbolComparator));
-                    }
-
-                    glyphs.get(sym).add(symbol);
-                }
-            }
+    private void setMainComponent(MainComponent main) {
+        if (main == getMainComponent()) {
+            return;
         }
 
-        final LinkedList<Entry<String, Set<Symbol>>> entries = new LinkedList<>(
-                glyphs.entrySet());
-
-        Collections.sort(entries, glyphComparator);
-
-        final DefaultListModel<Entry<String, Set<Symbol>>> model = new DefaultListModel<>();
-
-        for (final Entry<String, Set<Symbol>> entry : entries) {
-            model.addElement(entry);
-        }
-
-        glyphList.setModel(model);
+        spMain.setRightComponent(main.asComponent());
     }
 
     public OpenProjectDialog getLoadProjectDialog() {
@@ -445,14 +425,18 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
     }
 
     public ComparatorPane getComparatorPane() {
-        return comparatorPane;
+        return recognitionPane;
     }
 
     public GlyphExportPane getGlyphExportPane() {
-        return glyphExportPane;
+        return exportPane;
     }
 
     public JProgressBar getPageLoadProgressBar() {
         return pbLoadPage;
+    }
+
+    public void setModel(PageModel model) {
+        getMainComponent().setModel(model);
     }
 }
