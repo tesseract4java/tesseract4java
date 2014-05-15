@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
@@ -41,8 +39,6 @@ public class TesseractController implements ProjectChangeListener,
     private final TesseractFrame view;
     private SwingWorker<PageModel, Void> pageLoaderWorker = null;
     private PageLoader pageLoader = null;
-
-    private final AtomicBoolean loadPending = new AtomicBoolean(false);
 
     // Filter for image files
     private static final DirectoryStream.Filter<Path> IMG_FILTER =
@@ -193,7 +189,7 @@ public class TesseractController implements ProjectChangeListener,
             }
         });
 
-        final Page page = new Page(scanFile, 0, 0, 0, lines);
+        final Page page = new Page(scanFile, 1, 1, 300, lines);
         final PageModel model = new PageModel(page, originalImg, thresholdedImg);
 
         try {
