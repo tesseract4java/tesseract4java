@@ -12,12 +12,15 @@ import de.vorb.tesseract.util.Page;
 public interface PageRenderer {
 
     /**
+     * 
      * Renders the information of a page on an optionally given background.
      * 
      * @param page
      *            page model to render
      * @param pageBackground
      *            background image to render below (may also be null)
+     * @param scale
+     *            scaling factor
      */
-    public void render(Page page, BufferedImage pageBackground);
+    public void render(Page page, BufferedImage pageBackground, float scale);
 }
