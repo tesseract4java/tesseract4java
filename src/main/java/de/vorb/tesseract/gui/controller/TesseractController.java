@@ -11,16 +11,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.xml.bind.JAXBException;
 
 import org.bridj.BridJ;
 
 import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.gui.event.PageChangeListener;
 import de.vorb.tesseract.gui.event.ProjectChangeListener;
+import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
 import de.vorb.tesseract.tools.recognition.RecognitionState;
@@ -35,8 +39,10 @@ public class TesseractController implements ProjectChangeListener,
         PageChangeListener {
 
     private final TesseractFrame view;
-    private SwingWorker<Page, Void> pageLoaderWorker = null;
+    private SwingWorker<PageModel, Void> pageLoaderWorker = null;
     private PageLoader pageLoader = null;
+
+    private final AtomicBoolean loadPending = new AtomicBoolean(false);
 
     // Filter for image files
     private static final DirectoryStream.Filter<Path> IMG_FILTER =
@@ -68,7 +74,7 @@ public class TesseractController implements ProjectChangeListener,
         view.getLoadProjectDialog().addProjectChangeListener(this);
 
         try {
-            pageLoader = new PageLoader();
+            pageLoader = new PageLoader("deu-frak");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -107,9 +113,9 @@ public class TesseractController implements ProjectChangeListener,
         view.getPageLoadProgressBar().setIndeterminate(true);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        pageLoaderWorker = new SwingWorker<Page, Void>() {
+        pageLoaderWorker = new SwingWorker<PageModel, Void>() {
             @Override
-            protected Page doInBackground() {
+            protected PageModel doInBackground() {
                 try {
                     return loadPageModel(page);
                 } catch (IOException e) {
@@ -121,8 +127,8 @@ public class TesseractController implements ProjectChangeListener,
             @Override
             public void done() {
                 try {
-                    final Page page = get();
-                    view.getComparatorPane().setModel(page);
+                    final PageModel page = get();
+                    view.setModel(page.getPage());
                     view.getPageLoadProgressBar().setIndeterminate(false);
                     view.setCursor(Cursor.getDefaultCursor());
                 } catch (InterruptedException e) {
@@ -136,7 +142,7 @@ public class TesseractController implements ProjectChangeListener,
         pageLoaderWorker.execute();
     }
 
-    private Page loadPageModel(Path scanFile) throws IOException {
+    private PageModel loadPageModel(Path scanFile) throws IOException {
         pageLoader.reset();
 
         final Vector<Line> lines = new Vector<Line>();
@@ -187,9 +193,15 @@ public class TesseractController implements ProjectChangeListener,
             }
         });
 
-        final Page result = new Page(scanFile, originalImg, thresholdedImg,
-                lines);
+        final Page page = new Page(scanFile, 0, 0, 0, lines);
+        final PageModel model = new PageModel(page, originalImg, thresholdedImg);
 
-        return result;
+        try {
+            page.writeTo(System.out);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+
+        return model;
     }
 }

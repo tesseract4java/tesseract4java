@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.bridj.Pointer;
 
+import de.vorb.leptonica.LibLept;
 import de.vorb.leptonica.Pix;
 import de.vorb.leptonica.util.PixConversions;
 import de.vorb.tesseract.LibTess;
@@ -13,19 +14,20 @@ import de.vorb.tesseract.PageSegMode;
 import de.vorb.tesseract.tools.recognition.Recognition;
 
 public class PageLoader extends Recognition {
-    BufferedImage originalImg = null;
+    private BufferedImage originalImg = null;
+    private Pointer<Pix> originalRef = null;
 
-    public PageLoader() throws IOException {
-        super();
+    public PageLoader(String language) throws IOException {
+        super(language);
     }
 
     @Override
-    protected void init() throws IOException {
-        handle = LibTess.TessBaseAPICreate();
+    protected void init(String language) throws IOException {
+        setHandle(LibTess.TessBaseAPICreate());
+    }
 
-        LibTess.TessBaseAPISetVariable(handle, Pointer.pointerToCString(""),
-                Pointer.pointerToCString(""));
-
+    @Override
+    protected void reset() throws IOException {
         // init LibTess with data path, language and OCR engine mode
         LibTess.TessBaseAPIInit2(
                 getHandle(),
@@ -36,8 +38,18 @@ public class PageLoader extends Recognition {
         LibTess.TessBaseAPISetPageSegMode(getHandle(), PageSegMode.AUTO);
     }
 
+    @Override
+    protected void close() throws IOException {
+        LibTess.TessBaseAPIDelete(getHandle());
+    }
+
     public void setOriginalImage(BufferedImage image) {
-        this.originalImg = image;
+        if (originalRef != null) {
+            LibLept.pixDestroy(Pointer.pointerToPointer(originalRef));
+        }
+
+        originalImg = image;
+        originalRef = PixConversions.img2pix(image);
 
         LibTess.TessBaseAPISetImage2(getHandle(), PixConversions.img2pix(image));
     }
