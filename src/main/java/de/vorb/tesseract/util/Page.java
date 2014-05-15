@@ -1,6 +1,5 @@
 package de.vorb.tesseract.util;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
@@ -16,6 +15,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.namespace.QName;
 
+import com.sun.xml.internal.txw2.IllegalAnnotationException;
+
 import de.vorb.tesseract.util.xml.PathAdapter;
 
 public class Page {
@@ -23,17 +24,52 @@ public class Page {
     @XmlAttribute
     private final Path file;
 
-    private final BufferedImage originalImg;
-    private final BufferedImage thresholdedImg;
+    @XmlAttribute
+    private final int width;
+    @XmlAttribute
+    private final int height;
+    @XmlAttribute
+    private final int resolution;
 
     @XmlElement(name = "line")
     private final List<Line> lines;
 
-    public Page(Path file, BufferedImage originalScan,
-            BufferedImage thresholdedImg, List<Line> lines) {
+    /**
+     * Creates a new Page.
+     * 
+     * @param file
+     *            original image file
+     * @param width
+     *            width of the image in pixels
+     * @param height
+     *            height of the image in pixels
+     * @param resolution
+     *            resolution of the image in dpi
+     * @param lines
+     *            list of lines
+     */
+    public Page(Path file, int width, int height, int resolution,
+            List<Line> lines) {
         this.file = file;
-        this.originalImg = originalScan;
-        this.thresholdedImg = thresholdedImg;
+
+        if (width < 0) {
+            throw new IllegalArgumentException("width < 0");
+        }
+
+        this.width = width;
+
+        if (height < 0) {
+            throw new IllegalArgumentException("height < 0");
+        }
+
+        this.height = height;
+
+        if (resolution < 0) {
+            throw new IllegalAnnotationException("resolution < 0");
+        }
+
+        this.resolution = resolution;
+
         this.lines = lines;
     }
 
@@ -41,21 +77,20 @@ public class Page {
         return file;
     }
 
-    public BufferedImage getOriginalImage() {
-        return originalImg;
+    public int getWidth() {
+        return width;
     }
 
-    public BufferedImage getThresholdedImage() {
-        return thresholdedImg;
+    public int getHeight() {
+        return height;
+    }
+
+    public int getResolution() {
+        return resolution;
     }
 
     public List<Line> getLines() {
         return Collections.unmodifiableList(lines);
-    }
-
-    public boolean isAscendersEnabled() {
-        // only enabled for binary images
-        return originalImg.getType() == BufferedImage.TYPE_BYTE_BINARY;
     }
 
     public static void writeTo(OutputStream os, Page p)
