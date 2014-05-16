@@ -7,6 +7,6 @@ public class Strokes {
     private Strokes() {
     }
 
-    public static final Stroke NORMAL = new BasicStroke(1);
-    public static final Stroke SELECTION = new BasicStroke(3);
+    public static final Stroke NORMAL = new BasicStroke(1f);
+    public static final Stroke SELECTION = new BasicStroke(2f);
 }
