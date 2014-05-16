@@ -52,20 +52,20 @@ public class Page {
             List<Line> lines) {
         this.file = file;
 
-        if (width < 0) {
-            throw new IllegalArgumentException("width < 0");
+        if (width < 1) {
+            throw new IllegalArgumentException("width < 1");
         }
 
         this.width = width;
 
-        if (height < 0) {
-            throw new IllegalArgumentException("height < 0");
+        if (height < 1) {
+            throw new IllegalArgumentException("height < 1");
         }
 
         this.height = height;
 
-        if (resolution < 0) {
-            throw new IllegalAnnotationException("resolution < 0");
+        if (resolution < 1) {
+            throw new IllegalAnnotationException("resolution < 1");
         }
 
         this.resolution = resolution;
