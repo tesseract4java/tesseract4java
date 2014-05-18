@@ -14,11 +14,11 @@ import de.vorb.tesseract.util.xml.BoxAdapter;
  */
 public class Symbol {
     @XmlValue
-    private final String text;
+    private String text;
 
     @XmlAttribute(name = "bounding-box")
     @XmlJavaTypeAdapter(BoxAdapter.class)
-    private final Box bbox;
+    private Box bbox;
 
     @XmlAttribute
     private final float confidence;
@@ -47,6 +47,15 @@ public class Symbol {
     }
 
     /**
+     * Sets text.
+     * 
+     * @param text
+     */
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    /**
      * @return recognition confidence
      */
     public float getConfidence() {
@@ -58,6 +67,15 @@ public class Symbol {
      */
     public Box getBoundingBox() {
         return bbox;
+    }
+
+    /**
+     * Sets the bounding box.
+     * 
+     * @param boundingBox
+     */
+    public void setBoundingBox(Box boundingBox) {
+        bbox = boundingBox;
     }
 
     /*
