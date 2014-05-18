@@ -13,7 +13,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
-public class CharTable extends JDialog {
+public class CharTableDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private JTable table;
@@ -22,7 +22,7 @@ public class CharTable extends JDialog {
     /**
      * Create the panel.
      */
-    public CharTable() {
+    public CharTableDialog() {
         super();
         setTitle("Special characters");
         setAlwaysOnTop(true);
@@ -50,7 +50,7 @@ public class CharTable extends JDialog {
 
         JPanel panel_2 = new JPanel();
         panel.add(panel_2, BorderLayout.EAST);
-        
+
         JButton btnInsertCharacter = new JButton("Insert character");
         panel_2.add(btnInsertCharacter);
 
