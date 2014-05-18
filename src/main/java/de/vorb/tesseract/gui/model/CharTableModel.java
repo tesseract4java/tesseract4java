@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import javax.swing.table.AbstractTableModel;
 
-public class CharacterTableModel extends AbstractTableModel {
+public class CharTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
 
     private final ArrayList<Character> chars = new ArrayList<>();
