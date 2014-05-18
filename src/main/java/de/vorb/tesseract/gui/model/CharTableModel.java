@@ -9,6 +9,13 @@ public class CharTableModel extends AbstractTableModel {
 
     private final ArrayList<Character> chars = new ArrayList<>();
 
+    public CharTableModel() {
+        chars.add('c');
+        chars.add('ü');
+        chars.add('ß');
+        chars.add('ſ');
+    }
+
     @Override
     public int getColumnCount() {
         return 3;
@@ -16,7 +23,21 @@ public class CharTableModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        return 0;
+        return chars.size();
+    }
+
+    @Override
+    public String getColumnName(int colIndex) {
+        switch (colIndex) {
+        case 0:
+            return "Character";
+        case 1:
+            return "Description";
+        case 2:
+            return "Codepoint";
+        }
+
+        return "";
     }
 
     @Override
@@ -25,15 +46,29 @@ public class CharTableModel extends AbstractTableModel {
         case 0:
             return chars.get(rowIndex);
         case 1:
-            return Character.getName(Character.getNumericValue(chars.get(
-                    rowIndex)));
+            return Character.getName(chars.get(rowIndex));
         case 2:
-            final String hex = Integer.toHexString(Character.getNumericValue(
-                    chars.get(rowIndex)));
-            return "U+" + hex;
+            return hexPad(chars.get(rowIndex), 4);
         }
 
         return "";
     }
 
+    private static String hexPad(int hex, int length) {
+        final String hexString = Integer.toHexString(hex).toUpperCase();
+
+        int missing = Math.max(length - hexString.length(), 0);
+
+        if (missing == 0) {
+            return "U+" + hexString;
+        }
+
+        final StringBuilder result = new StringBuilder("U+");
+        for (; missing > 0; missing--) {
+            result.append('0');
+        }
+        result.append(hexString);
+
+        return result.toString();
+    }
 }

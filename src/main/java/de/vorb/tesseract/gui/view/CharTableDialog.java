@@ -1,17 +1,16 @@
 package de.vorb.tesseract.gui.view;
 
-import javax.swing.JPanel;
-
 import java.awt.BorderLayout;
 
+import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.JTextField;
-import javax.swing.JFormattedTextField;
-import javax.swing.JButton;
-import javax.swing.JLabel;
+
+import de.vorb.tesseract.gui.model.CharTableModel;
 
 public class CharTableDialog extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -58,15 +57,13 @@ public class CharTableDialog extends JDialog {
         getContentPane().add(scrollPane, BorderLayout.CENTER);
 
         table = new JTable();
-        table.setModel(new DefaultTableModel(
-                new Object[][] {
-                },
-                new String[] {
-                        "Character", "Description", "Codepoint"
-                }
-                ));
+        table.setModel(new CharTableModel());
+        table.getColumnModel().getColumn(1).setPreferredWidth(300);
         scrollPane.setViewportView(table);
-
     }
 
+    public static void main(String[] args) {
+        final JDialog d = new CharTableDialog();
+        d.setVisible(true);
+    }
 }
