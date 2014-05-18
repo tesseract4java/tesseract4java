@@ -2,6 +2,7 @@ package de.vorb.tesseract.gui.model;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -12,12 +13,8 @@ public class SymbolTableModel extends AbstractTableModel {
 
     private final LinkedList<Symbol> symbols;
 
-    public SymbolTableModel(Iterator<Symbol> symbols) {
-        this.symbols = new LinkedList<>();
-
-        while (symbols.hasNext()) {
-            this.symbols.add(symbols.next());
-        }
+    public SymbolTableModel() {
+        symbols = new LinkedList<>();
     }
 
     @Override
@@ -48,7 +45,35 @@ public class SymbolTableModel extends AbstractTableModel {
         return null;
     }
 
+    @Override
+    public String getColumnName(int column) {
+        switch (column) {
+        case 0:
+            return "Symbol";
+        case 1:
+            return "X";
+        case 2:
+            return "Y";
+        case 3:
+            return "Width";
+        case 4:
+            return "Height";
+        }
+
+        return "";
+    }
+
     public Symbol getSymbol(int index) {
         return symbols.get(index);
+    }
+
+    public void replaceAllSymbols(Iterator<Symbol> newSymbols) {
+        symbols.clear();
+
+        while (newSymbols.hasNext()) {
+            symbols.add(newSymbols.next());
+        }
+
+        fireTableDataChanged();
     }
 }
