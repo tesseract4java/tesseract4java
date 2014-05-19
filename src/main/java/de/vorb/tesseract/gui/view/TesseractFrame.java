@@ -13,15 +13,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
@@ -48,11 +44,7 @@ import javax.swing.event.ListSelectionListener;
 import de.vorb.tesseract.gui.event.LocaleChangeListener;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.i18n.Labels;
-import de.vorb.tesseract.gui.view.renderer.GlyphListCellRenderer;
-import de.vorb.tesseract.util.Line;
-import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Symbol;
-import de.vorb.tesseract.util.Word;
 
 /**
  * Swing component that allows to compare the results of Tesseract.
@@ -72,32 +64,13 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
     private final ButtonGroup bgrpView = new ButtonGroup();
     private final JSplitPane spMain;
 
-    private static final Comparator<Entry<String, Set<Symbol>>> glyphComparator =
-            new Comparator<Entry<String, Set<Symbol>>>() {
-                @Override
-                public int compare(Entry<String, Set<Symbol>> o1,
-                        Entry<String, Set<Symbol>> o2) {
-                    return o2.getValue().size() - o1.getValue().size();
-                }
-            };
-
-    private static final Comparator<Symbol> symbolComparator = new Comparator<Symbol>() {
-        @Override
-        public int compare(Symbol o1, Symbol o2) {
-            if (o2.getConfidence() >= o1.getConfidence())
-                return 1;
-
-            return -1;
-        }
-    };
-
     /**
      * Create the application.
      */
     public TesseractFrame() {
         super();
         setLocationByPlatform(true);
-        setMinimumSize(new Dimension(1024, 680));
+        setMinimumSize(new Dimension(1100, 680));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         openProjectDialog = new OpenProjectDialog(this);
@@ -152,15 +125,17 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
 
         // Menu
 
-        JMenuBar menuBar = new JMenuBar();
+        final JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        JMenu mnFile = new JMenu(Labels.getLabel(getLocale(), "menu_file"));
+        final JMenu mnFile = new JMenu(
+                Labels.getLabel(getLocale(), "menu_file"));
         menuBar.add(mnFile);
 
         openProjectDialog.setModalityType(ModalityType.APPLICATION_MODAL);
 
-        JMenuItem mnOpenProject = new JMenuItem(Labels.getLabel(getLocale(),
+        final JMenuItem mnOpenProject = new JMenuItem(Labels.getLabel(
+                getLocale(),
                 "menu_open_project"));
         mnOpenProject.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
@@ -171,13 +146,13 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
                 InputEvent.CTRL_MASK));
         mnFile.add(mnOpenProject);
 
-        JMenuItem mntmOcrcomparison = new JMenuItem("OCR-Comparison");
+        final JMenuItem mntmOcrcomparison = new JMenuItem("OCR-Comparison");
         mnFile.add(mntmOcrcomparison);
 
-        JSeparator separator = new JSeparator();
+        final JSeparator separator = new JSeparator();
         mnFile.add(separator);
 
-        JMenuItem mntmExit = new JMenuItem(
+        final JMenuItem mntmExit = new JMenuItem(
                 Labels.getLabel(getLocale(), "menu_exit"));
         mntmExit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -186,19 +161,23 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         });
         mnFile.add(mntmExit);
 
-        JMenu mnEdit = new JMenu(Labels.getLabel(getLocale(), "menu_edit"));
+        final JMenu mnEdit = new JMenu(
+                Labels.getLabel(getLocale(), "menu_edit"));
         menuBar.add(mnEdit);
 
-        JMenu mnView = new JMenu(Labels.getLabel(getLocale(), "menu_view"));
+        final JMenu mnView = new JMenu(
+                Labels.getLabel(getLocale(), "menu_view"));
         menuBar.add(mnView);
 
-        JMenu mnLanguage = new JMenu("Language");
+        final JMenu mnLanguage = new JMenu("Language");
         mnView.add(mnLanguage);
 
-        JRadioButtonMenuItem rbtnEnglish = new JRadioButtonMenuItem("English");
+        final JRadioButtonMenuItem rbtnEnglish = new JRadioButtonMenuItem(
+                "English");
         mnLanguage.add(rbtnEnglish);
         bgrpLanguage.add(rbtnEnglish);
-        JRadioButtonMenuItem rbtnGerman = new JRadioButtonMenuItem("Deutsch");
+        final JRadioButtonMenuItem rbtnGerman = new JRadioButtonMenuItem(
+                "Deutsch");
         mnLanguage.add(rbtnGerman);
         bgrpLanguage.add(rbtnGerman);
 
@@ -291,11 +270,11 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
 
         // Contents
 
-        JPanel panel = new JPanel();
+        final JPanel panel = new JPanel();
         panel.setBackground(SystemColor.menu);
         panel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(panel, BorderLayout.SOUTH);
-        GridBagLayout gbl_panel = new GridBagLayout();
+        final GridBagLayout gbl_panel = new GridBagLayout();
         gbl_panel.columnWidths = new int[] { 111, 84, 46, 0, 46, 417, 50, 40,
                 0, 0 };
         gbl_panel.rowHeights = new int[] { 14, 0 };
@@ -305,7 +284,8 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         gbl_panel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
         panel.setLayout(gbl_panel);
 
-        JLabel lblProjectOverview = new JLabel(Labels.getLabel(getLocale(),
+        final JLabel lblProjectOverview = new JLabel(Labels.getLabel(
+                getLocale(),
                 "project_overview"));
         lblProjectOverview.setFont(new Font("Tahoma", Font.BOLD, 11));
         GridBagConstraints gbc_lblProjectOverview = new GridBagConstraints();
@@ -315,7 +295,7 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         gbc_lblProjectOverview.gridy = 0;
         panel.add(lblProjectOverview, gbc_lblProjectOverview);
 
-        JLabel lblCorrectWords = new JLabel(Labels.getLabel(getLocale(),
+        final JLabel lblCorrectWords = new JLabel(Labels.getLabel(getLocale(),
                 "correct_words"));
         GridBagConstraints gbc_lblCorrectWords = new GridBagConstraints();
         gbc_lblCorrectWords.fill = GridBagConstraints.VERTICAL;
@@ -325,7 +305,7 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         gbc_lblCorrectWords.gridy = 0;
         panel.add(lblCorrectWords, gbc_lblCorrectWords);
 
-        JLabel label = new JLabel("0");
+        final JLabel label = new JLabel("0");
         label.setHorizontalAlignment(SwingConstants.LEFT);
         GridBagConstraints gbc_label = new GridBagConstraints();
         gbc_label.insets = new Insets(0, 0, 0, 5);
@@ -334,7 +314,8 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         gbc_label.gridy = 0;
         panel.add(label, gbc_label);
 
-        JLabel lblIncorrectWords = new JLabel(Labels.getLabel(getLocale(),
+        final JLabel lblIncorrectWords = new JLabel(Labels.getLabel(
+                getLocale(),
                 "incorrect_words"));
         GridBagConstraints gbc_lblIncorrectWords = new GridBagConstraints();
         gbc_lblIncorrectWords.anchor = GridBagConstraints.EAST;
@@ -343,7 +324,7 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         gbc_lblIncorrectWords.gridy = 0;
         panel.add(lblIncorrectWords, gbc_lblIncorrectWords);
 
-        JLabel label_1 = new JLabel("0");
+        final JLabel label_1 = new JLabel("0");
         GridBagConstraints gbc_label_1 = new GridBagConstraints();
         gbc_label_1.insets = new Insets(0, 0, 0, 5);
         gbc_label_1.anchor = GridBagConstraints.WEST;
@@ -351,7 +332,7 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         gbc_label_1.gridy = 0;
         panel.add(label_1, gbc_label_1);
 
-        JLabel lblTotalWords = new JLabel(Labels.getLabel(getLocale(),
+        final JLabel lblTotalWords = new JLabel(Labels.getLabel(getLocale(),
                 "total_words"));
         GridBagConstraints gbc_lblTotalWords = new GridBagConstraints();
         gbc_lblTotalWords.anchor = GridBagConstraints.EAST;
@@ -360,7 +341,7 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         gbc_lblTotalWords.gridy = 0;
         panel.add(lblTotalWords, gbc_lblTotalWords);
 
-        JLabel label_2 = new JLabel("0");
+        final JLabel label_2 = new JLabel("0");
         GridBagConstraints gbc_label_2 = new GridBagConstraints();
         gbc_label_2.insets = new Insets(0, 0, 0, 5);
         gbc_label_2.anchor = GridBagConstraints.WEST;
@@ -369,7 +350,6 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         panel.add(label_2, gbc_label_2);
 
         GridBagConstraints gbc_pbRegognitionProgress = new GridBagConstraints();
-        gbc_pbRegognitionProgress.fill = GridBagConstraints.HORIZONTAL;
         gbc_pbRegognitionProgress.gridx = 8;
         gbc_pbRegognitionProgress.gridy = 0;
         panel.add(pbLoadPage, gbc_pbRegognitionProgress);
@@ -377,7 +357,7 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         spMain.setResizeWeight(0.0);
         getContentPane().add(spMain, BorderLayout.CENTER);
 
-        JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
         tabbedPane.setMinimumSize(new Dimension(300, 300));
         spMain.setLeftComponent(tabbedPane);
 
@@ -401,10 +381,12 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
     }
 
     private void setMainComponent(MainComponent main) {
-        if (main == getMainComponent()) {
+        final MainComponent old = getMainComponent();
+        if (main == old) {
             return;
         }
 
+        main.setModel(old.getModel());
         spMain.setRightComponent(main.asComponent());
     }
 
@@ -438,5 +420,9 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
 
     public void setModel(PageModel model) {
         getMainComponent().setModel(model);
+    }
+
+    public PageModel getModel() {
+        return getMainComponent().getModel();
     }
 }
