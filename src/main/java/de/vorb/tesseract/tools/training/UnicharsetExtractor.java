@@ -1,5 +1,6 @@
 package de.vorb.tesseract.tools.training;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
@@ -49,9 +50,17 @@ public class UnicharsetExtractor {
 
         final Set<String> charset = extractCharacterSet(dir);
 
+        final BufferedWriter out = Files.newBufferedWriter(
+                Paths.get("E:/Masterarbeit/Ressourcen/tessdata/experiment04-complete-training/deu-frak-fries.unicharset"),
+                Charset.forName("UTF-8"));
+
+        int id = 0;
         for (final String c : charset) {
             final CharacterProperties props = CharacterProperties.forString(c);
-            System.out.println(c + " " + props);
+            out.append(c + " " + props.toHexString() + " " + "NULL" + " "
+                    + (id++) + "\n");
         }
+
+        out.close();
     }
 }
