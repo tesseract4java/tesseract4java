@@ -57,7 +57,7 @@ public class Project {
     final Path page = getSelectedPage();
 
     for (PageChangeListener listener : pageChangeListeners) {
-      listener.pageChanged(index, page);
+      listener.pageSelectionChanged(index);
     }
   }
 
