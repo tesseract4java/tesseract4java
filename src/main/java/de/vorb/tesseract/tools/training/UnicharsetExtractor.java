@@ -1,66 +1,57 @@
 package de.vorb.tesseract.tools.training;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.nio.charset.Charset;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-/**
- * Class for creating unicode character set (unicharset) files.
- * 
- * @author Paul Vorbach
- */
 public class UnicharsetExtractor {
-  private static UnicharsetExtractor instance = null;
+    public static Set<String> extractCharacterSet(Iterable<Path> files)
+            throws IOException {
+        final Set<String> charset = new HashSet<>();
 
-  private UnicharsetExtractor() {
-  }
+        for (final Path file : files) {
+            final List<String> lines = Files.readAllLines(file,
+                    Charset.forName("UTF-8"));
 
-  /**
-   * @return singleton instance of this class.
-   */
-  public static UnicharsetExtractor getInstance() {
-    if (instance == null)
-      instance = new UnicharsetExtractor();
+            for (final String line : lines) {
+                if (line.length() == 0) {
+                    continue;
+                }
 
-    return instance;
-  }
+                final String[] tokens = line.split("\\s+");
+                if (!"".equals(tokens[0])) {
+                    charset.add(tokens[0]);
+                }
+            }
+        }
 
-  /**
-   * Name of the unicharset_extractor executable file.
-   */
-  public final String executable = "unicharset_extractor";
+        return charset;
+    }
 
-  /**
-   * Extracts the unicode character set file out of a
-   * 
-   * @param boxFiles
-   * @throws IOException
-   * @throws InterruptedException
-   */
-  public void extract(Collection<File> boxFiles) throws IOException,
-      InterruptedException {
-    if (boxFiles.isEmpty())
-      return;
+    public static void main(String[] args) throws IOException {
+        final DirectoryStream<Path> dir =
+                Files.newDirectoryStream(
+                        Paths.get("E:/Masterarbeit/Ressourcen/tessdata/experiment04-complete-training"),
+                        new DirectoryStream.Filter<Path>() {
+                            @Override
+                            public boolean accept(Path entry)
+                                    throws IOException {
+                                return entry.getFileName().toString().endsWith(
+                                        ".box");
+                            }
+                        });
 
-    // build a process
-    final Iterator<File> it = boxFiles.iterator();
-    final File first = it.next();
+        final Set<String> charset = extractCharacterSet(dir);
 
-    final List<String> command = new LinkedList<String>();
-    // FIXME command.add(Tesseract.getInstance().getPathForCommand(executable));
-    command.add(first.getPath());
-    while (it.hasNext())
-      command.add(it.next().getPath());
-
-    final ProcessBuilder pb = new ProcessBuilder(command);
-    pb.directory(first.getParentFile());
-
-    final Process p = pb.start();
-    p.waitFor();
-    if (p.exitValue() != 0)
-      throw new IOException("bad box file");
-  }
+        for (final String c : charset) {
+            final CharacterProperties props = CharacterProperties.forString(c);
+            System.out.println(c + " " + props);
+        }
+    }
 }
