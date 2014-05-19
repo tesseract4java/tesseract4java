@@ -1,22 +1,24 @@
 package de.vorb.tesseract.gui.view;
 
-import java.awt.BasicStroke;
+import static de.vorb.tesseract.gui.view.Coordinates.scaled;
+import static de.vorb.tesseract.gui.view.Coordinates.unscaled;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,8 +38,8 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import de.vorb.tesseract.gui.event.DefaultMouseListener;
 import de.vorb.tesseract.gui.event.ZoomChangeListener;
+import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.util.Baseline;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.FontAttributes;
@@ -47,19 +49,11 @@ import de.vorb.tesseract.util.Point;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
-public class ComparatorPane extends JPanel implements ZoomChangeListener {
+public class ComparatorPane extends JPanel implements ZoomChangeListener,
+        MainComponent {
     private static final long serialVersionUID = 1L;
 
     private static final int SCROLL_UNITS = 12;
-
-    private static final Color COLOR_CORRECT = new Color(0xFF66CC00);
-    private static final Color COLOR_INCORRECT = Color.RED;
-    private static final Color COLOR_BASELINE = Color.BLUE;
-    private static final Color COLOR_TEXT = Color.BLACK;
-    private static final Color COLOR_LINE_NUMBER = Color.GRAY;
-
-    private static final Stroke STROKE_NORMAL = new BasicStroke(1);
-    private static final Stroke STROKE_SELECTION = new BasicStroke(3);
 
     // Fallback fonts
     private static final Font FONT_FALLBACK_NORMAL = new Font("SansSerif",
@@ -169,9 +163,10 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
 
     private final LinkedList<ZoomChangeListener> zoomChangeListeners = new LinkedList<ZoomChangeListener>();
 
-    private Page model = new Page(Paths.get(""), new BufferedImage(1, 1,
-            BufferedImage.TYPE_BYTE_BINARY), new BufferedImage(1, 1,
-            BufferedImage.TYPE_BYTE_BINARY), new LinkedList<Line>());
+    private PageModel model = new PageModel(new Page(Paths.get(""), 1, 1, 300,
+            new LinkedList<Line>()), new BufferedImage(1, 1,
+            BufferedImage.TYPE_BYTE_GRAY), new BufferedImage(1, 1,
+            BufferedImage.TYPE_BYTE_BINARY));
 
     /**
      * Create the panel.
@@ -204,6 +199,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
         panel.add(cbCorrect);
 
         JSplitPane splitPane = new JSplitPane();
+        splitPane.setOneTouchExpandable(true);
         splitPane.setEnabled(false);
         splitPane.setResizeWeight(0.5);
         add(splitPane, BorderLayout.CENTER);
@@ -213,10 +209,11 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
         spOriginal.getVerticalScrollBar().setUnitIncrement(SCROLL_UNITS);
         splitPane.setLeftComponent(spOriginal);
 
-        MouseListener mouseListener = new DefaultMouseListener() {
+        MouseListener mouseListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                final Page model = getModel();
+                final PageModel model = getModel();
+                final Page page = model.getPage();
 
                 final float factor = getScaleFactor();
 
@@ -231,10 +228,10 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                 // true if clicked a box (word)
                 boolean hit = false;
 
-                for (Line line : model.getLines()) {
+                for (Line line : page.getLines()) {
                     for (Word word : line.getWords()) {
 
-                        word.setSelected(false);
+                        // word.setSelected(false);
 
                         if (word.getBoundingBox().contains(unscaled)) {
                             hit = true;
@@ -256,10 +253,10 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                             tfConfidence.setText(String.valueOf(word.getConfidence()));
                             cbCorrect.setSelected(word.isCorrect());
 
-                            word.setSelected(true);
+                            // word.setSelected(true);
 
-                            model.setSelectedLineIndex(lineIndex);
-                            model.setSelectedWordIndex(wordIndex);
+                            // model.setSelectedLineIndex(lineIndex);
+                            // model.setSelectedWordIndex(wordIndex);
                         }
 
                         wordIndex++;
@@ -274,11 +271,11 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                     tfConfidence.setText("");
                     cbCorrect.setSelected(false);
 
-                    if (model.hasSelected()) {
-                        model.getSelected().setSelected(false);
-                        model.setSelectedLineIndex(-1);
-                        model.setSelectedWordIndex(-1);
-                    }
+                    // if (model.hasSelected()) {
+                    // model.getSelected().setSelected(false);
+                    // model.setSelectedLineIndex(-1);
+                    // model.setSelectedWordIndex(-1);
+                    // }
                 }
 
                 render();
@@ -308,15 +305,16 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
         panel_1.add(panel_2, BorderLayout.EAST);
         panel_2.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
 
-        JLabel lblZoom = new JLabel("Zoom:");
+        JLabel lblZoom = new JLabel("Zoom");
         panel_2.add(lblZoom);
 
         zoomSlider = new JSlider();
+        zoomSlider.setMinimum(1);
         panel_2.add(zoomSlider);
         zoomSlider.setPreferredSize(new Dimension(160, 20));
         zoomSlider.setSnapToTicks(true);
         zoomSlider.setMajorTickSpacing(1);
-        zoomSlider.setValue(4);
+        zoomSlider.setValue(5);
         zoomSlider.setMaximum(9);
 
         JPanel panel_3 = new JPanel();
@@ -403,14 +401,12 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
         });
     }
 
-    public Page getModel() {
+    public PageModel getModel() {
         return model;
     }
 
-    public void setModel(Page page) {
+    public void setModel(PageModel page) {
         model = page;
-
-        setAscendersEnabled(page.isAscendersEnabled());
 
         zoomChanged(zoomSlider.getValue());
     }
@@ -454,7 +450,9 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
         final int zoom = zoomSlider.getValue();
         final float factor = getScaleFactor();
 
-        final List<Line> lines = getModel().getLines();
+        final Page page = getModel().getPage();
+        final List<Line> lines = page.getLines();
+        final BufferedImage normal = getModel().getImage();
 
         // font for line numbers
         final Font lineNumberFont = new Font("Dialog", Font.PLAIN, 12);
@@ -479,10 +477,8 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
             baseFontBoldItalic = FONT_ANTIQUA_BOLD_ITALIC;
         }
 
-        final BufferedImage original = getModel().getOriginalImage();
-
-        final int width = original.getWidth();
-        final int height = original.getHeight();
+        final int width = page.getWidth();
+        final int height = page.getHeight();
 
         // calc scaled width and height
         final int scaledWidth = scaled(width, factor);
@@ -536,7 +532,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                 final boolean italic = fa.isItalic();
 
                 // selected?
-                final boolean isSelected = word.isSelected();
+                // final boolean isSelected = word.isSelected();
 
                 // coordinates
                 final int bX = box.getX(), bY = box.getY();
@@ -569,18 +565,18 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                 hocrGfx.setFont(font);
 
                 if (showWordBoxes || showSymbolBoxes) {
-                    if (isSelected) {
-                        scanGfx.setStroke(STROKE_SELECTION);
-                        hocrGfx.setStroke(STROKE_SELECTION);
-                    }
+                    // if (isSelected) {
+                    // scanGfx.setStroke(STROKE_SELECTION);
+                    // hocrGfx.setStroke(STROKE_SELECTION);
+                    // }
 
                     if (showWordBoxes) {
                         if (word.isCorrect()) {
-                            scanGfx.setColor(COLOR_CORRECT);
-                            hocrGfx.setColor(COLOR_CORRECT);
+                            scanGfx.setColor(Colors.CORRECT);
+                            hocrGfx.setColor(Colors.CORRECT);
                         } else {
-                            scanGfx.setColor(COLOR_INCORRECT);
-                            hocrGfx.setColor(COLOR_INCORRECT);
+                            scanGfx.setColor(Colors.INCORRECT);
+                            hocrGfx.setColor(Colors.INCORRECT);
                         }
 
                         scanGfx.drawRect(scX, scY, scW, scH);
@@ -606,17 +602,17 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                             final int ssbH = scaled(sbH, factor);
 
                             if (word.isCorrect()) {
-                                scanGfx.setColor(COLOR_CORRECT);
-                                hocrGfx.setColor(COLOR_CORRECT);
+                                scanGfx.setColor(Colors.CORRECT);
+                                hocrGfx.setColor(Colors.CORRECT);
                             } else {
-                                scanGfx.setColor(COLOR_INCORRECT);
-                                hocrGfx.setColor(COLOR_INCORRECT);
+                                scanGfx.setColor(Colors.INCORRECT);
+                                hocrGfx.setColor(Colors.INCORRECT);
                             }
 
                             scanGfx.drawRect(ssbX, ssbY, ssbW, ssbH);
                             hocrGfx.drawRect(ssbX, ssbY, ssbW, ssbH);
 
-                            hocrGfx.setColor(COLOR_TEXT);
+                            hocrGfx.setColor(Colors.TEXT);
 
                             hocrGfx.drawString(
                                     stext,
@@ -627,14 +623,14 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                         }
                     }
 
-                    if (isSelected) {
-                        scanGfx.setStroke(STROKE_NORMAL);
-                        hocrGfx.setStroke(STROKE_NORMAL);
-                    }
+                    // if (isSelected) {
+                    // scanGfx.setStroke(STROKE_NORMAL);
+                    // hocrGfx.setStroke(STROKE_NORMAL);
+                    // }
                 }
 
                 if (!showSymbolBoxes) {
-                    hocrGfx.setColor(COLOR_TEXT);
+                    hocrGfx.setColor(Colors.TEXT);
 
                     // only draw the string
                     hocrGfx.drawString(
@@ -646,10 +642,10 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                     final int y1 = bY + bH - bl.getYOffset();
                     final int y2 = Math.round(y1 + bW * bl.getSlope());
 
-                    scanGfx.setColor(COLOR_BASELINE);
+                    scanGfx.setColor(Colors.BASELINE);
                     scanGfx.drawLine(scaled(bX, factor), scaled(y1, factor),
                             scaled(x2, factor), scaled(y2, factor));
-                    hocrGfx.setColor(COLOR_BASELINE);
+                    hocrGfx.setColor(Colors.BASELINE);
                     hocrGfx.drawLine(scaled(bX, factor), scaled(y1, factor),
                             scaled(x2, factor), scaled(y2, factor));
                 }
@@ -660,15 +656,14 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                 // init attributes
                 scanImg = new BufferedImage(scaledWidth, scaledHeight,
                         BufferedImage.TYPE_INT_RGB);
-                scanGfx = (Graphics2D) scanImg.getGraphics();
+                scanGfx = scanImg.createGraphics();
 
                 hocrImg = new BufferedImage(scaledWidth, scaledHeight,
                         BufferedImage.TYPE_INT_RGB);
-                hocrGfx = (Graphics2D) hocrImg.getGraphics();
+                hocrGfx = hocrImg.createGraphics();
 
-                scanGfx.drawImage(original, 0, 0, scaledWidth, scaledHeight, 0,
-                        0,
-                        width - 1, height - 1, null);
+                scanGfx.drawImage(normal, 0, 0, scaledWidth, scaledHeight, 0,
+                        0, width - 1, height - 1, null);
 
                 hocrGfx.setColor(Color.WHITE);
                 hocrGfx.fillRect(0, 0, scaledWidth, scaledHeight);
@@ -679,7 +674,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
                 int lineNumber = 1;
                 for (Line line : lines) {
                     if (zoom >= 1 && showLineNumbers) {
-                        drawLineNumber(line, lineNumber, COLOR_LINE_NUMBER);
+                        drawLineNumber(line, lineNumber, Colors.LINE_NUMBER);
                     }
 
                     hocrGfx.setRenderingHint(
@@ -715,14 +710,6 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
         return (zoomSlider.getValue() + 1) * 0.1f;
     }
 
-    private static int scaled(float value, float factor) {
-        return Math.round(value * factor);
-    }
-
-    private static int unscaled(int value, float factor) {
-        return Math.round(value / factor);
-    }
-
     private void setAscendersEnabled(boolean enabled) {
         if (!enabled) {
             cbLineNumbers.setSelected(false);
@@ -733,5 +720,10 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener {
         cbLineNumbers.setEnabled(enabled);
         cbBaseline.setEnabled(enabled);
         cbXLine.setEnabled(enabled);
+    }
+
+    @Override
+    public Component asComponent() {
+        return this;
     }
 }
