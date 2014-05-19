@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
-import javax.xml.bind.JAXBException;
 
 import org.bridj.BridJ;
 
@@ -105,9 +104,11 @@ public class TesseractController implements ProjectChangeListener,
     }
 
     @Override
-    public void pageChanged(int pageIndex, final Path page) {
+    public void pageSelectionChanged(int pageIndex) {
         view.getPageLoadProgressBar().setIndeterminate(true);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        final Path page = view.getPageSelectionPane().getModel().getSelectedPage();
 
         pageLoaderWorker = new SwingWorker<PageModel, Void>() {
             @Override
@@ -192,11 +193,11 @@ public class TesseractController implements ProjectChangeListener,
         final Page page = new Page(scanFile, 1, 1, 300, lines);
         final PageModel model = new PageModel(page, originalImg, thresholdedImg);
 
-        try {
-            page.writeTo(System.out);
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
+        // try {
+        // page.writeTo(System.out);
+        // } catch (JAXBException e) {
+        // e.printStackTrace();
+        // }
 
         return model;
     }
