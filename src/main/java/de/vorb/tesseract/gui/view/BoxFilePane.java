@@ -6,6 +6,7 @@ import static javax.swing.Box.createHorizontalStrut;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
@@ -23,9 +24,13 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
+
+import org.apache.commons.lang3.mutable.MutableInt;
 
 import de.vorb.tesseract.gui.event.SelectionListener;
 import de.vorb.tesseract.gui.model.PageModel;
@@ -59,6 +64,45 @@ public class BoxFilePane extends JPanel implements MainComponent {
 
     private final JPopupMenu contextMenu;
 
+    // FIXME concurrency issues
+    private final ChangeListener boxChangeListener = new ChangeListener() {
+        @Override
+        public void stateChanged(final ChangeEvent e) {
+            // don't do anything if no symbol is selected
+            if (getCurrentSymbol() == null) {
+                return;
+            }
+
+            EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    final Object source = e.getSource();
+                    final Symbol currentSymbol = getCurrentSymbol();
+
+                    // update the text
+                    if (source == tfSymbol) {
+                        currentSymbol.setText(tfSymbol.getText());
+                    }
+                    // if the source is one of the JSpinners for x, y, width and
+                    // height, update the bounding box
+                    else if (source instanceof JSpinner) {
+                        final int x = (int) spinX.getValue();
+                        final int y = (int) spinY.getValue();
+                        final int width = (int) spinWidth.getValue();
+                        final int height = (int) spinHeight.getValue();
+
+                        final Box newBbox = new Box(x, y, width, height);
+
+                        currentSymbol.setBoundingBox(newBbox);
+
+                        renderer.render(getModel().getPage(),
+                                getModel().getImage(), 1f);
+                    }
+                }
+            });
+        }
+    };
+
     /**
      * Create the panel.
      */
@@ -89,9 +133,11 @@ public class BoxFilePane extends JPanel implements MainComponent {
         panel_1.add(lblLeft);
 
         spinX = new JSpinner();
+        spinX.addChangeListener(boxChangeListener);
         panel_1.add(spinX);
         spinX.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinX.setModel(new SpinnerNumberModel(0, 0, null, 1));
+        spinX.setModel(new SpinnerNumberModel(new MutableInt(0),
+                new MutableInt(0), null, 1));
 
         Component horizontalStrut_1 = createHorizontalStrut(5);
         panel_1.add(horizontalStrut_1);
@@ -102,7 +148,8 @@ public class BoxFilePane extends JPanel implements MainComponent {
         spinY = new JSpinner();
         panel_1.add(spinY);
         spinY.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinY.setModel(new SpinnerNumberModel(0, 0, null, 1));
+        spinY.setModel(new SpinnerNumberModel(new MutableInt(0),
+                new MutableInt(0), null, 1));
 
         Component horizontalStrut_2 = createHorizontalStrut(5);
         panel_1.add(horizontalStrut_2);
@@ -113,7 +160,8 @@ public class BoxFilePane extends JPanel implements MainComponent {
         spinWidth = new JSpinner();
         panel_1.add(spinWidth);
         spinWidth.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinWidth.setModel(new SpinnerNumberModel(0, 0, null, 1));
+        spinWidth.setModel(new SpinnerNumberModel(new MutableInt(0),
+                new MutableInt(0), null, 1));
 
         Component horizontalStrut_3 = createHorizontalStrut(5);
         panel_1.add(horizontalStrut_3);
@@ -124,7 +172,8 @@ public class BoxFilePane extends JPanel implements MainComponent {
         spinHeight = new JSpinner();
         panel_1.add(spinHeight);
         spinHeight.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinHeight.setModel(new SpinnerNumberModel(0, 0, null, 1));
+        spinHeight.setModel(new SpinnerNumberModel(new MutableInt(0),
+                new MutableInt(0), null, 1));
 
         JPanel panel = new JPanel();
         toolbar.add(panel, BorderLayout.EAST);
@@ -284,5 +333,15 @@ public class BoxFilePane extends JPanel implements MainComponent {
     @Override
     public Component asComponent() {
         return this;
+    }
+
+    private Symbol getCurrentSymbol() {
+        final int index = tabSymbols.getSelectedRow();
+
+        if (index < 0) {
+            return null;
+        }
+
+        return ((SymbolTableModel) tabSymbols.getModel()).getSymbol(index);
     }
 }

@@ -1,7 +1,13 @@
 package de.vorb.tesseract.gui.model;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import de.vorb.tesseract.gui.event.SelectionListener;
+
 public class SingleSelectionModel {
     private int index = -1;
+    private List<SelectionListener> selectionListeners = new LinkedList<>();
 
     /**
      * Creates default selection model without a selection.
@@ -44,5 +50,17 @@ public class SingleSelectionModel {
      */
     public void setSelectedIndex(int index) {
         this.index = index;
+
+        for (SelectionListener sl : selectionListeners) {
+            sl.selectionChanged(index);
+        }
+    }
+
+    public void addSelectionListener(SelectionListener listener) {
+        selectionListeners.add(listener);
+    }
+
+    public void removeSelectionListener(SelectionListener listener) {
+        selectionListeners.remove(listener);
     }
 }

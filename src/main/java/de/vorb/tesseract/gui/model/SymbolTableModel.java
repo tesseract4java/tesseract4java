@@ -2,7 +2,6 @@ package de.vorb.tesseract.gui.model;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
