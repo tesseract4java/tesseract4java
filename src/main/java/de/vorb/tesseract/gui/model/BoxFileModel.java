@@ -2,39 +2,40 @@ package de.vorb.tesseract.gui.model;
 
 import java.awt.image.BufferedImage;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
+import de.vorb.tesseract.util.Symbol;
+
 public class BoxFileModel {
-  private final BufferedImage scan;
-  private final LinkedList<BoxModel> boxes;
+    private final BufferedImage bwImage;
+    private final List<Symbol> boxes;
 
-  public BoxFileModel(BufferedImage scan, LinkedList<BoxModel> boxes) {
-    this.scan = scan;
-    this.boxes = boxes;
-  }
+    public BoxFileModel(BufferedImage blackAndWhiteImage, List<Symbol> boxes) {
+        this.bwImage = blackAndWhiteImage;
+        this.boxes = boxes;
+    }
 
-  public BufferedImage getScan() {
-    return scan;
-  }
+    public BufferedImage getScan() {
+        return bwImage;
+    }
 
-  public List<BoxModel> getBoxes() {
-    return Collections.unmodifiableList(boxes);
-  }
+    public List<Symbol> getBoxes() {
+        return Collections.unmodifiableList(boxes);
+    }
 
-  public void insertBoxAt(int index, BoxModel box) {
-    boxes.add(index, box);
-  }
+    public void insertBoxAt(int index, Symbol box) {
+        boxes.add(index, box);
+    }
 
-  public void replaceBoxAt(int index, BoxModel box) {
-    boxes.set(index, box);
-  }
+    public void replaceBoxAt(int index, Symbol box) {
+        boxes.set(index, box);
+    }
 
-  public void removeBoxAt(int index) {
-    boxes.remove(index);
-  }
+    public void removeBoxAt(int index) {
+        boxes.remove(index);
+    }
 
-  public void removeBox(BoxModel box) {
-    boxes.remove(box);
-  }
+    public void removeBox(Symbol box) {
+        boxes.remove(box);
+    }
 }
