@@ -40,6 +40,37 @@ public class Box {
         return !(px < x || px > x + width || py < y || py > y + height);
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + height;
+        result = prime * result + width;
+        result = prime * result + x;
+        result = prime * result + y;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (!(obj instanceof Box))
+            return false;
+        Box other = (Box) obj;
+        if (height != other.height)
+            return false;
+        if (width != other.width)
+            return false;
+        if (x != other.x)
+            return false;
+        if (y != other.y)
+            return false;
+        return true;
+    }
+
     /*
      * (non-Javadoc)
      * 
