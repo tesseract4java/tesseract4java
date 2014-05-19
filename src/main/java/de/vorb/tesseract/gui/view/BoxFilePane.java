@@ -30,8 +30,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-
 import de.vorb.tesseract.gui.event.SelectionListener;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.SingleSelectionModel;
@@ -136,8 +134,7 @@ public class BoxFilePane extends JPanel implements MainComponent {
         spinX.addChangeListener(boxChangeListener);
         panel_1.add(spinX);
         spinX.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinX.setModel(new SpinnerNumberModel(new MutableInt(0),
-                new MutableInt(0), null, 1));
+        spinX.setModel(new SpinnerNumberModel(0, 0, null, 1));
 
         Component horizontalStrut_1 = createHorizontalStrut(5);
         panel_1.add(horizontalStrut_1);
@@ -148,8 +145,7 @@ public class BoxFilePane extends JPanel implements MainComponent {
         spinY = new JSpinner();
         panel_1.add(spinY);
         spinY.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinY.setModel(new SpinnerNumberModel(new MutableInt(0),
-                new MutableInt(0), null, 1));
+        spinY.setModel(new SpinnerNumberModel(0, 0, null, 1));
 
         Component horizontalStrut_2 = createHorizontalStrut(5);
         panel_1.add(horizontalStrut_2);
@@ -160,8 +156,7 @@ public class BoxFilePane extends JPanel implements MainComponent {
         spinWidth = new JSpinner();
         panel_1.add(spinWidth);
         spinWidth.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinWidth.setModel(new SpinnerNumberModel(new MutableInt(0),
-                new MutableInt(0), null, 1));
+        spinWidth.setModel(new SpinnerNumberModel(0, 0, null, 1));
 
         Component horizontalStrut_3 = createHorizontalStrut(5);
         panel_1.add(horizontalStrut_3);
@@ -172,8 +167,7 @@ public class BoxFilePane extends JPanel implements MainComponent {
         spinHeight = new JSpinner();
         panel_1.add(spinHeight);
         spinHeight.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinHeight.setModel(new SpinnerNumberModel(new MutableInt(0),
-                new MutableInt(0), null, 1));
+        spinHeight.setModel(new SpinnerNumberModel(0, 0, null, 1));
 
         JPanel panel = new JPanel();
         toolbar.add(panel, BorderLayout.EAST);
