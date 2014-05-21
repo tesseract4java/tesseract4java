@@ -6,8 +6,14 @@ import static javax.swing.Box.createHorizontalStrut;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputMethodEvent;
+import java.awt.event.InputMethodListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 
 import javax.swing.JLabel;
@@ -25,9 +31,13 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableColumnModel;
+import javax.swing.text.PlainDocument;
 
 import de.vorb.tesseract.gui.event.SelectionListener;
 import de.vorb.tesseract.gui.model.PageModel;
@@ -62,42 +72,43 @@ public class BoxFilePane extends JPanel implements MainComponent {
     private final JPopupMenu contextMenu;
 
     // FIXME concurrency issues
-    private final ChangeListener boxChangeListener = new ChangeListener() {
+    private final PropertyChangeListener boxChangeListener = new PropertyChangeListener() {
         @Override
-        public void stateChanged(final ChangeEvent e) {
-            // don't do anything if no symbol is selected
-            if (getCurrentSymbol() == null) {
+        public void propertyChange(final PropertyChangeEvent e) {
+            if (!e.getPropertyName().startsWith("SPIN")) {
                 return;
             }
 
-            // don't do anything if none of the possible input fields has focus
-            if (!tfSymbol.hasFocus() && !spinX.hasFocus() && !spinY.hasFocus()
-                    && !spinWidth.hasFocus() && !spinHeight.hasFocus()) {
+            // don't do anything if no symbol is selected
+            if (getCurrentSymbol() == null) {
                 return;
             }
 
             final Object source = e.getSource();
             final Symbol currentSymbol = getCurrentSymbol();
 
-            // update the text
-            if (source == tfSymbol) {
-                currentSymbol.setText(tfSymbol.getText());
-            }
             // if the source is one of the JSpinners for x, y, width and
             // height, update the bounding box
-            else if (source instanceof JSpinner) {
+            if (source instanceof JSpinner) {
+                // get coords
                 final int x = (int) spinX.getValue();
                 final int y = (int) spinY.getValue();
                 final int width = (int) spinWidth.getValue();
                 final int height = (int) spinHeight.getValue();
 
+                // create new box
                 final Box newBBox = new Box(x, y, width, height);
 
+                // replace current box with new one
                 currentSymbol.setBoundingBox(newBBox);
 
+                // re-render the whole model
                 renderer.render(getModel().getPage(),
                         getModel().getImage(), 1f);
             }
+
+            tabSymbols.tableChanged(new TableModelEvent(tabSymbols.getModel(),
+                    tabSymbols.getSelectedRow()));
         }
     };
 
@@ -107,90 +118,7 @@ public class BoxFilePane extends JPanel implements MainComponent {
     public BoxFilePane() {
         setLayout(new BorderLayout(0, 0));
 
-        JPanel toolbar = new JPanel();
-        add(toolbar, BorderLayout.NORTH);
-
-        JSplitPane spMain = new JSplitPane();
-        add(spMain, BorderLayout.CENTER);
-        toolbar.setLayout(new BorderLayout(0, 0));
-
-        JPanel panel_1 = new JPanel();
-        toolbar.add(panel_1, BorderLayout.WEST);
-
-        JLabel lblExample = new JLabel("Symbol");
-        panel_1.add(lblExample);
-
-        tfSymbol = new JTextField();
-        panel_1.add(tfSymbol);
-        tfSymbol.setColumns(5);
-
-        Component horizontalStrut = createHorizontalStrut(10);
-        panel_1.add(horizontalStrut);
-
-        JLabel lblLeft = new JLabel("X");
-        panel_1.add(lblLeft);
-
-        spinX = new JSpinner();
-        spinX.addChangeListener(boxChangeListener);
-        panel_1.add(spinX);
-        spinX.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinX.setModel(new SpinnerNumberModel(0, 0, null, 1));
-
-        Component horizontalStrut_1 = createHorizontalStrut(5);
-        panel_1.add(horizontalStrut_1);
-
-        JLabel lblTop = new JLabel("Y");
-        panel_1.add(lblTop);
-
-        spinY = new JSpinner();
-        panel_1.add(spinY);
-        spinY.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinY.setModel(new SpinnerNumberModel(0, 0, null, 1));
-
-        Component horizontalStrut_2 = createHorizontalStrut(5);
-        panel_1.add(horizontalStrut_2);
-
-        JLabel lblRight = new JLabel("Width");
-        panel_1.add(lblRight);
-
-        spinWidth = new JSpinner();
-        panel_1.add(spinWidth);
-        spinWidth.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinWidth.setModel(new SpinnerNumberModel(0, 0, null, 1));
-
-        Component horizontalStrut_3 = createHorizontalStrut(5);
-        panel_1.add(horizontalStrut_3);
-
-        JLabel lblBottom = new JLabel("Height");
-        panel_1.add(lblBottom);
-
-        spinHeight = new JSpinner();
-        panel_1.add(spinHeight);
-        spinHeight.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinHeight.setModel(new SpinnerNumberModel(0, 0, null, 1));
-
-        JPanel panel = new JPanel();
-        toolbar.add(panel, BorderLayout.EAST);
-
-        JLabel lblZoom = new JLabel("Zoom");
-        panel.add(lblZoom);
-
-        JSlider zoomSlider = new JSlider();
-        zoomSlider.setMinorTickSpacing(1);
-        zoomSlider.setPreferredSize(new Dimension(160, 20));
-        zoomSlider.setValue(5);
-        zoomSlider.setMajorTickSpacing(1);
-        zoomSlider.setMaximum(9);
-        zoomSlider.setMinimum(1);
-        panel.add(zoomSlider);
-
-        JPanel sidebar = new JPanel();
-        spMain.setLeftComponent(sidebar);
-        sidebar.setLayout(new BorderLayout(0, 0));
-
-        JScrollPane scrollPane_1 = new JScrollPane();
-        sidebar.add(scrollPane_1, BorderLayout.CENTER);
-
+        // create table first, so it can be used by the property change listener
         tabSymbols = new JTable();
         tabSymbols.setFillsViewportHeight(true);
         tabSymbols.setModel(new SymbolTableModel());
@@ -224,6 +152,122 @@ public class BoxFilePane extends JPanel implements MainComponent {
                         renderer.render(model.getPage(), model.getImage(), 1f);
                     }
                 });
+
+        JPanel toolbar = new JPanel();
+        add(toolbar, BorderLayout.NORTH);
+
+        JSplitPane spMain = new JSplitPane();
+        add(spMain, BorderLayout.CENTER);
+        toolbar.setLayout(new BorderLayout(0, 0));
+
+        JPanel panel_1 = new JPanel();
+        toolbar.add(panel_1, BorderLayout.WEST);
+
+        JLabel lblExample = new JLabel("Symbol");
+        panel_1.add(lblExample);
+
+        tfSymbol = new JTextField();
+
+        // listen for document changes
+        tfSymbol.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                change();
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                change();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                change();
+            }
+
+            private void change() {
+                final Symbol current = getCurrentSymbol();
+                if (current == null) {
+                    return;
+                }
+
+                current.setText(tfSymbol.getText());
+                tabSymbols.tableChanged(new TableModelEvent(
+                        tabSymbols.getModel(), tabSymbols.getSelectedRow(), 1));
+            }
+        });
+        panel_1.add(tfSymbol);
+        tfSymbol.setColumns(5);
+
+        Component horizontalStrut = createHorizontalStrut(10);
+        panel_1.add(horizontalStrut);
+
+        JLabel lblLeft = new JLabel("X");
+        panel_1.add(lblLeft);
+
+        spinX = new JSpinner();
+        spinX.addPropertyChangeListener(boxChangeListener);
+        panel_1.add(spinX);
+        spinX.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
+        spinX.setModel(new SpinnerNumberModel(0, 0, null, 1));
+
+        Component horizontalStrut_1 = createHorizontalStrut(5);
+        panel_1.add(horizontalStrut_1);
+
+        JLabel lblTop = new JLabel("Y");
+        panel_1.add(lblTop);
+
+        spinY = new JSpinner();
+        spinY.addPropertyChangeListener(boxChangeListener);
+        panel_1.add(spinY);
+        spinY.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
+        spinY.setModel(new SpinnerNumberModel(0, 0, null, 1));
+
+        Component horizontalStrut_2 = createHorizontalStrut(5);
+        panel_1.add(horizontalStrut_2);
+
+        JLabel lblRight = new JLabel("Width");
+        panel_1.add(lblRight);
+
+        spinWidth = new JSpinner();
+        spinWidth.addPropertyChangeListener(boxChangeListener);
+        panel_1.add(spinWidth);
+        spinWidth.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
+        spinWidth.setModel(new SpinnerNumberModel(0, 0, null, 1));
+
+        Component horizontalStrut_3 = createHorizontalStrut(5);
+        panel_1.add(horizontalStrut_3);
+
+        JLabel lblBottom = new JLabel("Height");
+        panel_1.add(lblBottom);
+
+        spinHeight = new JSpinner();
+        spinHeight.addPropertyChangeListener(boxChangeListener);
+        panel_1.add(spinHeight);
+        spinHeight.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
+        spinHeight.setModel(new SpinnerNumberModel(0, 0, null, 1));
+
+        JPanel panel = new JPanel();
+        toolbar.add(panel, BorderLayout.EAST);
+
+        JLabel lblZoom = new JLabel("Zoom");
+        panel.add(lblZoom);
+
+        JSlider zoomSlider = new JSlider();
+        zoomSlider.setMinorTickSpacing(1);
+        zoomSlider.setPreferredSize(new Dimension(160, 20));
+        zoomSlider.setValue(5);
+        zoomSlider.setMajorTickSpacing(1);
+        zoomSlider.setMaximum(9);
+        zoomSlider.setMinimum(1);
+        panel.add(zoomSlider);
+
+        JPanel sidebar = new JPanel();
+        spMain.setLeftComponent(sidebar);
+        sidebar.setLayout(new BorderLayout(0, 0));
+
+        JScrollPane scrollPane_1 = new JScrollPane();
+        sidebar.add(scrollPane_1, BorderLayout.CENTER);
 
         scrollPane_1.setViewportView(tabSymbols);
 
@@ -299,17 +343,16 @@ public class BoxFilePane extends JPanel implements MainComponent {
                 final Symbol symbol = tabModel.getSymbol(index);
 
                 final String symbolText = symbol.getText();
-                final StringBuilder tooltip = new StringBuilder("[ ");
+                tfSymbol.setText(symbolText);
 
+                // tooltip with codepoints
+                final StringBuilder tooltip = new StringBuilder("[ ");
                 for (int i = 0; i < symbolText.length(); i++) {
                     tooltip.append(
                             Integer.toHexString(symbolText.codePointAt(i))
                             ).append(' ');
                 }
-
                 tfSymbol.setToolTipText(tooltip.append(']').toString());
-
-                tfSymbol.setText(symbolText);
 
                 final Box bbox = symbol.getBoundingBox();
                 spinX.setValue(bbox.getX());
