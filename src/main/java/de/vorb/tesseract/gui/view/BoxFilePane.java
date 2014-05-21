@@ -219,10 +219,6 @@ public class BoxFilePane extends JPanel implements MainComponent {
                 new ListSelectionListener() {
                     @Override
                     public void valueChanged(ListSelectionEvent e) {
-                        System.out.println(e.getFirstIndex());
-                        System.out.println(e.getLastIndex());
-                        System.out.println();
-
                         selectionModel.setSelectedIndex(tabSymbols.getSelectedRow());
 
                         renderer.render(model.getPage(), model.getImage(), 1f);
