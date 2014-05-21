@@ -10,6 +10,7 @@ public class CharTableModel extends AbstractTableModel {
     private final ArrayList<Character> chars = new ArrayList<>();
 
     public CharTableModel() {
+        // TODO remove sample characters
         chars.add('c');
         chars.add('ü');
         chars.add('ß');
