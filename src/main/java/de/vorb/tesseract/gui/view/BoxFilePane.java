@@ -71,33 +71,34 @@ public class BoxFilePane extends JPanel implements MainComponent {
                 return;
             }
 
-            EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    final Object source = e.getSource();
-                    final Symbol currentSymbol = getCurrentSymbol();
+            // don't do anything if none of the possible input fields has focus
+            if (!tfSymbol.hasFocus() && !spinX.hasFocus() && !spinY.hasFocus()
+                    && !spinWidth.hasFocus() && !spinHeight.hasFocus()) {
+                return;
+            }
 
-                    // update the text
-                    if (source == tfSymbol) {
-                        currentSymbol.setText(tfSymbol.getText());
-                    }
-                    // if the source is one of the JSpinners for x, y, width and
-                    // height, update the bounding box
-                    else if (source instanceof JSpinner) {
-                        final int x = (int) spinX.getValue();
-                        final int y = (int) spinY.getValue();
-                        final int width = (int) spinWidth.getValue();
-                        final int height = (int) spinHeight.getValue();
+            final Object source = e.getSource();
+            final Symbol currentSymbol = getCurrentSymbol();
 
-                        final Box newBbox = new Box(x, y, width, height);
+            // update the text
+            if (source == tfSymbol) {
+                currentSymbol.setText(tfSymbol.getText());
+            }
+            // if the source is one of the JSpinners for x, y, width and
+            // height, update the bounding box
+            else if (source instanceof JSpinner) {
+                final int x = (int) spinX.getValue();
+                final int y = (int) spinY.getValue();
+                final int width = (int) spinWidth.getValue();
+                final int height = (int) spinHeight.getValue();
 
-                        currentSymbol.setBoundingBox(newBbox);
+                final Box newBBox = new Box(x, y, width, height);
 
-                        renderer.render(getModel().getPage(),
-                                getModel().getImage(), 1f);
-                    }
-                }
-            });
+                currentSymbol.setBoundingBox(newBBox);
+
+                renderer.render(getModel().getPage(),
+                        getModel().getImage(), 1f);
+            }
         }
     };
 
@@ -192,21 +193,24 @@ public class BoxFilePane extends JPanel implements MainComponent {
         sidebar.add(scrollPane_1, BorderLayout.CENTER);
 
         tabSymbols = new JTable();
+        tabSymbols.setFillsViewportHeight(true);
         tabSymbols.setModel(new SymbolTableModel());
 
         {
             // set column widths
             final TableColumnModel colModel = tabSymbols.getColumnModel();
-            colModel.getColumn(0).setPreferredWidth(50);
-            colModel.getColumn(0).setMaxWidth(70);
-            colModel.getColumn(1).setPreferredWidth(40);
-            colModel.getColumn(1).setMaxWidth(60);
+            colModel.getColumn(0).setPreferredWidth(30);
+            colModel.getColumn(0).setMaxWidth(40);
+            colModel.getColumn(1).setPreferredWidth(50);
+            colModel.getColumn(1).setMaxWidth(70);
             colModel.getColumn(2).setPreferredWidth(40);
             colModel.getColumn(2).setMaxWidth(60);
             colModel.getColumn(3).setPreferredWidth(40);
             colModel.getColumn(3).setMaxWidth(60);
             colModel.getColumn(4).setPreferredWidth(40);
             colModel.getColumn(4).setMaxWidth(60);
+            colModel.getColumn(5).setPreferredWidth(40);
+            colModel.getColumn(5).setMaxWidth(60);
         }
 
         tabSymbols.getSelectionModel().setSelectionMode(
@@ -216,7 +220,11 @@ public class BoxFilePane extends JPanel implements MainComponent {
                 new ListSelectionListener() {
                     @Override
                     public void valueChanged(ListSelectionEvent e) {
-                        selectionModel.setSelectedIndex(e.getLastIndex());
+                        System.out.println(e.getFirstIndex());
+                        System.out.println(e.getLastIndex());
+                        System.out.println();
+
+                        selectionModel.setSelectedIndex(tabSymbols.getSelectedRow());
 
                         renderer.render(model.getPage(), model.getImage(), 1f);
                     }
@@ -295,7 +303,19 @@ public class BoxFilePane extends JPanel implements MainComponent {
                         (SymbolTableModel) tabSymbols.getModel();
                 final Symbol symbol = tabModel.getSymbol(index);
 
-                tfSymbol.setText(symbol.getText());
+                final String symbolText = symbol.getText();
+                final StringBuilder tooltip = new StringBuilder("[ ");
+
+                for (int i = 0; i < symbolText.length(); i++) {
+                    tooltip.append(
+                            Integer.toHexString(symbolText.codePointAt(i))
+                            ).append(' ');
+                }
+
+                tfSymbol.setToolTipText(tooltip.append(']').toString());
+
+                tfSymbol.setText(symbolText);
+
                 final Box bbox = symbol.getBoundingBox();
                 spinX.setValue(bbox.getX());
                 spinY.setValue(bbox.getY());
