@@ -18,7 +18,7 @@ public class SymbolTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 5;
+        return 6;
     }
 
     @Override
@@ -30,14 +30,16 @@ public class SymbolTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int colIndex) {
         switch (colIndex) {
         case 0:
-            return symbols.get(rowIndex).getText();
+            return rowIndex + 1;
         case 1:
-            return symbols.get(rowIndex).getBoundingBox().getX();
+            return symbols.get(rowIndex).getText();
         case 2:
-            return symbols.get(rowIndex).getBoundingBox().getY();
+            return symbols.get(rowIndex).getBoundingBox().getX();
         case 3:
-            return symbols.get(rowIndex).getBoundingBox().getWidth();
+            return symbols.get(rowIndex).getBoundingBox().getY();
         case 4:
+            return symbols.get(rowIndex).getBoundingBox().getWidth();
+        case 5:
             return symbols.get(rowIndex).getBoundingBox().getHeight();
         }
 
@@ -45,21 +47,43 @@ public class SymbolTableModel extends AbstractTableModel {
     }
 
     @Override
-    public String getColumnName(int column) {
-        switch (column) {
+    public String getColumnName(int colIndex) {
+        switch (colIndex) {
         case 0:
-            return "Symbol";
+            return "No.";
         case 1:
-            return "X";
+            return "Symbol";
         case 2:
-            return "Y";
+            return "X";
         case 3:
-            return "Width";
+            return "Y";
         case 4:
+            return "Width";
+        case 5:
             return "Height";
         }
 
         return "";
+    }
+
+    @Override
+    public Class<?> getColumnClass(int colIndex) {
+        switch (colIndex) {
+        case 0:
+            return Integer.class;
+        case 1:
+            return String.class;
+        case 2:
+            return Integer.class;
+        case 3:
+            return Integer.class;
+        case 4:
+            return Integer.class;
+        case 5:
+            return Integer.class;
+        }
+
+        return Object.class;
     }
 
     public Symbol getSymbol(int index) {
