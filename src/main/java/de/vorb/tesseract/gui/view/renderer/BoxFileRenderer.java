@@ -84,7 +84,7 @@ public class BoxFileRenderer implements PageRenderer {
                     canvas.setIcon(new ImageIcon(get()));
                 } catch (InterruptedException | ExecutionException
                         | CancellationException e) {
-                    // ignore interrupts of any kind, these are intentionally
+                    // ignore interrupts of any kind, those are intented
                 }
             }
         };
