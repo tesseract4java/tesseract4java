@@ -33,6 +33,8 @@ public class BoxFileRenderer implements PageRenderer {
     @Override
     public void render(final Page page, final BufferedImage pageBackground,
             final float scale) {
+        // TODO add a version of render() that takes two rectangles and a new
+        // box and updates the necessary area only
         final int w = pageBackground.getWidth();
         final int h = pageBackground.getHeight();
 
