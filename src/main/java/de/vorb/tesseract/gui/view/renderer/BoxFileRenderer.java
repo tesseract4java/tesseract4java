@@ -5,6 +5,7 @@ import static de.vorb.tesseract.gui.view.Coordinates.scaled;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.ImageIcon;
@@ -43,6 +44,12 @@ public class BoxFileRenderer implements PageRenderer {
 
         final int selectedIndex = selectionModel.getSelectedIndex();
 
+        // try to cancel the last rendering task
+        if (renderWorker != null && !renderWorker.isCancelled()
+                && !renderWorker.isDone()) {
+            renderWorker.cancel(true);
+        }
+
         renderWorker = new SwingWorker<BufferedImage, Void>() {
             @Override
             protected BufferedImage doInBackground() throws Exception {
@@ -55,7 +62,8 @@ public class BoxFileRenderer implements PageRenderer {
                 g2d.setColor(Colors.NORMAL);
                 g2d.setStroke(Strokes.NORMAL);
 
-                g2d.drawImage(pageBackground, 0, 0, scaledW - 1, scaledH - 1,
+                g2d.drawImage(pageBackground, 0, 0, scaledW - 1,
+                        scaledH - 1,
                         0, 0, w - 1, h - 1, null);
 
                 final Iterator<Symbol> it = Iterators.symbolIterator(page);
@@ -74,8 +82,9 @@ public class BoxFileRenderer implements PageRenderer {
             public void done() {
                 try {
                     canvas.setIcon(new ImageIcon(get()));
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException | ExecutionException
+                        | CancellationException e) {
+                    // ignore interrupts of any kind, these are intentionally
                 }
             }
         };
