@@ -14,7 +14,7 @@ import de.vorb.tesseract.PageSegMode;
 import de.vorb.tesseract.gui.event.LanguageChangeListener;
 import de.vorb.tesseract.tools.recognition.Recognition;
 
-public class PageLoader extends Recognition implements LanguageChangeListener {
+public class PageLoader extends Recognition {
     private BufferedImage originalImg = null;
     private Pointer<Pix> originalRef = null;
 
@@ -67,10 +67,5 @@ public class PageLoader extends Recognition implements LanguageChangeListener {
         final Pointer<Pix> img = LibTess.TessBaseAPIGetThresholdedImage(getHandle());
 
         return PixConversions.pix2img(img);
-    }
-
-    @Override
-    public void languageSelectionChanged(String language) throws IOException {
-        setLanguage(language);
     }
 }
