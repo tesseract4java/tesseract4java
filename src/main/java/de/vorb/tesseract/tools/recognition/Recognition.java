@@ -12,20 +12,26 @@ import de.vorb.tesseract.PageIteratorLevel;
 
 public abstract class Recognition {
     private Pointer<TessBaseAPI> handle;
+    private final String language;
 
     public Recognition(String language) throws IOException {
-        init(language);
+        this.language = language;
+        init();
     }
 
     public Pointer<TessBaseAPI> getHandle() {
         return this.handle;
     }
 
+    public String getLanguage() {
+        return language;
+    }
+
     protected void setHandle(Pointer<TessBaseAPI> handle) {
         this.handle = handle;
     }
 
-    protected abstract void init(String language) throws IOException;
+    protected abstract void init() throws IOException;
 
     protected abstract void reset() throws IOException;
 
