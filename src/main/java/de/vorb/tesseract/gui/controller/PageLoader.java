@@ -11,9 +11,10 @@ import de.vorb.leptonica.util.PixConversions;
 import de.vorb.tesseract.LibTess;
 import de.vorb.tesseract.OCREngineMode;
 import de.vorb.tesseract.PageSegMode;
+import de.vorb.tesseract.gui.event.LanguageChangeListener;
 import de.vorb.tesseract.tools.recognition.Recognition;
 
-public class PageLoader extends Recognition {
+public class PageLoader extends Recognition implements LanguageChangeListener {
     private BufferedImage originalImg = null;
     private Pointer<Pix> originalRef = null;
 
@@ -66,5 +67,10 @@ public class PageLoader extends Recognition {
         final Pointer<Pix> img = LibTess.TessBaseAPIGetThresholdedImage(getHandle());
 
         return PixConversions.pix2img(img);
+    }
+
+    @Override
+    public void languageChanged(String language) throws IOException {
+        setLanguage(language);
     }
 }
