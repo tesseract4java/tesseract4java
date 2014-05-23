@@ -4,143 +4,132 @@ import java.io.IOException;
 
 import org.bridj.Pointer;
 
-import de.vorb.tesseract.bridj.Tesseract;
-import de.vorb.tesseract.bridj.Tesseract.TessBaseAPI;
-import de.vorb.tesseract.bridj.Tesseract.TessPageIterator;
-import de.vorb.tesseract.bridj.Tesseract.TessPageIteratorLevel;
-import de.vorb.tesseract.bridj.Tesseract.TessResultIterator;
+import de.vorb.tesseract.LibTess;
+import de.vorb.tesseract.LibTess.TessBaseAPI;
+import de.vorb.tesseract.LibTess.TessPageIterator;
+import de.vorb.tesseract.LibTess.TessResultIterator;
+import de.vorb.tesseract.PageIteratorLevel;
 
 public abstract class Recognition {
-  protected Pointer<TessBaseAPI> handle;
-  private boolean closed = false;
+    private Pointer<TessBaseAPI> handle;
 
-  public Recognition() throws IOException {
-    handle = Tesseract.TessBaseAPICreate();
-    init();
-  }
-
-  public Pointer<TessBaseAPI> getHandle() {
-    return this.handle;
-  }
-
-  protected abstract void init() throws IOException;
-
-  @SuppressWarnings("unchecked")
-  public void recognize(RecognitionConsumer consumer) {
-    if (closed) {
-      throw new IllegalStateException("Recognition has been closed.");
+    public Recognition(String language) throws IOException {
+        init(language);
     }
 
-    // text recognition
-    Tesseract.TessBaseAPIRecognize(getHandle(), Pointer.NULL);
-
-    // get the result iterator
-    final Pointer<TessResultIterator> resultIt =
-        Tesseract.TessBaseAPIGetIterator(getHandle());
-
-    // get the page iterator
-    final Pointer<TessPageIterator> pageIt =
-        Tesseract.TessResultIteratorGetPageIterator(resultIt);
-
-    // iterating over symbols
-    final TessPageIteratorLevel level =
-        Tesseract.TessPageIteratorLevel.RIL_SYMBOL;
-
-    // set the recognition state
-    consumer.setState(new RecognitionState(handle, resultIt, pageIt));
-
-    boolean inWord = false;
-
-    do {
-      // beginning of a symbol
-      if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
-          level) > 0) {
-
-        // beginning of a word
-        if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
-            TessPageIteratorLevel.RIL_WORD) > 0) {
-
-          // beginning of a text line
-          if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
-              TessPageIteratorLevel.RIL_TEXTLINE) > 0) {
-
-            // beginning of a paragraph
-            if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
-                TessPageIteratorLevel.RIL_PARA) > 0) {
-
-              // beginning of a block
-              if (Tesseract.TessPageIteratorIsAtBeginningOf(pageIt,
-                  TessPageIteratorLevel.RIL_BLOCK) > 0) {
-                consumer.blockBegin();
-              }
-
-              consumer.paragraphBegin();
-            }
-
-            consumer.lineBegin();
-          }
-
-          consumer.wordBegin();
-
-          inWord = true;
-        }
-
-        consumer.symbol();
-      }
-
-      if (!inWord) {
-        continue;
-      }
-
-      // last symbol in word
-      if (Tesseract.TessPageIteratorIsAtFinalElement(pageIt,
-          TessPageIteratorLevel.RIL_WORD,
-          TessPageIteratorLevel.RIL_SYMBOL) > 0) {
-
-        consumer.wordEnd();
-
-        inWord = false;
-
-        // last word in line
-        if (Tesseract.TessPageIteratorIsAtFinalElement(pageIt,
-            TessPageIteratorLevel.RIL_TEXTLINE,
-            TessPageIteratorLevel.RIL_WORD) > 0) {
-
-          consumer.lineEnd();
-
-          // last line in paragraph
-          if (Tesseract.TessPageIteratorIsAtFinalElement(pageIt,
-              TessPageIteratorLevel.RIL_PARA,
-              TessPageIteratorLevel.RIL_TEXTLINE) > 0) {
-
-            consumer.paragraphEnd();
-
-            // last paragraph in a block
-            if (Tesseract.TessPageIteratorIsAtFinalElement(pageIt,
-                TessPageIteratorLevel.RIL_BLOCK,
-                TessPageIteratorLevel.RIL_PARA) > 0) {
-
-              consumer.blockEnd();
-
-            }
-          }
-        }
-      }
-    } while (Tesseract.TessPageIteratorNext(pageIt, level) > 0); // next symbol
-
-    Tesseract.TessPageIteratorDelete(pageIt);
-  }
-
-  public void reset() throws IOException {
-    if (closed) {
-      throw new IllegalStateException("Recognition has been closed.");
+    public Pointer<TessBaseAPI> getHandle() {
+        return this.handle;
     }
 
-    init();
-  }
+    protected void setHandle(Pointer<TessBaseAPI> handle) {
+        this.handle = handle;
+    }
 
-  public void close() {
-    Tesseract.TessBaseAPIDelete(handle);
-    closed = true;
-  }
+    protected abstract void init(String language) throws IOException;
+
+    protected abstract void reset() throws IOException;
+
+    protected abstract void close() throws IOException;
+
+    @SuppressWarnings("unchecked")
+    public void recognize(RecognitionConsumer consumer) {
+        // text recognition
+        LibTess.TessBaseAPIRecognize(getHandle(), Pointer.NULL);
+
+        // get the result iterator
+        final Pointer<TessResultIterator> resultIt =
+                LibTess.TessBaseAPIGetIterator(getHandle());
+
+        // get the page iterator
+        final Pointer<TessPageIterator> pageIt =
+                LibTess.TessResultIteratorGetPageIterator(resultIt);
+
+        // iterating over symbols
+        final PageIteratorLevel level = PageIteratorLevel.SYMBOL;
+
+        // set the recognition state
+        consumer.setState(new RecognitionState(handle, resultIt, pageIt));
+
+        boolean inWord = false;
+
+        do {
+            // beginning of a symbol
+            if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
+                    level) == LibTess.TRUE) {
+
+                // beginning of a word
+                if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
+                        PageIteratorLevel.WORD) == LibTess.TRUE) {
+
+                    // beginning of a text line
+                    if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
+                            PageIteratorLevel.TEXTLINE) == LibTess.TRUE) {
+
+                        // beginning of a paragraph
+                        if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
+                                PageIteratorLevel.PARA) == LibTess.TRUE) {
+
+                            // beginning of a block
+                            if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
+                                    PageIteratorLevel.BLOCK) == LibTess.TRUE) {
+                                consumer.blockBegin();
+                            }
+
+                            consumer.paragraphBegin();
+                        }
+
+                        consumer.lineBegin();
+                    }
+
+                    consumer.wordBegin();
+
+                    inWord = true;
+                }
+
+                consumer.symbol();
+            }
+
+            if (!inWord) {
+                continue;
+            }
+
+            // last symbol in word
+            if (LibTess.TessPageIteratorIsAtFinalElement(pageIt,
+                    PageIteratorLevel.WORD,
+                    PageIteratorLevel.SYMBOL) == LibTess.TRUE) {
+
+                consumer.wordEnd();
+
+                inWord = false;
+
+                // last word in line
+                if (LibTess.TessPageIteratorIsAtFinalElement(pageIt,
+                        PageIteratorLevel.TEXTLINE,
+                        PageIteratorLevel.WORD) == LibTess.TRUE) {
+
+                    consumer.lineEnd();
+
+                    // last line in paragraph
+                    if (LibTess.TessPageIteratorIsAtFinalElement(pageIt,
+                            PageIteratorLevel.PARA,
+                            PageIteratorLevel.TEXTLINE) == LibTess.TRUE) {
+
+                        consumer.paragraphEnd();
+
+                        // last paragraph in a block
+                        if (LibTess.TessPageIteratorIsAtFinalElement(pageIt,
+                                PageIteratorLevel.BLOCK,
+                                PageIteratorLevel.PARA) == LibTess.TRUE) {
+
+                            consumer.blockEnd();
+
+                        }
+                    }
+                }
+            }
+        } while (LibTess.TessPageIteratorNext(pageIt, level) > 0); // next symb
+
+        // LibTess.TessResultIteratorDelete(resultIt);
+        // LibTess.TessPageIteratorDelete(pageIt);
+    }
 }
