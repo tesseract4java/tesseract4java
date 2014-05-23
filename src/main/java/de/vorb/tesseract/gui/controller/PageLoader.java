@@ -22,7 +22,7 @@ public class PageLoader extends Recognition {
     }
 
     @Override
-    protected void init(String language) throws IOException {
+    protected void init() throws IOException {
         setHandle(LibTess.TessBaseAPICreate());
     }
 
@@ -32,7 +32,7 @@ public class PageLoader extends Recognition {
         LibTess.TessBaseAPIInit2(
                 getHandle(),
                 Pointer.pointerToCString("E:\\Masterarbeit\\Ressourcen\\tessdata"),
-                Pointer.pointerToCString("deu-frak"), OCREngineMode.DEFAULT);
+                Pointer.pointerToCString(getLanguage()), OCREngineMode.DEFAULT);
 
         // set page segmentation mode
         LibTess.TessBaseAPISetPageSegMode(getHandle(), PageSegMode.AUTO);
