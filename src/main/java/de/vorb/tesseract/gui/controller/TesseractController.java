@@ -56,7 +56,7 @@ public class TesseractController implements ProjectChangeListener,
         BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
         BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
 
-        new TesseractController();
+        final TesseractController controller = new TesseractController();
     }
 
     public TesseractController() {
@@ -69,7 +69,7 @@ public class TesseractController implements ProjectChangeListener,
         view.getLoadProjectDialog().addProjectChangeListener(this);
 
         try {
-            pageLoader = new PageLoader("deu-frak");
+            pageLoader = new PageLoader("eng");
         } catch (Exception e) {
             e.printStackTrace();
         }
