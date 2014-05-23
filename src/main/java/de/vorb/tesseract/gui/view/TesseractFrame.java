@@ -53,6 +53,7 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
     private JLabel lbCanvasOCR;
     private JLabel lbCanvasOriginal;
     private final PageSelectionPane pageSelectionPane;
+    private final LanguageSelectionPane langSelectionPane;
     private final BoxFilePane trainingPane;
     private final ComparatorPane recognitionPane;
     private final GlyphExportPane exportPane;
@@ -74,6 +75,7 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
 
         openProjectDialog = new OpenProjectDialog(this);
         pageSelectionPane = new PageSelectionPane();
+        langSelectionPane = new LanguageSelectionPane();
         trainingPane = new BoxFilePane();
         recognitionPane = new ComparatorPane();
         exportPane = new GlyphExportPane();
@@ -360,9 +362,10 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         tabbedPane.setMinimumSize(new Dimension(300, 300));
         spMain.setLeftComponent(tabbedPane);
 
-        pageSelectionPane.setBorder(new EmptyBorder(0, 2, 2, 2));
         tabbedPane.add(Labels.getLabel(getLocale(), "tab_project"),
                 pageSelectionPane);
+        tabbedPane.add(Labels.getLabel(getLocale(), "tab_language"),
+                langSelectionPane);
 
         spMain.setRightComponent(trainingPane);
 
@@ -395,6 +398,10 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
 
     public PageSelectionPane getPageSelectionPane() {
         return pageSelectionPane;
+    }
+
+    public LanguageSelectionPane getLanguageSelectionPane() {
+        return langSelectionPane;
     }
 
     public JLabel getCanvasOCR() {
