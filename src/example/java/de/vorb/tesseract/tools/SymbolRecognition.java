@@ -12,73 +12,97 @@ import javax.imageio.ImageIO;
 import org.bridj.BridJ;
 import org.bridj.Pointer;
 
-import de.vorb.tesseract.bridj.Tesseract;
-import de.vorb.tesseract.bridj.Tesseract.TessOcrEngineMode;
-import de.vorb.tesseract.bridj.Tesseract.TessPageIteratorLevel;
+import de.vorb.tesseract.LibTess;
+import de.vorb.tesseract.OCREngineMode;
+import de.vorb.tesseract.PageIteratorLevel;
+import de.vorb.tesseract.PageSegMode;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
 import de.vorb.tesseract.tools.recognition.Recognition;
+import de.vorb.leptonica.Pix;
+import de.vorb.leptonica.util.PixConversions;
 
 public class SymbolRecognition extends Recognition {
-  public SymbolRecognition() throws IOException {
-    super();
-  }
+    public SymbolRecognition(String language) throws IOException {
+        super(language);
+    }
 
-  @Override
-  protected void init() throws IOException {
-    // init Tesseract with data path, language and OCR engine mode
-    Tesseract.TessBaseAPIInit2(getHandle(),
-        Pointer.pointerToCString("E:\\Masterarbeit\\Ressourcen\\tessdata"),
-        Pointer.pointerToCString("deu-frak"), TessOcrEngineMode.OEM_DEFAULT);
+    @Override
+    protected void init() throws IOException {
+        setHandle(LibTess.TessBaseAPICreate());
+    }
 
-    // set page segmentation mode
-    Tesseract.TessBaseAPISetPageSegMode(getHandle(),
-        Tesseract.TessPageSegMode.PSM_AUTO);
+    @Override
+    protected void reset() throws IOException {
+        // init LibTess with data path, language and OCR engine mode
+        LibTess.TessBaseAPIInit2(
+                getHandle(),
+                Pointer.pointerToCString("E:\\Masterarbeit\\Ressourcen\\tessdata"),
+                Pointer.pointerToCString(getLanguage()),
+                OCREngineMode.DEFAULT);
 
-    // read the image into memory
-    final BufferedImage inputImage = ImageIO.read(new File("input.png"));
+        // set page segmentation mode
+        LibTess.TessBaseAPISetPageSegMode(getHandle(),
+                PageSegMode.AUTO);
 
-    // get the image data
-    final DataBuffer imageBuffer = inputImage.getRaster().getDataBuffer();
-    final byte[] imageData = ((DataBufferByte) imageBuffer).getData();
+        // read the image into memory
+        final BufferedImage inputImage = ImageIO.read(new File("input4.png"));
 
-    // image properties
-    final int width = inputImage.getWidth();
-    final int height = inputImage.getHeight();
-    final int bitsPerPixel = inputImage.getColorModel().getPixelSize();
-    final int bytesPerPixel = bitsPerPixel / 8;
-    final int bytesPerLine = (int) Math.ceil(width * bitsPerPixel / 8.0);
+        // get the image data
+        final DataBuffer imageBuffer = inputImage.getRaster().getDataBuffer();
+        final byte[] imageData = ((DataBufferByte) imageBuffer).getData();
 
-    // set the image
-    Tesseract.TessBaseAPISetImage(getHandle(),
-        Pointer.pointerToBytes(ByteBuffer.wrap(imageData)), width, height,
-        bytesPerPixel, bytesPerLine);
-  }
+        // image properties
+        final int width = inputImage.getWidth();
+        final int height = inputImage.getHeight();
+        final int bitsPerPixel = inputImage.getColorModel().getPixelSize();
+        final int bytesPerPixel = bitsPerPixel / 8;
+        final int bytesPerLine = (width * bitsPerPixel + 7) / 8;
 
-  public static void main(String[] args) throws IOException {
-    BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
+        // set the image
+        LibTess.TessBaseAPISetImage(getHandle(),
+                Pointer.pointerToBytes(ByteBuffer.wrap(imageData)), width,
+                height,
+                bytesPerPixel, bytesPerLine);
 
-    final TessPageIteratorLevel level = TessPageIteratorLevel.RIL_SYMBOL;
+        final Pointer<Pix> bin = LibTess.TessBaseAPIGetThresholdedImage(getHandle());
+        ImageIO.write(PixConversions.pix2img(bin), "PNG", new File(
+                "fine.png"));
+    }
 
-    new SymbolRecognition().recognize(new DefaultRecognitionConsumer() {
-      @Override
-      public void wordBegin() {
-        System.out.println(getState().getBaseline(
-            TessPageIteratorLevel.RIL_WORD) + ", attrs: "
-            + getState().getWordFontAttributes());
-        System.out.println();
-      }
+    @Override
+    protected void close() throws IOException {
+        LibTess.TessBaseAPIDelete(getHandle());
+    }
 
-      @Override
-      public void symbol() {
-        System.out.println(getState().getText(level) + ": "
-            + getState().getBoundingBox(level)
-            + ", conf: " + getState().getConfidence(level));
-      }
+    public static void main(String[] args) throws IOException {
+        BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
 
-      @Override
-      public void wordEnd() {
-        System.out.println();
-      }
-    });
-  }
+        final PageIteratorLevel level = PageIteratorLevel.SYMBOL;
+
+        long start = System.currentTimeMillis();
+        new SymbolRecognition("deu-frak").recognize(new DefaultRecognitionConsumer() {
+            @Override
+            public void wordBegin() {
+                System.out.println(getState().getBaseline(
+                        PageIteratorLevel.WORD) + ", attrs: "
+                        + getState().getWordFontAttributes());
+                System.out.println();
+            }
+
+            @Override
+            public void symbol() {
+                System.out.println(getState().getText(level) + ": " +
+                        getState().getBoundingBox(level) + ", conf: " +
+                        getState().getConfidence(level));
+            }
+
+            @Override
+            public void wordEnd() {
+                System.out.println();
+            }
+        });
+
+        System.out.println("time: " + (System.currentTimeMillis() - start)
+                + "ms");
+    }
 }
