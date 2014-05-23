@@ -11,7 +11,6 @@ import de.vorb.leptonica.util.PixConversions;
 import de.vorb.tesseract.LibTess;
 import de.vorb.tesseract.OCREngineMode;
 import de.vorb.tesseract.PageSegMode;
-import de.vorb.tesseract.gui.event.LanguageChangeListener;
 import de.vorb.tesseract.tools.recognition.Recognition;
 
 public class PageLoader extends Recognition {
