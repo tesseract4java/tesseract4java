@@ -7,6 +7,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -21,6 +22,7 @@ public class LanguageSelectionPane extends JPanel {
 
     public LanguageSelectionPane() {
         setLayout(new BorderLayout(0, 0));
+        setBorder(new EmptyBorder(0, 2, 2, 2));
 
         JScrollPane scrollPane = new JScrollPane();
         add(scrollPane);
