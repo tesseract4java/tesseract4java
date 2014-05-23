@@ -70,7 +70,7 @@ public class PageLoader extends Recognition implements LanguageChangeListener {
     }
 
     @Override
-    public void languageChanged(String language) throws IOException {
+    public void languageSelectionChanged(String language) throws IOException {
         setLanguage(language);
     }
 }
