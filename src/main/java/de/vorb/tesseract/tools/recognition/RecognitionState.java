@@ -2,160 +2,172 @@ package de.vorb.tesseract.tools.recognition;
 
 import org.bridj.Pointer;
 
-import de.vorb.tesseract.bridj.Tesseract;
-import de.vorb.tesseract.bridj.Tesseract.TessPageIteratorLevel;
+import de.vorb.tesseract.LibTess;
+import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.util.Baseline;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.FontAttributes;
 
 public class RecognitionState {
-  @SuppressWarnings("unused")
-  private final Pointer<Tesseract.TessBaseAPI> apiHandle;
-  private final Pointer<Tesseract.TessResultIterator> resultIt;
-  private final Pointer<Tesseract.TessPageIterator> pageIt;
+    @SuppressWarnings("unused")
+    private final Pointer<LibTess.TessBaseAPI> apiHandle;
+    private final Pointer<LibTess.TessResultIterator> resultIt;
+    private final Pointer<LibTess.TessPageIterator> pageIt;
 
-  public RecognitionState(Pointer<Tesseract.TessBaseAPI> apiHandle,
-      Pointer<Tesseract.TessResultIterator> resultIt,
-      Pointer<Tesseract.TessPageIterator> pageIt) {
-    this.apiHandle = apiHandle;
-    this.resultIt = resultIt;
-    this.pageIt = pageIt;
-  }
+    public RecognitionState(Pointer<LibTess.TessBaseAPI> apiHandle,
+            Pointer<LibTess.TessResultIterator> resultIt,
+            Pointer<LibTess.TessPageIterator> pageIt) {
+        this.apiHandle = apiHandle;
+        this.resultIt = resultIt;
+        this.pageIt = pageIt;
+    }
 
-  /**
-   * Get the bounding box at the given iterator level.
-   * 
-   * @param level
-   *          level of the requested box
-   * @return requested box
-   */
-  public Box getBoundingBox(TessPageIteratorLevel level) {
-    // pointers to the bounding box coordinates
-    final Pointer<Integer> left = Pointer.allocateInt();
-    final Pointer<Integer> top = Pointer.allocateInt();
-    final Pointer<Integer> right = Pointer.allocateInt();
-    final Pointer<Integer> bottom = Pointer.allocateInt();
+    /**
+     * Get the bounding box at the given iterator level.
+     * 
+     * @param level
+     *            level of the requested box
+     * @return requested box
+     */
+    public Box getBoundingBox(PageIteratorLevel level) {
+        // pointers to the bounding box coordinates
+        final Pointer<Integer> left = Pointer.allocateInt();
+        final Pointer<Integer> top = Pointer.allocateInt();
+        final Pointer<Integer> right = Pointer.allocateInt();
+        final Pointer<Integer> bottom = Pointer.allocateInt();
 
-    // get bounding box
-    Tesseract.TessPageIteratorBoundingBox(pageIt, level, left, top, right,
-        bottom);
+        // get bounding box
+        LibTess.TessPageIteratorBoundingBox(pageIt, level, left, top, right,
+                bottom);
 
-    final int x = left.getInt();
-    final int y = top.getInt();
-    final int width = right.getInt() - x;
-    final int height = bottom.getInt() - y;
+        final int x = left.getInt();
+        final int y = top.getInt();
+        final int width = right.getInt() - x;
+        final int height = bottom.getInt() - y;
 
-    return new Box(x, y, width, height);
-  }
+        Pointer.release(left, top, right, bottom);
 
-  /**
-   * Get the text content at the given iterator level.
-   * 
-   * @param level
-   *          level of the requested text
-   * @return requested text
-   */
-  public String getText(TessPageIteratorLevel level) {
-    return Tesseract.TessResultIteratorGetUTF8Text(resultIt,
-        level).getCString();
-  }
+        return new Box(x, y, width, height);
+    }
 
-  /**
-   * Get the baseline information of the given iterator level.
-   * 
-   * @param level
-   *          level of the requested baseline
-   * @return baseline
-   */
-  public Baseline getBaseline(TessPageIteratorLevel level) {
-    // pointers to the baseline coordinates
-    final Pointer<Integer> x1 = Pointer.allocateInt();
-    final Pointer<Integer> y1 = Pointer.allocateInt();
-    final Pointer<Integer> x2 = Pointer.allocateInt();
-    final Pointer<Integer> y2 = Pointer.allocateInt();
+    /**
+     * Get the text content at the given iterator level.
+     * 
+     * @param level
+     *            level of the requested text
+     * @return requested text
+     */
+    public String getText(PageIteratorLevel level) {
+        final Pointer<Byte> pText = LibTess.TessResultIteratorGetUTF8Text(
+                resultIt, level);
+        final String text = pText.getCString();
+        LibTess.TessDeleteText(pText);
+        return text;
+    }
 
-    Tesseract.TessPageIteratorBaseline(pageIt, level, x1, y1, x2, y2);
+    /**
+     * Get the baseline information of the given iterator level.
+     * 
+     * @param level
+     *            level of the requested baseline
+     * @return baseline
+     */
+    public Baseline getBaseline(PageIteratorLevel level) {
+        // pointers to the baseline coordinates
+        final Pointer<Integer> x1 = Pointer.allocateInt();
+        final Pointer<Integer> y1 = Pointer.allocateInt();
+        final Pointer<Integer> x2 = Pointer.allocateInt();
+        final Pointer<Integer> y2 = Pointer.allocateInt();
 
-    final int width = x2.getInt() - x1.getInt();
-    final float height = y2.getInt() - y1.getInt();
-    final float slope = height / width;
+        LibTess.TessPageIteratorBaseline(pageIt, level, x1, y1, x2, y2);
 
-    final Box bbox = getBoundingBox(TessPageIteratorLevel.RIL_WORD);
-    final int yOffset = bbox.getY() + bbox.getHeight() - y1.getInt();
+        final int width = x2.getInt() - x1.getInt();
+        final float height = y2.getInt() - y1.getInt();
+        final float slope = height / width;
 
-    return new Baseline(yOffset, slope);
-  }
+        final Box bbox = getBoundingBox(PageIteratorLevel.WORD);
+        final int yOffset = bbox.getY() + bbox.getHeight() - y1.getInt();
 
-  /**
-   * Get the confidence of the given iterator level.
-   * 
-   * @param level
-   *          level of the requested confidence
-   * @return recognition confidence
-   */
-  public float getConfidence(TessPageIteratorLevel level) {
-    return Tesseract.TessResultIteratorConfidence(resultIt, level);
-  }
+        Pointer.release(x1, y1, x2, y2);
 
-  /**
-   * @return font attributes for the current word.
-   */
-  public FontAttributes getWordFontAttributes() {
-    // pointers to integers for every attribute
-    final Pointer<Integer> isBold = Pointer.allocateInt();
-    final Pointer<Integer> isItalic = Pointer.allocateInt();
-    final Pointer<Integer> isUnderlined = Pointer.allocateInt();
-    final Pointer<Integer> isMonospace = Pointer.allocateInt();
-    final Pointer<Integer> isSerif = Pointer.allocateInt();
-    final Pointer<Integer> isSmallcaps = Pointer.allocateInt();
-    final Pointer<Integer> fontSize = Pointer.allocateInt();
-    final Pointer<Integer> fontID = Pointer.allocateInt();
+        return new Baseline(yOffset, slope);
+    }
 
-    // set values
-    Tesseract.TessResultIteratorWordFontAttributes(resultIt, isBold,
-        isItalic, isUnderlined, isMonospace, isSerif, isSmallcaps,
-        fontSize, fontID);
+    /**
+     * Get the confidence of the given iterator level.
+     * 
+     * @param level
+     *            level of the requested confidence
+     * @return recognition confidence
+     */
+    public float getConfidence(PageIteratorLevel level) {
+        return LibTess.TessResultIteratorConfidence(resultIt, level);
+    }
 
-    // build and return FontAttributes
-    return new FontAttributes.Builder().bold(isBold.getInt() > 0).italic(
-        isItalic.getInt() > 0).underlined(isUnderlined.getInt() > 0).monospace(
-        isMonospace.getInt() > 0).serif(isSerif.getInt() > 0).smallcaps(
-        isSmallcaps.getInt() > 0).size(fontSize.getInt()).fontID(
-        fontID.getInt()).build();
-  }
+    /**
+     * @return font attributes for the current word.
+     */
+    public FontAttributes getWordFontAttributes() {
+        // pointers to integers for every attribute
+        final Pointer<Integer> isBold = Pointer.allocateInt();
+        final Pointer<Integer> isItalic = Pointer.allocateInt();
+        final Pointer<Integer> isUnderlined = Pointer.allocateInt();
+        final Pointer<Integer> isMonospace = Pointer.allocateInt();
+        final Pointer<Integer> isSerif = Pointer.allocateInt();
+        final Pointer<Integer> isSmallcaps = Pointer.allocateInt();
+        final Pointer<Integer> fontSize = Pointer.allocateInt();
+        final Pointer<Integer> fontID = Pointer.allocateInt();
 
-  /**
-   * @return true if word exists in dictionary
-   */
-  public boolean isWordFromDictionary() {
-    return Tesseract.TessResultIteratorWordIsFromDictionary(resultIt) > 0;
-  }
+        // set values
+        LibTess.TessResultIteratorWordFontAttributes(resultIt, isBold,
+                isItalic, isUnderlined, isMonospace, isSerif, isSmallcaps,
+                fontSize, fontID);
 
-  /**
-   * @return true if word is numeric
-   */
-  public boolean isWordNumeric() {
-    return Tesseract.TessResultIteratorWordIsNumeric(resultIt) > 0;
-  }
+        // build and return FontAttributes
+        final FontAttributes fa = new FontAttributes.Builder().bold(
+                isBold.getInt() > 0).italic(isItalic.getInt() > 0).underlined(
+                isUnderlined.getInt() > 0).monospace(isMonospace.getInt() > 0).serif(
+                isSerif.getInt() > 0).smallcaps(isSmallcaps.getInt() > 0).size(
+                fontSize.getInt()).fontID(fontID.getInt()).build();
 
-  /**
-   * @return true if current symbol is a dropcap
-   */
-  public boolean isSymbolDropcap() {
-    return Tesseract.TessResultIteratorSymbolIsDropcap(resultIt) > 0;
-  }
+        Pointer.release(isBold, isItalic, isUnderlined, isMonospace, isSerif,
+                isSmallcaps, fontSize, fontID);
 
-  /**
-   * @return true if current symbol is subscript
-   */
-  public boolean isSymbolSubscript() {
-    return Tesseract.TessResultIteratorSymbolIsSubscript(resultIt) > 0;
-  }
+        return fa;
+    }
 
-  /**
-   * @return true if current symbol is superscript
-   */
-  public boolean isSymbolSuperscript() {
-    return Tesseract.TessResultIteratorSymbolIsSuperscript(resultIt) > 0;
-  }
+    /**
+     * @return true if word exists in dictionary
+     */
+    public boolean isWordFromDictionary() {
+        return LibTess.TessResultIteratorWordIsFromDictionary(resultIt) > 0;
+    }
+
+    /**
+     * @return true if word is numeric
+     */
+    public boolean isWordNumeric() {
+        return LibTess.TessResultIteratorWordIsNumeric(resultIt) > 0;
+    }
+
+    /**
+     * @return true if current symbol is a dropcap
+     */
+    public boolean isSymbolDropcap() {
+        return LibTess.TessResultIteratorSymbolIsDropcap(resultIt) > 0;
+    }
+
+    /**
+     * @return true if current symbol is subscript
+     */
+    public boolean isSymbolSubscript() {
+        return LibTess.TessResultIteratorSymbolIsSubscript(resultIt) > 0;
+    }
+
+    /**
+     * @return true if current symbol is superscript
+     */
+    public boolean isSymbolSuperscript() {
+        return LibTess.TessResultIteratorSymbolIsSuperscript(resultIt) > 0;
+    }
 }
