@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
@@ -19,13 +20,17 @@ import javax.swing.UIManager;
 import org.bridj.BridJ;
 
 import de.vorb.tesseract.PageIteratorLevel;
+import de.vorb.tesseract.gui.event.LanguageChangeListener;
 import de.vorb.tesseract.gui.event.PageChangeListener;
 import de.vorb.tesseract.gui.event.ProjectChangeListener;
+import de.vorb.tesseract.gui.model.LanguageSelectionModel;
 import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.view.LanguageSelectionPane;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
 import de.vorb.tesseract.tools.recognition.RecognitionState;
 import de.vorb.tesseract.util.Box;
+import de.vorb.tesseract.util.Languages;
 import de.vorb.tesseract.util.Line;
 import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Project;
@@ -33,7 +38,7 @@ import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
 public class TesseractController implements ProjectChangeListener,
-        PageChangeListener {
+        PageChangeListener, LanguageChangeListener {
 
     private final TesseractFrame view;
     private SwingWorker<PageModel, Void> pageLoaderWorker = null;
@@ -70,6 +75,16 @@ public class TesseractController implements ProjectChangeListener,
 
         try {
             pageLoader = new PageLoader("eng");
+
+            // setup language model
+            final List<String> langs = Languages.getLanguageList();
+            final LanguageSelectionModel langSelectionModel =
+                    new LanguageSelectionModel(langs);
+            view.getLanguageSelectionPane().setModel(langSelectionModel);
+
+            // add pageLoader as a listener
+            view.getLanguageSelectionPane().getModel().addSelectionListener(
+                    this);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -137,6 +152,11 @@ public class TesseractController implements ProjectChangeListener,
         };
 
         pageLoaderWorker.execute();
+    }
+
+    @Override
+    public void languageSelectionChanged(String language) throws IOException {
+        pageLoader.setLanguage(language);
     }
 
     private PageModel loadPageModel(Path scanFile) throws IOException {
