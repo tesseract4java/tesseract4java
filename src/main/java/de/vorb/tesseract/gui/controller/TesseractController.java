@@ -25,7 +25,6 @@ import de.vorb.tesseract.gui.event.PageChangeListener;
 import de.vorb.tesseract.gui.event.ProjectChangeListener;
 import de.vorb.tesseract.gui.model.LanguageSelectionModel;
 import de.vorb.tesseract.gui.model.PageModel;
-import de.vorb.tesseract.gui.view.LanguageSelectionPane;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
 import de.vorb.tesseract.tools.recognition.RecognitionState;
@@ -74,7 +73,7 @@ public class TesseractController implements ProjectChangeListener,
         view.getLoadProjectDialog().addProjectChangeListener(this);
 
         try {
-            pageLoader = new PageLoader("eng");
+            pageLoader = new PageLoader("deu-frak");
 
             // setup language model
             final List<String> langs = Languages.getLanguageList();
@@ -157,6 +156,12 @@ public class TesseractController implements ProjectChangeListener,
     @Override
     public void languageSelectionChanged(String language) throws IOException {
         pageLoader.setLanguage(language);
+
+        // update view
+        final int pageIndex = view.getPageSelectionPane().getModel()
+                .getSelectedPageIndex();
+
+        pageSelectionChanged(pageIndex);
     }
 
     private PageModel loadPageModel(Path scanFile) throws IOException {
@@ -210,7 +215,8 @@ public class TesseractController implements ProjectChangeListener,
             }
         });
 
-        final Page page = new Page(scanFile, 1, 1, 300, lines);
+        final Page page = new Page(scanFile, originalImg.getWidth(),
+                originalImg.getHeight(), 300, lines);
         final PageModel model = new PageModel(page, originalImg, thresholdedImg);
 
         // try {
