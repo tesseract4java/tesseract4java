@@ -5,12 +5,13 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class Labels {
-  public static String getLabel(Locale locale, String key) {
-    final ResourceBundle labels = ResourceBundle.getBundle("labels", locale);
-    try {
-      return labels.getString(key);
-    } catch (MissingResourceException e) {
-      return "?";
+    public static String getLabel(Locale locale, String key) {
+        final ResourceBundle labels = ResourceBundle.getBundle("l10n/labels",
+                locale);
+        try {
+            return labels.getString(key);
+        } catch (MissingResourceException e) {
+            return "?";
+        }
     }
-  }
 }
