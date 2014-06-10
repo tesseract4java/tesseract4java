@@ -4,8 +4,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -17,9 +15,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-public class CreateProjectDialog extends Dialog {
+public class NewProjectDialog extends Dialog {
     protected Object result;
-    protected Shell dialogNewProject;
+    protected final Shell dialog;
     private Text text;
     private Text text_1;
 
@@ -29,46 +27,22 @@ public class CreateProjectDialog extends Dialog {
      * @param parent
      * @param style
      */
-    public CreateProjectDialog(Shell parent, int style) {
-        super(parent, style);
-        setText("SWT Dialog");
-    }
+    private NewProjectDialog(Shell parent) {
+        super(parent, SWT.NONE);
 
-    /**
-     * Open the dialog.
-     * 
-     * @return the result
-     */
-    public Object open() {
-        createContents();
-        dialogNewProject.open();
-        dialogNewProject.layout();
-        Display display = getParent().getDisplay();
-        while (!dialogNewProject.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Create contents of the dialog.
-     */
-    private void createContents() {
-        dialogNewProject = new Shell(getParent(), SWT.DIALOG_TRIM);
-        dialogNewProject.setMinimumSize(new Point(140, 160));
-        dialogNewProject.setImage(SWTResourceManager.getImage(
-                CreateProjectDialog.class, "/logos/logo_16.png"));
-        dialogNewProject.setSize(450, 387);
-        dialogNewProject.setText("New Tesseract Project");
+        dialog = new Shell(getParent(), SWT.DIALOG_TRIM);
+        dialog.setMinimumSize(new Point(140, 160));
+        dialog.setImage(SWTResourceManager.getImage(getClass(),
+                "/logos/logo_16.png"));
+        dialog.setSize(450, 387);
+        dialog.setText("New Tesseract Project");
         GridLayout gl_dialogNewProject = new GridLayout(1, false);
         gl_dialogNewProject.verticalSpacing = 0;
         gl_dialogNewProject.marginWidth = 0;
         gl_dialogNewProject.marginHeight = 0;
-        dialogNewProject.setLayout(gl_dialogNewProject);
+        dialog.setLayout(gl_dialogNewProject);
 
-        Composite composite_1 = new Composite(dialogNewProject, SWT.NONE);
+        Composite composite_1 = new Composite(dialog, SWT.NONE);
         GridData gd_composite_1 = new GridData(SWT.FILL, SWT.TOP, true, false,
                 1, 1);
         gd_composite_1.heightHint = 64;
@@ -82,12 +56,12 @@ public class CreateProjectDialog extends Dialog {
         lblCreateANew.setBounds(10, 10, 424, 17);
         lblCreateANew.setText("Create a new Tesseract project");
 
-        Label label = new Label(dialogNewProject, SWT.SEPARATOR
+        Label label = new Label(dialog, SWT.SEPARATOR
                 | SWT.HORIZONTAL);
         label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1,
                 1));
 
-        Composite composite_2 = new Composite(dialogNewProject, SWT.NONE);
+        Composite composite_2 = new Composite(dialog, SWT.NONE);
         GridLayout gl_composite_2 = new GridLayout(3, false);
         gl_composite_2.verticalSpacing = 10;
         gl_composite_2.horizontalSpacing = 10;
@@ -137,13 +111,15 @@ public class CreateProjectDialog extends Dialog {
         grpProject.setLayout(gl_grpProject);
         grpProject.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
                 false, 3, 1));
-        
+
         Label btnCheckButton = new Label(grpProject, SWT.CHECK);
-        btnCheckButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        btnCheckButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
+                false, 1, 1));
         btnCheckButton.setText("Project type:");
-        
+
         Combo combo_1 = new Combo(grpProject, SWT.NONE);
-        combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        combo_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+                1, 1));
 
         Label lblLanguage = new Label(grpProject, SWT.NONE);
         lblLanguage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
@@ -154,12 +130,12 @@ public class CreateProjectDialog extends Dialog {
         combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1,
                 1));
 
-        Label label_1 = new Label(dialogNewProject, SWT.SEPARATOR
+        Label label_1 = new Label(dialog, SWT.SEPARATOR
                 | SWT.HORIZONTAL);
         label_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false,
                 1, 1));
 
-        Composite composite = new Composite(dialogNewProject, SWT.NONE);
+        Composite composite = new Composite(dialog, SWT.NONE);
         GridLayout gl_composite = new GridLayout(3, false);
         gl_composite.verticalSpacing = 10;
         gl_composite.marginWidth = 10;
@@ -168,12 +144,14 @@ public class CreateProjectDialog extends Dialog {
         composite.setLayout(gl_composite);
         composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
                 false, 1, 1));
-        
+
         Label lblNewLabel = new Label(composite, SWT.NONE);
-        lblNewLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        lblNewLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true,
+                false, 1, 1));
 
         Button btnNewButton = new Button(composite, SWT.NONE);
-        GridData gd_btnNewButton = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+        GridData gd_btnNewButton = new GridData(SWT.LEFT, SWT.CENTER, false,
+                false, 1, 1);
         gd_btnNewButton.widthHint = 80;
         btnNewButton.setLayoutData(gd_btnNewButton);
         btnNewButton.setTouchEnabled(true);
@@ -181,10 +159,35 @@ public class CreateProjectDialog extends Dialog {
         btnNewButton.setText("Create");
 
         Button btnCancel = new Button(composite, SWT.NONE);
-        GridData gd_btnCancel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+        GridData gd_btnCancel = new GridData(SWT.LEFT, SWT.CENTER, false,
+                false, 1, 1);
         gd_btnCancel.widthHint = 80;
         btnCancel.setLayoutData(gd_btnCancel);
         btnCancel.setText("Cancel");
+    }
+
+    /**
+     * Open the dialog.
+     * 
+     * @return the result
+     */
+    public static Object open(Shell parent) {
+        NewProjectDialog dialog = new NewProjectDialog(parent);
+        dialog.dialog.open();
+        dialog.dialog.layout();
+        Display display = dialog.getParent().getDisplay();
+        while (!dialog.dialog.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        return dialog.result;
+    }
+
+    /**
+     * Create contents of the dialog.
+     */
+    private void createContents() {
 
     }
 }
