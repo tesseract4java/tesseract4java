@@ -63,7 +63,7 @@ public class MessageDialog extends Dialog {
 
         Label lblMessage = new Label(shell, SWT.WRAP);
         FormData fd_lblMessage = new FormData();
-        fd_lblMessage.top = new FormAttachment(0, 10);
+        fd_lblMessage.top = new FormAttachment(0, 15);
         fd_lblMessage.right = new FormAttachment(100, -10);
         fd_lblMessage.left = new FormAttachment(lblIcon, 10);
         lblMessage.setLayoutData(fd_lblMessage);
@@ -80,8 +80,8 @@ public class MessageDialog extends Dialog {
         fd_lblMessage.bottom = new FormAttachment(btnOk, -10);
         FormData fd_btnOk = new FormData();
         fd_btnOk.bottom = new FormAttachment(100, -10);
-        fd_btnOk.left = new FormAttachment(50, -40);
-        fd_btnOk.right = new FormAttachment(50, 40);
+        fd_btnOk.left = new FormAttachment(50, -35);
+        fd_btnOk.right = new FormAttachment(50, 35);
         btnOk.setLayoutData(fd_btnOk);
         btnOk.setText("OK");
     }
