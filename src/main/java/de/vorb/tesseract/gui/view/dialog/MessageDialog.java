@@ -11,6 +11,8 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 
 public class MessageDialog extends Dialog {
     private final Shell shell;
@@ -47,7 +49,7 @@ public class MessageDialog extends Dialog {
 
         shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         shell.setImage(icon);
-        shell.setSize(341, 208);
+        shell.setSize(340, 160);
         shell.setText(title);
         shell.setLayout(new FormLayout());
 
@@ -57,19 +59,25 @@ public class MessageDialog extends Dialog {
         fd_lblIcon.left = new FormAttachment(0, 10);
         lblIcon.setLayoutData(fd_lblIcon);
         lblIcon.setImage(icon);
-        lblIcon.setSize(new Point(64, 64));
-        lblIcon.setText(message);
+        lblIcon.setSize(new Point(96, 96));
 
-        Label lblMessage = new Label(shell, SWT.NONE);
-        FormData fd_lblNewLabel = new FormData();
-        fd_lblNewLabel.top = new FormAttachment(0, 10);
-        fd_lblNewLabel.right = new FormAttachment(100, -10);
-        fd_lblNewLabel.left = new FormAttachment(lblIcon, 10);
-        lblMessage.setLayoutData(fd_lblNewLabel);
+        Label lblMessage = new Label(shell, SWT.WRAP);
+        FormData fd_lblMessage = new FormData();
+        fd_lblMessage.top = new FormAttachment(0, 10);
+        fd_lblMessage.right = new FormAttachment(100, -10);
+        fd_lblMessage.left = new FormAttachment(lblIcon, 10);
+        lblMessage.setLayoutData(fd_lblMessage);
         lblMessage.setText(message);
 
         Button btnOk = new Button(shell, SWT.NONE);
-        fd_lblNewLabel.bottom = new FormAttachment(btnOk, -10);
+        btnOk.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                shell.dispose();
+            }
+        });
+
+        fd_lblMessage.bottom = new FormAttachment(btnOk, -10);
         FormData fd_btnOk = new FormData();
         fd_btnOk.bottom = new FormAttachment(100, -10);
         fd_btnOk.left = new FormAttachment(50, -40);
@@ -97,7 +105,7 @@ public class MessageDialog extends Dialog {
     public static void show(Shell parent, Type type, String title,
             String message) {
         final MessageDialog dialog = new MessageDialog(parent, SWT.DIALOG_TRIM,
-                null, message, message);
+                type, title, message);
         dialog.open();
     }
 }
