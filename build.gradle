@@ -19,6 +19,8 @@ repositories {
 
 // include all JAR files in lib
 dependencies {
+  compile 'de.vorb:swt-dialogs:0.0.1'
+
   compile fileTree(dir: 'lib', includes: ['*.jar'])
 
   testCompile 'junit:junit:4.+'
