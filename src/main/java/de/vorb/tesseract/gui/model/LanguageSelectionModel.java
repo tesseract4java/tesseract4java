@@ -26,7 +26,7 @@ public class LanguageSelectionModel {
 
         for (final LanguageChangeListener listener : listeners) {
             try {
-                listener.languageSelectionChanged(getSelectedLanguage());
+                listener.languageSelectionChanged();
             } catch (IOException e) {
                 e.printStackTrace();
             }

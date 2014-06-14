@@ -154,7 +154,10 @@ public class TesseractController implements ProjectChangeListener,
     }
 
     @Override
-    public void languageSelectionChanged(String language) throws IOException {
+    public void languageSelectionChanged() throws IOException {
+        final String language =
+                view.getLanguageSelectionPane().getModel().getSelectedLanguage();
+
         pageLoader.setLanguage(language);
 
         // update view
