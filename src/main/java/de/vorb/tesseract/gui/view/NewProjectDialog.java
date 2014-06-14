@@ -79,11 +79,12 @@ public class NewProjectDialog extends Dialog {
         text = new Text(composite_2, SWT.BORDER);
         text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         new Label(composite_2, SWT.NONE);
+        new Label(composite_2, SWT.NONE);
 
         Button btnDefaultLocation = new Button(composite_2, SWT.CHECK);
         btnDefaultLocation.setSelection(true);
         btnDefaultLocation.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER,
-                false, false, 3, 1));
+                false, false, 2, 1));
         btnDefaultLocation.setText("Use default location");
 
         Label lblLocation = new Label(composite_2, SWT.NONE);
