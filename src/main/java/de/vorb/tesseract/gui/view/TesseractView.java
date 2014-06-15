@@ -3,8 +3,6 @@ package de.vorb.tesseract.gui.view;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -14,9 +12,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ProgressBar;
@@ -32,8 +32,15 @@ public class TesseractView extends Shell {
 
     private final MenuItem mntmNewProject;
     private final MenuItem mntmOpenProject;
+    private final MenuItem mntmSave;
     private final MenuItem mntmSaveProject;
     private final MenuItem mntmExit;
+    private final MenuItem mntmCloseProject;
+    private final SashForm sash;
+    private final List pageList;
+    private final List languageList;
+    private final MenuItem mntmAbout;
+    private MenuItem mntmRefreshPage;
 
     public static enum ProgressState {
         DEFAULT,
@@ -69,43 +76,58 @@ public class TesseractView extends Shell {
         MenuItem mntmFile = new MenuItem(menu, SWT.CASCADE);
         mntmFile.setText("File");
 
-        Menu menu_1 = new Menu(mntmFile);
-        mntmFile.setMenu(menu_1);
+        Menu fileMenu = new Menu(mntmFile);
+        mntmFile.setMenu(fileMenu);
 
-        mntmNewProject = new MenuItem(menu_1, SWT.NONE);
+        mntmNewProject = new MenuItem(fileMenu, SWT.NONE);
         mntmNewProject.setAccelerator(SWT.MOD1 + 'N');
-
         mntmNewProject.setText("New Project\tCtrl+N");
 
-        mntmOpenProject = new MenuItem(menu_1, SWT.NONE);
-        mntmOpenProject.setText("Open Project");
+        mntmOpenProject = new MenuItem(fileMenu, SWT.NONE);
+        mntmOpenProject.setAccelerator(SWT.MOD1 + 'O');
+        mntmOpenProject.setText("Open Project\tCtrl+O");
 
-        new MenuItem(menu_1, SWT.SEPARATOR);
+        new MenuItem(fileMenu, SWT.SEPARATOR);
 
-        MenuItem mntmSave = new MenuItem(menu_1, SWT.NONE);
+        mntmSave = new MenuItem(fileMenu, SWT.NONE);
+        mntmSave.setEnabled(false);
         mntmSave.setImage(SWTResourceManager.getImage(TesseractView.class,
                 "/icons/disk.png"));
         mntmSave.setAccelerator(SWT.MOD1 | 'S');
         mntmSave.setText("&Save\tCtrl+S");
 
-        mntmSaveProject = new MenuItem(menu_1, SWT.NONE);
+        mntmSaveProject = new MenuItem(fileMenu, SWT.NONE);
+        mntmSaveProject.setEnabled(false);
         mntmSaveProject.setImage(SWTResourceManager.getImage(
                 TesseractView.class, "/icons/disk_multiple.png"));
         mntmSaveProject.setText("Save Project\tCtrl+Shift+S");
 
-        new MenuItem(menu_1, SWT.SEPARATOR);
+        new MenuItem(fileMenu, SWT.SEPARATOR);
 
-        mntmExit = new MenuItem(menu_1, SWT.NONE);
+        mntmCloseProject = new MenuItem(fileMenu, SWT.NONE);
+        mntmCloseProject.setEnabled(false);
+        mntmCloseProject.setText("Close Project");
+
+        new MenuItem(fileMenu, SWT.SEPARATOR);
+
+        mntmExit = new MenuItem(fileMenu, SWT.NONE);
         mntmExit.setText("Exit");
 
         MenuItem mntmEdit = new MenuItem(menu, SWT.CASCADE);
         mntmEdit.setText("Edit");
 
-        Menu menu_2 = new Menu(mntmEdit);
-        mntmEdit.setMenu(menu_2);
+        Menu editMenu = new Menu(mntmEdit);
+        mntmEdit.setMenu(editMenu);
 
-        MenuItem mntmRecognize = new MenuItem(menu_2, SWT.NONE);
+        MenuItem mntmRecognize = new MenuItem(editMenu, SWT.NONE);
         mntmRecognize.setText("Recognize All");
+
+        new MenuItem(editMenu, SWT.SEPARATOR);
+
+        MenuItem mntmGlobalpreferences = new MenuItem(editMenu, SWT.NONE);
+        mntmGlobalpreferences.setImage(SWTResourceManager.getImage(
+                TesseractView.class, "/icons/wrench.png"));
+        mntmGlobalpreferences.setText("GlobalPreferences");
 
         MenuItem mntmView = new MenuItem(menu, SWT.CASCADE);
         mntmView.setText("View");
@@ -113,20 +135,29 @@ public class TesseractView extends Shell {
         Menu menu_3 = new Menu(mntmView);
         mntmView.setMenu(menu_3);
 
+        mntmRefreshPage = new MenuItem(menu_3, SWT.NONE);
+        mntmRefreshPage.setImage(SWTResourceManager.getImage(
+                TesseractView.class, "/icons/arrow_refresh.png"));
+        mntmRefreshPage.setText("Refresh Page\tF5");
+        mntmRefreshPage.setAccelerator(SWT.F5);
+
+        new MenuItem(menu_3, SWT.SEPARATOR);
+
         MenuItem mntmBoxEditor = new MenuItem(menu_3, SWT.RADIO);
+        mntmBoxEditor.setSelection(true);
         mntmBoxEditor.setImage(SWTResourceManager.getImage(TesseractView.class,
                 "/icons/application_view_tile.png"));
         mntmBoxEditor.setText("Box Editor");
-
-        MenuItem mntmComparison = new MenuItem(menu_3, SWT.RADIO);
-        mntmComparison.setImage(SWTResourceManager.getImage(
-                TesseractView.class, "/icons/application_tile_horizontal.png"));
-        mntmComparison.setText("Result Comparison");
 
         MenuItem mntmGlyphExport = new MenuItem(menu_3, SWT.RADIO);
         mntmGlyphExport.setImage(SWTResourceManager.getImage(
                 TesseractView.class, "/icons/application_put.png"));
         mntmGlyphExport.setText("Glyph Export");
+
+        MenuItem mntmComparison = new MenuItem(menu_3, SWT.RADIO);
+        mntmComparison.setImage(SWTResourceManager.getImage(
+                TesseractView.class, "/icons/application_tile_horizontal.png"));
+        mntmComparison.setText("Text Recognition");
 
         MenuItem mntmHelp = new MenuItem(menu, SWT.CASCADE);
         mntmHelp.setText("Help");
@@ -134,9 +165,9 @@ public class TesseractView extends Shell {
         Menu menu_4 = new Menu(mntmHelp);
         mntmHelp.setMenu(menu_4);
 
-        MenuItem mntmAbout = new MenuItem(menu_4, SWT.NONE);
+        mntmAbout = new MenuItem(menu_4, SWT.NONE);
         mntmAbout.setImage(SWTResourceManager.getImage(TesseractView.class,
-                "/icons/help.png"));
+                "/icons/information.png"));
         mntmAbout.setText("About");
 
         statusBar = new Composite(this, SWT.NONE);
@@ -147,7 +178,7 @@ public class TesseractView extends Shell {
         statusBar.setLayoutData(fd_statusBar);
         statusBar.setLayout(new GridLayout(2, false));
 
-        SashForm sashForm = new SashForm(this, SWT.SMOOTH);
+        sash = new SashForm(this, SWT.SMOOTH);
         FormData fd_sashForm = new FormData();
         fd_sashForm.top = new FormAttachment(0);
         fd_sashForm.bottom = new FormAttachment(statusBar, 0);
@@ -168,26 +199,18 @@ public class TesseractView extends Shell {
 
         fd_sashForm.right = new FormAttachment(100, -4);
         fd_sashForm.left = new FormAttachment(0, 4);
-        sashForm.setLayoutData(fd_sashForm);
+        sash.setLayoutData(fd_sashForm);
 
-        Composite composite_1 = new Composite(sashForm, SWT.NONE);
+        Composite composite_1 = new Composite(sash, SWT.NONE);
 
         composite_1.setLayout(new FormLayout());
 
-        Composite composite = new Composite(composite_1, SWT.NONE);
-        FormData fd_composite = new FormData();
-        fd_composite.top = new FormAttachment(0);
-        fd_composite.right = new FormAttachment(100);
-        fd_composite.left = new FormAttachment(0);
-        fd_composite.height = 25;
-        composite.setLayoutData(fd_composite);
-
         SashForm sashForm_1 = new SashForm(composite_1, SWT.VERTICAL);
         FormData fd_composite_1 = new FormData();
-        fd_composite_1.top = new FormAttachment(composite, 0);
+        fd_composite_1.top = new FormAttachment(0, 25);
+        fd_composite_1.bottom = new FormAttachment(100);
         fd_composite_1.right = new FormAttachment(100);
         fd_composite_1.left = new FormAttachment(0);
-        fd_composite_1.bottom = new FormAttachment(100);
         sashForm_1.setLayoutData(fd_composite_1);
 
         Group grpPages = new Group(sashForm_1, SWT.NONE);
@@ -197,10 +220,8 @@ public class TesseractView extends Shell {
         fl_grpPages.marginHeight = 4;
         grpPages.setLayout(fl_grpPages);
 
-        List list = new List(grpPages, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-        list.setItems(new String[] { "a", "b", "c", "d", "e", "f", "g", "h",
-                "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
-                "u", "v", "w", "x", "y", "z" });
+        pageList = new List(grpPages, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        pageList.setItems(new String[] {});
 
         Group grpLanguages = new Group(sashForm_1, SWT.NONE);
         grpLanguages.setText("Training File");
@@ -209,14 +230,32 @@ public class TesseractView extends Shell {
         fl_grpLanguages.marginHeight = 4;
         grpLanguages.setLayout(fl_grpLanguages);
 
-        List list_1 = new List(grpLanguages, SWT.BORDER | SWT.H_SCROLL
+        languageList = new List(grpLanguages, SWT.BORDER | SWT.H_SCROLL
                 | SWT.V_SCROLL);
         sashForm_1.setWeights(new int[] { 3, 1 });
-        Composite composite_2 = new BoxFileView(sashForm, SWT.NONE);
-
-        sashForm.setWeights(new int[] { 1, 5 });
+        Composite composite_2 = new BoxFileView(sash, SWT.NONE);
 
         setProgress(ProgressState.DEFAULT, 0);
+
+        final int[] sashWeights = new int[2];
+        updateSashWeights(sashWeights);
+
+        addListener(SWT.Resize, new Listener() {
+            @Override
+            public void handleEvent(Event e) {
+                updateSashWeights(sashWeights);
+            }
+        });
+    }
+
+    private void updateSashWeights(int[] sashWeights) {
+        // left column has fixed width
+        final int overallWidth = getSize().x;
+        final int selectionWidth = sash.getWeights()[0];
+
+        sashWeights[0] = selectionWidth;
+        sashWeights[1] = overallWidth - selectionWidth - sash.getSashWidth();
+        sash.setWeights(sashWeights);
     }
 
     public Widget getNewProjectWidget() {
@@ -227,12 +266,32 @@ public class TesseractView extends Shell {
         return mntmOpenProject;
     }
 
+    public Widget getCloseProjectWidget() {
+        return mntmCloseProject;
+    }
+
     public Widget getSaveWidget() {
         return mntmSaveProject;
     }
 
     public Widget getExitWidget() {
         return mntmExit;
+    }
+
+    public Widget getRefreshPageWidget() {
+        return mntmRefreshPage;
+    }
+
+    public Widget getAboutWidget() {
+        return mntmAbout;
+    }
+
+    public List getPageList() {
+        return pageList;
+    }
+
+    public List getLanguageList() {
+        return languageList;
     }
 
     /**
