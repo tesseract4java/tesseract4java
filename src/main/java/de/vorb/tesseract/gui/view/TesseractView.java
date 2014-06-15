@@ -202,7 +202,7 @@ public class TesseractView extends Shell {
         sash.setLayoutData(fd_sashForm);
 
         Composite composite_1 = new Composite(sash, SWT.NONE);
-
+        composite_1.setSize(200, 100);
         composite_1.setLayout(new FormLayout());
 
         SashForm sashForm_1 = new SashForm(composite_1, SWT.VERTICAL);
@@ -251,7 +251,7 @@ public class TesseractView extends Shell {
     private void updateSashWeights(int[] sashWeights) {
         // left column has fixed width
         final int overallWidth = getSize().x;
-        final int selectionWidth = sash.getWeights()[0];
+        final int selectionWidth = sash.getChildren()[0].getSize().x;
 
         sashWeights[0] = selectionWidth;
         sashWeights[1] = overallWidth - selectionWidth - sash.getSashWidth();
