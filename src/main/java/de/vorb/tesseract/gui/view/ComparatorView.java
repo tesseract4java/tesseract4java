@@ -18,8 +18,9 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.layout.RowData;
 
-public class ComparatorView extends Composite {
+import de.vorb.tesseract.gui.model.PageModel;
 
+public class ComparatorView extends Composite implements PageView {
     /**
      * Create the composite.
      * 
@@ -102,5 +103,17 @@ public class ComparatorView extends Composite {
     @Override
     protected void checkSubclass() {
         // Disable the check that prevents subclassing of SWT components
+    }
+
+    @Override
+    public void setPageModel(PageModel pageModel) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public PageModel getPageModel() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

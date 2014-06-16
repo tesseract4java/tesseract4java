@@ -2,6 +2,7 @@ package de.vorb.tesseract.gui.controller;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import org.bridj.Pointer;
 
@@ -43,15 +44,8 @@ public class PageLoader extends Recognition {
         LibTess.TessBaseAPIDelete(getHandle());
     }
 
-    public void setOriginalImage(BufferedImage image) {
-        if (originalRef != null) {
-            LibLept.pixDestroy(Pointer.pointerToPointer(originalRef));
-        }
-
-        originalImg = image;
-        originalRef = PixConversions.img2pix(image);
-
-        LibTess.TessBaseAPISetImage2(getHandle(), PixConversions.img2pix(image));
+    public void setOriginalImage(Pointer<Pix> pix) {
+        LibTess.TessBaseAPISetImage2(getHandle(), pix);
     }
 
     public BufferedImage getOriginalImage() {

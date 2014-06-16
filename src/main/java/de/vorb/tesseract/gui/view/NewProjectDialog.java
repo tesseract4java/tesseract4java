@@ -36,6 +36,7 @@ import de.vorb.swt.dialog.Modality;
 import de.vorb.tesseract.util.Project;
 
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.ExpandBar;
 
 public class NewProjectDialog extends Dialog {
     /**

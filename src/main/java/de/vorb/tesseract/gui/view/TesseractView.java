@@ -3,6 +3,8 @@ package de.vorb.tesseract.gui.view;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -34,13 +36,14 @@ public class TesseractView extends Shell {
     private final MenuItem mntmOpenProject;
     private final MenuItem mntmSave;
     private final MenuItem mntmSaveProject;
-    private final MenuItem mntmExit;
     private final MenuItem mntmCloseProject;
-    private final SashForm sash;
+    private final MenuItem mntmExit;
+    private MenuItem mntmRefreshPage;
+    private final MenuItem mntmAbout;
+    private final SashForm sashMain;
     private final List pageList;
     private final List languageList;
-    private final MenuItem mntmAbout;
-    private MenuItem mntmRefreshPage;
+    private PageView pageView;
 
     public static enum ProgressState {
         DEFAULT,
@@ -149,11 +152,6 @@ public class TesseractView extends Shell {
                 "/icons/application_view_tile.png"));
         mntmBoxEditor.setText("Box Editor");
 
-        MenuItem mntmGlyphExport = new MenuItem(menu_3, SWT.RADIO);
-        mntmGlyphExport.setImage(SWTResourceManager.getImage(
-                TesseractView.class, "/icons/application_put.png"));
-        mntmGlyphExport.setText("Glyph Export");
-
         MenuItem mntmComparison = new MenuItem(menu_3, SWT.RADIO);
         mntmComparison.setImage(SWTResourceManager.getImage(
                 TesseractView.class, "/icons/application_tile_horizontal.png"));
@@ -178,7 +176,7 @@ public class TesseractView extends Shell {
         statusBar.setLayoutData(fd_statusBar);
         statusBar.setLayout(new GridLayout(2, false));
 
-        sash = new SashForm(this, SWT.SMOOTH);
+        sashMain = new SashForm(this, SWT.NONE);
         FormData fd_sashForm = new FormData();
         fd_sashForm.top = new FormAttachment(0);
         fd_sashForm.bottom = new FormAttachment(statusBar, 0);
@@ -199,21 +197,21 @@ public class TesseractView extends Shell {
 
         fd_sashForm.right = new FormAttachment(100, -4);
         fd_sashForm.left = new FormAttachment(0, 4);
-        sash.setLayoutData(fd_sashForm);
+        sashMain.setLayoutData(fd_sashForm);
 
-        Composite composite_1 = new Composite(sash, SWT.NONE);
-        composite_1.setSize(200, 100);
-        composite_1.setLayout(new FormLayout());
+        Composite compLeft = new Composite(sashMain, SWT.NONE);
+        compLeft.setSize(350, 100);
+        compLeft.setLayout(new FormLayout());
 
-        SashForm sashForm_1 = new SashForm(composite_1, SWT.VERTICAL);
-        FormData fd_composite_1 = new FormData();
-        fd_composite_1.top = new FormAttachment(0, 25);
-        fd_composite_1.bottom = new FormAttachment(100);
-        fd_composite_1.right = new FormAttachment(100);
-        fd_composite_1.left = new FormAttachment(0);
-        sashForm_1.setLayoutData(fd_composite_1);
+        SashForm sashLeft = new SashForm(compLeft, SWT.VERTICAL);
+        FormData compLeftWrapper = new FormData();
+        compLeftWrapper.top = new FormAttachment(0, 17);
+        compLeftWrapper.bottom = new FormAttachment(100);
+        compLeftWrapper.right = new FormAttachment(100);
+        compLeftWrapper.left = new FormAttachment(0);
+        sashLeft.setLayoutData(compLeftWrapper);
 
-        Group grpPages = new Group(sashForm_1, SWT.NONE);
+        Group grpPages = new Group(sashLeft, SWT.NONE);
         grpPages.setText("Page");
         FillLayout fl_grpPages = new FillLayout(SWT.HORIZONTAL);
         fl_grpPages.marginWidth = 4;
@@ -223,7 +221,7 @@ public class TesseractView extends Shell {
         pageList = new List(grpPages, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         pageList.setItems(new String[] {});
 
-        Group grpLanguages = new Group(sashForm_1, SWT.NONE);
+        Group grpLanguages = new Group(sashLeft, SWT.NONE);
         grpLanguages.setText("Training File");
         FillLayout fl_grpLanguages = new FillLayout(SWT.HORIZONTAL);
         fl_grpLanguages.marginWidth = 4;
@@ -232,8 +230,8 @@ public class TesseractView extends Shell {
 
         languageList = new List(grpLanguages, SWT.BORDER | SWT.H_SCROLL
                 | SWT.V_SCROLL);
-        sashForm_1.setWeights(new int[] { 3, 1 });
-        Composite composite_2 = new BoxFileView(sash, SWT.NONE);
+        sashLeft.setWeights(new int[] { 3, 1 });
+        pageView = new BoxFileView(sashMain, SWT.NONE);
 
         setProgress(ProgressState.DEFAULT, 0);
 
@@ -242,7 +240,7 @@ public class TesseractView extends Shell {
 
         addListener(SWT.Resize, new Listener() {
             @Override
-            public void handleEvent(Event e) {
+            public void handleEvent(Event evt) {
                 updateSashWeights(sashWeights);
             }
         });
@@ -251,11 +249,12 @@ public class TesseractView extends Shell {
     private void updateSashWeights(int[] sashWeights) {
         // left column has fixed width
         final int overallWidth = getSize().x;
-        final int selectionWidth = sash.getChildren()[0].getSize().x;
+        final int selectionWidth = sashMain.getChildren()[0].getSize().x;
 
         sashWeights[0] = selectionWidth;
-        sashWeights[1] = overallWidth - selectionWidth - sash.getSashWidth();
-        sash.setWeights(sashWeights);
+        sashWeights[1] = overallWidth - selectionWidth
+                - sashMain.getSashWidth();
+        sashMain.setWeights(sashWeights);
     }
 
     public Widget getNewProjectWidget() {
@@ -345,5 +344,9 @@ public class TesseractView extends Shell {
     @Override
     protected void checkSubclass() {
         // Disable the check that prevents subclassing of SWT components
+    }
+
+    public PageView getPageView() {
+        return pageView;
     }
 }
