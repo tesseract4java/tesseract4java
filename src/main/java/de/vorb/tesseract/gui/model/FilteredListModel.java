@@ -49,18 +49,17 @@ public class FilteredListModel<T> extends AbstractListModel<T> {
     }
 
     private void applyFilter() {
-        if (!filter.isPresent())
-            return;
+        if (filter.isPresent()) {
+            final Filter<T> f = filter.get();
+            filtered.clear();
 
-        final Filter<T> f = filter.get();
-        filtered.clear();
-
-        // apply filter to every item in source model
-        final int sourceSize = source.getSize();
-        for (int i = 0; i < sourceSize; ++i) {
-            final T item = source.getElementAt(i);
-            if (f.accept(item)) {
-                filtered.add(item);
+            // apply filter to every item in source model
+            final int sourceSize = source.getSize();
+            for (int i = 0; i < sourceSize; ++i) {
+                final T item = source.getElementAt(i);
+                if (f.accept(item)) {
+                    filtered.add(item);
+                }
             }
         }
 
@@ -70,6 +69,7 @@ public class FilteredListModel<T> extends AbstractListModel<T> {
 
     public void setFilter(Optional<Filter<T>> filter) {
         this.filter = filter;
+        applyFilter();
     }
 
     @Override
