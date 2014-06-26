@@ -3,6 +3,8 @@ package de.vorb.tesseract.gui.view;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -15,9 +17,9 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import de.vorb.tesseract.gui.model.PageModel;
-import org.eclipse.swt.graphics.Point;
+import de.vorb.tesseract.gui.view.renderer.BoxFileViewRenderer;
 
-public class BoxFileView extends Composite implements PageView {
+public class BoxEditor extends Composite implements PageView {
     private final Text text;
     private final Table boxEditorBoxTable;
     private final SashForm boxEditorSash;
@@ -36,7 +38,7 @@ public class BoxFileView extends Composite implements PageView {
      * @param parent
      * @param style
      */
-    public BoxFileView(Composite parent, int style) {
+    public BoxEditor(Composite parent, int style) {
         super(parent, style);
 
         setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -44,7 +46,7 @@ public class BoxFileView extends Composite implements PageView {
         tabFolder = new TabFolder(this, SWT.NONE);
 
         TabItem tbtmBoxEditor = new TabItem(tabFolder, SWT.NONE);
-        tbtmBoxEditor.setImage(SWTResourceManager.getImage(BoxFileView.class,
+        tbtmBoxEditor.setImage(SWTResourceManager.getImage(BoxEditor.class,
                 "/icons/table_edit.png"));
         tbtmBoxEditor.setText("Box Editor");
 
@@ -94,12 +96,12 @@ public class BoxFileView extends Composite implements PageView {
 
         Button btnZoomIn = new Button(boxEditorToolbar, SWT.NONE);
         btnZoomIn.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-        btnZoomIn.setImage(SWTResourceManager.getImage(BoxFileView.class,
+        btnZoomIn.setImage(SWTResourceManager.getImage(BoxEditor.class,
                 "/icons/zoom_in.png"));
 
         Button btnZoomOut = new Button(boxEditorToolbar, SWT.NONE);
         btnZoomOut.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-        btnZoomOut.setImage(SWTResourceManager.getImage(BoxFileView.class,
+        btnZoomOut.setImage(SWTResourceManager.getImage(BoxEditor.class,
                 "/icons/zoom_out.png"));
 
         boxEditorSash = new SashForm(boxEditor, SWT.NONE);
@@ -143,14 +145,17 @@ public class BoxFileView extends Composite implements PageView {
         boxEditorBoxView = new ScrolledComposite(
                 boxEditorSash, SWT.BORDER
                         | SWT.H_SCROLL | SWT.V_SCROLL);
+        boxEditorBoxView.setExpandHorizontal(true);
         boxEditorBoxView.setShowFocusedControl(true);
 
         boxView = new Canvas(boxEditorBoxView, SWT.NONE);
         boxView.setLayout(new FillLayout(SWT.HORIZONTAL));
         boxEditorBoxView.setContent(boxView);
 
+        boxView.addPaintListener(new BoxFileViewRenderer(this));
+
         TabItem tbtmBoxOverview = new TabItem(tabFolder, SWT.NONE);
-        tbtmBoxOverview.setImage(SWTResourceManager.getImage(BoxFileView.class,
+        tbtmBoxOverview.setImage(SWTResourceManager.getImage(BoxEditor.class,
                 "/icons/table_refresh.png"));
         tbtmBoxOverview.setText("Box Review");
 
@@ -184,21 +189,22 @@ public class BoxFileView extends Composite implements PageView {
                 boxOverviewAdditionalTools);
         boxOverviewSash.setLayoutData(fd_boxOverviewSash);
 
-        Composite grpSymbols = new Composite(boxOverviewSash, SWT.NONE);
-        GridLayout gl_grpSymbols = new GridLayout(1, false);
-        gl_grpSymbols.marginRight = -5;
-        gl_grpSymbols.marginBottom = -5;
-        grpSymbols.setLayout(gl_grpSymbols);
+        Composite composite_1 = new Composite(boxOverviewSash, SWT.NONE);
+        GridLayout gl_composite_1 = new GridLayout(1, false);
+        gl_composite_1.marginHeight = 0;
+        gl_composite_1.marginWidth = 0;
+        composite_1.setLayout(gl_composite_1);
 
-        Label lblNewLabel = new Label(grpSymbols, SWT.NONE);
+        Label lblNewLabel = new Label(composite_1, SWT.NONE);
         GridData gd_lblNewLabel = new GridData(SWT.LEFT, SWT.CENTER, true,
                 false, 1, 1);
+        gd_lblNewLabel.horizontalIndent = 5;
         gd_lblNewLabel.heightHint = 18;
-        gd_lblNewLabel.verticalIndent = 3;
+        gd_lblNewLabel.verticalIndent = 8;
         lblNewLabel.setLayoutData(gd_lblNewLabel);
         lblNewLabel.setText("Symbols");
 
-        symbolList = new List(grpSymbols, SWT.BORDER | SWT.H_SCROLL
+        symbolList = new List(composite_1, SWT.BORDER | SWT.H_SCROLL
                 | SWT.V_SCROLL);
         symbolList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
                 1, 1));
@@ -224,27 +230,33 @@ public class BoxFileView extends Composite implements PageView {
         text_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false,
                 1, 1));
 
-        Composite symbolOverview = new Composite(composite, SWT.BORDER
-                | SWT.V_SCROLL);
-        FormData fd_symbolOverview = new FormData();
-        fd_symbolOverview.bottom = new FormAttachment(100);
-        fd_symbolOverview.right = new FormAttachment(100);
-        fd_symbolOverview.top = new FormAttachment(boxOverviewToolbar);
-        fd_symbolOverview.left = new FormAttachment(0);
-        symbolOverview.setLayoutData(fd_symbolOverview);
+        ScrolledComposite scroll = new ScrolledComposite(composite, SWT.BORDER
+                | SWT.H_SCROLL | SWT.V_SCROLL);
+        scroll.setLayoutData(new FormData());
+        FormData fd_scroll = new FormData();
+        fd_scroll.bottom = new FormAttachment(100);
+        fd_scroll.right = new FormAttachment(100);
+        fd_scroll.top = new FormAttachment(boxOverviewToolbar);
+        fd_scroll.left = new FormAttachment(0);
+        scroll.setLayoutData(fd_scroll);
+        Composite symbolOverview = new Composite(scroll, SWT.NONE);
+        scroll.setContent(symbolOverview);
         symbolOverview.setBackground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
         RowLayout rl_symbolOverview = new RowLayout(SWT.HORIZONTAL);
         symbolOverview.setLayout(rl_symbolOverview);
 
         Button lblNewLabel_4 = new Button(symbolOverview, SWT.CHECK);
         lblNewLabel_4.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-        lblNewLabel_4.setImage(SWTResourceManager.getImage(BoxFileView.class,
+        lblNewLabel_4.setImage(SWTResourceManager.getImage(BoxEditor.class,
                 "/logos/logo_256.png"));
 
         Button btnCheckButton = new Button(symbolOverview, SWT.CHECK);
         btnCheckButton.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-        btnCheckButton.setImage(SWTResourceManager.getImage(BoxFileView.class,
+        btnCheckButton.setImage(SWTResourceManager.getImage(BoxEditor.class,
                 "/logos/logo_256.png"));
+
+        symbolOverview.pack();
+
         boxOverviewSash.setWeights(new int[] { 2, 3 });
 
         final int[] sashWeights = new int[2];
