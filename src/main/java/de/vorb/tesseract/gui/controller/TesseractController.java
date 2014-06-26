@@ -11,25 +11,25 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.ExecutionException;
 
 import javax.imageio.ImageIO;
+import javax.swing.DefaultListModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 
 import org.bridj.BridJ;
 
 import de.vorb.tesseract.PageIteratorLevel;
-import de.vorb.tesseract.gui.event.LanguageChangeListener;
 import de.vorb.tesseract.gui.event.PageChangeListener;
 import de.vorb.tesseract.gui.event.ProjectChangeListener;
-import de.vorb.tesseract.gui.model.LanguageSelectionModel;
+import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
 import de.vorb.tesseract.tools.recognition.RecognitionState;
 import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.Languages;
+import de.vorb.tesseract.util.TrainingFiles;
 import de.vorb.tesseract.util.Line;
 import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Project;
@@ -37,7 +37,7 @@ import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
 public class TesseractController implements ProjectChangeListener,
-        PageChangeListener, LanguageChangeListener {
+        PageChangeListener {
 
     private final TesseractFrame view;
     private SwingWorker<PageModel, Void> pageLoaderWorker = null;
@@ -67,26 +67,38 @@ public class TesseractController implements ProjectChangeListener,
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
+            // fail silently
+            // If the system LaF is not available, use whatever LaF is already
+            // being used.
         }
 
+        // create new tesseract frame
         view = new TesseractFrame();
-        view.getLoadProjectDialog().addProjectChangeListener(this);
 
         try {
             pageLoader = new PageLoader("deu-frak");
 
-            // setup language model
-            final List<String> langs = Languages.getLanguageList();
-            final LanguageSelectionModel langSelectionModel =
-                    new LanguageSelectionModel(langs);
-            view.getLanguageSelectionPane().setModel(langSelectionModel);
+            // init training files
+            final List<String> trainingFiles = TrainingFiles.getAvailable();
 
-            // add pageLoader as a listener
-            view.getLanguageSelectionPane().getModel().addSelectionListener(
-                    this);
+            // prepare training file list model
+            final DefaultListModel<String> trainingFilesModel =
+                    new DefaultListModel<>();
+            for (String trainingFile : trainingFiles) {
+                trainingFilesModel.addElement(trainingFile);
+            }
+
+            // wrap it in a filtered model
+            view.getTrainingFiles().getList().setSelectionMode(
+                    ListSelectionModel.SINGLE_SELECTION);
+            view.getTrainingFiles().getList().setModel(
+                    new FilteredListModel<String>(trainingFilesModel));
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // register listeners
+        view.getLoadProjectDialog().addProjectChangeListener(this);
 
         view.setVisible(true);
     }
@@ -110,8 +122,6 @@ public class TesseractController implements ProjectChangeListener,
 
             final Project project = new Project(scanDir, pages);
             project.addPageChangeListener(this);
-
-            view.getPageSelectionPane().setModel(project);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -122,49 +132,25 @@ public class TesseractController implements ProjectChangeListener,
         view.getPageLoadProgressBar().setIndeterminate(true);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        final Path page = view.getPageSelectionPane().getModel().getSelectedPage();
-
-        pageLoaderWorker = new SwingWorker<PageModel, Void>() {
-            @Override
-            protected PageModel doInBackground() {
-                try {
-                    return loadPageModel(page);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            @Override
-            public void done() {
-                try {
-                    final PageModel page = get();
-                    view.setModel(page);
-                    view.getPageLoadProgressBar().setIndeterminate(false);
-                    view.setCursor(Cursor.getDefaultCursor());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        pageLoaderWorker.execute();
-    }
-
-    @Override
-    public void languageSelectionChanged() throws IOException {
-        final String language =
-                view.getLanguageSelectionPane().getModel().getSelectedLanguage();
-
-        pageLoader.setLanguage(language);
-
-        // update view
-        final int pageIndex = view.getPageSelectionPane().getModel()
-                .getSelectedPageIndex();
-
-        pageSelectionChanged(pageIndex);
+        /*
+         * final Path page =
+         * view.getPageSelectionPane().getModel().getSelectedPage();
+         * 
+         * pageLoaderWorker = new SwingWorker<PageModel, Void>() {
+         * 
+         * @Override protected PageModel doInBackground() { try { return
+         * loadPageModel(page); } catch (IOException e) { e.printStackTrace();
+         * return null; } }
+         * 
+         * @Override public void done() { try { final PageModel page = get();
+         * view.setModel(page);
+         * view.getPageLoadProgressBar().setIndeterminate(false);
+         * view.setCursor(Cursor.getDefaultCursor()); } catch
+         * (InterruptedException e) { e.printStackTrace(); } catch
+         * (ExecutionException e) { e.printStackTrace(); } } };
+         * 
+         * pageLoaderWorker.execute();
+         */
     }
 
     private PageModel loadPageModel(Path scanFile) throws IOException {
@@ -174,7 +160,6 @@ public class TesseractController implements ProjectChangeListener,
 
         // Get images
         final BufferedImage originalImg = ImageIO.read(scanFile.toFile());
-        pageLoader.setOriginalImage(originalImg);
         final BufferedImage thresholdedImg = pageLoader.getThresholdedImage();
 
         pageLoader.recognize(new DefaultRecognitionConsumer() {
@@ -220,7 +205,6 @@ public class TesseractController implements ProjectChangeListener,
 
         final Page page = new Page(scanFile, originalImg.getWidth(),
                 originalImg.getHeight(), 300, lines);
-        final PageModel model = new PageModel(page, originalImg, thresholdedImg);
 
         // try {
         // page.writeTo(System.out);
@@ -228,6 +212,6 @@ public class TesseractController implements ProjectChangeListener,
         // e.printStackTrace();
         // }
 
-        return model;
+        return null;
     }
 }
