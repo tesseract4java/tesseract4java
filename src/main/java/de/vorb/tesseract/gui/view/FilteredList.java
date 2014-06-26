@@ -5,7 +5,6 @@ import java.awt.SystemColor;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -39,19 +38,6 @@ public class FilteredList<T> extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         list = new JList<T>();
-        list.setModel(new FilteredListModel<T>(new AbstractListModel() {
-            String[] values = new String[] { "a", "b", "c", "d", "e", "f", "g",
-                    "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
-                    "t" };
-
-            public int getSize() {
-                return values.length;
-            }
-
-            public Object getElementAt(int index) {
-                return values[index];
-            }
-        }));
         scrollPane.setViewportView(list);
 
         filterField = new SearchField();
@@ -112,6 +98,7 @@ public class FilteredList<T> extends JPanel {
 
     public static void main(String[] args) {
         JFrame f = new JFrame();
+        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         f.add(new FilteredList<String>());
         f.pack();
         f.setVisible(true);
