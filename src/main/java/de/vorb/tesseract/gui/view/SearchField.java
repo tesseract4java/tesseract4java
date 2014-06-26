@@ -38,8 +38,7 @@ public class SearchField extends JPanel {
         setLayout(gridBagLayout);
 
         lblMagnifier = new JLabel();
-        lblMagnifier.setIcon(new ImageIcon(
-                SearchField.class.getResource("/icons/magnifier.png")));
+        lblMagnifier.setIcon(new ImageIcon(SearchField.class.getResource("/icons/find.png")));
         GridBagConstraints gbc_label = new GridBagConstraints();
         gbc_label.insets = new Insets(0, 0, 0, 5);
         gbc_label.anchor = GridBagConstraints.WEST;
