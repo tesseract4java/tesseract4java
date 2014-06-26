@@ -103,8 +103,8 @@ public class BoxFilePane extends JPanel implements MainComponent {
                 currentSymbol.setBoundingBox(newBBox);
 
                 // re-render the whole model
-                renderer.render(getModel().getPage(),
-                        getModel().getImage(), 1f);
+//                renderer.render(getModel().getPage(),
+//                        getModel().getImageFile(), 1f);
             }
 
             tabSymbols.tableChanged(new TableModelEvent(tabSymbols.getModel(),
@@ -149,7 +149,7 @@ public class BoxFilePane extends JPanel implements MainComponent {
                     public void valueChanged(ListSelectionEvent e) {
                         selectionModel.setSelectedIndex(tabSymbols.getSelectedRow());
 
-                        renderer.render(model.getPage(), model.getImage(), 1f);
+//                        renderer.render(model.getPage(), model.getImageFile(), 1f);
                     }
                 });
 
@@ -326,8 +326,8 @@ public class BoxFilePane extends JPanel implements MainComponent {
                     contextMenu.show(e.getComponent(), e.getX(), e.getY());
                 }
 
-                renderer.render(model.getPage(), model.getBlackAndWhiteImage(),
-                        scale);
+//                renderer.render(model.getPage(), model.getBlackAndWhiteImage(),
+//                        scale);
             }
         });
 
@@ -367,7 +367,7 @@ public class BoxFilePane extends JPanel implements MainComponent {
 
     @Override
     public void setModel(PageModel model) {
-        renderer.render(model.getPage(), model.getBlackAndWhiteImage(), 1f);
+//        renderer.render(model.getPage(), model.getBlackAndWhiteImage(), 1f);
 
         final SymbolTableModel tabModel =
                 (SymbolTableModel) tabSymbols.getModel();
