@@ -1,30 +1,23 @@
 package de.vorb.tesseract.gui.model;
 
-import java.awt.image.BufferedImage;
+import java.nio.file.Path;
 
 import de.vorb.tesseract.util.Page;
 
 public class PageModel {
     private final Page page;
-    private final BufferedImage normal;
-    private final BufferedImage blackAndWhite;
+    private final Path imageFile;
 
-    public PageModel(Page page, BufferedImage normal,
-            BufferedImage blackAndWhite) {
+    public PageModel(Page page, Path imageFile) {
         this.page = page;
-        this.normal = normal;
-        this.blackAndWhite = blackAndWhite;
+        this.imageFile = imageFile;
     }
 
     public Page getPage() {
         return page;
     }
 
-    public BufferedImage getImage() {
-        return normal;
-    }
-
-    public BufferedImage getBlackAndWhiteImage() {
-        return blackAndWhite;
+    public Path getImageFile() {
+        return imageFile;
     }
 }
