@@ -8,6 +8,7 @@ public class Labels {
     public static String getLabel(Locale locale, String key) {
         final ResourceBundle labels = ResourceBundle.getBundle("l10n/labels",
                 locale);
+
         try {
             return labels.getString(key);
         } catch (MissingResourceException e) {
