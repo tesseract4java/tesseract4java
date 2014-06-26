@@ -5,7 +5,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.RowLayout;
 
-public class List<T> extends Composite {
+public class GenericList<T> extends Composite {
     private final ItemProvider<T> listItemProvider;
 
     /**
@@ -14,7 +14,7 @@ public class List<T> extends Composite {
      * @param parent
      * @param style
      */
-    public List(Composite parent, int style, ItemProvider<T> listItemProvider) {
+    public GenericList(Composite parent, int style, ItemProvider<T> listItemProvider) {
         super(parent, SWT.NONE);
 
         this.listItemProvider = listItemProvider;
