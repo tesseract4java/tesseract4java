@@ -6,13 +6,17 @@ import java.util.ResourceBundle;
 
 public class Labels {
     public static String getLabel(Locale locale, String key) {
+        return getLabel(locale, key, "?");
+    }
+
+    public static String getLabel(Locale locale, String key, String defaultValue) {
         final ResourceBundle labels = ResourceBundle.getBundle("l10n/labels",
                 locale);
 
         try {
             return labels.getString(key);
         } catch (MissingResourceException e) {
-            return "?";
+            return defaultValue;
         }
     }
 }
