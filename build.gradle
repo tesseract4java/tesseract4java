@@ -19,7 +19,7 @@ repositories {
 
 // include all JAR files in lib
 dependencies {
-  compile 'de.vorb:swt-dialogs:0.0.1'
+  compile 'com.google.guava:guava:17.0'
 
   compile fileTree(dir: 'lib', includes: ['*.jar'])
 
