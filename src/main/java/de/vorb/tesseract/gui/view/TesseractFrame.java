@@ -40,7 +40,6 @@ public class TesseractFrame extends JFrame {
     private final GlyphExportPane exportPane;
     private final OpenProjectDialog openProjectDialog;
 
-    private final ButtonGroup bgrpLanguage = new ButtonGroup();
     private final JProgressBar pbLoadPage;
     private final ButtonGroup bgrpView = new ButtonGroup();
     private final JSplitPane spMain;
@@ -75,15 +74,40 @@ public class TesseractFrame extends JFrame {
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 
-        listPages = new FilteredList<Path>(null);
+        listPages = new FilteredList<Path>(new FilterProvider<Path>() {
+            public Optional<Filter<Path>> getFilter(String query) {
+                final String[] terms = query.split("\\s+");
+
+                final Filter<Path> filter;
+                if (query.isEmpty()) {
+                    filter = null;
+                } else {
+                    // item must contain all terms in query
+                    filter = new Filter<Path>() {
+                        @Override
+                        public boolean accept(Path item) {
+                            String fname = item.getFileName().toString();
+                            for (String term : terms) {
+                                if (!fname.contains(term)) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+                    };
+                }
+                return Optional.fromNullable(filter);
+            }
+        });
+
         listPages.setMinimumSize(new Dimension(250, 100));
         listPages.getList().setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION);
         listPages.setBorder(BorderFactory.createTitledBorder("Page"));
 
         // filtered string list
-        listTrainingFiles = new FilteredList<String>(
-                new FilterProvider<String>() {
+        listTrainingFiles =
+                new FilteredList<String>(new FilterProvider<String>() {
                     public Optional<Filter<String>> getFilter(String query) {
                         final String[] terms = query.split("\\s+");
 
