@@ -8,20 +8,20 @@ import java.util.List;
 import de.vorb.tesseract.gui.event.PageChangeListener;
 
 public class Project {
-    private final Path scanDir;
+    private final Path directory;
     private final List<Path> pages;
     private int pageIndex = 0;
     private final List<PageChangeListener> pageChangeListeners;
 
-    public Project(Path scanDir, List<Path> pages) {
-        this.scanDir = scanDir;
+    public Project(Path directory, List<Path> pages) {
+        this.directory = directory;
         this.pages = pages;
 
         this.pageChangeListeners = new LinkedList<PageChangeListener>();
     }
 
     public Path getScanDir() {
-        return scanDir;
+        return directory;
     }
 
     public List<Path> getPages() {
