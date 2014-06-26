@@ -68,6 +68,10 @@ public class FilteredListModel<T> extends AbstractListModel<T> {
         fireContentsChanged(this, 0, getSize() - 1);
     }
 
+    public void setFilter(Optional<Filter<T>> filter) {
+        this.filter = filter;
+    }
+
     @Override
     public T getElementAt(int index) {
         if (!filter.isPresent()) {
