@@ -1,59 +1,40 @@
 package de.vorb.tesseract.gui.view;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.*;
 import java.awt.Dialog.ModalityType;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.Locale;
+import java.nio.file.Path;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultListModel;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import de.vorb.tesseract.gui.event.LocaleChangeListener;
+import com.google.common.base.Optional;
+
+import de.vorb.tesseract.gui.model.FilteredListModel.Filter;
 import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.view.FilteredList.FilterProvider;
 import de.vorb.tesseract.gui.view.i18n.Labels;
 import de.vorb.tesseract.util.Symbol;
 
 /**
  * Swing component that allows to compare the results of Tesseract.
  */
-public class TesseractFrame extends JFrame implements LocaleChangeListener {
+public class TesseractFrame extends JFrame {
     private static final long serialVersionUID = 1L;
     private JLabel lbCanvasOCR;
     private JLabel lbCanvasOriginal;
-    private final PageSelectionPane pageSelectionPane;
-    private final LanguageSelectionPane langSelectionPane;
+    private final FilteredList<Path> listPages;
+    private final FilteredList<String> listTrainingFiles;
     private final BoxFilePane trainingPane;
     private final ComparatorPane recognitionPane;
     private final GlyphExportPane exportPane;
@@ -69,18 +50,65 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
      */
     public TesseractFrame() {
         super();
+        final Toolkit t = Toolkit.getDefaultToolkit();
+
+        // load and set multiple icon sizes
+        final List<Image> appIcons = new LinkedList<Image>();
+        appIcons.add(t.getImage(
+                TesseractFrame.class.getResource("/logos/logo_16.png")));
+        appIcons.add(t.getImage(
+                TesseractFrame.class.getResource("/logos/logo_96.png")));
+        appIcons.add(t.getImage(
+                TesseractFrame.class.getResource("/logos/logo_256.png")));
+        setIconImages(appIcons);
+
         setLocationByPlatform(true);
         setMinimumSize(new Dimension(1100, 680));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         openProjectDialog = new OpenProjectDialog(this);
-        pageSelectionPane = new PageSelectionPane();
-        langSelectionPane = new LanguageSelectionPane();
         trainingPane = new BoxFilePane();
+        trainingPane.setBorder(new TitledBorder(null, "Title",
+                TitledBorder.LEADING, TitledBorder.TOP, null, null));
         recognitionPane = new ComparatorPane();
         exportPane = new GlyphExportPane();
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
+
+        listPages = new FilteredList<Path>(null);
+        listPages.setMinimumSize(new Dimension(250, 100));
+        listPages.getList().setSelectionMode(
+                ListSelectionModel.SINGLE_SELECTION);
+        listPages.setBorder(BorderFactory.createTitledBorder("Page"));
+
+        // filtered string list
+        listTrainingFiles = new FilteredList<String>(
+                new FilterProvider<String>() {
+                    public Optional<Filter<String>> getFilter(String query) {
+                        final String[] terms = query.split("\\s+");
+
+                        final Filter<String> filter;
+                        if (query.isEmpty()) {
+                            filter = null;
+                        } else {
+                            // item must contain all terms in query
+                            filter = new Filter<String>() {
+                                @Override
+                                public boolean accept(String item) {
+                                    for (String term : terms) {
+                                        if (!item.contains(term)) {
+                                            return false;
+                                        }
+                                    }
+                                    return true;
+                                }
+                            };
+                        }
+                        return Optional.fromNullable(filter);
+                    }
+                });
+
+        listTrainingFiles.setBorder(BorderFactory.createTitledBorder("Training File"));
 
         exportPane.getGlyphSelectionPane().getList().addListSelectionListener(
                 new ListSelectionListener() {
@@ -107,20 +135,6 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
                                 model);
                     }
                 });
-
-        localeChanged();
-    }
-
-    @Override
-    public void localeChanged() {
-        final boolean wasVisible = isVisible();
-        if (wasVisible)
-            setVisible(false);
-
-        getContentPane().removeAll();
-        pageSelectionPane.localeChanged();
-        openProjectDialog.localeChanged();
-        // comparatorPane.localeChanged();
 
         setTitle(Labels.getLabel(getLocale(), "frame_title"));
 
@@ -169,52 +183,6 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         final JMenu mnView = new JMenu(
                 Labels.getLabel(getLocale(), "menu_view"));
         menuBar.add(mnView);
-
-        final JMenu mnLanguage = new JMenu("Language");
-        mnView.add(mnLanguage);
-
-        final JRadioButtonMenuItem rbtnEnglish = new JRadioButtonMenuItem(
-                "English");
-        mnLanguage.add(rbtnEnglish);
-        bgrpLanguage.add(rbtnEnglish);
-        final JRadioButtonMenuItem rbtnGerman = new JRadioButtonMenuItem(
-                "Deutsch");
-        mnLanguage.add(rbtnGerman);
-        bgrpLanguage.add(rbtnGerman);
-
-        // only if the language is really german, select that
-        if (getLocale().getLanguage().equals(Locale.GERMAN.getLanguage())) {
-            rbtnGerman.getModel().setSelected(true);
-        } else {
-            rbtnEnglish.getModel().setSelected(true);
-        }
-
-        rbtnGerman.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                ResourceBundle.clearCache();
-
-                Locale.setDefault(Locale.GERMAN);
-                JComponent.setDefaultLocale(Locale.GERMAN);
-                TesseractFrame.this.setLocale(Locale.GERMAN);
-
-                TesseractFrame.this.localeChanged();
-            }
-        });
-
-        rbtnEnglish.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                ResourceBundle.clearCache();
-
-                Locale.setDefault(Locale.ENGLISH);
-                JComponent.setDefaultLocale(Locale.ENGLISH);
-                TesseractFrame.this.setLocale(Locale.ENGLISH);
-
-                TesseractFrame.this.localeChanged();
-            }
-        });
-
-        final JSeparator separator_1 = new JSeparator();
-        mnView.add(separator_1);
 
         final JRadioButtonMenuItem rmTraining = new JRadioButtonMenuItem(
                 "Training");
@@ -354,22 +322,23 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         gbc_pbRegognitionProgress.gridx = 8;
         gbc_pbRegognitionProgress.gridy = 0;
         panel.add(pbLoadPage, gbc_pbRegognitionProgress);
-
-        spMain.setResizeWeight(0.0);
         getContentPane().add(spMain, BorderLayout.CENTER);
 
-        final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        tabbedPane.setMinimumSize(new Dimension(300, 300));
-        spMain.setLeftComponent(tabbedPane);
+        JTabbedPane mainTabs = new JTabbedPane();
+        mainTabs.addTab(
+                Labels.getLabel(getLocale(), "tab_main_boxeditor"),
+                new ImageIcon(
+                        getClass().getResource("/icons/table_edit.png")),
+                trainingPane);
 
-        tabbedPane.add(Labels.getLabel(getLocale(), "tab_project"),
-                pageSelectionPane);
-        tabbedPane.add(Labels.getLabel(getLocale(), "tab_language"),
-                langSelectionPane);
+        spMain.setRightComponent(mainTabs);
 
-        spMain.setRightComponent(trainingPane);
-
-        setVisible(wasVisible);
+        JSplitPane splitPane = new JSplitPane();
+        splitPane.setResizeWeight(1.0);
+        splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        spMain.setLeftComponent(splitPane);
+        splitPane.setLeftComponent(listPages);
+        splitPane.setRightComponent(listTrainingFiles);
     }
 
     private MainComponent getMainComponent() {
@@ -396,12 +365,12 @@ public class TesseractFrame extends JFrame implements LocaleChangeListener {
         return openProjectDialog;
     }
 
-    public PageSelectionPane getPageSelectionPane() {
-        return pageSelectionPane;
+    public FilteredList<Path> getPageList() {
+        return listPages;
     }
 
-    public LanguageSelectionPane getLanguageSelectionPane() {
-        return langSelectionPane;
+    public FilteredList<String> getTrainingFiles() {
+        return listTrainingFiles;
     }
 
     public JLabel getCanvasOCR() {
