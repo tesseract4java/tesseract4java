@@ -3,9 +3,7 @@ package de.vorb.tesseract.gui.view;
 import java.awt.BorderLayout;
 import java.awt.SystemColor;
 
-import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
-import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -25,10 +23,14 @@ public class FilteredList<T> extends JPanel {
     private final JList<T> list;
     private final SearchField filterField;
 
+    public static interface FilterProvider<T> {
+        Optional<Filter<T>> getFilter(String filterText);
+    }
+
     /**
      * Create the panel.
      */
-    public FilteredList() {
+    public FilteredList(final FilterProvider<T> filterProvider) {
         setLayout(new BorderLayout(0, 0));
 
         JScrollPane scrollPane = new JScrollPane();
@@ -61,9 +63,6 @@ public class FilteredList<T> extends JPanel {
                     }
 
                     private void filter() {
-                        final String query =
-                                filterField.getTextField().getText();
-
                         final ListModel<T> model = list.getModel();
                         if (!(model instanceof FilteredListModel)) {
                             return;
@@ -72,18 +71,11 @@ public class FilteredList<T> extends JPanel {
                         final FilteredListModel<T> filteredModel =
                                 (FilteredListModel<T>) model;
 
-                        final Filter<T> filter;
-                        if (filterField.getTextField().getText().isEmpty()) {
-                            filter = null;
-                        } else {
-                            filter = new FilteredListModel.Filter<T>() {
-                                @Override
-                                public boolean accept(T item) {
-                                    return item.equals(query);
-                                }
-                            };
-                        }
-                        filteredModel.setFilter(Optional.fromNullable(filter));
+                        final String query =
+                                filterField.getTextField().getText();
+
+                        filteredModel.setFilter(
+                                filterProvider.getFilter(query));
                     }
                 });
     }
@@ -94,13 +86,5 @@ public class FilteredList<T> extends JPanel {
 
     public JTextField getTextField() {
         return filterField.getTextField();
-    }
-
-    public static void main(String[] args) {
-        JFrame f = new JFrame();
-        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        f.add(new FilteredList<String>());
-        f.pack();
-        f.setVisible(true);
     }
 }
