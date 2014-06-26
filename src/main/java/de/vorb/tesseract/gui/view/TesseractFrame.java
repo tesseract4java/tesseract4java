@@ -35,7 +35,7 @@ public class TesseractFrame extends JFrame {
     private JLabel lbCanvasOriginal;
     private final FilteredList<Path> listPages;
     private final FilteredList<String> listTrainingFiles;
-    private final BoxFilePane trainingPane;
+    private final BoxEditor trainingPane;
     private final ComparatorPane recognitionPane;
     private final GlyphExportPane exportPane;
     private final OpenProjectDialog openProjectDialog;
@@ -67,7 +67,7 @@ public class TesseractFrame extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         openProjectDialog = new OpenProjectDialog(this);
-        trainingPane = new BoxFilePane();
+        trainingPane = new BoxEditor();
         trainingPane.setBorder(new TitledBorder(null, "Title",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
         recognitionPane = new ComparatorPane();

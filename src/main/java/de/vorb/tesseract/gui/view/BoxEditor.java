@@ -49,7 +49,7 @@ import de.vorb.tesseract.util.Iterators;
 import de.vorb.tesseract.util.Point;
 import de.vorb.tesseract.util.Symbol;
 
-public class BoxFilePane extends JPanel implements MainComponent {
+public class BoxEditor extends JPanel implements MainComponent {
     private static final long serialVersionUID = 1L;
 
     private PageModel model = null;
@@ -115,7 +115,7 @@ public class BoxFilePane extends JPanel implements MainComponent {
     /**
      * Create the panel.
      */
-    public BoxFilePane() {
+    public BoxEditor() {
         setLayout(new BorderLayout(0, 0));
 
         // create table first, so it can be used by the property change listener
