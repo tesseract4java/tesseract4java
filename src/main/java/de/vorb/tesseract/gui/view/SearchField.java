@@ -4,16 +4,23 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.SystemColor;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class SearchField extends JPanel {
     private static final long serialVersionUID = 1L;
 
+    private final JLabel lblMagnifier;
     private final JTextField tfSearch;
 
     /**
@@ -30,12 +37,12 @@ public class SearchField extends JPanel {
         gridBagLayout.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
         setLayout(gridBagLayout);
 
-        JLabel lblMagnifier = new JLabel("");
+        lblMagnifier = new JLabel();
         lblMagnifier.setIcon(new ImageIcon(
                 SearchField.class.getResource("/icons/magnifier.png")));
         GridBagConstraints gbc_label = new GridBagConstraints();
         gbc_label.insets = new Insets(0, 0, 0, 5);
-        gbc_label.anchor = GridBagConstraints.EAST;
+        gbc_label.anchor = GridBagConstraints.WEST;
         gbc_label.gridx = 0;
         gbc_label.gridy = 0;
         add(lblMagnifier, gbc_label);
@@ -48,20 +55,53 @@ public class SearchField extends JPanel {
         gbc_textField.gridx = 1;
         gbc_textField.gridy = 0;
         add(tfSearch, gbc_textField);
-        tfSearch.setColumns(10);
 
-        JLabel lblCross = new JLabel("");
+        final JLabel lblCross = new JLabel();
+        lblCross.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                tfSearch.setText("");
+            }
+        });
+        lblCross.setVisible(false);
+        lblCross.setHorizontalAlignment(SwingConstants.TRAILING);
         lblCross.setIcon(new ImageIcon(
                 SearchField.class.getResource("/icons/cross.png")));
         GridBagConstraints gbc_label_1 = new GridBagConstraints();
+        gbc_label_1.anchor = GridBagConstraints.EAST;
         gbc_label_1.gridx = 2;
         gbc_label_1.gridy = 0;
         add(lblCross, gbc_label_1);
 
+        tfSearch.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void removeUpdate(DocumentEvent evt) {
+                change();
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent evt) {
+                change();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent evt) {
+                change();
+            }
+
+            private void change() {
+                lblCross.setVisible(!tfSearch.getText().isEmpty());
+            }
+        });
+
         setPreferredSize(getPreferredSize());
     }
 
-    public JTextField getSearchField() {
+    public void setIcon(Icon icon) {
+        lblMagnifier.setIcon(icon);
+    }
+
+    public JTextField getTextField() {
         return tfSearch;
     }
 }
