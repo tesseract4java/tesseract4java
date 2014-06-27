@@ -1,30 +1,29 @@
 package de.vorb.tesseract.gui.view;
 
-import javax.swing.JPanel;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
-
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JSplitPane;
-import javax.swing.JButton;
-
-import de.vorb.tesseract.gui.model.PageModel;
-import de.vorb.tesseract.gui.view.renderer.GlyphListCellRenderer;
-import de.vorb.tesseract.util.Line;
-import de.vorb.tesseract.util.Page;
-import de.vorb.tesseract.util.Symbol;
-import de.vorb.tesseract.util.Word;
-
 import java.awt.FlowLayout;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Map.Entry;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+
+import com.google.common.base.Optional;
+
+import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.util.Line;
+import de.vorb.tesseract.util.Page;
+import de.vorb.tesseract.util.Symbol;
+import de.vorb.tesseract.util.Word;
 
 public class GlyphExportPane extends JPanel implements MainComponent {
     private static final long serialVersionUID = 1L;
@@ -32,7 +31,7 @@ public class GlyphExportPane extends JPanel implements MainComponent {
     private final GlyphSelectionPane glyphSelectionPane;
     private final GlyphListPane glyphListPane;
 
-    private PageModel model = null;
+    private Optional<PageModel> model = Optional.absent();
 
     public static final Comparator<Entry<String, Set<Symbol>>> GLYPH_COMP =
             new Comparator<Entry<String, Set<Symbol>>>() {
@@ -88,17 +87,17 @@ public class GlyphExportPane extends JPanel implements MainComponent {
     }
 
     @Override
-    public void setModel(PageModel model) {
+    public void setModel(Optional<PageModel> model) {
         final JList<Entry<String, Set<Symbol>>> glyphList =
                 getGlyphSelectionPane().getList();
 
         final HashMap<String, Set<Symbol>> glyphs = new HashMap<>();
 
-        final Page page = model.getPage();
+        final Page page = model.get().getPage();
 
         // set a new renderer that has a reference to the thresholded image
-        getGlyphListPane().getList().setCellRenderer(
-                new GlyphListCellRenderer(model.getBlackAndWhiteImage()));
+        // getGlyphListPane().getList().setCellRenderer(
+        // new GlyphListCellRenderer(model.getBlackAndWhiteImage()));
 
         // insert all symbols into the map
         for (final Line line : page.getLines()) {
@@ -131,7 +130,7 @@ public class GlyphExportPane extends JPanel implements MainComponent {
     }
 
     @Override
-    public PageModel getModel() {
+    public Optional<PageModel> getModel() {
         return model;
     }
 

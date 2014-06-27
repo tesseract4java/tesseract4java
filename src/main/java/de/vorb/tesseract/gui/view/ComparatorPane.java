@@ -19,26 +19,16 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JSplitPane;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import de.vorb.tesseract.gui.event.ZoomChangeListener;
+import com.google.common.base.Optional;
+
+import de.vorb.tesseract.gui.event.ComparatorSettingsChangeListener;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.util.Baseline;
 import de.vorb.tesseract.util.Box;
@@ -49,7 +39,8 @@ import de.vorb.tesseract.util.Point;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
-public class ComparatorPane extends JPanel implements ZoomChangeListener,
+public class ComparatorPane extends JPanel implements
+        ComparatorSettingsChangeListener,
         MainComponent {
     private static final long serialVersionUID = 1L;
 
@@ -85,7 +76,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener,
         try {
             loaded = Font.createFont(
                     Font.TRUETYPE_FONT,
-                    ComparatorPane.class.getResourceAsStream("/RobotoCondensed-Regular.ttf"));
+                    ComparatorPane.class.getResourceAsStream("/fonts/RobotoCondensed-Regular.ttf"));
         } catch (FontFormatException | IOException e) {
             System.err.println("Could not load normal font.");
             e.printStackTrace();
@@ -97,7 +88,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener,
         try {
             loaded = Font.createFont(
                     Font.TRUETYPE_FONT,
-                    ComparatorPane.class.getResourceAsStream("/RobotoCondensed-Italic.ttf"));
+                    ComparatorPane.class.getResourceAsStream("/fonts/RobotoCondensed-Italic.ttf"));
         } catch (FontFormatException | IOException e) {
             System.err.println("Could not load italic font.");
         }
@@ -108,7 +99,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener,
         try {
             loaded = Font.createFont(
                     Font.TRUETYPE_FONT,
-                    ComparatorPane.class.getResourceAsStream("/RobotoCondensed-Bold.ttf"));
+                    ComparatorPane.class.getResourceAsStream("/fonts/RobotoCondensed-Bold.ttf"));
         } catch (FontFormatException | IOException e) {
             System.err.println("Could not load bold font.");
         }
@@ -119,7 +110,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener,
         try {
             loaded = Font.createFont(
                     Font.TRUETYPE_FONT,
-                    ComparatorPane.class.getResourceAsStream("/RobotoCondensed-BoldItalic.ttf"));
+                    ComparatorPane.class.getResourceAsStream("/fonts/RobotoCondensed-BoldItalic.ttf"));
         } catch (FontFormatException | IOException e) {
             System.err.println("Could not load bold italic font.");
         }
@@ -134,7 +125,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener,
         try {
             loaded = Font.createFont(
                     Font.TRUETYPE_FONT,
-                    ComparatorPane.class.getResourceAsStream("/UnifrakturMaguntia.ttf"));
+                    ComparatorPane.class.getResourceAsStream("/fonts/NeueFraktur.ttf"));
         } catch (FontFormatException | IOException e) {
             System.err.println("Could not load Fraktur font.");
         }
@@ -161,12 +152,13 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener,
     private final JCheckBox cbXLine;
     private final JComboBox<String> comboBox;
 
-    private final LinkedList<ZoomChangeListener> zoomChangeListeners = new LinkedList<ZoomChangeListener>();
+    private final LinkedList<ComparatorSettingsChangeListener> zoomChangeListeners = new LinkedList<ComparatorSettingsChangeListener>();
 
-    private PageModel model = new PageModel(new Page(Paths.get(""), 1, 1, 300,
-            new LinkedList<Line>()), new BufferedImage(1, 1,
-            BufferedImage.TYPE_BYTE_GRAY), new BufferedImage(1, 1,
-            BufferedImage.TYPE_BYTE_BINARY));
+    // private PageModel model = new PageModel(new Page(Paths.get(""), 1, 1,
+    // 300,
+    // new LinkedList<Line>()), new BufferedImage(1, 1,
+    // BufferedImage.TYPE_BYTE_GRAY), new BufferedImage(1, 1,
+    // BufferedImage.TYPE_BYTE_BINARY));
 
     /**
      * Create the panel.
@@ -212,7 +204,12 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener,
         MouseListener mouseListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                final PageModel model = getModel();
+                if (!getModel().isPresent()) {
+                    // ignore clicks if no model is present
+                    return;
+                }
+                
+                final PageModel model = getModel().get();
                 final Page page = model.getPage();
 
                 final float factor = getScaleFactor();
@@ -401,28 +398,28 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener,
         });
     }
 
-    public PageModel getModel() {
-        return model;
+    public Optional<PageModel> getModel() {
+        return Optional.absent();
     }
 
-    public void setModel(PageModel page) {
-        model = page;
+    public void setModel(Optional<PageModel> page) {
+        // model = page;
 
-        zoomChanged(zoomSlider.getValue());
+        settingsChanged();
     }
 
-    public void addZoomChangeListener(ZoomChangeListener listener) {
+    public void addZoomChangeListener(ComparatorSettingsChangeListener listener) {
         zoomChangeListeners.add(listener);
     }
 
-    public void removeZoomChangeListener(ZoomChangeListener listener) {
+    public void removeZoomChangeListener(
+            ComparatorSettingsChangeListener listener) {
         zoomChangeListeners.remove(listener);
     }
 
     private void zoomChanged() {
-        final int zoom = zoomSlider.getValue();
-        for (ZoomChangeListener l : zoomChangeListeners) {
-            l.zoomChanged(zoom);
+        for (ComparatorSettingsChangeListener l : zoomChangeListeners) {
+            l.settingsChanged();
         }
     }
 
@@ -438,7 +435,7 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener,
 
     private SwingWorker<ImagePair, Void> renderer = null;
 
-    public void zoomChanged(final int zoom) {
+    public void settingsChanged() {
         render();
     }
 
@@ -446,13 +443,18 @@ public class ComparatorPane extends JPanel implements ZoomChangeListener,
         if (renderer != null && !renderer.isDone()) {
             renderer.cancel(true);
         }
+        
+        if (!getModel().isPresent()) {
+            // don't render anything if no model is present
+            return;
+        }
 
         final int zoom = zoomSlider.getValue();
         final float factor = getScaleFactor();
 
-        final Page page = getModel().getPage();
+        final Page page = getModel().get().getPage();
         final List<Line> lines = page.getLines();
-        final BufferedImage normal = getModel().getImage();
+        final BufferedImage normal = null;// getModel().getImageFile();
 
         // font for line numbers
         final Font lineNumberFont = new Font("Dialog", Font.PLAIN, 12);

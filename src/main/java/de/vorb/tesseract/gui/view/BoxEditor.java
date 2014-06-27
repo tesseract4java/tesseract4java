@@ -38,7 +38,7 @@ import de.vorb.tesseract.util.Symbol;
 public class BoxEditor extends JPanel implements MainComponent {
     private static final long serialVersionUID = 1L;
 
-    private PageModel model = null;
+    private Optional<PageModel> model = Optional.absent();
     private final SingleSelectionModel selectionModel =
             new SingleSelectionModel();
 
@@ -321,13 +321,18 @@ public class BoxEditor extends JPanel implements MainComponent {
             }
 
             private void clicked(MouseEvent e) {
+                if (!model.isPresent()) {
+                    // ignore clicks if no model is present
+                    return;
+                }
+
                 final float scale = 1f;
 
                 final Point p = new Point(unscaled(e.getX(), scale), unscaled(
                         e.getY(), scale));
 
                 final Iterator<Symbol> it =
-                        Iterators.symbolIterator(getModel().getPage());
+                        Iterators.symbolIterator(getModel().get().getPage());
 
                 final ListSelectionModel sel =
                         tabSymbols.getTable().getSelectionModel();
@@ -391,8 +396,8 @@ public class BoxEditor extends JPanel implements MainComponent {
     }
 
     @Override
-    public void setModel(PageModel model) {
-        // renderer.render(model.getPage(), model.getBlackAndWhiteImage(), 1f);
+    public void setModel(Optional<PageModel> model) {
+        this.model = model;
 
         final SymbolTableModel tabModel =
                 (SymbolTableModel) tabSymbols.getTable().getModel();
@@ -401,17 +406,25 @@ public class BoxEditor extends JPanel implements MainComponent {
                 (DefaultListModel<Symbol>) tabModel.getSource().getSource();
 
         source.clear();
-        final Iterator<Symbol> it = Iterators.symbolIterator(model.getPage());
 
-        while (it.hasNext()) {
-            source.addElement(it.next());
+        if (!model.isPresent()) {
+            return;
+        } else {
+            // fill table model and render the page
+
+            // renderer.render(model.getPage(), model.getBlackAndWhiteImage(),
+            // 1f);
+            final Iterator<Symbol> it =
+                    Iterators.symbolIterator(model.get().getPage());
+
+            while (it.hasNext()) {
+                source.addElement(it.next());
+            }
         }
-
-        this.model = model;
     }
 
     @Override
-    public PageModel getModel() {
+    public Optional<PageModel> getModel() {
         return model;
     }
 

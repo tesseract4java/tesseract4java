@@ -410,11 +410,11 @@ public class TesseractFrame extends JFrame {
         return pbLoadPage;
     }
 
-    public void setModel(PageModel model) {
+    public void setModel(Optional<PageModel> model) {
         getMainComponent().setModel(model);
     }
 
-    public PageModel getModel() {
+    public Optional<PageModel> getModel() {
         return getMainComponent().getModel();
     }
 }
