@@ -3,9 +3,11 @@ package de.vorb.tesseract.gui.view;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -23,6 +25,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.google.common.base.Optional;
+import javax.swing.UIManager;
 
 public class NewProjectDialog extends JDialog implements ActionListener,
         DocumentListener {
@@ -41,6 +44,8 @@ public class NewProjectDialog extends JDialog implements ActionListener,
     }
 
     private static final long serialVersionUID = 1L;
+
+    private static final String PREF_DIR = "dir";
 
     private final JTextField tfPath;
     private final JButton btnPathSelect;
@@ -64,7 +69,6 @@ public class NewProjectDialog extends JDialog implements ActionListener,
 
         setModalityType(ModalityType.APPLICATION_MODAL);
 
-        setResizable(false);
         setIconImage(Toolkit.getDefaultToolkit().getImage(
                 NewProjectDialog.class.getResource("/logos/logo_16.png")));
         setTitle("New Project");
@@ -144,29 +148,57 @@ public class NewProjectDialog extends JDialog implements ActionListener,
         btnPathSelect.addActionListener(this);
 
         JPanel options = new JPanel();
-        options.setBorder(new TitledBorder(null, "Options",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        options.setBorder(new CompoundBorder(new TitledBorder(
+                UIManager.getBorder("TitledBorder.border"), "Options",
+                TitledBorder.LEADING, TitledBorder.TOP, null,
+                new Color(0, 0, 0)), new EmptyBorder(10, 10, 10, 10)));
         main.add(options);
-        options.setLayout(new FlowLayout(FlowLayout.LEADING, 5, 5));
+        GridBagLayout gbl_options = new GridBagLayout();
+        gbl_options.columnWidths = new int[] { 50, 47, 0 };
+        gbl_options.rowHeights = new int[] { 23, 0, 0, 0 };
+        gbl_options.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+        gbl_options.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+        options.setLayout(gbl_options);
 
         JLabel lblFileFilter = new JLabel("File types:");
-        options.add(lblFileFilter);
+        GridBagConstraints gbc_lblFileFilter = new GridBagConstraints();
+        gbc_lblFileFilter.anchor = GridBagConstraints.WEST;
+        gbc_lblFileFilter.insets = new Insets(0, 0, 5, 5);
+        gbc_lblFileFilter.gridx = 0;
+        gbc_lblFileFilter.gridy = 0;
+        options.add(lblFileFilter, gbc_lblFileFilter);
 
         cbTiff = new JCheckBox("TIFF");
         cbTiff.setSelected(true);
-        options.add(cbTiff);
+        GridBagConstraints gbc_cbTiff = new GridBagConstraints();
+        gbc_cbTiff.anchor = GridBagConstraints.NORTHWEST;
+        gbc_cbTiff.insets = new Insets(0, 0, 5, 0);
+        gbc_cbTiff.gridx = 1;
+        gbc_cbTiff.gridy = 0;
+        options.add(cbTiff, gbc_cbTiff);
         cbTiff.addActionListener(this);
 
         cbPng = new JCheckBox("PNG");
         cbPng.setSelected(true);
-        options.add(cbPng);
-        cbPng.addActionListener(this);
+        GridBagConstraints gbc_cbPng = new GridBagConstraints();
+        gbc_cbPng.anchor = GridBagConstraints.NORTHWEST;
+        gbc_cbPng.insets = new Insets(0, 0, 5, 0);
+        gbc_cbPng.gridx = 1;
+        gbc_cbPng.gridy = 1;
+        options.add(cbPng, gbc_cbPng);
 
         cbJpeg = new JCheckBox("JPEG");
-        options.add(cbJpeg);
+        GridBagConstraints gbc_cbJpeg = new GridBagConstraints();
+        gbc_cbJpeg.anchor = GridBagConstraints.NORTHWEST;
+        gbc_cbJpeg.gridx = 1;
+        gbc_cbJpeg.gridy = 2;
+        options.add(cbJpeg, gbc_cbJpeg);
         cbJpeg.addActionListener(this);
+        cbPng.addActionListener(this);
 
         pack();
+        setMinimumSize(getSize());
+        setSize(new Dimension(450, 0));
 
         setLocationRelativeTo(owner);
     }
@@ -189,6 +221,16 @@ public class NewProjectDialog extends JDialog implements ActionListener,
                 // show directory chooser
                 final JFileChooser jfc = new JFileChooser();
                 jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+                try {
+                    final String defaultDir = getPreferences().get(PREF_DIR,
+                            System.getProperty("user.home"));
+
+                    jfc.setCurrentDirectory(new File(defaultDir));
+                } catch (Exception e) {
+                    // ignore exception
+                }
+
                 int result = jfc.showOpenDialog(this);
 
                 if (result == JFileChooser.APPROVE_OPTION) {
@@ -213,11 +255,20 @@ public class NewProjectDialog extends JDialog implements ActionListener,
                 || cbJpeg.isSelected());
     }
 
+    private Preferences getPreferences() {
+        return Preferences.userNodeForPackage(getClass());
+    }
+
     public static Optional<Result> showDialog(Window parent) {
         final NewProjectDialog dialog = new NewProjectDialog(parent);
         dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         dialog.setVisible(true);
+
+        if (dialog.result.isPresent()) {
+            dialog.getPreferences().put(PREF_DIR,
+                    dialog.result.get().directory.toString());
+        }
 
         return dialog.result;
     }
