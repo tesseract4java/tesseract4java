@@ -167,6 +167,8 @@ public class NewProjectDialog extends JDialog implements ActionListener,
         cbJpeg.addActionListener(this);
 
         pack();
+
+        setLocationRelativeTo(owner);
     }
 
     @Override
