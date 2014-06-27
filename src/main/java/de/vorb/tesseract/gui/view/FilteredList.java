@@ -12,20 +12,14 @@ import javax.swing.ListModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.google.common.base.Optional;
-
 import de.vorb.tesseract.gui.model.FilteredListModel;
-import de.vorb.tesseract.gui.util.Filter;
+import de.vorb.tesseract.gui.util.FilterProvider;
 
 public class FilteredList<T> extends JPanel {
     private static final long serialVersionUID = 1L;
 
     private final JList<T> list;
     private final SearchField filterField;
-
-    public static interface FilterProvider<T> {
-        Optional<Filter<T>> getFilter(String filterText);
-    }
 
     /**
      * Create the panel.
