@@ -1,7 +1,6 @@
 package de.vorb.tesseract.gui.view;
 
 import java.awt.*;
-import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -37,11 +36,11 @@ public class TesseractFrame extends JFrame {
     private final BoxEditor boxEditor;
     private final ComparatorPane recognitionPane;
     private final GlyphExportPane exportPane;
-    private final OpenProjectDialog openProjectDialog;
 
     private final JProgressBar pbLoadPage;
     private final ButtonGroup bgrpView = new ButtonGroup();
     private final JSplitPane spMain;
+    private JMenuItem mnNewProject;
 
     /**
      * Create the application.
@@ -64,7 +63,6 @@ public class TesseractFrame extends JFrame {
         setMinimumSize(new Dimension(1100, 680));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        openProjectDialog = new OpenProjectDialog(this);
         boxEditor = new BoxEditor();
         recognitionPane = new ComparatorPane();
         exportPane = new GlyphExportPane();
@@ -168,19 +166,12 @@ public class TesseractFrame extends JFrame {
                 Labels.getLabel(getLocale(), "menu_file"));
         menuBar.add(mnFile);
 
-        openProjectDialog.setModalityType(ModalityType.APPLICATION_MODAL);
-
-        final JMenuItem mnOpenProject = new JMenuItem(Labels.getLabel(
+        mnNewProject = new JMenuItem(Labels.getLabel(
                 getLocale(),
-                "menu_open_project"));
-        mnOpenProject.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ev) {
-                openProjectDialog.setVisible(true);
-            }
-        });
-        mnOpenProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
+                "menu_new_project"));
+        mnNewProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
                 InputEvent.CTRL_MASK));
-        mnFile.add(mnOpenProject);
+        mnFile.add(mnNewProject);
 
         final JMenuItem mntmOcrcomparison = new JMenuItem("OCR-Comparison");
         mnFile.add(mntmOcrcomparison);
@@ -382,10 +373,6 @@ public class TesseractFrame extends JFrame {
         spMain.setRightComponent(main.asComponent());
     }
 
-    public OpenProjectDialog getLoadProjectDialog() {
-        return openProjectDialog;
-    }
-
     public FilteredList<Path> getPageList() {
         return listPages;
     }
@@ -416,5 +403,9 @@ public class TesseractFrame extends JFrame {
 
     public Optional<PageModel> getModel() {
         return getMainComponent().getModel();
+    }
+
+    public JMenuItem getMenuItemNewProject() {
+        return mnNewProject;
     }
 }

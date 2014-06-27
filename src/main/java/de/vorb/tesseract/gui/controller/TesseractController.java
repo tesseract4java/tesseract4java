@@ -1,6 +1,8 @@
 package de.vorb.tesseract.gui.controller;
 
 import java.awt.Cursor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -20,24 +22,28 @@ import javax.swing.UIManager;
 
 import org.bridj.BridJ;
 
+import com.google.common.base.Optional;
+
 import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.gui.event.PageChangeListener;
 import de.vorb.tesseract.gui.event.ProjectChangeListener;
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.view.Dialogs;
+import de.vorb.tesseract.gui.view.NewProjectDialog;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
 import de.vorb.tesseract.tools.recognition.RecognitionState;
 import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.TrainingFiles;
 import de.vorb.tesseract.util.Line;
 import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Project;
 import de.vorb.tesseract.util.Symbol;
+import de.vorb.tesseract.util.TrainingFiles;
 import de.vorb.tesseract.util.Word;
 
-public class TesseractController implements ProjectChangeListener,
-        PageChangeListener {
+public class TesseractController
+        implements ActionListener, ProjectChangeListener, PageChangeListener {
 
     private final TesseractFrame view;
     private SwingWorker<PageModel, Void> pageLoaderWorker = null;
@@ -98,7 +104,7 @@ public class TesseractController implements ProjectChangeListener,
         }
 
         // register listeners
-        view.getLoadProjectDialog().addProjectChangeListener(this);
+        view.getMenuItemNewProject().addActionListener(this);
 
         view.setVisible(true);
     }
@@ -213,5 +219,24 @@ public class TesseractController implements ProjectChangeListener,
         // }
 
         return null;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        final Object source = e.getSource();
+        if (source.equals(view.getMenuItemNewProject())) {
+            handleNewProject();
+        }
+    }
+
+    private void handleNewProject() {
+        Optional<NewProjectDialog.Result> result =
+                NewProjectDialog.showDialog(view);
+
+        if (result.isPresent()) {
+            Dialogs.showInfo(view, "Hey!", "Okay");
+        } else {
+            Dialogs.showWarning(view, "Huh?", "Cancelled");
+        }
     }
 }
