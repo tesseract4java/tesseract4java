@@ -7,7 +7,7 @@ public abstract class FilteredTableModel<T> extends AbstractTableModel {
 
     private final FilteredListModel<T> source;
 
-    public FilteredTableModel(FilteredListModel<T> source) {
+    protected FilteredTableModel(FilteredListModel<T> source) {
         this.source = source;
     }
 
