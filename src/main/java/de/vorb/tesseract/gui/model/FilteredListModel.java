@@ -9,12 +9,10 @@ import javax.swing.event.ListDataListener;
 
 import com.google.common.base.Optional;
 
+import de.vorb.tesseract.gui.util.Filter;
+
 public class FilteredListModel<T> extends AbstractListModel<T> {
     private static final long serialVersionUID = 1L;
-
-    public static interface Filter<T> {
-        boolean accept(T item);
-    }
 
     private final ListModel<T> source;
     private final ArrayList<T> filtered = new ArrayList<>();

@@ -14,14 +14,13 @@ import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.google.common.base.Optional;
 
-import de.vorb.tesseract.gui.model.FilteredListModel.Filter;
 import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.util.Filter;
 import de.vorb.tesseract.gui.view.FilteredList.FilterProvider;
 import de.vorb.tesseract.gui.view.i18n.Labels;
 import de.vorb.tesseract.util.Symbol;
@@ -35,7 +34,7 @@ public class TesseractFrame extends JFrame {
     private JLabel lbCanvasOriginal;
     private final FilteredList<Path> listPages;
     private final FilteredList<String> listTrainingFiles;
-    private final BoxEditor trainingPane;
+    private final BoxEditor boxEditor;
     private final ComparatorPane recognitionPane;
     private final GlyphExportPane exportPane;
     private final OpenProjectDialog openProjectDialog;
@@ -66,9 +65,7 @@ public class TesseractFrame extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         openProjectDialog = new OpenProjectDialog(this);
-        trainingPane = new BoxEditor();
-        trainingPane.setBorder(new TitledBorder(null, "Title",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        boxEditor = new BoxEditor();
         recognitionPane = new ComparatorPane();
         exportPane = new GlyphExportPane();
         pbLoadPage = new JProgressBar();
@@ -228,8 +225,8 @@ public class TesseractFrame extends JFrame {
         final ActionListener viewChangeListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (rmTraining.isSelected()
-                        && getMainComponent() != trainingPane) {
-                    setMainComponent(trainingPane);
+                        && getMainComponent() != boxEditor) {
+                    setMainComponent(boxEditor);
                 } else if (rmRecognition.isSelected()
                         && getMainComponent() != recognitionPane) {
                     setMainComponent(recognitionPane);
@@ -353,7 +350,7 @@ public class TesseractFrame extends JFrame {
                 Labels.getLabel(getLocale(), "tab_main_boxeditor"),
                 new ImageIcon(
                         getClass().getResource("/icons/table_edit.png")),
-                trainingPane);
+                boxEditor);
 
         spMain.setRightComponent(mainTabs);
 
@@ -397,12 +394,8 @@ public class TesseractFrame extends JFrame {
         return listTrainingFiles;
     }
 
-    public JLabel getCanvasOCR() {
-        return lbCanvasOCR;
-    }
-
-    public JLabel getCanvasOriginal() {
-        return lbCanvasOriginal;
+    public BoxEditor getBoxEditor() {
+        return boxEditor;
     }
 
     public ComparatorPane getComparatorPane() {

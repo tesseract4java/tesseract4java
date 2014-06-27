@@ -15,7 +15,7 @@ import javax.swing.event.DocumentListener;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.model.FilteredListModel;
-import de.vorb.tesseract.gui.model.FilteredListModel.Filter;
+import de.vorb.tesseract.gui.util.Filter;
 
 public class FilteredList<T> extends JPanel {
     private static final long serialVersionUID = 1L;
