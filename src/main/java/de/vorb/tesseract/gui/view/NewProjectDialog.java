@@ -19,10 +19,13 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.google.common.base.Optional;
 
-public class NewProjectDialog extends JDialog implements ActionListener {
+public class NewProjectDialog extends JDialog implements ActionListener,
+        DocumentListener {
     public static class Result {
         public final Path directory;
         public final boolean tiff;
@@ -90,9 +93,11 @@ public class NewProjectDialog extends JDialog implements ActionListener {
         btnCreate = new JButton("Create");
         btnCreate.setEnabled(false);
         bottom.add(btnCreate);
+        btnCreate.addActionListener(this);
 
         btnCancel = new JButton("Cancel");
         bottom.add(btnCancel);
+        btnCancel.addActionListener(this);
 
         JPanel main = new JPanel();
         main.setBorder(new CompoundBorder(new MatteBorder(1, 0, 1, 0,
@@ -128,6 +133,7 @@ public class NewProjectDialog extends JDialog implements ActionListener {
         gbc_tfPath.gridy = 0;
         directory.add(tfPath, gbc_tfPath);
         tfPath.setColumns(10);
+        tfPath.getDocument().addDocumentListener(this);
 
         btnPathSelect = new JButton("...");
         GridBagConstraints gbc_tfPathSelect = new GridBagConstraints();
@@ -159,13 +165,14 @@ public class NewProjectDialog extends JDialog implements ActionListener {
         cbJpeg = new JCheckBox("JPEG");
         options.add(cbJpeg);
         cbJpeg.addActionListener(this);
+
+        pack();
     }
 
     @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource() == btnCancel) {
             this.dispose();
-            return;
         } else if (evt.getSource() == btnCreate) {
             // set result if settings are valid
             if (isStateValid()) {
@@ -173,24 +180,32 @@ public class NewProjectDialog extends JDialog implements ActionListener {
                 this.result = Optional.of(new Result(dir, cbTiff.isSelected(),
                         cbPng.isSelected(), cbJpeg.isSelected()));
             }
-            
+
             this.dispose();
-            return;
-        } else if (evt.getSource() == btnPathSelect) {
-            final JFileChooser jfc = new JFileChooser();
-            int result = jfc.showOpenDialog(NewProjectDialog.this);
+        } else {
+            if (evt.getSource() == btnPathSelect) {
+                // show directory chooser
+                final JFileChooser jfc = new JFileChooser();
+                jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                int result = jfc.showOpenDialog(this);
 
-            if (result == JFileChooser.APPROVE_OPTION) {
-                tfPath.setText(jfc.getSelectedFile().getAbsolutePath());
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    tfPath.setText(jfc.getSelectedFile().getAbsolutePath());
+                }
             }
-        }
 
-        btnCreate.setEnabled(isStateValid());
+            // validate state
+            btnCreate.setEnabled(isStateValid());
+        }
     }
 
     private boolean isStateValid() {
         // validate the dialog
+        if (tfPath.getText().isEmpty())
+            return false;
+
         final Path directory = Paths.get(tfPath.getText());
+
         return Files.isDirectory(directory) && Files.isReadable(directory)
                 && (cbTiff.isSelected() || cbPng.isSelected()
                 || cbJpeg.isSelected());
@@ -216,6 +231,23 @@ public class NewProjectDialog extends JDialog implements ActionListener {
         final NewProjectDialog dialog = new NewProjectDialog(parent);
         dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+        dialog.setVisible(true);
+
         return dialog.result;
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        btnCreate.setEnabled(isStateValid());
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        btnCreate.setEnabled(isStateValid());
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        btnCreate.setEnabled(isStateValid());
     }
 }
