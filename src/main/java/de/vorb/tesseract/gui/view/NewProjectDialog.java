@@ -3,36 +3,53 @@ package de.vorb.tesseract.gui.view;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.LinkedList;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
-
-import de.vorb.tesseract.gui.event.ProjectChangeListener;
 import javax.swing.border.TitledBorder;
-import javax.swing.JCheckBox;
 
-public class NewProjectDialog extends JDialog {
-    public static enum ResultState {
-        APPROVE, CANCEL, ERROR;
+import com.google.common.base.Optional;
+
+public class NewProjectDialog extends JDialog implements ActionListener {
+    public static class Result {
+        public final Path directory;
+        public final boolean tiff;
+        public final boolean png;
+        public final boolean jpeg;
+
+        private Result(Path directory, boolean tiff, boolean png, boolean jpeg) {
+            this.directory = directory;
+            this.tiff = tiff;
+            this.png = png;
+            this.jpeg = jpeg;
+        }
     }
 
     private static final long serialVersionUID = 1L;
 
-    protected ResultState resultState;
+    private final JTextField tfPath;
+    private final JButton btnPathSelect;
 
-    private final List<ProjectChangeListener> listeners = new LinkedList<ProjectChangeListener>();
-    private JTextField tfPath;
+    private final JCheckBox cbTiff;
+    private final JCheckBox cbPng;
+    private final JCheckBox cbJpeg;
+
+    private final JButton btnCreate;
+    private final JButton btnCancel;
+
+    private Optional<Result> result = Optional.absent();
 
     /**
      * Create the dialog.
@@ -41,6 +58,9 @@ public class NewProjectDialog extends JDialog {
      */
     private NewProjectDialog(final Window owner) {
         super(owner);
+
+        setModalityType(ModalityType.APPLICATION_MODAL);
+
         setResizable(false);
         setIconImage(Toolkit.getDefaultToolkit().getImage(
                 NewProjectDialog.class.getResource("/logos/logo_16.png")));
@@ -67,11 +87,11 @@ public class NewProjectDialog extends JDialog {
         fl_bottom.setAlignment(FlowLayout.TRAILING);
         panel.add(bottom, BorderLayout.SOUTH);
 
-        JButton btnCreate = new JButton("Create");
+        btnCreate = new JButton("Create");
         btnCreate.setEnabled(false);
         bottom.add(btnCreate);
 
-        JButton btnCancel = new JButton("Cancel");
+        btnCancel = new JButton("Cancel");
         bottom.add(btnCancel);
 
         JPanel main = new JPanel();
@@ -109,22 +129,13 @@ public class NewProjectDialog extends JDialog {
         directory.add(tfPath, gbc_tfPath);
         tfPath.setColumns(10);
 
-        JButton tfPathSelect = new JButton("...");
+        btnPathSelect = new JButton("...");
         GridBagConstraints gbc_tfPathSelect = new GridBagConstraints();
         gbc_tfPathSelect.anchor = GridBagConstraints.NORTHWEST;
         gbc_tfPathSelect.gridx = 2;
         gbc_tfPathSelect.gridy = 0;
-        directory.add(tfPathSelect, gbc_tfPathSelect);
-        tfPathSelect.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                final JFileChooser jfc = new JFileChooser();
-                int result = jfc.showOpenDialog(NewProjectDialog.this);
-
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    tfPath.setText(jfc.getSelectedFile().getAbsolutePath());
-                }
-            }
-        });
+        directory.add(btnPathSelect, gbc_tfPathSelect);
+        btnPathSelect.addActionListener(this);
 
         JPanel options = new JPanel();
         options.setBorder(new TitledBorder(null, "Options",
@@ -135,26 +146,76 @@ public class NewProjectDialog extends JDialog {
         JLabel lblFileFilter = new JLabel("File types:");
         options.add(lblFileFilter);
 
-        JCheckBox chckbxTiff = new JCheckBox("TIFF");
-        options.add(chckbxTiff);
+        cbTiff = new JCheckBox("TIFF");
+        cbTiff.setSelected(true);
+        options.add(cbTiff);
+        cbTiff.addActionListener(this);
 
-        JCheckBox chckbxPng = new JCheckBox("PNG");
-        options.add(chckbxPng);
+        cbPng = new JCheckBox("PNG");
+        cbPng.setSelected(true);
+        options.add(cbPng);
+        cbPng.addActionListener(this);
 
-        JCheckBox chckbxJpeg = new JCheckBox("JPEG");
-        options.add(chckbxJpeg);
+        cbJpeg = new JCheckBox("JPEG");
+        options.add(cbJpeg);
+        cbJpeg.addActionListener(this);
     }
 
-    public static ResultState showDialog(Window parent) {
-        final NewProjectDialog dialog = new NewProjectDialog(parent);
-
-        dialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                dialog.resultState = ResultState.CANCEL;
+    @Override
+    public void actionPerformed(ActionEvent evt) {
+        if (evt.getSource() == btnCancel) {
+            this.dispose();
+            return;
+        } else if (evt.getSource() == btnCreate) {
+            // set result if settings are valid
+            if (isStateValid()) {
+                Path dir = Paths.get(tfPath.getText());
+                this.result = Optional.of(new Result(dir, cbTiff.isSelected(),
+                        cbPng.isSelected(), cbJpeg.isSelected()));
             }
-        });
+            
+            this.dispose();
+            return;
+        } else if (evt.getSource() == btnPathSelect) {
+            final JFileChooser jfc = new JFileChooser();
+            int result = jfc.showOpenDialog(NewProjectDialog.this);
 
-        return dialog.resultState;
+            if (result == JFileChooser.APPROVE_OPTION) {
+                tfPath.setText(jfc.getSelectedFile().getAbsolutePath());
+            }
+        }
+
+        btnCreate.setEnabled(isStateValid());
+    }
+
+    private boolean isStateValid() {
+        // validate the dialog
+        final Path directory = Paths.get(tfPath.getText());
+        return Files.isDirectory(directory) && Files.isReadable(directory)
+                && (cbTiff.isSelected() || cbPng.isSelected()
+                || cbJpeg.isSelected());
+    }
+
+    public Path getDirectory() {
+        return Paths.get(tfPath.getText());
+    }
+
+    public boolean isTiffChecked() {
+        return cbTiff.isSelected();
+    }
+
+    public boolean isPngChecked() {
+        return cbPng.isSelected();
+    }
+
+    public boolean isJpegChecked() {
+        return cbJpeg.isSelected();
+    }
+
+    public static Optional<Result> showDialog(Window parent) {
+        final NewProjectDialog dialog = new NewProjectDialog(parent);
+        dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        return dialog.result;
     }
 }
