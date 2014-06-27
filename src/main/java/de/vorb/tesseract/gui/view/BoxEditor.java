@@ -286,18 +286,11 @@ public class BoxEditor extends JPanel implements MainComponent {
         zoomSlider.setMinimum(1);
         panel.add(zoomSlider);
 
-        JPanel sidebar = new JPanel();
-        spMain.setLeftComponent(sidebar);
-        sidebar.setLayout(new BorderLayout(0, 0));
-
-        JScrollPane scrollPane_1 = new JScrollPane();
-        sidebar.add(scrollPane_1, BorderLayout.CENTER);
-
-        scrollPane_1.setViewportView(tabSymbols);
-
-        scrollPane_1.setMinimumSize(new Dimension(200, 100));
-        scrollPane_1.setPreferredSize(new Dimension(260, 10000));
-        scrollPane_1.setMaximumSize(new Dimension(310, 10000));
+        Dimension tabSize = new Dimension(260, 0);
+        tabSymbols.setMinimumSize(tabSize);
+        tabSymbols.setPreferredSize(tabSize);
+        tabSymbols.setMaximumSize(tabSize);
+        spMain.setLeftComponent(tabSymbols);
 
         JScrollPane scrollPane = new JScrollPane();
         spMain.setRightComponent(scrollPane);
