@@ -213,22 +213,6 @@ public class NewProjectDialog extends JDialog implements ActionListener,
                 || cbJpeg.isSelected());
     }
 
-    public Path getDirectory() {
-        return Paths.get(tfPath.getText());
-    }
-
-    public boolean isTiffChecked() {
-        return cbTiff.isSelected();
-    }
-
-    public boolean isPngChecked() {
-        return cbPng.isSelected();
-    }
-
-    public boolean isJpegChecked() {
-        return cbJpeg.isSelected();
-    }
-
     public static Optional<Result> showDialog(Window parent) {
         final NewProjectDialog dialog = new NewProjectDialog(parent);
         dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
