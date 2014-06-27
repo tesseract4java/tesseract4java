@@ -139,7 +139,7 @@ public class NewProjectDialog extends JDialog implements ActionListener,
         tfPath.setColumns(10);
         tfPath.getDocument().addDocumentListener(this);
 
-        btnPathSelect = new JButton("...");
+        btnPathSelect = new JButton("Browse...");
         GridBagConstraints gbc_tfPathSelect = new GridBagConstraints();
         gbc_tfPathSelect.anchor = GridBagConstraints.NORTHWEST;
         gbc_tfPathSelect.gridx = 2;

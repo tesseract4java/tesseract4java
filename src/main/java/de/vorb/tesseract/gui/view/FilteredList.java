@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.SystemColor;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -33,7 +34,7 @@ public class FilteredList<T> extends JPanel {
 
         add(scrollPane, BorderLayout.CENTER);
 
-        list = new JList<T>();
+        list = new JList<T>(new DefaultListModel<T>());
         scrollPane.setViewportView(list);
 
         filterField = new SearchField();
