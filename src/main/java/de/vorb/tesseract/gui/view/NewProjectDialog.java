@@ -27,10 +27,12 @@ import javax.swing.border.EmptyBorder;
 
 import de.vorb.tesseract.gui.event.LocaleChangeListener;
 import de.vorb.tesseract.gui.event.ProjectChangeListener;
+import de.vorb.tesseract.gui.util.Resources;
 import de.vorb.tesseract.gui.view.i18n.Labels;
+
 import java.awt.Toolkit;
 
-public class NewProjectDialog extends JDialog implements LocaleChangeListener {
+public class NewProjectDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private final JPanel contentPanel = new JPanel();
@@ -49,7 +51,9 @@ public class NewProjectDialog extends JDialog implements LocaleChangeListener {
      */
     public NewProjectDialog(final Window owner) {
         super(owner);
-        setIconImage(Toolkit.getDefaultToolkit().getImage(NewProjectDialog.class.getResource("/logos/logo_16.png")));
+        setTitle(Labels.getLabel(getLocale(), "new_project_dialog_title"));
+        setIconImage(Toolkit.getDefaultToolkit().getImage(
+                NewProjectDialog.class.getResource("/logos/logo_16.png")));
 
         setMinimumSize(new Dimension(500, 130));
 
@@ -64,7 +68,8 @@ public class NewProjectDialog extends JDialog implements LocaleChangeListener {
         gbl_contentPanel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
         contentPanel.setLayout(gbl_contentPanel);
         {
-            lblScanDirectory = new JLabel("Scan directory:");
+            lblScanDirectory = new JLabel(Labels.getLabel(getLocale(),
+                    "scan_dir"));
             GridBagConstraints gbc_lblScans = new GridBagConstraints();
             gbc_lblScans.insets = new Insets(0, 0, 0, 5);
             gbc_lblScans.anchor = GridBagConstraints.EAST;
@@ -122,21 +127,10 @@ public class NewProjectDialog extends JDialog implements LocaleChangeListener {
                 buttonPane.add(btCancel);
             }
         }
-
-        localeChanged();
-
-        this.setResizable(false);
-    }
-
-    @Override
-    public void localeChanged() {
-        setLocale(Locale.getDefault());
-
-        setTitle(Labels.getLabel(getLocale(), "open_dialog_title"));
-
-        lblScanDirectory.setText(Labels.getLabel(getLocale(), "scan_dir"));
         btCancel.setText(Labels.getLabel(getLocale(), "btn_cancel"));
         btOK.setText(Labels.getLabel(getLocale(), "btn_ok"));
+
+        this.setResizable(false);
     }
 
     private void makePathChooser(final JTextField tfPath,
