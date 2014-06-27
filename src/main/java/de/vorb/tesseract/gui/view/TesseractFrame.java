@@ -21,7 +21,7 @@ import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.util.Filter;
-import de.vorb.tesseract.gui.view.FilteredList.FilterProvider;
+import de.vorb.tesseract.gui.util.FilterProvider;
 import de.vorb.tesseract.gui.view.i18n.Labels;
 import de.vorb.tesseract.util.Symbol;
 
