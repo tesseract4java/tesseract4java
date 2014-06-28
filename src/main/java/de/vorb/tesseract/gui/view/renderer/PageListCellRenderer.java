@@ -13,7 +13,7 @@ import javax.swing.ListCellRenderer;
 
 import de.vorb.tesseract.gui.model.PageThumbnail;
 
-public class PathListCellRenderer extends JLabel implements
+public class PageListCellRenderer extends JLabel implements
         ListCellRenderer<PageThumbnail> {
     private static final long serialVersionUID = 1L;
 
@@ -22,7 +22,7 @@ public class PathListCellRenderer extends JLabel implements
 
     public static final Color COLOR_SELECT = new Color(0x4477FF);
 
-    public PathListCellRenderer() {
+    public PageListCellRenderer() {
         setOpaque(true);
 
         setVerticalTextPosition(BOTTOM);
