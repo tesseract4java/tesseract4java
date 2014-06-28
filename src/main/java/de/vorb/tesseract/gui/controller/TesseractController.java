@@ -1,21 +1,23 @@
 package de.vorb.tesseract.gui.controller;
 
-import java.awt.Cursor;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
+import java.nio.file.DirectoryStream.Filter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
@@ -25,42 +27,27 @@ import org.bridj.BridJ;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.PageIteratorLevel;
-import de.vorb.tesseract.gui.event.PageChangeListener;
-import de.vorb.tesseract.gui.event.ProjectChangeListener;
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.PageModel;
-import de.vorb.tesseract.gui.view.Dialogs;
+import de.vorb.tesseract.gui.model.PageThumbnail;
+import de.vorb.tesseract.gui.util.ThumbnailLoader;
 import de.vorb.tesseract.gui.view.NewProjectDialog;
+import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
 import de.vorb.tesseract.tools.recognition.RecognitionState;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Line;
 import de.vorb.tesseract.util.Page;
-import de.vorb.tesseract.util.Project;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TrainingFiles;
 import de.vorb.tesseract.util.Word;
 
-public class TesseractController
-        implements ActionListener, ProjectChangeListener, PageChangeListener {
+public class TesseractController implements ActionListener {
 
     private final TesseractFrame view;
     private SwingWorker<PageModel, Void> pageLoaderWorker = null;
     private PageLoader pageLoader = null;
-
-    // Filter for image files
-    private static final DirectoryStream.Filter<Path> IMG_FILTER =
-            new DirectoryStream.Filter<Path>() {
-                @Override
-                public boolean accept(Path entry) throws IOException {
-                    return entry.toString().endsWith(".png")
-                            || entry.toString().endsWith(".tif")
-                            || entry.toString().endsWith(".tiff")
-                            || entry.toString().endsWith(".jpg")
-                            || entry.toString().endsWith(".jpeg");
-                }
-            };
 
     public static void main(String[] args) {
         BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
@@ -107,56 +94,6 @@ public class TesseractController
         view.getMenuItemNewProject().addActionListener(this);
 
         view.setVisible(true);
-    }
-
-    @Override
-    public void projectChanged(Path scanDir) {
-        try {
-            final ArrayList<Path> pages = new ArrayList<>();
-
-            final Iterator<Path> dirIt = Files.newDirectoryStream(scanDir,
-                    IMG_FILTER).iterator();
-
-            while (dirIt.hasNext()) {
-                final Path file = dirIt.next();
-
-                if (Files.isDirectory(file))
-                    continue;
-
-                pages.add(file);
-            }
-
-            final Project project = new Project(scanDir, pages);
-            project.addPageChangeListener(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void pageSelectionChanged(int pageIndex) {
-        view.getPageLoadProgressBar().setIndeterminate(true);
-        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-        /*
-         * final Path page =
-         * view.getPageSelectionPane().getModel().getSelectedPage();
-         * 
-         * pageLoaderWorker = new SwingWorker<PageModel, Void>() {
-         * 
-         * @Override protected PageModel doInBackground() { try { return
-         * loadPageModel(page); } catch (IOException e) { e.printStackTrace();
-         * return null; } }
-         * 
-         * @Override public void done() { try { final PageModel page = get();
-         * view.setModel(page);
-         * view.getPageLoadProgressBar().setIndeterminate(false);
-         * view.setCursor(Cursor.getDefaultCursor()); } catch
-         * (InterruptedException e) { e.printStackTrace(); } catch
-         * (ExecutionException e) { e.printStackTrace(); } } };
-         * 
-         * pageLoaderWorker.execute();
-         */
     }
 
     private PageModel loadPageModel(Path scanFile) throws IOException {
@@ -230,13 +167,21 @@ public class TesseractController
     }
 
     private void handleNewProject() {
-        Optional<NewProjectDialog.Result> result =
+        final Optional<NewProjectDialog.Result> result =
                 NewProjectDialog.showDialog(view);
 
-        if (result.isPresent()) {
-            Dialogs.showInfo(view, "Hey!", "Okay");
-        } else {
-            Dialogs.showWarning(view, "Huh?", "Cancelled");
-        }
+        if (!result.isPresent())
+            return;
+
+        final Result projectConfig = result.get();
+
+        final DefaultListModel<PageThumbnail> pages =
+                (DefaultListModel<PageThumbnail>) view.getPageList()
+                        .getList().getModel();
+
+        final ThumbnailLoader thumbnailLoader = new ThumbnailLoader(
+                projectConfig, pages);
+
+        thumbnailLoader.execute();
     }
 }
