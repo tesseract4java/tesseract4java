@@ -39,7 +39,7 @@ import de.vorb.tesseract.util.Point;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
-public class ComparatorPane extends JPanel implements
+public class RecognitionPane extends JPanel implements
         ComparatorSettingsChangeListener,
         MainComponent {
     private static final long serialVersionUID = 1L;
@@ -76,7 +76,7 @@ public class ComparatorPane extends JPanel implements
         try {
             loaded = Font.createFont(
                     Font.TRUETYPE_FONT,
-                    ComparatorPane.class.getResourceAsStream("/fonts/RobotoCondensed-Regular.ttf"));
+                    RecognitionPane.class.getResourceAsStream("/fonts/RobotoCondensed-Regular.ttf"));
         } catch (FontFormatException | IOException e) {
             System.err.println("Could not load normal font.");
             e.printStackTrace();
@@ -88,7 +88,7 @@ public class ComparatorPane extends JPanel implements
         try {
             loaded = Font.createFont(
                     Font.TRUETYPE_FONT,
-                    ComparatorPane.class.getResourceAsStream("/fonts/RobotoCondensed-Italic.ttf"));
+                    RecognitionPane.class.getResourceAsStream("/fonts/RobotoCondensed-Italic.ttf"));
         } catch (FontFormatException | IOException e) {
             System.err.println("Could not load italic font.");
         }
@@ -99,7 +99,7 @@ public class ComparatorPane extends JPanel implements
         try {
             loaded = Font.createFont(
                     Font.TRUETYPE_FONT,
-                    ComparatorPane.class.getResourceAsStream("/fonts/RobotoCondensed-Bold.ttf"));
+                    RecognitionPane.class.getResourceAsStream("/fonts/RobotoCondensed-Bold.ttf"));
         } catch (FontFormatException | IOException e) {
             System.err.println("Could not load bold font.");
         }
@@ -110,7 +110,7 @@ public class ComparatorPane extends JPanel implements
         try {
             loaded = Font.createFont(
                     Font.TRUETYPE_FONT,
-                    ComparatorPane.class.getResourceAsStream("/fonts/RobotoCondensed-BoldItalic.ttf"));
+                    RecognitionPane.class.getResourceAsStream("/fonts/RobotoCondensed-BoldItalic.ttf"));
         } catch (FontFormatException | IOException e) {
             System.err.println("Could not load bold italic font.");
         }
@@ -125,7 +125,7 @@ public class ComparatorPane extends JPanel implements
         try {
             loaded = Font.createFont(
                     Font.TRUETYPE_FONT,
-                    ComparatorPane.class.getResourceAsStream("/fonts/NeueFraktur.ttf"));
+                    RecognitionPane.class.getResourceAsStream("/fonts/NeueFraktur.ttf"));
         } catch (FontFormatException | IOException e) {
             System.err.println("Could not load Fraktur font.");
         }
@@ -163,7 +163,7 @@ public class ComparatorPane extends JPanel implements
     /**
      * Create the panel.
      */
-    public ComparatorPane() {
+    public RecognitionPane() {
         setLayout(new BorderLayout(0, 0));
 
         JPanel panel = new JPanel();
