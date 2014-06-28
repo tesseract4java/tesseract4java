@@ -2,8 +2,8 @@ package de.vorb.tesseract.gui.view.renderer;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.nio.file.Path;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -11,13 +11,15 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
+import com.google.common.base.Optional;
+
 import de.vorb.tesseract.gui.model.PageThumbnail;
 
 public class PageListCellRenderer extends JLabel implements
         ListCellRenderer<PageThumbnail> {
     private static final long serialVersionUID = 1L;
 
-    private static final ImageIcon DUMMY_ICON = new ImageIcon(
+    private static final ImageIcon ICON_PLACEHOLDER = new ImageIcon(
             new BufferedImage(70, 100, BufferedImage.TYPE_BYTE_BINARY));
 
     public static final Color COLOR_SELECT = new Color(0x4477FF);
@@ -45,7 +47,6 @@ public class PageListCellRenderer extends JLabel implements
         }
 
         setText(fname);
-        setIcon(value.getThumbnail());
 
         if (isSelected) {
             setBackground(COLOR_SELECT);
@@ -53,6 +54,25 @@ public class PageListCellRenderer extends JLabel implements
         } else {
             setBackground(Color.WHITE);
             setForeground(Color.BLACK);
+        }
+
+        final Optional<BufferedImage> opt = value.getThumbnail();
+
+        if (opt.isPresent()) {
+            final BufferedImage thumbnail = opt.get();
+            final Graphics2D g2d = (Graphics2D) thumbnail.getGraphics();
+            if (isSelected) {
+                g2d.setColor(Color.BLACK);
+            } else {
+                g2d.setColor(Color.GRAY);
+            }
+            g2d.drawRect(0, 0, thumbnail.getWidth() - 1,
+                    thumbnail.getHeight() - 1);
+            g2d.dispose();
+
+            setIcon(new ImageIcon(thumbnail));
+        } else {
+            setIcon(ICON_PLACEHOLDER);
         }
 
         return this;

@@ -19,9 +19,11 @@ import javax.swing.event.ListSelectionListener;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.util.Filter;
 import de.vorb.tesseract.gui.util.FilterProvider;
 import de.vorb.tesseract.gui.view.i18n.Labels;
+import de.vorb.tesseract.gui.view.renderer.PageListCellRenderer;
 import de.vorb.tesseract.util.Symbol;
 
 /**
@@ -31,7 +33,7 @@ public class TesseractFrame extends JFrame {
     private static final long serialVersionUID = 1L;
     private JLabel lbCanvasOCR;
     private JLabel lbCanvasOriginal;
-    private final FilteredList<Path> listPages;
+    private final FilteredList<PageThumbnail> listPages;
     private final FilteredList<String> listTrainingFiles;
     private final BoxEditor boxEditor;
     private final ComparatorPane recognitionPane;
@@ -69,31 +71,35 @@ public class TesseractFrame extends JFrame {
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 
-        listPages = new FilteredList<Path>(new FilterProvider<Path>() {
-            public Optional<Filter<Path>> getFilter(String query) {
-                final String[] terms = query.split("\\s+");
+        listPages = new FilteredList<PageThumbnail>(
+                new FilterProvider<PageThumbnail>() {
+                    public Optional<Filter<PageThumbnail>> getFilter(
+                            String query) {
+                        final String[] terms = query.split("\\s+");
 
-                final Filter<Path> filter;
-                if (query.isEmpty()) {
-                    filter = null;
-                } else {
-                    // item must contain all terms in query
-                    filter = new Filter<Path>() {
-                        @Override
-                        public boolean accept(Path item) {
-                            String fname = item.getFileName().toString();
-                            for (String term : terms) {
-                                if (!fname.contains(term)) {
-                                    return false;
+                        final Filter<PageThumbnail> filter;
+                        if (query.isEmpty()) {
+                            filter = null;
+                        } else {
+                            // item must contain all terms in query
+                            filter = new Filter<PageThumbnail>() {
+                                @Override
+                                public boolean accept(PageThumbnail item) {
+                                    String fname =
+                                            item.getFile().getFileName().toString();
+                                    for (String term : terms) {
+                                        if (!fname.contains(term)) {
+                                            return false;
+                                        }
+                                    }
+                                    return true;
                                 }
-                            }
-                            return true;
+                            };
                         }
-                    };
-                }
-                return Optional.fromNullable(filter);
-            }
-        });
+                        return Optional.fromNullable(filter);
+                    }
+                });
+        listPages.getList().setCellRenderer(new PageListCellRenderer());
 
         listPages.setMinimumSize(new Dimension(250, 100));
         listPages.getList().setSelectionMode(
@@ -373,7 +379,7 @@ public class TesseractFrame extends JFrame {
         spMain.setRightComponent(main.asComponent());
     }
 
-    public FilteredList<Path> getPageList() {
+    public FilteredList<PageThumbnail> getPageList() {
         return listPages;
     }
 
