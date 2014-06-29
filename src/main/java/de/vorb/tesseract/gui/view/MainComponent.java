@@ -7,9 +7,9 @@ import com.google.common.base.Optional;
 import de.vorb.tesseract.gui.model.PageModel;
 
 public interface MainComponent {
-    void setModel(Optional<PageModel> model);
+    void setPageModel(Optional<PageModel> model);
 
-    Optional<PageModel> getModel();
+    Optional<PageModel> getPageModel();
 
     Component asComponent();
 }
