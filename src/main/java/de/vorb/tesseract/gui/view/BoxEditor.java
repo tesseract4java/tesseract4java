@@ -119,7 +119,8 @@ public class BoxEditor extends JPanel implements MainComponent {
                             filter = null;
                         } else {
                             // split filter text into terms
-                            final String[] terms = filterText.split("\\s+");
+                            final String[] terms =
+                                    filterText.toLowerCase().split("\\s+");
 
                             filter = new Filter<Symbol>() {
                                 @Override
@@ -129,8 +130,7 @@ public class BoxEditor extends JPanel implements MainComponent {
                                             item.getText().toLowerCase();
 
                                     for (String term : terms) {
-                                        if (symbolText.contains(
-                                                term.toLowerCase()))
+                                        if (symbolText.contains(term))
                                             return true;
                                     }
                                     return false;
