@@ -27,7 +27,7 @@ public class SymbolRecognition extends RecognitionProducer {
     }
 
     @Override
-    protected void init() throws IOException {
+    public void init() throws IOException {
         setHandle(LibTess.TessBaseAPICreate());
     }
 

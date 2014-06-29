@@ -179,7 +179,7 @@ public class ExampleRecognition extends RecognitionProducer {
     }
 
     @Override
-    protected void init() throws IOException {
+    public void init() throws IOException {
         // TODO Auto-generated method stub
 
     }

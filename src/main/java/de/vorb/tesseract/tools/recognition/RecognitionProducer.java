@@ -16,14 +16,11 @@ public abstract class RecognitionProducer {
     private Pointer<TessBaseAPI> handle;
     private String language = LANGUAGE_DEFAULT;
 
-    public RecognitionProducer() throws IOException {
-        init();
+    public RecognitionProducer() {
     }
 
-    public RecognitionProducer(String initialLanguage) throws IOException {
+    public RecognitionProducer(String initialLanguage) {
         setLanguage(initialLanguage);
-
-        init();
     }
 
     public Pointer<TessBaseAPI> getHandle() {
@@ -34,7 +31,7 @@ public abstract class RecognitionProducer {
         return language;
     }
 
-    public void setLanguage(String language) throws IOException {
+    public void setLanguage(String language) {
         this.language = language;
     }
 
@@ -42,7 +39,7 @@ public abstract class RecognitionProducer {
         this.handle = handle;
     }
 
-    protected abstract void init() throws IOException;
+    public abstract void init() throws IOException;
 
     public abstract void reset() throws IOException;
 
