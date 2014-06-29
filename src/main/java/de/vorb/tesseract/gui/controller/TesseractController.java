@@ -4,19 +4,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -28,6 +24,7 @@ import com.google.common.base.Optional;
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.util.PageListLoader;
+import de.vorb.tesseract.gui.util.PageModelLoader;
 import de.vorb.tesseract.gui.util.PageRecognitionProducer;
 import de.vorb.tesseract.gui.view.Dialogs;
 import de.vorb.tesseract.gui.view.NewProjectDialog;
@@ -36,11 +33,11 @@ import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.util.TrainingFiles;
 
 public class TesseractController extends WindowAdapter implements
-        ActionListener,
-        ListSelectionListener {
+        ActionListener, ListSelectionListener {
 
     private final TesseractFrame view;
     private final PageRecognitionProducer pageRecognitionProducer;
+    private Optional<PageModelLoader> pageModelLoader = Optional.absent();
 
     private final Timer pageSelectionTimer = new Timer("PageSelectionTimer");
     private Optional<TimerTask> lastPageSelection = Optional.absent();
@@ -57,6 +54,7 @@ public class TesseractController extends WindowAdapter implements
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             // fail silently
+
             // If the system LaF is not available, use whatever LaF is already
             // being used.
         }
@@ -154,20 +152,20 @@ public class TesseractController extends WindowAdapter implements
         final TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                try {
-                    final BufferedImage image =
-                            ImageIO.read(pt.getFile().toFile());
-
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            view.getBoxEditor().getImage().setIcon(
-                                    new ImageIcon(image));
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
+                // cancel last task
+                if (pageModelLoader.isPresent()) {
+                    pageModelLoader.get().cancel(false);
                 }
+
+                // create swingworker to load model
+                final PageModelLoader pml = new PageModelLoader(
+                        TesseractController.this, pt.getFile());
+
+                // save reference
+                pageModelLoader = Optional.of(pml);
+
+                // execute it
+                pml.execute();
             }
         };
 
