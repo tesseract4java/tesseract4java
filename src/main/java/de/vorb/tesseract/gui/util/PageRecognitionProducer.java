@@ -18,8 +18,7 @@ public class PageRecognitionProducer extends RecognitionProducer {
     private final Path tessdataDir;
     private Optional<Pointer<Pix>> lastPix = Optional.absent();
 
-    public PageRecognitionProducer(String initialLanguage, Path tessdataDir)
-            throws IOException {
+    public PageRecognitionProducer(String initialLanguage, Path tessdataDir) {
         super(initialLanguage);
 
         this.tessdataDir = tessdataDir;
