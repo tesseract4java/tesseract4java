@@ -1,19 +1,14 @@
 package de.vorb.tesseract.gui.model;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-
-import javax.swing.table.AbstractTableModel;
 
 import de.vorb.tesseract.util.Symbol;
 
-public class SymbolTableModel extends AbstractTableModel {
+public class SymbolTableModel extends FilteredTableModel<Symbol> {
     private static final long serialVersionUID = 1L;
 
-    private final LinkedList<Symbol> symbols;
-
-    public SymbolTableModel() {
-        symbols = new LinkedList<>();
+    public SymbolTableModel(FilteredListModel<Symbol> source) {
+        super(source);
     }
 
     @Override
@@ -22,35 +17,34 @@ public class SymbolTableModel extends AbstractTableModel {
     }
 
     @Override
-    public int getRowCount() {
-        return symbols.size();
-    }
-
-    @Override
     public Object getValueAt(int rowIndex, int colIndex) {
-        switch (colIndex) {
-        case 0:
+        if (colIndex == 0) {
             return rowIndex + 1;
-        case 1:
-            return symbols.get(rowIndex).getText();
-        case 2:
-            return symbols.get(rowIndex).getBoundingBox().getX();
-        case 3:
-            return symbols.get(rowIndex).getBoundingBox().getY();
-        case 4:
-            return symbols.get(rowIndex).getBoundingBox().getWidth();
-        case 5:
-            return symbols.get(rowIndex).getBoundingBox().getHeight();
         }
 
-        return null;
+        final Symbol symbol = getSource().getElementAt(rowIndex);
+
+        switch (colIndex) {
+        case 1:
+            return symbol.getText();
+        case 2:
+            return symbol.getBoundingBox().getX();
+        case 3:
+            return symbol.getBoundingBox().getY();
+        case 4:
+            return symbol.getBoundingBox().getWidth();
+        case 5:
+            return symbol.getBoundingBox().getHeight();
+        default:
+            throw new IndexOutOfBoundsException("undefined row or column");
+        }
     }
 
     @Override
     public String getColumnName(int colIndex) {
         switch (colIndex) {
         case 0:
-            return "No.";
+            return "#";
         case 1:
             return "Symbol";
         case 2:
@@ -61,9 +55,9 @@ public class SymbolTableModel extends AbstractTableModel {
             return "Width";
         case 5:
             return "Height";
+        default:
+            throw new IndexOutOfBoundsException("undefined column");
         }
-
-        return "";
     }
 
     @Override
@@ -81,22 +75,12 @@ public class SymbolTableModel extends AbstractTableModel {
             return Integer.class;
         case 5:
             return Integer.class;
+        default:
+            throw new IndexOutOfBoundsException("undefined column");
         }
-
-        return Object.class;
     }
 
     public Symbol getSymbol(int index) {
-        return symbols.get(index);
-    }
-
-    public void replaceAllSymbols(Iterator<Symbol> newSymbols) {
-        symbols.clear();
-
-        while (newSymbols.hasNext()) {
-            symbols.add(newSymbols.next());
-        }
-
-        fireTableDataChanged();
+        return getSource().getElementAt(index);
     }
 }

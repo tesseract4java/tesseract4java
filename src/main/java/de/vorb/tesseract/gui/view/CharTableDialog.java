@@ -23,6 +23,7 @@ public class CharTableDialog extends JDialog {
      */
     public CharTableDialog() {
         super();
+
         setTitle("Special characters");
         setAlwaysOnTop(true);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

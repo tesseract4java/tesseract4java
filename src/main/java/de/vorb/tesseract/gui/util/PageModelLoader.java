@@ -1,6 +1,7 @@
 package de.vorb.tesseract.gui.util;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -9,9 +10,12 @@ import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 
+import com.google.common.base.Optional;
+
 import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.view.Dialogs;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
 import de.vorb.tesseract.tools.recognition.RecognitionState;
 import de.vorb.tesseract.util.Box;
@@ -104,11 +108,26 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
     @Override
     protected void done() {
         try {
-            final PageModel model = get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            controller.getView().setPageModel(Optional.of(get()));
         } catch (ExecutionException e) {
-            e.getCause().printStackTrace();
+            final String message;
+            if (e.getCause() instanceof IOException) {
+                message = "The page image file could not be read.";
+            } else {
+                message = "The page could not be recognized";
+            }
+
+            final Optional<PageModel> none = Optional.absent();
+            controller.getView().setPageModel(none);
+
+            Dialogs.showError(controller.getView(), "Error during recognition",
+                    message);
+        } catch (InterruptedException e) {
+            // unexpected
+            e.printStackTrace();
+
+            Dialogs.showError(controller.getView(), "Error during recognition",
+                    "The recognition process has been interrupted unexpectedly.");
         }
     }
 }

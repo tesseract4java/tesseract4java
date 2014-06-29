@@ -87,7 +87,7 @@ public class GlyphExportPane extends JPanel implements MainComponent {
     }
 
     @Override
-    public void setModel(Optional<PageModel> model) {
+    public void setPageModel(Optional<PageModel> model) {
         final JList<Entry<String, Set<Symbol>>> glyphList =
                 getGlyphSelectionPane().getList();
 
@@ -130,7 +130,7 @@ public class GlyphExportPane extends JPanel implements MainComponent {
     }
 
     @Override
-    public Optional<PageModel> getModel() {
+    public Optional<PageModel> getPageModel() {
         return model;
     }
 

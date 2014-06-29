@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -22,6 +21,7 @@ import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.util.Filter;
 import de.vorb.tesseract.gui.util.FilterProvider;
+import de.vorb.tesseract.gui.util.Resources;
 import de.vorb.tesseract.gui.view.i18n.Labels;
 import de.vorb.tesseract.gui.view.renderer.PageListCellRenderer;
 import de.vorb.tesseract.util.Symbol;
@@ -31,18 +31,16 @@ import de.vorb.tesseract.util.Symbol;
  */
 public class TesseractFrame extends JFrame {
     private static final long serialVersionUID = 1L;
-    private JLabel lbCanvasOCR;
-    private JLabel lbCanvasOriginal;
     private final FilteredList<PageThumbnail> listPages;
     private final FilteredList<String> listTrainingFiles;
     private final BoxEditor boxEditor;
-    private final ComparatorPane recognitionPane;
+    private final RecognitionPane recognitionPane;
     private final GlyphExportPane exportPane;
 
     private final JProgressBar pbLoadPage;
-    private final ButtonGroup bgrpView = new ButtonGroup();
     private final JSplitPane spMain;
-    private JMenuItem mnNewProject;
+    private final JMenuItem mnNewProject;
+    private final JTabbedPane tabsMain;
 
     /**
      * Create the application.
@@ -66,7 +64,7 @@ public class TesseractFrame extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         boxEditor = new BoxEditor();
-        recognitionPane = new ComparatorPane();
+        recognitionPane = new RecognitionPane();
         exportPane = new GlyphExportPane();
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
@@ -172,15 +170,10 @@ public class TesseractFrame extends JFrame {
                 Labels.getLabel(getLocale(), "menu_file"));
         menuBar.add(mnFile);
 
-        mnNewProject = new JMenuItem(Labels.getLabel(
-                getLocale(),
-                "menu_new_project"));
-        mnNewProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
+        mnNewProject = new JMenuItem("New Project");
+        mnNewProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,
                 InputEvent.CTRL_MASK));
         mnFile.add(mnNewProject);
-
-        final JMenuItem mntmOcrcomparison = new JMenuItem("OCR-Comparison");
-        mnFile.add(mntmOcrcomparison);
 
         final JSeparator separator = new JSeparator();
         mnFile.add(separator);
@@ -193,51 +186,6 @@ public class TesseractFrame extends JFrame {
             }
         });
         mnFile.add(mntmExit);
-
-        final JMenu mnEdit = new JMenu(
-                Labels.getLabel(getLocale(), "menu_edit"));
-        menuBar.add(mnEdit);
-
-        final JMenu mnView = new JMenu(
-                Labels.getLabel(getLocale(), "menu_view"));
-        menuBar.add(mnView);
-
-        final JRadioButtonMenuItem rmTraining = new JRadioButtonMenuItem(
-                "Training");
-        bgrpView.add(rmTraining);
-        mnView.add(rmTraining);
-
-        final JRadioButtonMenuItem rmRecognition = new JRadioButtonMenuItem(
-                "Recognition");
-        bgrpView.add(rmRecognition);
-        mnView.add(rmRecognition);
-
-        final JRadioButtonMenuItem rmExport = new JRadioButtonMenuItem(
-                "Export");
-        bgrpView.add(rmExport);
-        mnView.add(rmExport);
-
-        // on a view change, show the other component (export glyphs or compare
-        // results)
-        final ActionListener viewChangeListener = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (rmTraining.isSelected()
-                        && getMainComponent() != boxEditor) {
-                    setMainComponent(boxEditor);
-                } else if (rmRecognition.isSelected()
-                        && getMainComponent() != recognitionPane) {
-                    setMainComponent(recognitionPane);
-                } else if (rmExport.isSelected()
-                        && getMainComponent() != exportPane) {
-                    setMainComponent(exportPane);
-                }
-            }
-        };
-
-        rmTraining.addActionListener(viewChangeListener);
-        rmRecognition.addActionListener(viewChangeListener);
-        rmExport.addActionListener(viewChangeListener);
-        bgrpView.setSelected(rmTraining.getModel(), true);
 
         final JMenu mnHelp = new JMenu(
                 Labels.getLabel(getLocale(), "menu_help"));
@@ -342,14 +290,15 @@ public class TesseractFrame extends JFrame {
         panel.add(pbLoadPage, gbc_pbRegognitionProgress);
         getContentPane().add(spMain, BorderLayout.CENTER);
 
-        JTabbedPane mainTabs = new JTabbedPane();
-        mainTabs.addTab(
-                Labels.getLabel(getLocale(), "tab_main_boxeditor"),
-                new ImageIcon(
-                        getClass().getResource("/icons/table_edit.png")),
-                boxEditor);
+        tabsMain = new JTabbedPane();
+        tabsMain.addTab(Labels.getLabel(getLocale(), "tab_main_boxeditor"),
+                Resources.getIcon("table_edit"), boxEditor);
 
-        spMain.setRightComponent(mainTabs);
+        tabsMain.addTab(Labels.getLabel(getLocale(), "tab_main_recognition"),
+                Resources.getIcon("application_tile_horizontal"),
+                recognitionPane);
+
+        spMain.setRightComponent(tabsMain);
 
         JSplitPane splitPane = new JSplitPane();
         splitPane.setResizeWeight(1.0);
@@ -360,23 +309,13 @@ public class TesseractFrame extends JFrame {
     }
 
     private MainComponent getMainComponent() {
-        final Component main = spMain.getRightComponent();
+        final Component main = tabsMain.getSelectedComponent();
         if (main instanceof MainComponent) {
             return (MainComponent) main;
         } else {
             throw new IllegalStateException(
                     "The current main component is not an instance of MainComponent.");
         }
-    }
-
-    private void setMainComponent(MainComponent main) {
-        final MainComponent old = getMainComponent();
-        if (main == old) {
-            return;
-        }
-
-        main.setModel(old.getModel());
-        spMain.setRightComponent(main.asComponent());
     }
 
     public FilteredList<PageThumbnail> getPageList() {
@@ -391,7 +330,7 @@ public class TesseractFrame extends JFrame {
         return boxEditor;
     }
 
-    public ComparatorPane getComparatorPane() {
+    public RecognitionPane getComparatorPane() {
         return recognitionPane;
     }
 
@@ -403,12 +342,12 @@ public class TesseractFrame extends JFrame {
         return pbLoadPage;
     }
 
-    public void setModel(Optional<PageModel> model) {
-        getMainComponent().setModel(model);
+    public void setPageModel(Optional<PageModel> model) {
+        getMainComponent().setPageModel(model);
     }
 
-    public Optional<PageModel> getModel() {
-        return getMainComponent().getModel();
+    public Optional<PageModel> getPageModel() {
+        return getMainComponent().getPageModel();
     }
 
     public JMenuItem getMenuItemNewProject() {

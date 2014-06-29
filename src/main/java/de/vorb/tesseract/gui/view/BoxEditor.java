@@ -1,11 +1,14 @@
 package de.vorb.tesseract.gui.view;
 
 import static de.vorb.tesseract.gui.view.Coordinates.unscaled;
-import static javax.swing.Box.createHorizontalStrut;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -13,8 +16,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -41,13 +43,7 @@ public class BoxEditor extends JPanel implements MainComponent {
     private Optional<PageModel> model = Optional.absent();
     private final SingleSelectionModel selectionModel =
             new SingleSelectionModel();
-
-    private final JTextField tfSymbol;
     private final FilteredTable<Symbol> tabSymbols;
-    private final JSpinner spinX;
-    private final JSpinner spinY;
-    private final JSpinner spinWidth;
-    private final JSpinner spinHeight;
     private final JLabel lblImage;
 
     private static final Dimension DEFAULT_SPINNER_DIMENSION =
@@ -78,10 +74,10 @@ public class BoxEditor extends JPanel implements MainComponent {
                     // height, update the bounding box
                     if (source instanceof JSpinner) {
                         // get coords
-                        final int x = (int) spinX.getValue();
-                        final int y = (int) spinY.getValue();
-                        final int width = (int) spinWidth.getValue();
-                        final int height = (int) spinHeight.getValue();
+                        final int x = (int) spinnerX.getValue();
+                        final int y = (int) spinnerY.getValue();
+                        final int width = (int) spinnerWidth.getValue();
+                        final int height = (int) spinnerHeight.getValue();
 
                         // create new box
                         final Box newBBox = new Box(x, y, width, height);
@@ -99,6 +95,12 @@ public class BoxEditor extends JPanel implements MainComponent {
                             table.getSelectedRow()));
                 }
             };
+
+    private final JTextField tfSymbol;
+    private final JSpinner spinnerX;
+    private final JSpinner spinnerY;
+    private final JSpinner spinnerWidth;
+    private final JSpinner spinnerHeight;
 
     /**
      * Create the panel.
@@ -174,126 +176,139 @@ public class BoxEditor extends JPanel implements MainComponent {
                 });
 
         JPanel toolbar = new JPanel();
+        toolbar.setBorder(new EmptyBorder(0, 4, 2, 4));
         toolbar.setBackground(UIManager.getColor("window"));
         add(toolbar, BorderLayout.NORTH);
 
-        JSplitPane spMain = new JSplitPane();
-        add(spMain, BorderLayout.CENTER);
-        toolbar.setLayout(new BorderLayout(0, 0));
+        JSplitPane splitMain = new JSplitPane();
+        add(splitMain, BorderLayout.CENTER);
+        GridBagLayout gbl_toolbar = new GridBagLayout();
+        gbl_toolbar.columnWidths = new int[] { 0, 56, 15, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 36, 0, 0 };
+        gbl_toolbar.rowHeights = new int[] { 0, 0 };
+        gbl_toolbar.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
+        gbl_toolbar.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        toolbar.setLayout(gbl_toolbar);
 
-        JPanel panel_1 = new JPanel();
-        panel_1.setBackground(UIManager.getColor("window"));
-        toolbar.add(panel_1, BorderLayout.WEST);
-
-        JLabel lblExample = new JLabel("Symbol");
-        panel_1.add(lblExample);
+        JLabel lblSymbol = new JLabel("Symbol");
+        GridBagConstraints gbc_lblSymbol = new GridBagConstraints();
+        gbc_lblSymbol.insets = new Insets(0, 0, 0, 5);
+        gbc_lblSymbol.anchor = GridBagConstraints.EAST;
+        gbc_lblSymbol.gridx = 0;
+        gbc_lblSymbol.gridy = 0;
+        toolbar.add(lblSymbol, gbc_lblSymbol);
 
         tfSymbol = new JTextField();
+        GridBagConstraints gbc_tfSymbol = new GridBagConstraints();
+        gbc_tfSymbol.insets = new Insets(0, 0, 0, 5);
+        gbc_tfSymbol.fill = GridBagConstraints.HORIZONTAL;
+        gbc_tfSymbol.gridx = 1;
+        gbc_tfSymbol.gridy = 0;
+        toolbar.add(tfSymbol, gbc_tfSymbol);
+        tfSymbol.setColumns(6);
 
-        // listen for document changes
-        tfSymbol.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                change();
-            }
+        Component hsDiv1 = javax.swing.Box.createHorizontalStrut(10);
+        GridBagConstraints gbc_hsDiv1 = new GridBagConstraints();
+        gbc_hsDiv1.insets = new Insets(0, 0, 0, 5);
+        gbc_hsDiv1.gridx = 2;
+        gbc_hsDiv1.gridy = 0;
+        toolbar.add(hsDiv1, gbc_hsDiv1);
 
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                change();
-            }
+        JLabel lblX = new JLabel("X");
+        GridBagConstraints gbc_lblX = new GridBagConstraints();
+        gbc_lblX.insets = new Insets(0, 0, 0, 5);
+        gbc_lblX.gridx = 3;
+        gbc_lblX.gridy = 0;
+        toolbar.add(lblX, gbc_lblX);
 
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                change();
-            }
+        spinnerX = new JSpinner();
+        spinnerX.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
+        GridBagConstraints gbc_spX = new GridBagConstraints();
+        gbc_spX.insets = new Insets(0, 0, 0, 5);
+        gbc_spX.gridx = 4;
+        gbc_spX.gridy = 0;
+        toolbar.add(spinnerX, gbc_spX);
 
-            private void change() {
-                final Symbol current = getCurrentSymbol();
-                if (current == null) {
-                    return;
-                }
+        JLabel lblY = new JLabel("Y");
+        GridBagConstraints gbc_lblY = new GridBagConstraints();
+        gbc_lblY.insets = new Insets(0, 0, 0, 5);
+        gbc_lblY.gridx = 5;
+        gbc_lblY.gridy = 0;
+        toolbar.add(lblY, gbc_lblY);
 
-                current.setText(tfSymbol.getText());
-                table.tableChanged(new TableModelEvent(
-                        table.getModel(), table.getSelectedRow(), 1));
-            }
-        });
-        panel_1.add(tfSymbol);
-        tfSymbol.setColumns(5);
+        spinnerY = new JSpinner();
+        spinnerY.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
+        GridBagConstraints gbc_spY = new GridBagConstraints();
+        gbc_spY.insets = new Insets(0, 0, 0, 5);
+        gbc_spY.gridx = 6;
+        gbc_spY.gridy = 0;
+        toolbar.add(spinnerY, gbc_spY);
 
-        Component horizontalStrut = createHorizontalStrut(10);
-        panel_1.add(horizontalStrut);
+        JLabel lblWidth = new JLabel("Width");
+        GridBagConstraints gbc_lblWidth = new GridBagConstraints();
+        gbc_lblWidth.insets = new Insets(0, 0, 0, 5);
+        gbc_lblWidth.gridx = 7;
+        gbc_lblWidth.gridy = 0;
+        toolbar.add(lblWidth, gbc_lblWidth);
 
-        JLabel lblLeft = new JLabel("X");
-        panel_1.add(lblLeft);
+        spinnerWidth = new JSpinner();
+        spinnerWidth.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
+        GridBagConstraints gbc_spWidth = new GridBagConstraints();
+        gbc_spWidth.insets = new Insets(0, 0, 0, 5);
+        gbc_spWidth.gridx = 8;
+        gbc_spWidth.gridy = 0;
+        toolbar.add(spinnerWidth, gbc_spWidth);
 
-        spinX = new JSpinner();
-        spinX.addPropertyChangeListener(boxChangeListener);
-        panel_1.add(spinX);
-        spinX.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinX.setModel(new SpinnerNumberModel(0, 0, null, 1));
+        JLabel lblHeight = new JLabel("Height");
+        GridBagConstraints gbc_lblHeight = new GridBagConstraints();
+        gbc_lblHeight.insets = new Insets(0, 0, 0, 5);
+        gbc_lblHeight.gridx = 9;
+        gbc_lblHeight.gridy = 0;
+        toolbar.add(lblHeight, gbc_lblHeight);
 
-        Component horizontalStrut_1 = createHorizontalStrut(5);
-        panel_1.add(horizontalStrut_1);
+        spinnerHeight = new JSpinner();
+        spinnerHeight.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
+        GridBagConstraints gbc_spHeight = new GridBagConstraints();
+        gbc_spHeight.insets = new Insets(0, 0, 0, 5);
+        gbc_spHeight.gridx = 10;
+        gbc_spHeight.gridy = 0;
+        toolbar.add(spinnerHeight, gbc_spHeight);
 
-        JLabel lblTop = new JLabel("Y");
-        panel_1.add(lblTop);
+        Component horizontalStrut = javax.swing.Box.createHorizontalStrut(10);
+        GridBagConstraints gbc_horizontalStrut = new GridBagConstraints();
+        gbc_horizontalStrut.insets = new Insets(0, 0, 0, 5);
+        gbc_horizontalStrut.gridx = 11;
+        gbc_horizontalStrut.gridy = 0;
+        toolbar.add(horizontalStrut, gbc_horizontalStrut);
 
-        spinY = new JSpinner();
-        spinY.addPropertyChangeListener(boxChangeListener);
-        panel_1.add(spinY);
-        spinY.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinY.setModel(new SpinnerNumberModel(0, 0, null, 1));
+        JButton btnZoomIn = new JButton((String) null);
+        btnZoomIn.setBackground(Color.WHITE);
+        btnZoomIn.setIcon(new ImageIcon(
+                BoxEditor.class.getResource("/icons/magnifier_zoom_in.png")));
+        GridBagConstraints gbc_btnZoomIn = new GridBagConstraints();
+        gbc_btnZoomIn.insets = new Insets(0, 0, 0, 5);
+        gbc_btnZoomIn.gridx = 12;
+        gbc_btnZoomIn.gridy = 0;
+        toolbar.add(btnZoomIn, gbc_btnZoomIn);
 
-        Component horizontalStrut_2 = createHorizontalStrut(5);
-        panel_1.add(horizontalStrut_2);
-
-        JLabel lblRight = new JLabel("Width");
-        panel_1.add(lblRight);
-
-        spinWidth = new JSpinner();
-        spinWidth.addPropertyChangeListener(boxChangeListener);
-        panel_1.add(spinWidth);
-        spinWidth.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinWidth.setModel(new SpinnerNumberModel(0, 0, null, 1));
-
-        Component horizontalStrut_3 = createHorizontalStrut(5);
-        panel_1.add(horizontalStrut_3);
-
-        JLabel lblBottom = new JLabel("Height");
-        panel_1.add(lblBottom);
-
-        spinHeight = new JSpinner();
-        spinHeight.addPropertyChangeListener(boxChangeListener);
-        panel_1.add(spinHeight);
-        spinHeight.setPreferredSize(DEFAULT_SPINNER_DIMENSION);
-        spinHeight.setModel(new SpinnerNumberModel(0, 0, null, 1));
-
-        JPanel panel = new JPanel();
-        panel.setBackground(UIManager.getColor("window"));
-        toolbar.add(panel, BorderLayout.EAST);
-
-        JLabel lblZoom = new JLabel("Zoom");
-        panel.add(lblZoom);
-
-        JSlider zoomSlider = new JSlider();
-        zoomSlider.setBackground(UIManager.getColor("window"));
-        zoomSlider.setMinorTickSpacing(1);
-        zoomSlider.setPreferredSize(new Dimension(160, 20));
-        zoomSlider.setValue(5);
-        zoomSlider.setMajorTickSpacing(1);
-        zoomSlider.setMaximum(9);
-        zoomSlider.setMinimum(1);
-        panel.add(zoomSlider);
+        JButton btnZoomOut = new JButton((String) null);
+        btnZoomOut.setBackground(Color.WHITE);
+        btnZoomOut.setIcon(new ImageIcon(
+                BoxEditor.class.getResource("/icons/magifier_zoom_out.png")));
+        GridBagConstraints gbc_btnZoomOut = new GridBagConstraints();
+        gbc_btnZoomOut.gridx = 13;
+        gbc_btnZoomOut.gridy = 0;
+        toolbar.add(btnZoomOut, gbc_btnZoomOut);
 
         Dimension tabSize = new Dimension(260, 0);
         tabSymbols.setMinimumSize(tabSize);
         tabSymbols.setPreferredSize(tabSize);
         tabSymbols.setMaximumSize(tabSize);
-        spMain.setLeftComponent(tabSymbols);
+        splitMain.setLeftComponent(tabSymbols);
 
         JScrollPane scrollPane = new JScrollPane();
-        spMain.setRightComponent(scrollPane);
+        splitMain.setRightComponent(scrollPane);
 
         lblImage = new JLabel("");
         scrollPane.setViewportView(lblImage);
@@ -325,7 +340,7 @@ public class BoxEditor extends JPanel implements MainComponent {
                         e.getY(), scale));
 
                 final Iterator<Symbol> it =
-                        Iterators.symbolIterator(getModel().get().getPage());
+                        Iterators.symbolIterator(getPageModel().get().getPage());
 
                 final ListSelectionModel sel =
                         tabSymbols.getTable().getSelectionModel();
@@ -378,10 +393,10 @@ public class BoxEditor extends JPanel implements MainComponent {
                 tfSymbol.setToolTipText(tooltip.append(']').toString());
 
                 final Box bbox = symbol.getBoundingBox();
-                spinX.setValue(bbox.getX());
-                spinY.setValue(bbox.getY());
-                spinWidth.setValue(bbox.getWidth());
-                spinHeight.setValue(bbox.getHeight());
+                spinnerX.setValue(bbox.getX());
+                spinnerY.setValue(bbox.getY());
+                spinnerWidth.setValue(bbox.getWidth());
+                spinnerHeight.setValue(bbox.getHeight());
             }
         });
 
@@ -389,7 +404,7 @@ public class BoxEditor extends JPanel implements MainComponent {
     }
 
     @Override
-    public void setModel(Optional<PageModel> model) {
+    public void setPageModel(Optional<PageModel> model) {
         this.model = model;
 
         final SymbolTableModel tabModel =
@@ -417,8 +432,12 @@ public class BoxEditor extends JPanel implements MainComponent {
     }
 
     @Override
-    public Optional<PageModel> getModel() {
+    public Optional<PageModel> getPageModel() {
         return model;
+    }
+
+    public JLabel getImage() {
+        return lblImage;
     }
 
     @Override

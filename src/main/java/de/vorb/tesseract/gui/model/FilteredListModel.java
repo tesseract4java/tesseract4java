@@ -87,4 +87,8 @@ public class FilteredListModel<T> extends AbstractListModel<T> {
 
         return filtered.size();
     }
+
+    public ListModel<T> getSource() {
+        return source;
+    }
 }

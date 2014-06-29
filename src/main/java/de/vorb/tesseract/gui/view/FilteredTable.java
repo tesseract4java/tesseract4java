@@ -34,6 +34,7 @@ public class FilteredTable<T> extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         table = new JTable();
+        table.setFillsViewportHeight(true);
         scrollPane.setViewportView(table);
 
         filterField = new SearchField();

@@ -26,7 +26,7 @@ public class PageRecognitionProducer extends RecognitionProducer {
     }
 
     @Override
-    protected void init() throws IOException {
+    public void init() throws IOException {
         setHandle(LibTess.TessBaseAPICreate());
 
         reset();
@@ -37,7 +37,8 @@ public class PageRecognitionProducer extends RecognitionProducer {
         // init LibTess with data path, language and OCR engine mode
         LibTess.TessBaseAPIInit2(getHandle(),
                 Pointer.pointerToCString(tessdataDir.toString()),
-                Pointer.pointerToCString(getLanguage()), OCREngineMode.DEFAULT);
+                Pointer.pointerToCString(getLanguage()),
+                OCREngineMode.DEFAULT);
 
         // set page segmentation mode
         LibTess.TessBaseAPISetPageSegMode(getHandle(), PageSegMode.AUTO);

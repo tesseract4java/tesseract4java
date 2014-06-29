@@ -167,12 +167,14 @@ public class RecognitionPane extends JPanel implements
         setLayout(new BorderLayout(0, 0));
 
         JPanel panel = new JPanel();
+        panel.setBackground(Color.WHITE);
         add(panel, BorderLayout.SOUTH);
 
         JLabel lblSelectedWord = new JLabel("Selected word:");
         panel.add(lblSelectedWord);
 
         tfSelection = new JTextField();
+        tfSelection.setBackground(Color.WHITE);
         tfSelection.setEditable(false);
         panel.add(tfSelection);
         tfSelection.setColumns(20);
@@ -181,16 +183,19 @@ public class RecognitionPane extends JPanel implements
         panel.add(lblConfidence);
 
         tfConfidence = new JTextField();
+        tfConfidence.setBackground(Color.WHITE);
         tfConfidence.setEditable(false);
         panel.add(tfConfidence);
         tfConfidence.setColumns(8);
 
         cbCorrect = new JCheckBox("Correct?");
+        cbCorrect.setBackground(Color.WHITE);
         cbCorrect.setEnabled(false);
         cbCorrect.setToolTipText("Is the selected word correct?");
         panel.add(cbCorrect);
 
         JSplitPane splitPane = new JSplitPane();
+        splitPane.setBackground(Color.WHITE);
         splitPane.setOneTouchExpandable(true);
         splitPane.setEnabled(false);
         splitPane.setResizeWeight(0.5);
@@ -204,12 +209,12 @@ public class RecognitionPane extends JPanel implements
         MouseListener mouseListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (!getModel().isPresent()) {
+                if (!getPageModel().isPresent()) {
                     // ignore clicks if no model is present
                     return;
                 }
-                
-                final PageModel model = getModel().get();
+
+                final PageModel model = getPageModel().get();
                 final Page page = model.getPage();
 
                 final float factor = getScaleFactor();
@@ -294,31 +299,6 @@ public class RecognitionPane extends JPanel implements
         lblHOCR.setVerticalAlignment(SwingConstants.TOP);
         spHOCR.setViewportView(lblHOCR);
 
-        JPanel panel_1 = new JPanel();
-        add(panel_1, BorderLayout.NORTH);
-        panel_1.setLayout(new BorderLayout(0, 0));
-
-        JPanel panel_2 = new JPanel();
-        panel_1.add(panel_2, BorderLayout.EAST);
-        panel_2.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-
-        JLabel lblZoom = new JLabel("Zoom");
-        panel_2.add(lblZoom);
-
-        zoomSlider = new JSlider();
-        zoomSlider.setMinimum(1);
-        panel_2.add(zoomSlider);
-        zoomSlider.setPreferredSize(new Dimension(160, 20));
-        zoomSlider.setSnapToTicks(true);
-        zoomSlider.setMajorTickSpacing(1);
-        zoomSlider.setValue(5);
-        zoomSlider.setMaximum(9);
-
-        JPanel panel_3 = new JPanel();
-        FlowLayout flowLayout = (FlowLayout) panel_3.getLayout();
-        flowLayout.setAlignment(FlowLayout.LEFT);
-        panel_1.add(panel_3, BorderLayout.WEST);
-
         final ChangeListener checkBoxListener = new ChangeListener() {
             public void stateChanged(ChangeEvent ev) {
                 if (cbWordBoxes == ev.getSource() && cbWordBoxes.isSelected()) {
@@ -332,32 +312,44 @@ public class RecognitionPane extends JPanel implements
             }
         };
 
+        JPanel panel_1 = new JPanel();
+        panel_1.setBackground(Color.WHITE);
+        add(panel_1, BorderLayout.NORTH);
+        panel_1.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+
         cbWordBoxes = new JCheckBox("Word boxes");
+        cbWordBoxes.setBackground(Color.WHITE);
+        panel_1.add(cbWordBoxes);
         cbWordBoxes.setSelected(true);
         cbWordBoxes.addChangeListener(checkBoxListener);
-        panel_3.add(cbWordBoxes);
 
         cbSymbolBoxes = new JCheckBox("Symbol boxes");
+        cbSymbolBoxes.setBackground(Color.WHITE);
+        panel_1.add(cbSymbolBoxes);
         cbSymbolBoxes.setSelected(false);
         cbSymbolBoxes.addChangeListener(checkBoxListener);
-        panel_3.add(cbSymbolBoxes);
 
         cbLineNumbers = new JCheckBox("Line numbers");
+        cbLineNumbers.setBackground(Color.WHITE);
+        panel_1.add(cbLineNumbers);
         cbLineNumbers.setSelected(true);
         cbLineNumbers.addChangeListener(checkBoxListener);
-        panel_3.add(cbLineNumbers);
 
         cbBaseline = new JCheckBox("Baseline");
+        cbBaseline.setBackground(Color.WHITE);
+        panel_1.add(cbBaseline);
         cbBaseline.setSelected(false);
         cbBaseline.addChangeListener(checkBoxListener);
-        panel_3.add(cbBaseline);
 
         cbXLine = new JCheckBox("x-Line");
+        cbXLine.setBackground(Color.WHITE);
+        panel_1.add(cbXLine);
         cbXLine.setSelected(false);
         cbXLine.addChangeListener(checkBoxListener);
-        panel_3.add(cbXLine);
 
         comboBox = new JComboBox<String>();
+        comboBox.setBackground(Color.WHITE);
+        panel_1.add(comboBox);
         comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {
                 "Antiqua", "Fraktur" }));
         comboBox.addActionListener(new ActionListener() {
@@ -367,7 +359,15 @@ public class RecognitionPane extends JPanel implements
             }
         });
 
-        panel_3.add(comboBox);
+        zoomSlider = new JSlider();
+        zoomSlider.setBackground(Color.WHITE);
+        panel_1.add(zoomSlider);
+        zoomSlider.setMinimum(1);
+        zoomSlider.setPreferredSize(new Dimension(160, 20));
+        zoomSlider.setSnapToTicks(true);
+        zoomSlider.setMajorTickSpacing(1);
+        zoomSlider.setValue(5);
+        zoomSlider.setMaximum(9);
         zoomSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ev) {
@@ -398,11 +398,11 @@ public class RecognitionPane extends JPanel implements
         });
     }
 
-    public Optional<PageModel> getModel() {
+    public Optional<PageModel> getPageModel() {
         return Optional.absent();
     }
 
-    public void setModel(Optional<PageModel> page) {
+    public void setPageModel(Optional<PageModel> page) {
         // model = page;
 
         settingsChanged();
@@ -443,8 +443,8 @@ public class RecognitionPane extends JPanel implements
         if (renderer != null && !renderer.isDone()) {
             renderer.cancel(true);
         }
-        
-        if (!getModel().isPresent()) {
+
+        if (!getPageModel().isPresent()) {
             // don't render anything if no model is present
             return;
         }
@@ -452,7 +452,7 @@ public class RecognitionPane extends JPanel implements
         final int zoom = zoomSlider.getValue();
         final float factor = getScaleFactor();
 
-        final Page page = getModel().get().getPage();
+        final Page page = getPageModel().get().getPage();
         final List<Line> lines = page.getLines();
         final BufferedImage normal = null;// getModel().getImageFile();
 

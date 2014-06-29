@@ -1,14 +1,15 @@
 package de.vorb.tesseract.gui.model;
 
+import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 
-import javax.swing.Icon;
+import com.google.common.base.Optional;
 
 public class PageThumbnail {
     private final Path file;
-    private final Icon thumbnail;
+    private Optional<BufferedImage> thumbnail;
 
-    public PageThumbnail(Path file, Icon thumbnail) {
+    public PageThumbnail(Path file, Optional<BufferedImage> thumbnail) {
         this.file = file;
         this.thumbnail = thumbnail;
     }
@@ -17,7 +18,11 @@ public class PageThumbnail {
         return file;
     }
 
-    public Icon getThumbnail() {
+    public Optional<BufferedImage> getThumbnail() {
         return thumbnail;
+    }
+
+    public void setThumbnail(Optional<BufferedImage> thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }
