@@ -7,12 +7,9 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
@@ -28,7 +25,6 @@ import org.bridj.BridJ;
 
 import com.google.common.base.Optional;
 
-import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
@@ -37,14 +33,7 @@ import de.vorb.tesseract.gui.util.PageRecognitionProducer;
 import de.vorb.tesseract.gui.view.NewProjectDialog;
 import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
 import de.vorb.tesseract.gui.view.TesseractFrame;
-import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
-import de.vorb.tesseract.tools.recognition.RecognitionState;
-import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.Line;
-import de.vorb.tesseract.util.Page;
-import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TrainingFiles;
-import de.vorb.tesseract.util.Word;
 
 public class TesseractController extends WindowAdapter implements
         ActionListener,
@@ -187,5 +176,9 @@ public class TesseractController extends WindowAdapter implements
     @Override
     public void windowClosed(WindowEvent e) {
         pageSelectionTimer.cancel();
+    }
+
+    public TesseractFrame getView() {
+        return view;
     }
 }
