@@ -17,11 +17,11 @@ import de.vorb.tesseract.OCREngineMode;
 import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.PageSegMode;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
-import de.vorb.tesseract.tools.recognition.Recognition;
+import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 import de.vorb.leptonica.Pix;
 import de.vorb.leptonica.util.PixConversions;
 
-public class SymbolRecognition extends Recognition {
+public class SymbolRecognition extends RecognitionProducer {
     public SymbolRecognition(String language) throws IOException {
         super(language);
     }

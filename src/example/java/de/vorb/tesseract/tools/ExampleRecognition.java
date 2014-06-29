@@ -17,9 +17,9 @@ import de.vorb.tesseract.OCREngineMode;
 import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.PageSegMode;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
-import de.vorb.tesseract.tools.recognition.Recognition;
+import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 
-public class ExampleRecognition extends Recognition {
+public class ExampleRecognition extends RecognitionProducer {
     private static SwingWorker<Void, Void> worker;
 
     public ExampleRecognition(String language) throws IOException {

@@ -10,17 +10,17 @@ import de.vorb.tesseract.LibTess.TessPageIterator;
 import de.vorb.tesseract.LibTess.TessResultIterator;
 import de.vorb.tesseract.PageIteratorLevel;
 
-public abstract class Recognition {
+public abstract class RecognitionProducer {
     public static final String LANGUAGE_DEFAULT = "eng";
 
     private Pointer<TessBaseAPI> handle;
     private String language = LANGUAGE_DEFAULT;
 
-    public Recognition() throws IOException {
+    public RecognitionProducer() throws IOException {
         init();
     }
 
-    public Recognition(String initialLanguage) throws IOException {
+    public RecognitionProducer(String initialLanguage) throws IOException {
         setLanguage(initialLanguage);
 
         init();
