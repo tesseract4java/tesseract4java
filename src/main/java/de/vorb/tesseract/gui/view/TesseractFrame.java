@@ -73,7 +73,8 @@ public class TesseractFrame extends JFrame {
                 new FilterProvider<PageThumbnail>() {
                     public Optional<Filter<PageThumbnail>> getFilterFor(
                             String query) {
-                        final String[] terms = query.split("\\s+");
+                        final String[] terms =
+                                query.toLowerCase().split("\\s+");
 
                         final Filter<PageThumbnail> filter;
                         if (query.isEmpty()) {
@@ -84,7 +85,7 @@ public class TesseractFrame extends JFrame {
                                 @Override
                                 public boolean accept(PageThumbnail item) {
                                     String fname =
-                                            item.getFile().getFileName().toString();
+                                            item.getFile().getFileName().toString().toLowerCase();
                                     for (String term : terms) {
                                         if (!fname.contains(term)) {
                                             return false;
