@@ -32,7 +32,7 @@ public class SymbolRecognition extends Recognition {
     }
 
     @Override
-    protected void reset() throws IOException {
+    public void reset() throws IOException {
         // init LibTess with data path, language and OCR engine mode
         LibTess.TessBaseAPIInit2(
                 getHandle(),
@@ -70,7 +70,7 @@ public class SymbolRecognition extends Recognition {
     }
 
     @Override
-    protected void close() throws IOException {
+    public void close() throws IOException {
         LibTess.TessBaseAPIDelete(getHandle());
     }
 

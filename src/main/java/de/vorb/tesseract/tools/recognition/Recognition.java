@@ -11,11 +11,18 @@ import de.vorb.tesseract.LibTess.TessResultIterator;
 import de.vorb.tesseract.PageIteratorLevel;
 
 public abstract class Recognition {
-    private Pointer<TessBaseAPI> handle;
-    private String language;
+    public static final String LANGUAGE_DEFAULT = "eng";
 
-    public Recognition(String language) throws IOException {
-        this.language = language;
+    private Pointer<TessBaseAPI> handle;
+    private String language = LANGUAGE_DEFAULT;
+
+    public Recognition() throws IOException {
+        init();
+    }
+
+    public Recognition(String initialLanguage) throws IOException {
+        setLanguage(initialLanguage);
+
         init();
     }
 
@@ -29,8 +36,6 @@ public abstract class Recognition {
 
     public void setLanguage(String language) throws IOException {
         this.language = language;
-
-        reset();
     }
 
     protected void setHandle(Pointer<TessBaseAPI> handle) {
@@ -39,9 +44,9 @@ public abstract class Recognition {
 
     protected abstract void init() throws IOException;
 
-    protected abstract void reset() throws IOException;
+    public abstract void reset() throws IOException;
 
-    protected abstract void close() throws IOException;
+    public abstract void close() throws IOException;
 
     @SuppressWarnings("unchecked")
     public void recognize(RecognitionConsumer consumer) {
