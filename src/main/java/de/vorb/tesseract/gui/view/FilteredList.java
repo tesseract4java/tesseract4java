@@ -59,6 +59,7 @@ public class FilteredList<T> extends JPanel {
 
                     private void filter() {
                         final ListModel<T> model = list.getModel();
+
                         if (!(model instanceof FilteredListModel)) {
                             return;
                         }
@@ -70,7 +71,7 @@ public class FilteredList<T> extends JPanel {
                                 filterField.getTextField().getText();
 
                         filteredModel.setFilter(
-                                filterProvider.getFilter(query));
+                                filterProvider.getFilterFor(query));
                     }
                 });
     }

@@ -72,7 +72,7 @@ public class FilteredTable<T> extends JPanel {
                                 filterField.getTextField().getText();
 
                         filteredModel.getSource().setFilter(
-                                filterProvider.getFilter(query));
+                                filterProvider.getFilterFor(query));
                     }
                 });
     }

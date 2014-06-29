@@ -113,7 +113,7 @@ public class BoxEditor extends JPanel implements MainComponent {
         // create table first, so it can be used by the property change listener
         tabSymbols = new FilteredTable<Symbol>(new FilterProvider<Symbol>() {
             @Override
-            public Optional<Filter<Symbol>> getFilter(String filterText) {
+            public Optional<Filter<Symbol>> getFilterFor(String filterText) {
                 final Filter<Symbol> filter;
 
                 if (filterText.isEmpty()) {
