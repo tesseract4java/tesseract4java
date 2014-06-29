@@ -109,7 +109,8 @@ public class TesseractFrame extends JFrame {
         listTrainingFiles =
                 new FilteredList<String>(new FilterProvider<String>() {
                     public Optional<Filter<String>> getFilterFor(String query) {
-                        final String[] terms = query.split("\\s+");
+                        final String[] terms =
+                                query.toLowerCase().split("\\s+");
 
                         final Filter<String> filter;
                         if (query.isEmpty()) {
@@ -120,7 +121,7 @@ public class TesseractFrame extends JFrame {
                                 @Override
                                 public boolean accept(String item) {
                                     for (String term : terms) {
-                                        if (!item.contains(term)) {
+                                        if (!item.toLowerCase().contains(term)) {
                                             return false;
                                         }
                                     }
@@ -339,7 +340,7 @@ public class TesseractFrame extends JFrame {
         return exportPane;
     }
 
-    public JProgressBar getPageLoadProgressBar() {
+    public JProgressBar getProgressBar() {
         return pbLoadPage;
     }
 
