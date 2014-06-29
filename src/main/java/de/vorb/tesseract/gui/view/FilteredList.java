@@ -34,7 +34,8 @@ public class FilteredList<T> extends JPanel {
 
         add(scrollPane, BorderLayout.CENTER);
 
-        list = new JList<T>(new DefaultListModel<T>());
+        list = new JList<T>(
+                new FilteredListModel<T>(new DefaultListModel<T>()));
         scrollPane.setViewportView(list);
 
         filterField = new SearchField();
@@ -82,5 +83,10 @@ public class FilteredList<T> extends JPanel {
 
     public JTextField getTextField() {
         return filterField.getTextField();
+    }
+
+    public DefaultListModel<T> getListModel() {
+        return (DefaultListModel<T>) ((FilteredListModel<T>) getList()
+                .getModel()).getSource();
     }
 }

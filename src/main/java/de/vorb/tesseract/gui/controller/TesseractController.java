@@ -136,8 +136,7 @@ public class TesseractController extends WindowAdapter implements
         final Result projectConfig = result.get();
 
         final DefaultListModel<PageThumbnail> pages =
-                (DefaultListModel<PageThumbnail>) view.getPageList()
-                        .getList().getModel();
+                view.getPageList().getListModel();
 
         final PageListLoader pageListLoader =
                 new PageListLoader(projectConfig, pages);

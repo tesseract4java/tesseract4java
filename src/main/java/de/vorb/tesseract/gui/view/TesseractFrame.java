@@ -71,7 +71,7 @@ public class TesseractFrame extends JFrame {
 
         listPages = new FilteredList<PageThumbnail>(
                 new FilterProvider<PageThumbnail>() {
-                    public Optional<Filter<PageThumbnail>> getFilter(
+                    public Optional<Filter<PageThumbnail>> getFilterFor(
                             String query) {
                         final String[] terms = query.split("\\s+");
 
@@ -107,7 +107,7 @@ public class TesseractFrame extends JFrame {
         // filtered string list
         listTrainingFiles =
                 new FilteredList<String>(new FilterProvider<String>() {
-                    public Optional<Filter<String>> getFilter(String query) {
+                    public Optional<Filter<String>> getFilterFor(String query) {
                         final String[] terms = query.split("\\s+");
 
                         final Filter<String> filter;
