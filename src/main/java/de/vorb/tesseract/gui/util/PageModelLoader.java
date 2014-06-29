@@ -8,6 +8,7 @@ import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import com.google.common.base.Optional;
@@ -35,6 +36,14 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
 
     @Override
     protected PageModel doInBackground() throws Exception {
+        // set the progress bar state to indeterminate
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                controller.getView().getProgressBar().setIndeterminate(true);
+            }
+        });
+
         final PageRecognitionProducer producer =
                 controller.getPageRecognitionProducer();
 
@@ -129,5 +138,7 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
             Dialogs.showError(controller.getView(), "Error during recognition",
                     "The recognition process has been interrupted unexpectedly.");
         }
+
+        controller.getView().getProgressBar().setIndeterminate(false);
     }
 }
