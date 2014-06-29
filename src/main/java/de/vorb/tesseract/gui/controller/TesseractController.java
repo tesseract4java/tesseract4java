@@ -1,26 +1,28 @@
 package de.vorb.tesseract.gui.controller;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.DirectoryStream.Filter;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.bridj.BridJ;
 
@@ -30,7 +32,8 @@ import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
-import de.vorb.tesseract.gui.util.ThumbnailLoader;
+import de.vorb.tesseract.gui.util.PageListLoader;
+import de.vorb.tesseract.gui.util.PageRecognitionProducer;
 import de.vorb.tesseract.gui.view.NewProjectDialog;
 import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
 import de.vorb.tesseract.gui.view.TesseractFrame;
@@ -43,20 +46,29 @@ import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TrainingFiles;
 import de.vorb.tesseract.util.Word;
 
-public class TesseractController implements ActionListener {
+public class TesseractController extends WindowAdapter implements
+        ActionListener,
+        ListSelectionListener {
 
     private final TesseractFrame view;
-    private SwingWorker<PageModel, Void> pageLoaderWorker = null;
-    private PageLoader pageLoader = null;
+    private Optional<SwingWorker<PageModel, Void>> pageLoaderWorker;
+    private final PageRecognitionProducer pageRecognitionProducer;
+
+    private final Timer pageSelectionTimer = new Timer("PageSelectionTimer");
+    private Optional<TimerTask> lastPageSelection = Optional.absent();
 
     public static void main(String[] args) {
         BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
         BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
 
-        final TesseractController controller = new TesseractController();
+        try {
+            new TesseractController();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public TesseractController() {
+    public TesseractController() throws IOException {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
@@ -68,101 +80,51 @@ public class TesseractController implements ActionListener {
         // create new tesseract frame
         view = new TesseractFrame();
 
-        try {
-            pageLoader = new PageLoader("deu-frak");
+        pageRecognitionProducer = new PageRecognitionProducer("deu-frak",
+                TrainingFiles.getTessdataDir());
 
-            // init training files
-            final List<String> trainingFiles = TrainingFiles.getAvailable();
+        // init training files
+        final List<String> trainingFiles = TrainingFiles.getAvailable();
 
-            // prepare training file list model
-            final DefaultListModel<String> trainingFilesModel =
-                    new DefaultListModel<>();
-            for (String trainingFile : trainingFiles) {
-                trainingFilesModel.addElement(trainingFile);
-            }
-
-            // wrap it in a filtered model
-            view.getTrainingFiles().getList().setSelectionMode(
-                    ListSelectionModel.SINGLE_SELECTION);
-            view.getTrainingFiles().getList().setModel(
-                    new FilteredListModel<String>(trainingFilesModel));
-        } catch (Exception e) {
-            e.printStackTrace();
+        // prepare training file list model
+        final DefaultListModel<String> trainingFilesModel =
+                new DefaultListModel<>();
+        for (String trainingFile : trainingFiles) {
+            trainingFilesModel.addElement(trainingFile);
         }
+
+        // wrap it in a filtered model
+        view.getTrainingFiles().getList().setSelectionMode(
+                ListSelectionModel.SINGLE_SELECTION);
+        view.getTrainingFiles().getList().setModel(
+                new FilteredListModel<String>(trainingFilesModel));
 
         // register listeners
         view.getMenuItemNewProject().addActionListener(this);
+        view.getPageList().getList().addListSelectionListener(this);
+
+        view.addWindowListener(this);
 
         view.setVisible(true);
     }
 
-    private PageModel loadPageModel(Path scanFile) throws IOException {
-        pageLoader.reset();
-
-        final Vector<Line> lines = new Vector<Line>();
-
-        // Get images
-        final BufferedImage originalImg = ImageIO.read(scanFile.toFile());
-        final BufferedImage thresholdedImg = pageLoader.getThresholdedImage();
-
-        pageLoader.recognize(new DefaultRecognitionConsumer() {
-            private ArrayList<Word> lineWords;
-            private ArrayList<Symbol> wordSymbols;
-
-            @Override
-            public void lineBegin() {
-                lineWords = new ArrayList<>();
-            }
-
-            @Override
-            public void lineEnd() {
-                final PageIteratorLevel level = PageIteratorLevel.TEXTLINE;
-                lines.add(new Line(getState().getBoundingBox(level), lineWords,
-                        getState().getBaseline(level)));
-            }
-
-            @Override
-            public void wordBegin() {
-                wordSymbols = new ArrayList<>();
-            }
-
-            @Override
-            public void wordEnd() {
-                final RecognitionState state = getState();
-                final PageIteratorLevel level = PageIteratorLevel.WORD;
-                final Box bbox = state.getBoundingBox(level);
-                lineWords.add(new Word(wordSymbols, bbox,
-                        state.getConfidence(level),
-                        state.getBaseline(PageIteratorLevel.WORD),
-                        state.getWordFontAttributes()));
-            }
-
-            @Override
-            public void symbol() {
-                final PageIteratorLevel level = PageIteratorLevel.SYMBOL;
-                wordSymbols.add(new Symbol(getState().getText(level),
-                        getState().getBoundingBox(level),
-                        getState().getConfidence(level)));
-            }
-        });
-
-        final Page page = new Page(scanFile, originalImg.getWidth(),
-                originalImg.getHeight(), 300, lines);
-
-        // try {
-        // page.writeTo(System.out);
-        // } catch (JAXBException e) {
-        // e.printStackTrace();
-        // }
-
-        return null;
+    public PageRecognitionProducer getPageRecognitionProducer() {
+        return pageRecognitionProducer;
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        final Object source = e.getSource();
+    public void actionPerformed(ActionEvent evt) {
+        final Object source = evt.getSource();
         if (source.equals(view.getMenuItemNewProject())) {
             handleNewProject();
+        }
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent evt) {
+        final Object source = evt.getSource();
+        if (source.equals(view.getPageList().getList())) {
+            handlePageSelection();
         }
     }
 
@@ -179,9 +141,51 @@ public class TesseractController implements ActionListener {
                 (DefaultListModel<PageThumbnail>) view.getPageList()
                         .getList().getModel();
 
-        final ThumbnailLoader thumbnailLoader = new ThumbnailLoader(
-                projectConfig, pages);
+        final PageListLoader pageListLoader =
+                new PageListLoader(projectConfig, pages);
 
-        thumbnailLoader.execute();
+        pageListLoader.execute();
+    }
+
+    private void handlePageSelection() {
+        final PageThumbnail pt =
+                view.getPageList().getList().getSelectedValue();
+
+        // cancel the last page load if it is present
+        if (lastPageSelection.isPresent()) {
+            lastPageSelection.get().cancel();
+        }
+
+        // new task
+        final TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    final BufferedImage image =
+                            ImageIO.read(pt.getFile().toFile());
+
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            view.getBoxEditor().getImage().setIcon(
+                                    new ImageIcon(image));
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        // run the page loader with a delay of 1 second
+        pageSelectionTimer.schedule(task, 1000);
+
+        // set as new timer task
+        lastPageSelection = Optional.of(task);
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+        pageSelectionTimer.cancel();
     }
 }
