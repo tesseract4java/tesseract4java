@@ -56,8 +56,11 @@ public class TrainingFiles {
      *             if the directory does not exist or cannot be read
      */
     public static List<String> getAvailable() throws IOException {
+        return getAvailable(getTessdataDir());
+    }
+
+    public static Path getTessdataDir() {
         final String tessdataPrefix = System.getenv("TESSDATA_PREFIX");
-        final Path tessdataDir = Paths.get(tessdataPrefix).resolve("tessdata");
-        return getAvailable(tessdataDir);
+        return Paths.get(tessdataPrefix).resolve("tessdata");
     }
 }
