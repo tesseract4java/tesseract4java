@@ -25,7 +25,6 @@ import javax.swing.table.TableColumnModel;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.event.SelectionListener;
-import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.SingleSelectionModel;
 import de.vorb.tesseract.gui.model.SymbolTableModel;
@@ -108,41 +107,43 @@ public class BoxEditor extends JPanel implements MainComponent {
     public BoxEditor() {
         setLayout(new BorderLayout(0, 0));
 
-        final FilteredListModel<Symbol> filteredListModel =
-                new FilteredListModel<Symbol>(new DefaultListModel<Symbol>());
         // create table first, so it can be used by the property change listener
-        tabSymbols = new FilteredTable<Symbol>(new FilterProvider<Symbol>() {
-            @Override
-            public Optional<Filter<Symbol>> getFilterFor(String filterText) {
-                final Filter<Symbol> filter;
+        tabSymbols = new FilteredTable<Symbol>(new SymbolTableModel(),
+                new FilterProvider<Symbol>() {
+                    @Override
+                    public Optional<Filter<Symbol>> getFilterFor(
+                            String filterText) {
+                        final Filter<Symbol> filter;
 
-                if (filterText.isEmpty()) {
-                    filter = null;
-                } else {
-                    // split filter text into terms
-                    final String[] terms = filterText.split("\\s+");
+                        if (filterText.isEmpty()) {
+                            filter = null;
+                        } else {
+                            // split filter text into terms
+                            final String[] terms = filterText.split("\\s+");
 
-                    filter = new Filter<Symbol>() {
-                        @Override
-                        public boolean accept(Symbol item) {
-                            // accept if at least one term is contained
-                            final String symbolText = item.getText();
-                            for (String term : terms) {
-                                if (symbolText.contains(term))
-                                    return true;
-                            }
-                            return false;
+                            filter = new Filter<Symbol>() {
+                                @Override
+                                public boolean accept(Symbol item) {
+                                    // accept if at least one term is contained
+                                    final String symbolText =
+                                            item.getText().toLowerCase();
+
+                                    for (String term : terms) {
+                                        if (symbolText.contains(
+                                                term.toLowerCase()))
+                                            return true;
+                                    }
+                                    return false;
+                                }
+                            };
                         }
-                    };
-                }
 
-                return Optional.fromNullable(filter);
-            }
-        });
+                        return Optional.fromNullable(filter);
+                    }
+                });
 
         final JTable table = tabSymbols.getTable();
         table.setFillsViewportHeight(true);
-        table.setModel(new SymbolTableModel(filteredListModel));
 
         {
             // set column widths

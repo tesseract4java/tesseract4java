@@ -1,14 +1,14 @@
 package de.vorb.tesseract.gui.model;
 
-import java.util.Iterator;
+import javax.swing.DefaultListModel;
 
 import de.vorb.tesseract.util.Symbol;
 
 public class SymbolTableModel extends FilteredTableModel<Symbol> {
     private static final long serialVersionUID = 1L;
 
-    public SymbolTableModel(FilteredListModel<Symbol> source) {
-        super(source);
+    public SymbolTableModel() {
+        super(new FilteredListModel<Symbol>(new DefaultListModel<Symbol>()));
     }
 
     @Override

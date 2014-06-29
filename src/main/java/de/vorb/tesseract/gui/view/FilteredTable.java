@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.SystemColor;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -24,7 +25,8 @@ public class FilteredTable<T> extends JPanel {
     /**
      * Create the panel.
      */
-    public FilteredTable(final FilterProvider<T> filterProvider) {
+    public FilteredTable(final FilteredTableModel<T> model,
+            final FilterProvider<T> filterProvider) {
         setLayout(new BorderLayout(0, 0));
 
         JScrollPane scrollPane = new JScrollPane();
@@ -33,7 +35,7 @@ public class FilteredTable<T> extends JPanel {
 
         add(scrollPane, BorderLayout.CENTER);
 
-        table = new JTable();
+        table = new JTable(model);
         table.setFillsViewportHeight(true);
         scrollPane.setViewportView(table);
 
@@ -83,5 +85,9 @@ public class FilteredTable<T> extends JPanel {
 
     public JTextField getTextField() {
         return filterField.getTextField();
+    }
+
+    public DefaultListModel<T> getListModel() {
+        return null;
     }
 }
