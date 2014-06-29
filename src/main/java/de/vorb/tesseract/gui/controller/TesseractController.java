@@ -65,6 +65,12 @@ public class TesseractController extends WindowAdapter implements
         pageRecognitionProducer = new PageRecognitionProducer("deu-frak",
                 TrainingFiles.getTessdataDir());
 
+        try {
+            pageRecognitionProducer.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         // register listeners
         view.getMenuItemNewProject().addActionListener(this);
         view.getPageList().getList().addListSelectionListener(this);
