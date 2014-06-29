@@ -14,9 +14,9 @@ import java.util.TimerTask;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
+import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -26,10 +26,10 @@ import org.bridj.BridJ;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.model.FilteredListModel;
-import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.util.PageListLoader;
 import de.vorb.tesseract.gui.util.PageRecognitionProducer;
+import de.vorb.tesseract.gui.view.Dialogs;
 import de.vorb.tesseract.gui.view.NewProjectDialog;
 import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
 import de.vorb.tesseract.gui.view.TesseractFrame;
@@ -40,7 +40,6 @@ public class TesseractController extends WindowAdapter implements
         ListSelectionListener {
 
     private final TesseractFrame view;
-    private Optional<SwingWorker<PageModel, Void>> pageLoaderWorker;
     private final PageRecognitionProducer pageRecognitionProducer;
 
     private final Timer pageSelectionTimer = new Timer("PageSelectionTimer");
@@ -50,14 +49,10 @@ public class TesseractController extends WindowAdapter implements
         BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
         BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
 
-        try {
-            new TesseractController();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        new TesseractController();
     }
 
-    public TesseractController() throws IOException {
+    public TesseractController() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
@@ -72,29 +67,39 @@ public class TesseractController extends WindowAdapter implements
         pageRecognitionProducer = new PageRecognitionProducer("deu-frak",
                 TrainingFiles.getTessdataDir());
 
-        // init training files
-        final List<String> trainingFiles = TrainingFiles.getAvailable();
-
-        // prepare training file list model
-        final DefaultListModel<String> trainingFilesModel =
-                new DefaultListModel<>();
-        for (String trainingFile : trainingFiles) {
-            trainingFilesModel.addElement(trainingFile);
-        }
-
-        // wrap it in a filtered model
-        view.getTrainingFiles().getList().setSelectionMode(
-                ListSelectionModel.SINGLE_SELECTION);
-        view.getTrainingFiles().getList().setModel(
-                new FilteredListModel<String>(trainingFilesModel));
-
         // register listeners
         view.getMenuItemNewProject().addActionListener(this);
         view.getPageList().getList().addListSelectionListener(this);
-
         view.addWindowListener(this);
 
         view.setVisible(true);
+
+        // init training files
+        try {
+            final List<String> trainingFiles = TrainingFiles.getAvailable();
+
+            // prepare training file list model
+            final DefaultListModel<String> trainingFilesModel =
+                    new DefaultListModel<>();
+
+            for (String trainingFile : trainingFiles) {
+                trainingFilesModel.addElement(trainingFile);
+            }
+
+            final JList<String> trainingFilesList =
+                    view.getTrainingFiles().getList();
+
+            // wrap it in a filtered model
+            trainingFilesList.setSelectionMode(
+                    ListSelectionModel.SINGLE_SELECTION);
+            trainingFilesList.setModel(
+                    new FilteredListModel<String>(trainingFilesModel));
+
+            trainingFilesList.setSelectedValue("eng", true);
+        } catch (IOException e) {
+            Dialogs.showError(view, "Error",
+                    "Training files could not be found.");
+        }
     }
 
     public PageRecognitionProducer getPageRecognitionProducer() {
