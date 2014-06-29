@@ -100,6 +100,11 @@ public class SymbolRecognition extends Recognition {
             public void wordEnd() {
                 System.out.println();
             }
+
+            @Override
+            public boolean isCancelled() {
+                return false;
+            }
         });
 
         System.out.println("time: " + (System.currentTimeMillis() - start)

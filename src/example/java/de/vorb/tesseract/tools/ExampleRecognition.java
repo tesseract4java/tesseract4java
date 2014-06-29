@@ -95,6 +95,11 @@ public class ExampleRecognition extends Recognition {
             public void wordEnd() {
                 System.out.println();
             }
+
+            @Override
+            public boolean isCancelled() {
+                return false;
+            }
         });
 
         final Pointer<Pix> tmp =
@@ -140,6 +145,11 @@ public class ExampleRecognition extends Recognition {
                     @Override
                     public void wordEnd() {
                         System.out.println();
+                    }
+
+                    @Override
+                    public boolean isCancelled() {
+                        return false;
                     }
                 });
 
