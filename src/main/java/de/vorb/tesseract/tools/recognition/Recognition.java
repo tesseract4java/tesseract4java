@@ -70,6 +70,7 @@ public abstract class Recognition {
         boolean inWord = false;
 
         do {
+
             // beginning of a symbol
             if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
                     level) == LibTess.TRUE) {
@@ -90,6 +91,16 @@ public abstract class Recognition {
                             if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
                                     PageIteratorLevel.BLOCK) == LibTess.TRUE) {
                                 consumer.blockBegin();
+
+                                // handle cancellation
+                                if (consumer.isCancelled()) {
+
+                                    // end block
+                                    consumer.blockEnd();
+
+                                    // stop iteration
+                                    break;
+                                }
                             }
 
                             consumer.paragraphBegin();
