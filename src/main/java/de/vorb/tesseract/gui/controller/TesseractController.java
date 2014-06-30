@@ -7,6 +7,8 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -34,7 +36,7 @@ import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 import de.vorb.tesseract.util.TrainingFiles;
 
 public class TesseractController extends WindowAdapter implements
-        ActionListener, ListSelectionListener {
+        ActionListener, ListSelectionListener, Observer {
 
     private final TesseractFrame view;
     private final PageRecognitionProducer pageRecognitionProducer;
@@ -107,6 +109,7 @@ public class TesseractController extends WindowAdapter implements
         view.getMenuItemNewProject().addActionListener(this);
         view.getPages().getList().addListSelectionListener(this);
         view.getTrainingFiles().getList().addListSelectionListener(this);
+        view.getScale().addObserver(this);
         view.addWindowListener(this);
     }
 
@@ -209,5 +212,12 @@ public class TesseractController extends WindowAdapter implements
 
     public TesseractFrame getView() {
         return view;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o == view.getScale()) {
+            view.getScaleLabel().setText(o.toString());
+        }
     }
 }
