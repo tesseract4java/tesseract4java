@@ -195,8 +195,9 @@ public class TesseractController extends WindowAdapter implements
 
         pageRecognitionProducer.setTrainingFile(trainingFile);
 
-        if (Dialogs.ask(view, "Training file changed",
-                "Reload current page with new training file?")) {
+        if (!view.getPages().getList().isSelectionEmpty()
+                && Dialogs.ask(view, "Training file changed",
+                        "Reload current page with new training file?")) {
             handlePageSelection();
         }
     }
