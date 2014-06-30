@@ -13,15 +13,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableColumnModel;
 
 import com.google.common.base.Optional;
@@ -329,10 +326,11 @@ public class BoxEditor extends JPanel implements MainComponent {
                 if (scale.hasPrevious()) {
                     renderer.render(getPageModel(), scale.previous());
                 }
-                
+
                 if (scale.hasPrevious()) {
                     btnZoomOut.setEnabled(false);
                 }
+
                 btnZoomIn.setEnabled(true);
             }
         });
