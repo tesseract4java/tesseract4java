@@ -20,7 +20,7 @@ public class PageListCellRenderer extends JLabel implements
     private static final long serialVersionUID = 1L;
 
     private static final ImageIcon ICON_PLACEHOLDER = new ImageIcon(
-            new BufferedImage(70, 100, BufferedImage.TYPE_BYTE_BINARY));
+            PageListCellRenderer.class.getResource("/page_loading.png"));
 
     public static final Color COLOR_SELECT = new Color(0x4477FF);
 
