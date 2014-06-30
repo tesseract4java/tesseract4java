@@ -20,14 +20,22 @@ public class Scale extends Observable {
         if (!hasNext())
             throw new NoSuchElementException();
 
-        return VALUES[++cursor];
+        cursor++;
+
+        setChanged();
+
+        return VALUES[cursor];
     }
 
     public float previous() {
         if (!hasPrevious())
             throw new NoSuchElementException();
 
-        return VALUES[--cursor];
+        cursor--;
+
+        setChanged();
+
+        return VALUES[cursor];
     }
 
     public float current() {
