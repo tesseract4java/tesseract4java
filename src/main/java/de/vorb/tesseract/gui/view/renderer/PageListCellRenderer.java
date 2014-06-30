@@ -61,11 +61,7 @@ public class PageListCellRenderer extends JLabel implements
         if (opt.isPresent()) {
             final BufferedImage thumbnail = opt.get();
             final Graphics2D g2d = (Graphics2D) thumbnail.getGraphics();
-            if (isSelected) {
-                g2d.setColor(Color.BLACK);
-            } else {
-                g2d.setColor(Color.GRAY);
-            }
+            g2d.setColor(Color.BLACK);
             g2d.drawRect(0, 0, thumbnail.getWidth() - 1,
                     thumbnail.getHeight() - 1);
             g2d.dispose();
