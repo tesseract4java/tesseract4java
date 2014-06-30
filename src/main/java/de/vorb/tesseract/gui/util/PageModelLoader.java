@@ -28,10 +28,13 @@ import de.vorb.tesseract.util.Word;
 public class PageModelLoader extends SwingWorker<PageModel, Void> {
     private final TesseractController controller;
     private final Path imageFile;
+    private final String trainingFile;
 
-    public PageModelLoader(TesseractController controller, Path imageFile) {
+    public PageModelLoader(TesseractController controller, Path imageFile,
+            String trainingFile) {
         this.controller = controller;
         this.imageFile = imageFile;
+        this.trainingFile = trainingFile;
     }
 
     @Override
@@ -46,6 +49,10 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
 
         final PageRecognitionProducer producer =
                 controller.getPageRecognitionProducer();
+
+        if (trainingFile != null) {
+            producer.setLanguage(trainingFile);
+        }
 
         producer.reset();
 

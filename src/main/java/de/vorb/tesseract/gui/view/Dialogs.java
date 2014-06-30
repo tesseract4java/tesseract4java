@@ -22,4 +22,11 @@ public class Dialogs {
         JOptionPane.showMessageDialog(parent, message, title,
                 JOptionPane.ERROR_MESSAGE);
     }
+
+    public static boolean ask(Component parent, String title, String question) {
+        int result = JOptionPane.showConfirmDialog(parent, question, title,
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+        return result == JOptionPane.OK_OPTION;
+    }
 }

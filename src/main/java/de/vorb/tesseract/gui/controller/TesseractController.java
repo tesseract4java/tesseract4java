@@ -39,6 +39,8 @@ public class TesseractController extends WindowAdapter implements
     private final PageRecognitionProducer pageRecognitionProducer;
     private Optional<PageModelLoader> pageModelLoader = Optional.absent();
 
+    private static final String DEFAULT_TRAINING_FILE = "eng";
+
     private final Timer pageSelectionTimer = new Timer("PageSelectionTimer");
     private Optional<TimerTask> lastPageSelection = Optional.absent();
 
@@ -61,20 +63,6 @@ public class TesseractController extends WindowAdapter implements
 
         // create new tesseract frame
         view = new TesseractFrame();
-
-        pageRecognitionProducer = new PageRecognitionProducer("deu-frak",
-                TrainingFiles.getTessdataDir());
-
-        try {
-            pageRecognitionProducer.init();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // register listeners
-        view.getMenuItemNewProject().addActionListener(this);
-        view.getPageList().getList().addListSelectionListener(this);
-        view.addWindowListener(this);
 
         view.setVisible(true);
 
@@ -99,11 +87,26 @@ public class TesseractController extends WindowAdapter implements
             trainingFilesList.setModel(
                     new FilteredListModel<String>(trainingFilesModel));
 
-            trainingFilesList.setSelectedValue("eng", true);
+            trainingFilesList.setSelectedValue(DEFAULT_TRAINING_FILE, true);
         } catch (IOException e) {
             Dialogs.showError(view, "Error",
                     "Training files could not be found.");
         }
+
+        pageRecognitionProducer = new PageRecognitionProducer(
+                DEFAULT_TRAINING_FILE, TrainingFiles.getTessdataDir());
+
+        try {
+            pageRecognitionProducer.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // register listeners
+        view.getMenuItemNewProject().addActionListener(this);
+        view.getPageList().getList().addListSelectionListener(this);
+        view.getTrainingFiles().getList().addListSelectionListener(this);
+        view.addWindowListener(this);
     }
 
     public PageRecognitionProducer getPageRecognitionProducer() {
@@ -123,6 +126,8 @@ public class TesseractController extends WindowAdapter implements
         final Object source = evt.getSource();
         if (source.equals(view.getPageList().getList())) {
             handlePageSelection();
+        } else if (source.equals(view.getTrainingFiles().getList())) {
+            handleTrainingFileSelection();
         }
     }
 
@@ -147,6 +152,8 @@ public class TesseractController extends WindowAdapter implements
     private void handlePageSelection() {
         final PageThumbnail pt =
                 view.getPageList().getList().getSelectedValue();
+        final String trainingFile =
+                view.getTrainingFiles().getList().getSelectedValue();
 
         // cancel the last page load if it is present
         if (lastPageSelection.isPresent()) {
@@ -164,7 +171,7 @@ public class TesseractController extends WindowAdapter implements
 
                 // create swingworker to load model
                 final PageModelLoader pml = new PageModelLoader(
-                        TesseractController.this, pt.getFile());
+                        TesseractController.this, pt.getFile(), trainingFile);
 
                 // save reference
                 pageModelLoader = Optional.of(pml);
@@ -179,6 +186,18 @@ public class TesseractController extends WindowAdapter implements
 
         // set as new timer task
         lastPageSelection = Optional.of(task);
+    }
+
+    private void handleTrainingFileSelection() {
+        final String trainingFile =
+                view.getTrainingFiles().getList().getSelectedValue();
+
+        pageRecognitionProducer.setLanguage(trainingFile);
+
+        if (Dialogs.ask(view, "Training file changed",
+                "Reload current page with new training file?")) {
+            handlePageSelection();
+        }
     }
 
     @Override
