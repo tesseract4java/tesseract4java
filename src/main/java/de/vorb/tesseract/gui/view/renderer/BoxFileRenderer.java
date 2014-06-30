@@ -88,7 +88,7 @@ public class BoxFileRenderer implements PageRenderer {
                 g2d.setStroke(Strokes.NORMAL);
 
                 // draw the scaled image
-                g2d.drawImage(image, 0, 0, scaledW - 1, scaledH - 1, 0, 0,
+                g2d.drawImage(image, 0, 0, scaledW, scaledH, 0, 0,
                         w - 1, h - 1, null);
 
                 for (final Symbol symbol : symbols) {
