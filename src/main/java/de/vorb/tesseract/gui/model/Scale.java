@@ -22,7 +22,7 @@ public class Scale extends Observable {
 
         cursor++;
 
-        setChanged();
+        changed();
 
         return VALUES[cursor];
     }
@@ -33,13 +33,19 @@ public class Scale extends Observable {
 
         cursor--;
 
-        setChanged();
+        changed();
 
         return VALUES[cursor];
     }
 
     public float current() {
         return VALUES[cursor];
+    }
+
+    private void changed() {
+        setChanged();
+        notifyObservers();
+        clearChanged();
     }
 
     @Override
@@ -70,9 +76,6 @@ public class Scale extends Observable {
             break;
         case 7:
             result = "200%";
-            break;
-        case 8:
-            result = "400%";
             break;
         default:
             throw new RuntimeException("illegal scale state");
