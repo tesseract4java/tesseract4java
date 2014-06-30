@@ -105,7 +105,7 @@ public class TesseractController extends WindowAdapter implements
 
         // register listeners
         view.getMenuItemNewProject().addActionListener(this);
-        view.getPageList().getList().addListSelectionListener(this);
+        view.getPages().getList().addListSelectionListener(this);
         view.getTrainingFiles().getList().addListSelectionListener(this);
         view.addWindowListener(this);
     }
@@ -125,7 +125,7 @@ public class TesseractController extends WindowAdapter implements
     @Override
     public void valueChanged(ListSelectionEvent evt) {
         final Object source = evt.getSource();
-        if (source.equals(view.getPageList().getList())) {
+        if (source.equals(view.getPages().getList())) {
             handlePageSelection();
         } else if (source.equals(view.getTrainingFiles().getList())) {
             handleTrainingFileSelection();
@@ -142,7 +142,7 @@ public class TesseractController extends WindowAdapter implements
         final Result projectConfig = result.get();
 
         final DefaultListModel<PageThumbnail> pages =
-                view.getPageList().getListModel();
+                view.getPages().getListModel();
 
         final PageListLoader pageListLoader =
                 new PageListLoader(projectConfig, pages);
@@ -152,7 +152,7 @@ public class TesseractController extends WindowAdapter implements
 
     private void handlePageSelection() {
         final PageThumbnail pt =
-                view.getPageList().getList().getSelectedValue();
+                view.getPages().getList().getSelectedValue();
         final String trainingFile =
                 view.getTrainingFiles().getList().getSelectedValue();
 

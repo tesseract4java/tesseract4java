@@ -320,7 +320,7 @@ public class TesseractFrame extends JFrame {
         }
     }
 
-    public FilteredList<PageThumbnail> getPageList() {
+    public FilteredList<PageThumbnail> getPages() {
         return listPages;
     }
 
