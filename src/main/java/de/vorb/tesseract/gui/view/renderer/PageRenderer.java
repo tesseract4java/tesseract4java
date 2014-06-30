@@ -1,8 +1,8 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import java.awt.image.BufferedImage;
+import com.google.common.base.Optional;
 
-import de.vorb.tesseract.util.Page;
+import de.vorb.tesseract.gui.model.PageModel;
 
 /**
  * Page renderer.
@@ -15,12 +15,10 @@ public interface PageRenderer {
      * 
      * Renders the information of a page on an optionally given background.
      * 
-     * @param page
+     * @param pageModel
      *            page model to render
-     * @param pageBackground
-     *            background image to render below (may also be null)
      * @param scale
      *            scaling factor
      */
-    public void render(Page page, BufferedImage pageBackground, float scale);
+    public void render(final Optional<PageModel> pageModel, final float scale);
 }

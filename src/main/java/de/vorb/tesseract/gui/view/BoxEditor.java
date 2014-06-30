@@ -43,7 +43,7 @@ public class BoxEditor extends JPanel implements MainComponent {
     private final SingleSelectionModel selectionModel =
             new SingleSelectionModel();
     private final FilteredTable<Symbol> tabSymbols;
-    private final JLabel lblImage;
+    private final JLabel lblCanvas;
 
     private static final Dimension DEFAULT_SPINNER_DIMENSION =
             new Dimension(50, 20);
@@ -85,8 +85,7 @@ public class BoxEditor extends JPanel implements MainComponent {
                         currentSymbol.setBoundingBox(newBBox);
 
                         // re-render the whole model
-                        // renderer.render(getModel().getPage(),
-                        // getModel().getImageFile(), 1f);
+                        renderer.render(getPageModel(), 1f);
                     }
 
                     final JTable table = tabSymbols.getTable();
@@ -311,8 +310,8 @@ public class BoxEditor extends JPanel implements MainComponent {
         JScrollPane scrollPane = new JScrollPane();
         splitMain.setRightComponent(scrollPane);
 
-        lblImage = new JLabel("");
-        scrollPane.setViewportView(lblImage);
+        lblCanvas = new JLabel("");
+        scrollPane.setViewportView(lblCanvas);
 
         contextMenu = new JPopupMenu("Box operations");
         contextMenu.add(new JMenuItem("Split box"));
@@ -320,7 +319,7 @@ public class BoxEditor extends JPanel implements MainComponent {
         contextMenu.add(new JMenuItem("Merge with previous box"));
         contextMenu.add(new JMenuItem("Merge with next box"));
 
-        lblImage.addMouseListener(new MouseAdapter() {
+        lblCanvas.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 clicked(e);
             }
@@ -365,9 +364,7 @@ public class BoxEditor extends JPanel implements MainComponent {
                     contextMenu.show(e.getComponent(), e.getX(), e.getY());
                 }
 
-                // renderer.render(model.getPage(),
-                // model.getBlackAndWhiteImage(),
-                // scale);
+                renderer.render(model, scale);
             }
         });
 
@@ -401,7 +398,8 @@ public class BoxEditor extends JPanel implements MainComponent {
             }
         });
 
-        renderer = new BoxFileRenderer(lblImage, selectionModel);
+        // create the box file renderer
+        renderer = new BoxFileRenderer(this);
     }
 
     @Override
@@ -420,15 +418,14 @@ public class BoxEditor extends JPanel implements MainComponent {
             return;
         } else {
             // fill table model and render the page
-
-            // renderer.render(model.getPage(), model.getBlackAndWhiteImage(),
-            // 1f);
             final Iterator<Symbol> it =
                     Iterators.symbolIterator(model.get().getPage());
 
             while (it.hasNext()) {
                 source.addElement(it.next());
             }
+
+            renderer.render(model, 1f);
         }
     }
 
@@ -437,8 +434,12 @@ public class BoxEditor extends JPanel implements MainComponent {
         return model;
     }
 
-    public JLabel getImage() {
-        return lblImage;
+    public JLabel getCanvas() {
+        return lblCanvas;
+    }
+
+    public FilteredTable<Symbol> getSymbols() {
+        return tabSymbols;
     }
 
     @Override

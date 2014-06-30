@@ -4,11 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.SystemColor;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableModel;
@@ -87,7 +87,8 @@ public class FilteredTable<T> extends JPanel {
         return filterField.getTextField();
     }
 
-    public DefaultListModel<T> getListModel() {
-        return null;
+    @SuppressWarnings("unchecked")
+    public ListModel<T> getListModel() {
+        return ((FilteredTableModel<T>) table.getModel()).getSource();
     }
 }
