@@ -5,7 +5,7 @@ import java.util.Observable;
 
 public class Scale extends Observable {
     private static final float[] VALUES =
-            new float[] { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.75f, 1f, 1.5f, 2f };
+            new float[] { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.75f, 1f, 2f };
     private int cursor = 6;
 
     public boolean hasNext() {
@@ -73,9 +73,6 @@ public class Scale extends Observable {
             break;
         case 6:
             result = "100%";
-            break;
-        case 7:
-            result = "150%";
             break;
         case 8:
             result = "200%";
