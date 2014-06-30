@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import static de.vorb.tesseract.gui.view.Coordinates.scaled;
+import static de.vorb.tesseract.gui.model.Scale.scaled;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -111,6 +111,9 @@ public class BoxFileRenderer implements PageRenderer {
                 } catch (InterruptedException | ExecutionException
                         | CancellationException e) {
                     // ignore interrupts of any kind, those are intended
+                } finally {
+                    image.flush();
+                    System.gc();
                 }
             }
         };

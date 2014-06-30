@@ -3,6 +3,8 @@ package de.vorb.tesseract.gui.model;
 import java.util.NoSuchElementException;
 import java.util.Observable;
 
+import org.omg.CORBA.Current;
+
 public class Scale extends Observable {
     private static final float[] VALUES =
             new float[] { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.75f, 1f, 2f };
@@ -82,5 +84,13 @@ public class Scale extends Observable {
         }
 
         return result;
+    }
+
+    public static int scaled(int coord, float scale) {
+        return Math.round(coord * scale);
+    }
+
+    public static int unscaled(int coord, float scale) {
+        return Math.round(coord / scale);
     }
 }

@@ -1,7 +1,7 @@
 package de.vorb.tesseract.gui.view;
 
-import static de.vorb.tesseract.gui.view.Coordinates.scaled;
-import static de.vorb.tesseract.gui.view.Coordinates.unscaled;
+import static de.vorb.tesseract.gui.model.Scale.scaled;
+import static de.vorb.tesseract.gui.model.Scale.unscaled;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

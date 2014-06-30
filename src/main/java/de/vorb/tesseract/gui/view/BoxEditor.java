@@ -1,6 +1,7 @@
 package de.vorb.tesseract.gui.view;
 
-import static de.vorb.tesseract.gui.view.Coordinates.unscaled;
+import static de.vorb.tesseract.gui.model.Scale.scaled;
+import static de.vorb.tesseract.gui.model.Scale.unscaled;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -20,6 +21,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
+
+import org.eclipse.swt.graphics.Rectangle;
 
 import com.google.common.base.Optional;
 
@@ -175,13 +178,12 @@ public class BoxEditor extends JPanel implements MainComponent {
                         final int selectedRow = table.getSelectedRow();
                         selectionModel.setSelectedIndex(selectedRow);
 
-                        // TODO scroll to symbol. respect scale.
-                        // final Box bbox =
-                        // getSelectedSymbol().get().getBoundingBox();
-                        //
-                        // lblCanvas.scrollRectToVisible(bbox.toRectangle());
+                        final Box bbox =
+                                getSelectedSymbol().get().getBoundingBox();
 
-                        renderer.render(model, getScale());
+                        lblCanvas.scrollRectToVisible(bbox.toRectangle());
+
+                        renderer.render(model, scale.current());
                     }
                 });
 
@@ -382,10 +384,8 @@ public class BoxEditor extends JPanel implements MainComponent {
                     return;
                 }
 
-                final float scale = getScale();
-
-                final Point p = new Point(unscaled(e.getX(), scale), unscaled(
-                        e.getY(), scale));
+                final Point p = new Point(unscaled(e.getX(), scale.current()),
+                        unscaled(e.getY(), scale.current()));
 
                 final Iterator<Symbol> it =
                         Iterators.symbolIterator(getPageModel().get().getPage());
@@ -412,7 +412,7 @@ public class BoxEditor extends JPanel implements MainComponent {
                     contextMenu.show(e.getComponent(), e.getX(), e.getY());
                 }
 
-                renderer.render(model, scale);
+                renderer.render(model, scale.current());
             }
         });
 
@@ -470,10 +470,6 @@ public class BoxEditor extends JPanel implements MainComponent {
         }
 
         renderer.render(model, scale.current());
-    }
-
-    public float getScale() {
-        return 1f;
     }
 
     @Override
