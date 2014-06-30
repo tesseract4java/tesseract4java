@@ -43,6 +43,8 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                controller.getView().setPageModel(
+                        Optional.<PageModel> absent());
                 controller.getView().getProgressBar().setIndeterminate(true);
             }
         });
@@ -133,8 +135,7 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
                 message = "The page could not be recognized";
             }
 
-            final Optional<PageModel> none = Optional.absent();
-            controller.getView().setPageModel(none);
+            controller.getView().setPageModel(Optional.<PageModel> absent());
 
             Dialogs.showError(controller.getView(), "Error during recognition",
                     message);
