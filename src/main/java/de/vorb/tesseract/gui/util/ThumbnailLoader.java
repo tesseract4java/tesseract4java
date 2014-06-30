@@ -1,7 +1,6 @@
 package de.vorb.tesseract.gui.util;
 
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -98,28 +97,18 @@ public class ThumbnailLoader extends
         }
 
         final ImageReader reader = readers.next();
-
-        final ImageReadParam params = reader.getDefaultReadParam();
         reader.setInput(iis);
 
-        final Dimension d1 = new Dimension(reader.getWidth(0),
-                reader.getHeight(0));
+        final int w1 = reader.getWidth(0);
+        final int h1 = reader.getHeight(0);
+
         // calculate width according to aspect ratio
-        final int width = (int) (100d / d1.getHeight()
-                * d1.getWidth());
+        final int w2 = (int) (100d / h1 * w1);
+        final int h2 = 100;
 
-        final Dimension d2 = new Dimension(width, 100);
-
-        final int subsampling;
-        if (d1.getWidth() > d2.getWidth()) {
-            subsampling = (int) Math.round(d1.getWidth() / d2.getWidth());
-        } else if (d1.getHeight() > d2.getHeight()) {
-            subsampling = (int) Math.round(d1.getHeight() / d2.getHeight());
-        } else {
-            subsampling = 1;
-        }
-
-        params.setSourceSubsampling(subsampling, subsampling, 0, 0);
+        final ImageReadParam params = reader.getDefaultReadParam();
+        params.setSourceSubsampling(Math.max(w1 / w2, 1), Math.max(h1 / h2, 1),
+                0, 0);
 
         // no progress listener for the moment
         reader.addIIOReadProgressListener(null);
