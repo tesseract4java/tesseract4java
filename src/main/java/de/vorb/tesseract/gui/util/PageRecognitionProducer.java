@@ -18,8 +18,8 @@ public class PageRecognitionProducer extends RecognitionProducer {
     private final Path tessdataDir;
     private Optional<Pointer<Pix>> lastPix = Optional.absent();
 
-    public PageRecognitionProducer(String initialLanguage, Path tessdataDir) {
-        super(initialLanguage);
+    public PageRecognitionProducer(Path tessdataDir, String trainingFile) {
+        super(trainingFile);
 
         this.tessdataDir = tessdataDir;
     }
@@ -36,7 +36,7 @@ public class PageRecognitionProducer extends RecognitionProducer {
         // init LibTess with data path, language and OCR engine mode
         LibTess.TessBaseAPIInit2(getHandle(),
                 Pointer.pointerToCString(tessdataDir.toString()),
-                Pointer.pointerToCString(getLanguage()),
+                Pointer.pointerToCString(getTrainingFile()),
                 OCREngineMode.DEFAULT);
 
         // set page segmentation mode

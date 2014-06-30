@@ -51,7 +51,7 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
                 controller.getPageRecognitionProducer();
 
         if (trainingFile != null) {
-            producer.setLanguage(trainingFile);
+            producer.setTrainingFile(trainingFile);
         }
 
         producer.reset();

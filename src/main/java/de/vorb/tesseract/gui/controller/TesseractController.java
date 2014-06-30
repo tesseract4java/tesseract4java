@@ -30,6 +30,7 @@ import de.vorb.tesseract.gui.view.Dialogs;
 import de.vorb.tesseract.gui.view.NewProjectDialog;
 import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
 import de.vorb.tesseract.gui.view.TesseractFrame;
+import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 import de.vorb.tesseract.util.TrainingFiles;
 
 public class TesseractController extends WindowAdapter implements
@@ -38,8 +39,6 @@ public class TesseractController extends WindowAdapter implements
     private final TesseractFrame view;
     private final PageRecognitionProducer pageRecognitionProducer;
     private Optional<PageModelLoader> pageModelLoader = Optional.absent();
-
-    private static final String DEFAULT_TRAINING_FILE = "eng";
 
     private final Timer pageSelectionTimer = new Timer("PageSelectionTimer");
     private Optional<TimerTask> lastPageSelection = Optional.absent();
@@ -87,14 +86,16 @@ public class TesseractController extends WindowAdapter implements
             trainingFilesList.setModel(
                     new FilteredListModel<String>(trainingFilesModel));
 
-            trainingFilesList.setSelectedValue(DEFAULT_TRAINING_FILE, true);
+            trainingFilesList.setSelectedValue(
+                    RecognitionProducer.DEFAULT_TRAINING_FILE, true);
         } catch (IOException e) {
             Dialogs.showError(view, "Error",
                     "Training files could not be found.");
         }
 
         pageRecognitionProducer = new PageRecognitionProducer(
-                DEFAULT_TRAINING_FILE, TrainingFiles.getTessdataDir());
+                TrainingFiles.getTessdataDir(),
+                RecognitionProducer.DEFAULT_TRAINING_FILE);
 
         try {
             pageRecognitionProducer.init();
@@ -192,7 +193,7 @@ public class TesseractController extends WindowAdapter implements
         final String trainingFile =
                 view.getTrainingFiles().getList().getSelectedValue();
 
-        pageRecognitionProducer.setLanguage(trainingFile);
+        pageRecognitionProducer.setTrainingFile(trainingFile);
 
         if (Dialogs.ask(view, "Training file changed",
                 "Reload current page with new training file?")) {
