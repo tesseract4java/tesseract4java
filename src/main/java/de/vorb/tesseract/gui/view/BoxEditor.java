@@ -327,11 +327,25 @@ public class BoxEditor extends JPanel implements MainComponent {
                     renderer.render(getPageModel(), scale.previous());
                 }
 
-                if (scale.hasPrevious()) {
+                if (!scale.hasPrevious()) {
                     btnZoomOut.setEnabled(false);
                 }
 
                 btnZoomIn.setEnabled(true);
+            }
+        });
+
+        btnZoomIn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                if (scale.hasNext()) {
+                    renderer.render(getPageModel(), scale.next());
+                }
+
+                if (!scale.hasNext()) {
+                    btnZoomIn.setEnabled(false);
+                }
+
+                btnZoomOut.setEnabled(true);
             }
         });
 
