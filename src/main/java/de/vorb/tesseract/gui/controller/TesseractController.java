@@ -47,6 +47,8 @@ public class TesseractController extends WindowAdapter implements
     private final Timer pageSelectionTimer = new Timer("PageSelectionTimer");
     private Optional<TimerTask> lastPageSelection = Optional.absent();
 
+    private String lastTrainingFile;
+
     public static void main(String[] args) {
         BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
         BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
@@ -90,10 +92,10 @@ public class TesseractController extends WindowAdapter implements
             trainingFilesList.setModel(
                     new FilteredListModel<String>(trainingFilesModel));
 
-            final String trainingFile = GlobalPrefs.getPrefs().get(
+            lastTrainingFile = GlobalPrefs.getPrefs().get(
                     TRAINING_FILE, RecognitionProducer.DEFAULT_TRAINING_FILE);
 
-            trainingFilesList.setSelectedValue(trainingFile, true);
+            trainingFilesList.setSelectedValue(lastTrainingFile, true);
         } catch (IOException e) {
             Dialogs.showError(view, "Error",
                     "Training files could not be found.");
@@ -204,7 +206,9 @@ public class TesseractController extends WindowAdapter implements
 
         pageRecognitionProducer.setTrainingFile(trainingFile);
 
+        // if the training file has changed, ask to reload the page
         if (!view.getPages().getList().isSelectionEmpty()
+                && trainingFile != lastTrainingFile
                 && Dialogs.ask(view, "Training file changed",
                         "Reload current page with new training file?")) {
             handlePageSelection();
