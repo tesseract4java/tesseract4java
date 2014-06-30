@@ -24,6 +24,7 @@ import org.bridj.BridJ;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.model.FilteredListModel;
+import de.vorb.tesseract.gui.model.GlobalPrefs;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.util.PageListLoader;
 import de.vorb.tesseract.gui.util.PageModelLoader;
@@ -37,6 +38,7 @@ import de.vorb.tesseract.util.TrainingFiles;
 
 public class TesseractController extends WindowAdapter implements
         ActionListener, ListSelectionListener, Observer {
+    private static final String TRAINING_FILE = "training_file";
 
     private final TesseractFrame view;
     private final PageRecognitionProducer pageRecognitionProducer;
@@ -88,8 +90,10 @@ public class TesseractController extends WindowAdapter implements
             trainingFilesList.setModel(
                     new FilteredListModel<String>(trainingFilesModel));
 
-            trainingFilesList.setSelectedValue(
-                    RecognitionProducer.DEFAULT_TRAINING_FILE, true);
+            final String trainingFile = GlobalPrefs.getPrefs().get(
+                    TRAINING_FILE, RecognitionProducer.DEFAULT_TRAINING_FILE);
+
+            trainingFilesList.setSelectedValue(trainingFile, true);
         } catch (IOException e) {
             Dialogs.showError(view, "Error",
                     "Training files could not be found.");
@@ -195,6 +199,8 @@ public class TesseractController extends WindowAdapter implements
     private void handleTrainingFileSelection() {
         final String trainingFile =
                 view.getTrainingFiles().getList().getSelectedValue();
+
+        GlobalPrefs.getPrefs().put(TRAINING_FILE, trainingFile);
 
         pageRecognitionProducer.setTrainingFile(trainingFile);
 
