@@ -69,15 +69,6 @@ public class Symbol {
         return bbox;
     }
 
-    /**
-     * Sets the bounding box.
-     * 
-     * @param boundingBox
-     */
-    public void setBoundingBox(Box boundingBox) {
-        bbox = boundingBox;
-    }
-
     /*
      * (non-Javadoc)
      * 
