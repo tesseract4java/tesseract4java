@@ -29,9 +29,6 @@ public class PageListLoader extends SwingWorker<Void, PageThumbnail> {
 
         pages.clear();
 
-        // run garbage collector
-        System.gc();
-
         filter = new Filter<Path>() {
             @Override
             public boolean accept(Path entry) throws IOException {
