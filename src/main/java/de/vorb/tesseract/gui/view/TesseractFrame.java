@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -19,6 +20,7 @@ import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
+import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.util.Filter;
 import de.vorb.tesseract.gui.util.FilterProvider;
 import de.vorb.tesseract.gui.util.Resources;
@@ -37,10 +39,13 @@ public class TesseractFrame extends JFrame {
     private final RecognitionPane recognitionPane;
     private final GlyphExportPane exportPane;
 
+    private final JLabel lblScaleFactor;
     private final JProgressBar pbLoadPage;
     private final JSplitPane spMain;
     private final JMenuItem mnNewProject;
     private final JTabbedPane tabsMain;
+
+    private final Scale scale;
 
     /**
      * Create the application.
@@ -63,7 +68,8 @@ public class TesseractFrame extends JFrame {
         setMinimumSize(new Dimension(1100, 680));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        boxEditor = new BoxEditor();
+        scale = new Scale();
+        boxEditor = new BoxEditor(scale);
         recognitionPane = new RecognitionPane();
         exportPane = new GlyphExportPane();
         pbLoadPage = new JProgressBar();
@@ -212,82 +218,31 @@ public class TesseractFrame extends JFrame {
         panel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(panel, BorderLayout.SOUTH);
         final GridBagLayout gbl_panel = new GridBagLayout();
-        gbl_panel.columnWidths = new int[] { 111, 84, 46, 0, 46, 417, 50, 40,
+        gbl_panel.columnWidths = new int[] { 0, 50, 417,
                 0, 0 };
         gbl_panel.rowHeights = new int[] { 14, 0 };
-        gbl_panel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
-                0.0,
-                0.0, 0.0, Double.MIN_VALUE };
+        gbl_panel.columnWeights = new double[] { 0.0, 0.0, 1.0, 0.0,
+                Double.MIN_VALUE };
         gbl_panel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
         panel.setLayout(gbl_panel);
 
-        final JLabel lblProjectOverview = new JLabel(Labels.getLabel(
-                getLocale(),
-                "project_overview"));
-        lblProjectOverview.setFont(new Font("Tahoma", Font.BOLD, 11));
-        GridBagConstraints gbc_lblProjectOverview = new GridBagConstraints();
-        gbc_lblProjectOverview.anchor = GridBagConstraints.WEST;
-        gbc_lblProjectOverview.insets = new Insets(0, 0, 0, 5);
-        gbc_lblProjectOverview.gridx = 0;
-        gbc_lblProjectOverview.gridy = 0;
-        panel.add(lblProjectOverview, gbc_lblProjectOverview);
+        JLabel lblScale = new JLabel("Scale:");
+        GridBagConstraints gbc_lblScale = new GridBagConstraints();
+        gbc_lblScale.insets = new Insets(0, 0, 0, 5);
+        gbc_lblScale.gridx = 0;
+        gbc_lblScale.gridy = 0;
+        panel.add(lblScale, gbc_lblScale);
 
-        final JLabel lblCorrectWords = new JLabel(Labels.getLabel(getLocale(),
-                "correct_words"));
-        GridBagConstraints gbc_lblCorrectWords = new GridBagConstraints();
-        gbc_lblCorrectWords.fill = GridBagConstraints.VERTICAL;
-        gbc_lblCorrectWords.insets = new Insets(0, 0, 0, 5);
-        gbc_lblCorrectWords.anchor = GridBagConstraints.EAST;
-        gbc_lblCorrectWords.gridx = 1;
-        gbc_lblCorrectWords.gridy = 0;
-        panel.add(lblCorrectWords, gbc_lblCorrectWords);
-
-        final JLabel label = new JLabel("0");
-        label.setHorizontalAlignment(SwingConstants.LEFT);
-        GridBagConstraints gbc_label = new GridBagConstraints();
-        gbc_label.insets = new Insets(0, 0, 0, 5);
-        gbc_label.anchor = GridBagConstraints.WEST;
-        gbc_label.gridx = 2;
-        gbc_label.gridy = 0;
-        panel.add(label, gbc_label);
-
-        final JLabel lblIncorrectWords = new JLabel(Labels.getLabel(
-                getLocale(),
-                "incorrect_words"));
-        GridBagConstraints gbc_lblIncorrectWords = new GridBagConstraints();
-        gbc_lblIncorrectWords.anchor = GridBagConstraints.EAST;
-        gbc_lblIncorrectWords.insets = new Insets(0, 0, 0, 5);
-        gbc_lblIncorrectWords.gridx = 3;
-        gbc_lblIncorrectWords.gridy = 0;
-        panel.add(lblIncorrectWords, gbc_lblIncorrectWords);
-
-        final JLabel label_1 = new JLabel("0");
-        GridBagConstraints gbc_label_1 = new GridBagConstraints();
-        gbc_label_1.insets = new Insets(0, 0, 0, 5);
-        gbc_label_1.anchor = GridBagConstraints.WEST;
-        gbc_label_1.gridx = 4;
-        gbc_label_1.gridy = 0;
-        panel.add(label_1, gbc_label_1);
-
-        final JLabel lblTotalWords = new JLabel(Labels.getLabel(getLocale(),
-                "total_words"));
-        GridBagConstraints gbc_lblTotalWords = new GridBagConstraints();
-        gbc_lblTotalWords.anchor = GridBagConstraints.EAST;
-        gbc_lblTotalWords.insets = new Insets(0, 0, 0, 5);
-        gbc_lblTotalWords.gridx = 6;
-        gbc_lblTotalWords.gridy = 0;
-        panel.add(lblTotalWords, gbc_lblTotalWords);
-
-        final JLabel label_2 = new JLabel("0");
-        GridBagConstraints gbc_label_2 = new GridBagConstraints();
-        gbc_label_2.insets = new Insets(0, 0, 0, 5);
-        gbc_label_2.anchor = GridBagConstraints.WEST;
-        gbc_label_2.gridx = 7;
-        gbc_label_2.gridy = 0;
-        panel.add(label_2, gbc_label_2);
+        lblScaleFactor = new JLabel(scale.toString());
+        GridBagConstraints gbc_lblScaleFactor = new GridBagConstraints();
+        gbc_lblScaleFactor.anchor = GridBagConstraints.WEST;
+        gbc_lblScaleFactor.insets = new Insets(0, 0, 0, 5);
+        gbc_lblScaleFactor.gridx = 1;
+        gbc_lblScaleFactor.gridy = 0;
+        panel.add(lblScaleFactor, gbc_lblScaleFactor);
 
         GridBagConstraints gbc_pbRegognitionProgress = new GridBagConstraints();
-        gbc_pbRegognitionProgress.gridx = 8;
+        gbc_pbRegognitionProgress.gridx = 3;
         gbc_pbRegognitionProgress.gridy = 0;
         panel.add(pbLoadPage, gbc_pbRegognitionProgress);
         getContentPane().add(spMain, BorderLayout.CENTER);
@@ -326,6 +281,14 @@ public class TesseractFrame extends JFrame {
 
     public FilteredList<String> getTrainingFiles() {
         return listTrainingFiles;
+    }
+
+    public JLabel getScaleLabel() {
+        return lblScaleFactor;
+    }
+
+    public Scale getScale() {
+        return scale;
     }
 
     public BoxEditor getBoxEditor() {
