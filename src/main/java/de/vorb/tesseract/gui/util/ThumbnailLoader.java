@@ -1,12 +1,18 @@
 package de.vorb.tesseract.gui.util;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.DefaultListModel;
 import javax.swing.SwingWorker;
 
@@ -58,25 +64,7 @@ public class ThumbnailLoader extends
                 // if the thumbnail file exists already, load it directly
                 thumb = ImageIO.read(thumbFile.toFile());
             } else {
-                // otherwise create a new thumbnail
-                final BufferedImage img =
-                        ImageIO.read(imageFile.toFile());
-
-                // calculate width according to aspect ratio
-                final int width = (int) (100d / img.getHeight()
-                        * img.getWidth());
-
-                thumb = new BufferedImage(width, 100,
-                        BufferedImage.TYPE_BYTE_GRAY);
-
-                // draw a smoothly scaled version to the thumbnail
-                final Graphics2D g2d = (Graphics2D) thumb.getGraphics();
-                g2d.drawImage(img.getScaledInstance(width, 100,
-                        BufferedImage.SCALE_SMOOTH), 0, 0, null);
-                g2d.dispose();
-
-                // release system resources used by this image
-                img.flush();
+                thumb = loadThumbnail(imageFile);
 
                 // write the thumnail to disk
                 ImageIO.write(thumb, "PNG", thumbFile.toFile());
@@ -96,5 +84,49 @@ public class ThumbnailLoader extends
         for (Chunk chunk : chunks) {
             pages.set(chunk.index, chunk.thumbnail);
         }
+    }
+
+    private BufferedImage loadThumbnail(Path imageFile) throws IOException {
+        final ImageInputStream iis =
+                ImageIO.createImageInputStream(imageFile.toFile());
+
+        final Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
+
+        if (!readers.hasNext()) {
+            throw new IOException(
+                    "No reader available for supplied image stream.");
+        }
+
+        final ImageReader reader = readers.next();
+
+        final ImageReadParam params = reader.getDefaultReadParam();
+        reader.setInput(iis);
+
+        final Dimension d1 = new Dimension(reader.getWidth(0),
+                reader.getHeight(0));
+        // calculate width according to aspect ratio
+        final int width = (int) (100d / d1.getHeight()
+                * d1.getWidth());
+
+        final Dimension d2 = new Dimension(width, 100);
+
+        final int subsampling;
+        if (d1.getWidth() > d2.getWidth()) {
+            subsampling = (int) Math.round(d1.getWidth() / d2.getWidth());
+        } else if (d1.getHeight() > d2.getHeight()) {
+            subsampling = (int) Math.round(d1.getHeight() / d2.getHeight());
+        } else {
+            subsampling = 1;
+        }
+
+        params.setSourceSubsampling(subsampling, subsampling, 0, 0);
+
+        // no progress listener for the moment
+        reader.addIIOReadProgressListener(null);
+
+        final BufferedImage resampledImage = reader.read(0, params);
+        reader.removeAllIIOReadProgressListeners();
+
+        return resampledImage;
     }
 }
