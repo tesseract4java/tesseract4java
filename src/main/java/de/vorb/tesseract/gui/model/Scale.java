@@ -76,7 +76,7 @@ public class Scale extends Observable {
         case 6:
             result = "100%";
             break;
-        case 8:
+        case 7:
             result = "200%";
             break;
         default:
