@@ -35,35 +35,6 @@ public class ThumbnailLoader extends
             this.thumbnail = thumbnail;
         }
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + index;
-            result = prime * result
-                    + ((thumbnail == null) ? 0 : thumbnail.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (!(obj instanceof Task))
-                return false;
-            Task other = (Task) obj;
-            if (index != other.index)
-                return false;
-            if (thumbnail == null) {
-                if (other.thumbnail != null)
-                    return false;
-            } else if (!thumbnail.equals(other.thumbnail))
-                return false;
-            return true;
-        }
-
         public void cancel() {
             cancelled = true;
         }
