@@ -154,6 +154,8 @@ public class RecognitionPane extends JPanel implements
 
     private final LinkedList<ComparatorSettingsChangeListener> zoomChangeListeners = new LinkedList<ComparatorSettingsChangeListener>();
 
+    private Optional<PageModel> model = Optional.absent();
+
     // private PageModel model = new PageModel(new Page(Paths.get(""), 1, 1,
     // 300,
     // new LinkedList<Line>()), new BufferedImage(1, 1,
@@ -315,7 +317,7 @@ public class RecognitionPane extends JPanel implements
         JPanel panel_1 = new JPanel();
         panel_1.setBackground(Color.WHITE);
         add(panel_1, BorderLayout.NORTH);
-        panel_1.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        panel_1.setLayout(new FlowLayout(FlowLayout.LEADING, 5, 5));
 
         cbWordBoxes = new JCheckBox("Word boxes");
         cbWordBoxes.setBackground(Color.WHITE);
@@ -399,11 +401,11 @@ public class RecognitionPane extends JPanel implements
     }
 
     public Optional<PageModel> getPageModel() {
-        return Optional.absent();
+        return model;
     }
 
     public void setPageModel(Optional<PageModel> page) {
-        // model = page;
+        model = page;
 
         settingsChanged();
     }
@@ -454,7 +456,7 @@ public class RecognitionPane extends JPanel implements
 
         final Page page = getPageModel().get().getPage();
         final List<Line> lines = page.getLines();
-        final BufferedImage normal = null;// getModel().getImageFile();
+        final BufferedImage normal = getPageModel().get().getImage();
 
         // font for line numbers
         final Font lineNumberFont = new Font("Dialog", Font.PLAIN, 12);
@@ -585,6 +587,9 @@ public class RecognitionPane extends JPanel implements
                         hocrGfx.drawRect(scX, scY, scW, scH);
                     } else if (showSymbolBoxes) {
                         for (final Symbol sym : word.getSymbols()) {
+                            if (sym.getConfidence() < 0.6)
+                                continue;
+
                             // symbol bounding box
                             final Box sbox = sym.getBoundingBox();
 
@@ -635,8 +640,7 @@ public class RecognitionPane extends JPanel implements
                     hocrGfx.setColor(Colors.TEXT);
 
                     // only draw the string
-                    hocrGfx.drawString(
-                            word.getText(), tx, ty);
+                    hocrGfx.drawString(word.getText(), tx, ty);
                 }
 
                 if (showBaselines) {

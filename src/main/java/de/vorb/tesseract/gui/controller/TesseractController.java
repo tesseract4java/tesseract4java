@@ -30,6 +30,7 @@ import org.bridj.BridJ;
 
 import com.google.common.base.Optional;
 
+import de.vorb.tesseract.gui.event.SymbolLinkListener;
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.GlobalPrefs;
 import de.vorb.tesseract.gui.model.PageThumbnail;
@@ -44,10 +45,12 @@ import de.vorb.tesseract.gui.view.NewProjectDialog;
 import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
+import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TrainingFiles;
 
 public class TesseractController extends WindowAdapter implements
-        ActionListener, ListSelectionListener, Observer, ChangeListener {
+        ActionListener, ListSelectionListener, Observer, ChangeListener,
+        SymbolLinkListener {
     private static final String TRAINING_FILE = "training_file";
 
     private final TesseractFrame view;
@@ -130,6 +133,7 @@ public class TesseractController extends WindowAdapter implements
         }
 
         // register listeners
+        view.addWindowListener(this);
         view.getMainTabs().addChangeListener(this);
         view.getMenuItemNewProject().addActionListener(this);
         view.getPages().getList().addListSelectionListener(this);
@@ -138,7 +142,7 @@ public class TesseractController extends WindowAdapter implements
         pagesViewport.addChangeListener(this);
         view.getTrainingFiles().getList().addListSelectionListener(this);
         view.getScale().addObserver(this);
-        view.addWindowListener(this);
+        view.getGlyphExportPane().addSymbolLinkListener(this);
     }
 
     public PageRecognitionProducer getPageRecognitionProducer() {
@@ -325,5 +329,21 @@ public class TesseractController extends WindowAdapter implements
                 });
             }
         }, 500);
+    }
+
+    @Override
+    public void selectedSymbol(Symbol symbol) {
+        view.getMainTabs().setSelectedComponent(view.getBoxEditor());
+
+        final ListModel<Symbol> symbols =
+                view.getBoxEditor().getSymbols().getListModel();
+        final int size = symbols.getSize();
+
+        for (int i = 0; i < size; i++) {
+            if (symbol == symbols.getElementAt(i)) {
+                view.getBoxEditor().getSymbols().getTable().setRowSelectionInterval(
+                        i, i);
+            }
+        }
     }
 }
