@@ -239,6 +239,7 @@ public class TesseractController extends WindowAdapter implements
     @Override
     public void windowClosed(WindowEvent evt) {
         pageSelectionTimer.cancel();
+        thumbnailLoadTimer.cancel();
     }
 
     public TesseractFrame getView() {
