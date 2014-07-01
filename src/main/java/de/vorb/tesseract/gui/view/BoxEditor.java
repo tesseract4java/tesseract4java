@@ -10,19 +10,21 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableColumnModel;
-
-import org.eclipse.swt.graphics.Rectangle;
 
 import com.google.common.base.Optional;
 
@@ -62,46 +64,48 @@ public class BoxEditor extends JPanel implements MainComponent {
     private final JSpinner spinnerWidth;
     private final JSpinner spinnerHeight;
 
-    // TODO listen for spinner events
-    // @Override
-    // public void propertyChange(final PropertyChangeEvent evt) {
-    // if (!evt.getPropertyName().startsWith("SPIN")) {
-    // return;
-    // }
-    //
-    // // don't do anything if no symbol is selected
-    // final Optional<Symbol> currentSymbol = view.getSelectedSymbol();
-    // if (!currentSymbol.isPresent()) {
-    // return;
-    // }
-    //
-    // final Object source = evt.getSource();
-    //
-    // // if the source is one of the JSpinners for x, y, width and
-    // // height, update the bounding box
-    // if (source instanceof JSpinner) {
-    // // get coords
-    // final int x = (int) view.getXSpinner().getValue();
-    // final int y = (int) view.getYSpinner().getValue();
-    // final int width = (int) view.getWidthSpinner().getValue();
-    // final int height = (int) view.getHeightSpinner().getValue();
-    //
-    // // update bounding box
-    // final Box bbox = currentSymbol.get().getBoundingBox();
-    // bbox.setX(x);
-    // bbox.setY(y);
-    // bbox.setWidth(width);
-    // bbox.setHeight(height);
-    //
-    // // re-render the whole model
-    // renderer.render(getPageModel(), getScale());
-    // }
-    //
-    // // propagate table change
-    // final JTable table = tabSymbols.getTable();
-    // table.tableChanged(new TableModelEvent(table.getModel(),
-    // table.getSelectedRow()));
-    // }
+    private final PropertyChangeListener spinnerListener =
+            new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (!evt.getPropertyName().startsWith("SPIN")) {
+                        return;
+                    }
+
+                    // don't do anything if no symbol is selected
+                    final Optional<Symbol> currentSymbol = getSelectedSymbol();
+                    if (!currentSymbol.isPresent()) {
+                        return;
+                    }
+
+                    final Object source = evt.getSource();
+
+                    // if the source is one of the JSpinners for x, y, width and
+                    // height, update the bounding box
+                    if (source instanceof JSpinner) {
+                        // get coords
+                        final int x = (int) spinnerX.getValue();
+                        final int y = (int) spinnerY.getValue();
+                        final int width = (int) spinnerWidth.getValue();
+                        final int height = (int) spinnerHeight.getValue();
+
+                        // update bounding box
+                        final Box bbox = currentSymbol.get().getBoundingBox();
+                        bbox.setX(x);
+                        bbox.setY(y);
+                        bbox.setWidth(width);
+                        bbox.setHeight(height);
+
+                        // re-render the whole model
+                        renderer.render(getPageModel(), scale.current());
+                    }
+
+                    // propagate table change
+                    final JTable table = tabSymbols.getTable();
+                    table.tableChanged(new TableModelEvent(table.getModel(),
+                            table.getSelectedRow()));
+                }
+            };
 
     /**
      * Create the panel.
@@ -185,7 +189,17 @@ public class BoxEditor extends JPanel implements MainComponent {
                         final Box bbox =
                                 getSelectedSymbol().get().getBoundingBox();
 
-                        lblCanvas.scrollRectToVisible(bbox.toRectangle());
+                        final Rectangle scaled = new Rectangle(
+                                scaled(bbox.getX() - 10, scale.current()),
+                                scaled(bbox.getY() - 10, scale.current()),
+                                scaled(bbox.getWidth() + 10, scale.current()),
+                                scaled(bbox.getHeight() + 10, scale.current()));
+
+                        lblCanvas.scrollRectToVisible(scaled);
+
+                        Rectangle cell = tabSymbols.getTable().getCellRect(
+                                selectedRow, 0, true);
+                        tabSymbols.getTable().scrollRectToVisible(cell);
 
                         renderer.render(model, scale.current());
                     }
@@ -449,6 +463,11 @@ public class BoxEditor extends JPanel implements MainComponent {
                 spinnerHeight.setValue(bbox.getHeight());
             }
         });
+
+        spinnerX.addPropertyChangeListener(spinnerListener);
+        spinnerY.addPropertyChangeListener(spinnerListener);
+        spinnerWidth.addPropertyChangeListener(spinnerListener);
+        spinnerHeight.addPropertyChangeListener(spinnerListener);
     }
 
     @Override
