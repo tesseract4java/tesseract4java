@@ -6,6 +6,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -14,8 +16,13 @@ import java.util.TimerTask;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JViewport;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -29,6 +36,8 @@ import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.util.PageListLoader;
 import de.vorb.tesseract.gui.util.PageModelLoader;
 import de.vorb.tesseract.gui.util.PageRecognitionProducer;
+import de.vorb.tesseract.gui.util.ThumbnailLoader;
+import de.vorb.tesseract.gui.util.ThumbnailLoader.Task;
 import de.vorb.tesseract.gui.view.Dialogs;
 import de.vorb.tesseract.gui.view.NewProjectDialog;
 import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
@@ -37,15 +46,19 @@ import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 import de.vorb.tesseract.util.TrainingFiles;
 
 public class TesseractController extends WindowAdapter implements
-        ActionListener, ListSelectionListener, Observer {
+        ActionListener, ListSelectionListener, Observer, ChangeListener {
     private static final String TRAINING_FILE = "training_file";
 
     private final TesseractFrame view;
     private final PageRecognitionProducer pageRecognitionProducer;
     private Optional<PageModelLoader> pageModelLoader = Optional.absent();
+    private Optional<ThumbnailLoader> thumbnailLoader = Optional.absent();
 
     private final Timer pageSelectionTimer = new Timer("PageSelectionTimer");
     private Optional<TimerTask> lastPageSelection = Optional.absent();
+
+    private final Timer thumbnailLoadTimer = new Timer("ThumbnailLoadTimer");
+    private Optional<TimerTask> lastThumbnailLoad = Optional.absent();
 
     private String lastTrainingFile;
 
@@ -114,6 +127,9 @@ public class TesseractController extends WindowAdapter implements
         // register listeners
         view.getMenuItemNewProject().addActionListener(this);
         view.getPages().getList().addListSelectionListener(this);
+        final JViewport pagesViewport =
+                (JViewport) view.getPages().getList().getParent();
+        pagesViewport.addChangeListener(this);
         view.getTrainingFiles().getList().addListSelectionListener(this);
         view.getScale().addObserver(this);
         view.addWindowListener(this);
@@ -152,6 +168,11 @@ public class TesseractController extends WindowAdapter implements
 
         final DefaultListModel<PageThumbnail> pages =
                 view.getPages().getListModel();
+
+        final ThumbnailLoader thumbnailLoader =
+                new ThumbnailLoader(projectConfig, pages);
+        thumbnailLoader.execute();
+        this.thumbnailLoader = Optional.of(thumbnailLoader);
 
         final PageListLoader pageListLoader =
                 new PageListLoader(projectConfig, pages);
@@ -216,7 +237,7 @@ public class TesseractController extends WindowAdapter implements
     }
 
     @Override
-    public void windowClosed(WindowEvent e) {
+    public void windowClosed(WindowEvent evt) {
         pageSelectionTimer.cancel();
     }
 
@@ -229,5 +250,57 @@ public class TesseractController extends WindowAdapter implements
         if (o == view.getScale()) {
             view.getScaleLabel().setText(o.toString());
         }
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent evt) {
+        handleThumbnailLoading();
+    }
+
+    private final List<Task> tasks = new LinkedList<Task>();
+
+    private void handleThumbnailLoading() {
+        if (!thumbnailLoader.isPresent())
+            return;
+
+        final ThumbnailLoader thumbnailLoader = this.thumbnailLoader.get();
+
+        for (Task t : tasks) {
+            t.cancel();
+        }
+
+        tasks.clear();
+
+        if (lastThumbnailLoad.isPresent()) {
+            lastThumbnailLoad.get().cancel();
+        }
+
+        thumbnailLoadTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        final JList<PageThumbnail> list =
+                                view.getPages().getList();
+                        final ListModel<PageThumbnail> model = list.getModel();
+
+                        final int first = list.getFirstVisibleIndex();
+                        final int last = list.getLastVisibleIndex();
+
+                        for (int i = first; i <= last; i++) {
+                            final PageThumbnail pt = model.getElementAt(i);
+
+                            if (pt.getThumbnail().isPresent())
+                                continue;
+
+                            final Task t = new Task(i, pt);
+                            tasks.add(t);
+                            thumbnailLoader.submitTask(t);
+                        }
+                    }
+                });
+            }
+        }, 500);
     }
 }

@@ -71,13 +71,4 @@ public class PageListLoader extends SwingWorker<Void, PageThumbnail> {
             pages.addElement(chunk);
         }
     }
-
-    @Override
-    protected void done() {
-        // run the tumbnail loader after the model is built
-        final ThumbnailLoader thumbnailLoader =
-                new ThumbnailLoader(projectConfig, pages);
-
-        thumbnailLoader.execute();
-    }
 }

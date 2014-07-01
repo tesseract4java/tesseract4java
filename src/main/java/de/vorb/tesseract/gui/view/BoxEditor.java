@@ -178,6 +178,10 @@ public class BoxEditor extends JPanel implements MainComponent {
                         final int selectedRow = table.getSelectedRow();
                         selectionModel.setSelectedIndex(selectedRow);
 
+                        if (!getSelectedSymbol().isPresent()) {
+                            return;
+                        }
+
                         final Box bbox =
                                 getSelectedSymbol().get().getBoundingBox();
 

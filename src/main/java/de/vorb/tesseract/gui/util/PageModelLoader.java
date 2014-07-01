@@ -145,8 +145,8 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
 
             Dialogs.showError(controller.getView(), "Error during recognition",
                     "The recognition process has been interrupted unexpectedly.");
+        } finally {
+            controller.getView().getProgressBar().setIndeterminate(false);
         }
-
-        controller.getView().getProgressBar().setIndeterminate(false);
     }
 }

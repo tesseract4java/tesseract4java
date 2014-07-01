@@ -18,6 +18,7 @@ import javax.swing.border.EmptyBorder;
 import sun.swing.DefaultLookup;
 
 /**
+ * @deprecated
  * @author Paul Vorbach
  */
 public class PageListCellRenderer extends DefaultListCellRenderer
