@@ -44,7 +44,7 @@ public class TesseractFrame extends JFrame {
     private final FilteredList<String> listTrainingFiles;
     private final BoxEditor boxEditor;
     private final RecognitionPane recognitionPane;
-    private final GlyphExportPane exportPane;
+    private final GlyphExportPane glyphOverview;
 
     private final JLabel lblScaleFactor;
     private final JProgressBar pbLoadPage;
@@ -78,7 +78,7 @@ public class TesseractFrame extends JFrame {
         scale = new Scale();
         boxEditor = new BoxEditor(scale);
         recognitionPane = new RecognitionPane();
-        exportPane = new GlyphExportPane();
+        glyphOverview = new GlyphExportPane();
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 
@@ -148,7 +148,7 @@ public class TesseractFrame extends JFrame {
 
         listTrainingFiles.setBorder(BorderFactory.createTitledBorder("Training File"));
 
-        exportPane.getGlyphSelectionPane().getList().addListSelectionListener(
+        glyphOverview.getGlyphSelectionPane().getList().addListSelectionListener(
                 new ListSelectionListener() {
                     public void valueChanged(ListSelectionEvent e) {
                         if (e.getValueIsAdjusting()) {
@@ -169,7 +169,7 @@ public class TesseractFrame extends JFrame {
                             }
                         }
 
-                        exportPane.getGlyphListPane().getList().setModel(
+                        glyphOverview.getGlyphListPane().getList().setModel(
                                 model);
                     }
                 });
@@ -258,6 +258,11 @@ public class TesseractFrame extends JFrame {
         tabsMain.addTab(Labels.getLabel(getLocale(), "tab_main_boxeditor"),
                 Resources.getIcon("table_edit"), boxEditor);
 
+        tabsMain.addTab(
+                Labels.getLabel(getLocale(), "tab_main_glyphoverview"),
+                Resources.getIcon("application_view_icons"),
+                glyphOverview);
+
         tabsMain.addTab(Labels.getLabel(getLocale(), "tab_main_recognition"),
                 Resources.getIcon("application_tile_horizontal"),
                 recognitionPane);
@@ -272,7 +277,7 @@ public class TesseractFrame extends JFrame {
         splitPane.setRightComponent(listTrainingFiles);
     }
 
-    private MainComponent getMainComponent() {
+    public MainComponent getActiveComponent() {
         final Component main = tabsMain.getSelectedComponent();
         if (main instanceof MainComponent) {
             return (MainComponent) main;
@@ -307,7 +312,7 @@ public class TesseractFrame extends JFrame {
     }
 
     public GlyphExportPane getGlyphExportPane() {
-        return exportPane;
+        return glyphOverview;
     }
 
     public JProgressBar getProgressBar() {
@@ -315,14 +320,18 @@ public class TesseractFrame extends JFrame {
     }
 
     public void setPageModel(Optional<PageModel> model) {
-        getMainComponent().setPageModel(model);
+        getActiveComponent().setPageModel(model);
     }
 
     public Optional<PageModel> getPageModel() {
-        return getMainComponent().getPageModel();
+        return getActiveComponent().getPageModel();
     }
 
     public JMenuItem getMenuItemNewProject() {
         return mnNewProject;
+    }
+
+    public JTabbedPane getMainTabs() {
+        return tabsMain;
     }
 }

@@ -88,6 +88,11 @@ public class GlyphExportPane extends JPanel implements MainComponent {
 
     @Override
     public void setPageModel(Optional<PageModel> model) {
+        this.model = model;
+
+        if (!model.isPresent())
+            return;
+
         final JList<Entry<String, Set<Symbol>>> glyphList =
                 getGlyphSelectionPane().getList();
 

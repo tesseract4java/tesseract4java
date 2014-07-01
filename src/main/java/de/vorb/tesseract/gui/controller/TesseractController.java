@@ -6,7 +6,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -16,6 +15,7 @@ import java.util.TimerTask;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
@@ -39,6 +39,7 @@ import de.vorb.tesseract.gui.util.PageRecognitionProducer;
 import de.vorb.tesseract.gui.util.ThumbnailLoader;
 import de.vorb.tesseract.gui.util.ThumbnailLoader.Task;
 import de.vorb.tesseract.gui.view.Dialogs;
+import de.vorb.tesseract.gui.view.MainComponent;
 import de.vorb.tesseract.gui.view.NewProjectDialog;
 import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
 import de.vorb.tesseract.gui.view.TesseractFrame;
@@ -50,6 +51,8 @@ public class TesseractController extends WindowAdapter implements
     private static final String TRAINING_FILE = "training_file";
 
     private final TesseractFrame view;
+    private MainComponent activeComponent;
+
     private final PageRecognitionProducer pageRecognitionProducer;
     private Optional<PageModelLoader> pageModelLoader = Optional.absent();
     private Optional<ThumbnailLoader> thumbnailLoader = Optional.absent();
@@ -81,6 +84,8 @@ public class TesseractController extends WindowAdapter implements
 
         // create new tesseract frame
         view = new TesseractFrame();
+
+        activeComponent = view.getActiveComponent();
 
         view.setVisible(true);
 
@@ -125,6 +130,7 @@ public class TesseractController extends WindowAdapter implements
         }
 
         // register listeners
+        view.getMainTabs().addChangeListener(this);
         view.getMenuItemNewProject().addActionListener(this);
         view.getPages().getList().addListSelectionListener(this);
         final JViewport pagesViewport =
@@ -255,7 +261,23 @@ public class TesseractController extends WindowAdapter implements
 
     @Override
     public void stateChanged(ChangeEvent evt) {
-        handleThumbnailLoading();
+        final Object source = evt.getSource();
+        if (source == view.getPages().getList().getParent()) {
+            handleThumbnailLoading();
+        } else if (source == view.getMainTabs()) {
+            handleMainComponentChange();
+        }
+    }
+
+    private void handleMainComponentChange() {
+        final MainComponent newActiveComponent = view.getActiveComponent();
+        if (activeComponent == newActiveComponent) {
+            return;
+        }
+
+        newActiveComponent.setPageModel(activeComponent.getPageModel());
+
+        activeComponent = newActiveComponent;
     }
 
     private final List<Task> tasks = new LinkedList<Task>();
