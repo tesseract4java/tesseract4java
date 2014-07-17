@@ -194,10 +194,10 @@ public class FontAttributes {
      */
     @Override
     public String toString() {
-        return "FontAttributes(" + size + "pt, " + opt(bold, "bold, ")
-                + opt(italic, "italic, ") + opt(underlined, "underlined, ")
-                + opt(monospace, "monospace, ") + opt(serif, "serif, ")
-                + opt(smallcaps, "smallcaps, ") + "ID = " + fontID + ")";
+        return String.format(
+                "size: %dpx, bold: %b, italic: %b, underlined: %b, monospace: %b, serif: %b, small caps: %b, font ID: %d",
+                size, bold, italic, underlined, monospace, serif, smallcaps,
+                fontID);
     }
 
     /**
