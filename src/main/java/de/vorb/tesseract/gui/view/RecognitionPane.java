@@ -144,6 +144,7 @@ public class RecognitionPane extends JPanel implements
     private final JLabel lblOriginal;
     private final JLabel lblHOCR;
     private final JSlider zoomSlider;
+    private final JButton btnParameters;
 
     private final JCheckBox cbWordBoxes;
     private final JCheckBox cbSymbolBoxes;
@@ -192,9 +193,20 @@ public class RecognitionPane extends JPanel implements
 
         cbCorrect = new JCheckBox("Correct?");
         cbCorrect.setBackground(Color.WHITE);
-        cbCorrect.setEnabled(false);
         cbCorrect.setToolTipText("Is the selected word correct?");
         panel.add(cbCorrect);
+
+        horizontalStrut = javax.swing.Box.createHorizontalStrut(20);
+        panel.add(horizontalStrut);
+
+        lblFontAttributes = new JLabel("Font attributes:");
+        panel.add(lblFontAttributes);
+
+        tfFontAttributes = new JTextField();
+        tfFontAttributes.setBackground(Color.WHITE);
+        tfFontAttributes.setEditable(false);
+        panel.add(tfFontAttributes);
+        tfFontAttributes.setColumns(20);
 
         JSplitPane splitPane = new JSplitPane();
         splitPane.setBackground(Color.WHITE);
@@ -256,6 +268,9 @@ public class RecognitionPane extends JPanel implements
                             tfSelection.setToolTipText(tooltip.toString());
                             tfConfidence.setText(String.valueOf(word.getConfidence()));
                             cbCorrect.setSelected(word.isCorrect());
+
+                            final FontAttributes fa = word.getFontAttributes();
+                            tfFontAttributes.setText(fa.toString());
 
                             // word.setSelected(true);
 
@@ -370,6 +385,10 @@ public class RecognitionPane extends JPanel implements
         zoomSlider.setMajorTickSpacing(1);
         zoomSlider.setValue(5);
         zoomSlider.setMaximum(9);
+
+        btnParameters = new JButton("Parameters...");
+        btnParameters.setBackground(Color.WHITE);
+        panel_1.add(btnParameters);
         zoomSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ev) {
@@ -436,6 +455,9 @@ public class RecognitionPane extends JPanel implements
     }
 
     private SwingWorker<ImagePair, Void> renderer = null;
+    private Component horizontalStrut;
+    private JLabel lblFontAttributes;
+    private JTextField tfFontAttributes;
 
     public void settingsChanged() {
         render();
@@ -726,6 +748,10 @@ public class RecognitionPane extends JPanel implements
         cbLineNumbers.setEnabled(enabled);
         cbBaseline.setEnabled(enabled);
         cbXLine.setEnabled(enabled);
+    }
+
+    public JButton getParametersButton() {
+        return btnParameters;
     }
 
     @Override

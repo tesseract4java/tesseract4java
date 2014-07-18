@@ -21,9 +21,14 @@ import java.util.Iterator;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 
 import com.google.common.base.Optional;
@@ -152,6 +157,33 @@ public class BoxEditor extends JPanel implements MainComponent {
                     }
                 });
 
+        tabSymbols.getListModel().addListDataListener(new ListDataListener() {
+            private long last = 0L;
+
+            @Override
+            public void intervalRemoved(ListDataEvent evt) {
+                update();
+            }
+
+            @Override
+            public void intervalAdded(ListDataEvent evt) {
+                update();
+            }
+
+            @Override
+            public void contentsChanged(ListDataEvent evt) {
+                update();
+            }
+
+            private void update() {
+                long now = System.currentTimeMillis();
+                if (now - last > 1000) {
+                    renderer.render(model, scale.current());
+                }
+                last = now;
+            }
+        });
+
         final JTable table = tabSymbols.getTable();
         table.setFillsViewportHeight(true);
 
@@ -230,6 +262,26 @@ public class BoxEditor extends JPanel implements MainComponent {
         toolbar.add(lblSymbol, gbc_lblSymbol);
 
         tfSymbol = new JTextField();
+        tfSymbol.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final Optional<Symbol> symbol = getSelectedSymbol();
+
+                if (!symbol.isPresent())
+                    return;
+
+                symbol.get().setText(tfSymbol.getText());
+                table.tableChanged(new TableModelEvent(table.getModel(),
+                        table.getSelectedRow()));
+
+                int newSel = table.getSelectedRow() + 1;
+                if (newSel < table.getModel().getRowCount())
+                    table.getSelectionModel().setSelectionInterval(newSel,
+                            newSel);
+            }
+        });
+
         GridBagConstraints gbc_tfSymbol = new GridBagConstraints();
         gbc_tfSymbol.insets = new Insets(0, 0, 0, 5);
         gbc_tfSymbol.fill = GridBagConstraints.HORIZONTAL;

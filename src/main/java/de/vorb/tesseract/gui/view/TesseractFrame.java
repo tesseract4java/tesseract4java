@@ -307,7 +307,7 @@ public class TesseractFrame extends JFrame {
         return boxEditor;
     }
 
-    public RecognitionPane getComparatorPane() {
+    public RecognitionPane getRecognitionPane() {
         return recognitionPane;
     }
 

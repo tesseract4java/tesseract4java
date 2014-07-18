@@ -6,6 +6,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -15,7 +17,6 @@ import java.util.TimerTask;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
-import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
@@ -30,9 +31,9 @@ import org.bridj.BridJ;
 
 import com.google.common.base.Optional;
 
-import de.vorb.tesseract.gui.event.SymbolLinkListener;
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.GlobalPrefs;
+import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.util.PageListLoader;
 import de.vorb.tesseract.gui.util.PageModelLoader;
@@ -42,15 +43,16 @@ import de.vorb.tesseract.gui.util.ThumbnailLoader.Task;
 import de.vorb.tesseract.gui.view.Dialogs;
 import de.vorb.tesseract.gui.view.MainComponent;
 import de.vorb.tesseract.gui.view.NewProjectDialog;
+import de.vorb.tesseract.gui.view.RecognitionParametersDialog;
 import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
+import de.vorb.tesseract.traineddata.TessdataManager;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TrainingFiles;
 
 public class TesseractController extends WindowAdapter implements
-        ActionListener, ListSelectionListener, Observer, ChangeListener,
-        SymbolLinkListener {
+        ActionListener, ListSelectionListener, Observer, ChangeListener {
     private static final String TRAINING_FILE = "training_file";
 
     private final TesseractFrame view;
@@ -142,7 +144,15 @@ public class TesseractController extends WindowAdapter implements
         pagesViewport.addChangeListener(this);
         view.getTrainingFiles().getList().addListSelectionListener(this);
         view.getScale().addObserver(this);
-        view.getGlyphExportPane().addSymbolLinkListener(this);
+
+        // glyph export pane
+        view.getGlyphExportPane().getGlyphListPane().getCompareToPrototype()
+                .addActionListener(this);
+        view.getGlyphExportPane().getGlyphListPane().getShowInBoxEditor()
+                .addActionListener(this);
+
+        // recognition pane
+        view.getRecognitionPane().getParametersButton().addActionListener(this);
     }
 
     public PageRecognitionProducer getPageRecognitionProducer() {
@@ -154,6 +164,14 @@ public class TesseractController extends WindowAdapter implements
         final Object source = evt.getSource();
         if (source.equals(view.getMenuItemNewProject())) {
             handleNewProject();
+        } else if (source.equals(view.getGlyphExportPane().getGlyphListPane()
+                .getCompareToPrototype())) {
+            handleCompareSymbolToPrototype();
+        } else if (source.equals(view.getGlyphExportPane().getGlyphListPane()
+                .getShowInBoxEditor())) {
+            handleShowSymbolInBoxEditor();
+        } else if (source.equals(view.getRecognitionPane().getParametersButton())) {
+            handleParametersButtonClick();
         }
     }
 
@@ -237,11 +255,76 @@ public class TesseractController extends WindowAdapter implements
 
         pageRecognitionProducer.setTrainingFile(trainingFile);
 
+        try {
+            loadIntTemplates();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         // if the training file has changed, ask to reload the page
         if (!view.getPages().getList().isSelectionEmpty()
-                && trainingFile != lastTrainingFile
-                && Dialogs.ask(view, "Training file changed",
-                        "Reload current page with new training file?")) {
+                && trainingFile != lastTrainingFile) {
+            handlePageSelection();
+        }
+
+        lastTrainingFile = trainingFile;
+    }
+
+    private void loadIntTemplates() throws IOException {
+        final Path tessdir = TrainingFiles.getTessdataDir();
+        final Path tmpdir = Files.createTempDirectory("tess");
+
+        // FIXME
+        // // extract inttemp
+        // TessdataManager.extract(
+        // tessdir.resolve(lastTrainingFile + ".traineddata"),
+        // tmpdir.resolve("tmp."));
+        //
+        // // TODO load inttemp
+        // System.out.println(Files.exists(tmpdir.resolve("tmp.inttemp")));
+    }
+
+    private void handleCompareSymbolToPrototype() {
+        final Symbol selected = view.getGlyphExportPane().getGlyphListPane()
+                .getList().getSelectedValue();
+
+        final Optional<PageModel> pm = view.getPageModel();
+        if (pm.isPresent()) {
+            pageRecognitionProducer.getFeaturesForSymbol(selected.getBoundingBox());
+        }
+    }
+
+    private void handleShowSymbolInBoxEditor() {
+        final Symbol selected = view.getGlyphExportPane().getGlyphListPane()
+                .getList().getSelectedValue();
+
+        if (selected == null) {
+            return;
+        }
+
+        final ListModel<Symbol> symbols =
+                view.getBoxEditor().getSymbols().getListModel();
+        final int size = symbols.getSize();
+
+        // find the selected symbol in
+        for (int i = 0; i < size; i++) {
+            if (selected == symbols.getElementAt(i)) {
+                view.getBoxEditor().getSymbols().getTable()
+                        .setRowSelectionInterval(i, i);
+            }
+        }
+
+        view.getMainTabs().setSelectedComponent(view.getBoxEditor());
+    }
+
+    private void handleParametersButtonClick() {
+        final Optional<Float> ratio =
+                RecognitionParametersDialog.showDialog(view);
+
+        if (ratio.isPresent()
+                && !view.getPages().getList().isSelectionEmpty()) {
+            pageRecognitionProducer.setVariable("textord_noise_hfract",
+                    ratio.get().toString());
             handlePageSelection();
         }
     }
@@ -329,21 +412,5 @@ public class TesseractController extends WindowAdapter implements
                 });
             }
         }, 500);
-    }
-
-    @Override
-    public void selectedSymbol(Symbol symbol) {
-        view.getMainTabs().setSelectedComponent(view.getBoxEditor());
-
-        final ListModel<Symbol> symbols =
-                view.getBoxEditor().getSymbols().getListModel();
-        final int size = symbols.getSize();
-
-        for (int i = 0; i < size; i++) {
-            if (symbol == symbols.getElementAt(i)) {
-                view.getBoxEditor().getSymbols().getTable().setRowSelectionInterval(
-                        i, i);
-            }
-        }
     }
 }

@@ -29,12 +29,14 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
     private final TesseractController controller;
     private final Path imageFile;
     private final String trainingFile;
+    private final PageRecognitionProducer producer;
 
     public PageModelLoader(TesseractController controller, Path imageFile,
             String trainingFile) {
         this.controller = controller;
         this.imageFile = imageFile;
         this.trainingFile = trainingFile;
+        this.producer = controller.getPageRecognitionProducer();
     }
 
     @Override
@@ -48,9 +50,6 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
                 controller.getView().getProgressBar().setIndeterminate(true);
             }
         });
-
-        final PageRecognitionProducer producer =
-                controller.getPageRecognitionProducer();
 
         if (trainingFile != null) {
             producer.setTrainingFile(trainingFile);
@@ -103,6 +102,11 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
                 wordSymbols.add(new Symbol(getState().getText(level),
                         getState().getBoundingBox(level),
                         getState().getConfidence(level)));
+
+                // Optional<Pointer<Pix>> img = producer.getImage();
+                // if (img.isPresent()) {
+                // getState().getSymbolFeatures(img.get());
+                // }
             }
 
             @Override
@@ -113,12 +117,6 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
 
         final Page page = new Page(imageFile, image.getWidth(),
                 image.getHeight(), 300, lines);
-
-        // try {
-        // page.writeTo(System.out);
-        // } catch (JAXBException e) {
-        // e.printStackTrace();
-        // }
 
         return new PageModel(page, image);
     }
@@ -133,6 +131,8 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
                 message = "The page image file could not be read.";
             } else {
                 message = "The page could not be recognized";
+
+                e.printStackTrace();
             }
 
             controller.getView().setPageModel(Optional.<PageModel> absent());

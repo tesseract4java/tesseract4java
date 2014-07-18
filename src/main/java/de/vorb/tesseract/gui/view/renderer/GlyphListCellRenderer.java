@@ -40,28 +40,7 @@ public class GlyphListCellRenderer extends JLabel implements
         final BufferedImage subImage = source.getSubimage(bbox.getX(),
                 bbox.getY(), bbox.getWidth(), bbox.getHeight());
 
-        // FIXME remove!
-        // try {
-        // String c = URLEncoder.encode(value.getText(), "UTF-8");
-        //
-        // if (c.matches("\\p{Upper}+")) {
-        // c = "Upper_" + c;
-        // } else if (c.length() == 0) {
-        // c = "_";
-        // }
-        //
-        // final File dir = new File("C:/Users/Paul/Desktop/glyphs/" + c);
-        // final File file = new File(dir, index + ".png");
-        // Files.createDirectories(dir.toPath());
-        // ImageIO.write(subImage, "PNG", file);
-        // } catch (Exception e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-
         setIcon(new ImageIcon(subImage));
-
-        setToolTipText("confidence = " + value.getConfidence());
 
         return this;
     }

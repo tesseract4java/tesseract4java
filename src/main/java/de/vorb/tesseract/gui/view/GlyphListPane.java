@@ -2,10 +2,14 @@ package de.vorb.tesseract.gui.view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
 import de.vorb.tesseract.util.Symbol;
@@ -13,6 +17,8 @@ import de.vorb.tesseract.util.Symbol;
 public class GlyphListPane extends JPanel {
     private static final long serialVersionUID = 1L;
     private final JList<Symbol> glyphList;
+    private final JMenuItem showInBoxEditor;
+    private final JMenuItem compareToPrototype;
 
     /**
      * Create the panel.
@@ -35,10 +41,44 @@ public class GlyphListPane extends JPanel {
         glyphList = new JList<Symbol>();
         glyphList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         scrollPane.setViewportView(glyphList);
+
+        final JPopupMenu popupMenu = new JPopupMenu();
+        showInBoxEditor = new JMenuItem("Show in Box Editor");
+        compareToPrototype = new JMenuItem("Compare to Prototype");
+        popupMenu.add(showInBoxEditor);
+        popupMenu.add(compareToPrototype);
+        glyphList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                showPopup(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                showPopup(e);
+            }
+
+            private void showPopup(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    final int selection =
+                            glyphList.locationToIndex(e.getPoint());
+
+                    glyphList.setSelectedIndex(selection);
+                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
     }
 
     public JList<Symbol> getList() {
         return glyphList;
     }
 
+    public JMenuItem getShowInBoxEditor() {
+        return showInBoxEditor;
+    }
+
+    public JMenuItem getCompareToPrototype() {
+        return compareToPrototype;
+    }
 }
