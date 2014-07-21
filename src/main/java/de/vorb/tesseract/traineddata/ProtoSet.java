@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.vorb.tesseract.util.feat.Feature4D;
+
 public class ProtoSet {
     private final int[][][] pruner;
-    private final ArrayList<IntProto> protos;
+    private final ArrayList<Feature4D> protos;
 
-    public ProtoSet(int[][][] pruner, ArrayList<IntProto> protos) {
+    public ProtoSet(int[][][] pruner, ArrayList<Feature4D> protos) {
         this.pruner = pruner;
         this.protos = protos;
     }
@@ -17,7 +19,7 @@ public class ProtoSet {
         return pruner[x][y][z] & 0xFFFF_FFFFL;
     }
 
-    public List<IntProto> getProtos() {
+    public List<Feature4D> getProtos() {
         return Collections.unmodifiableList(protos);
     }
 }

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.vorb.tesseract.util.feat.Feature4D;
+
 public class IntClass {
     private final int numProtos;
     private final ArrayList<ProtoSet> protoSets;
@@ -94,7 +96,7 @@ public class IntClass {
                 }
             }
 
-            final ArrayList<IntProto> protos =
+            final ArrayList<Feature4D> protos =
                     new ArrayList<>(PROTOS_PER_PROTO_SET);
             for (int x = 0; x < PROTOS_PER_PROTO_SET; x++) {
                 if (!buf.hasNext(4)) {
@@ -116,7 +118,7 @@ public class IntClass {
                     configs[y] = buf.getInt();
                 }
 
-                protos.add(new IntProto(a, b, c, angle, configs));
+                protos.add(new Feature4D(a, b, c, angle, configs));
             }
 
             protoSets.add(new ProtoSet(protoPruner, protos));
