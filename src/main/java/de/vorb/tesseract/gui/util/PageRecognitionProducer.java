@@ -1,5 +1,9 @@
 package de.vorb.tesseract.gui.util;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -8,7 +12,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.imageio.ImageIO;
+
 import org.bridj.Pointer;
+import org.bridj.PointerIO;
 
 import com.google.common.base.Optional;
 
@@ -16,15 +23,11 @@ import de.vorb.leptonica.LibLept;
 import de.vorb.leptonica.Pix;
 import de.vorb.tesseract.INT_FEATURE_STRUCT;
 import de.vorb.tesseract.LibTess;
-import de.vorb.tesseract.LibTess.TessPageIterator;
-import de.vorb.tesseract.LibTess.TessResultIterator;
 import de.vorb.tesseract.OCREngineMode;
-import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.PageSegMode;
 import de.vorb.tesseract.TBLOB;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
-import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.feat.Features3D;
+import de.vorb.tesseract.util.feat.Feature3D;
 
 public class PageRecognitionProducer extends RecognitionProducer {
     private final Path tessdataDir;
@@ -92,66 +95,62 @@ public class PageRecognitionProducer extends RecognitionProducer {
                 getHandle()));
     }
 
-    public List<Features3D> getFeaturesForSymbol(Box box) {
+    public List<Feature3D> getFeaturesForSymbol(BufferedImage symbol) {
         if (!lastPix.isPresent()) {
-            return new LinkedList<Features3D>();
+            return new LinkedList<Feature3D>();
         }
 
-        LibTess.TessBaseAPISetPageSegMode(getHandle(), PageSegMode.SINGLE_CHAR);
-        LibTess.TessBaseAPISetRectangle(getHandle(), box.getX(), box.getY(),
-                box.getWidth(), box.getHeight());
-        LibTess.TessBaseAPIRecognize(getHandle(), null);
-
-        // padding around clipping box
         final int padding = 5;
+        // draw a 5px white padding arround the symbol
+        final BufferedImage symbWithPadding = new BufferedImage(
+                symbol.getWidth() + padding + padding,
+                symbol.getHeight() + padding + padding,
+                BufferedImage.TYPE_BYTE_BINARY);
 
-        // calculate the clipping box coords
-        final Pix p = lastPix.get().get();
-        final int x = Math.max(box.getX() - padding, 0);
-        final int y = Math.max(box.getY() - padding, 0);
-        final int w = Math.min(box.getWidth() + padding + padding, p.w() - x);
-        final int h = Math.min(box.getHeight() + padding + padding, p.h() - y);
+        // draw the symbol on the new image
+        final Graphics2D g2d = symbWithPadding.createGraphics();
+        g2d.setBackground(Color.WHITE);
+        g2d.clearRect(0, 0, symbWithPadding.getWidth(),
+                symbWithPadding.getHeight());
+        g2d.drawImage(symbol, padding, padding, null);
+        g2d.dispose();
 
-        // create the box
-        final Pointer<de.vorb.leptonica.Box> pBox = LibLept.boxCreate(x, y, w,
-                h);
+        final String tmp = "C:\\Users\\Paul\\Desktop\\tmp.png";
+        try {
+            ImageIO.write(symbWithPadding, "PNG", new File(tmp));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new LinkedList<Feature3D>();
+        }
 
-        // take the clipped pix
-        final Pointer<Pix> pixSymb = LibLept.pixClipRectangle(lastPix.get(),
-                pBox, null);
-
-        LibLept.pixWrite(
-                Pointer.pointerToCString("C:\\Users\\Paul\\Desktop\\test.png"),
-                pixSymb, LibLept.IFF_PNG);
-
-        LibLept.boxDestroy(Pointer.pointerToPointer(pBox));
+        final Pointer<Pix> pixSymb =
+                LibLept.pixRead(Pointer.pointerToCString(tmp));
 
         final Pointer<TBLOB> blob = LibTess.TessMakeTBLOB(pixSymb);
-
         LibLept.pixDestroy(Pointer.pointerToPointer(pixSymb));
 
         final Pointer<Integer> numFeatures = Pointer.allocateInt();
-        final Pointer<Integer> featOutlineIndex = Pointer.allocateInt();
-
-        final Pointer<INT_FEATURE_STRUCT> intFeatures = Pointer.allocateArray(
-                INT_FEATURE_STRUCT.class, 512);
+        final Pointer<Integer> outlineIndexes = Pointer.allocateInts(512);
+        final Pointer<Byte> features = Pointer.allocateBytes(4 * 512);
+        final Pointer<INT_FEATURE_STRUCT> intFeatures = features.as(INT_FEATURE_STRUCT.class);
         LibTess.TessBaseAPIGetFeaturesForBlob(getHandle(), blob, intFeatures,
-                numFeatures, featOutlineIndex);
+                numFeatures, outlineIndexes);
 
-        final ArrayList<Features3D> featureList = new ArrayList<>(
-                numFeatures.get());
+        // make a list of Features3D
+        final ArrayList<Feature3D> featureList = new ArrayList<>(
+                numFeatures.getInt());
 
         for (int i = 0; i < numFeatures.get(); i++) {
-            final Features3D feat = Features3D.valueOf(intFeatures.get(i));
+            features.apply(i * 4);
+            final int x = features.apply(i * 4) & 0xFF;
+            final int y = features.apply(i * 4 + 1) & 0xFF;
+            final int theta = features.apply(i * 4 + 2) & 0xFF;
+            final byte cpMisses = features.apply(i * 4 + 3);
+            final int outlineIndex = outlineIndexes.getIntAtIndex(i);
+            final Feature3D feat = new Feature3D(x, y, theta, cpMisses,
+                    outlineIndex);
             featureList.add(feat);
-            System.out.println(feat);
         }
-
-        System.out.println(featureList.size());
-
-        // reset window and page seg mode
-        LibTess.TessBaseAPISetPageSegMode(getHandle(), PageSegMode.AUTO);
-        LibTess.TessBaseAPISetRectangle(getHandle(), 0, 0, p.w(), p.h());
 
         return featureList;
     }

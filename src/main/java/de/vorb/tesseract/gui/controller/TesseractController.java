@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,21 +42,25 @@ import de.vorb.tesseract.gui.util.PageRecognitionProducer;
 import de.vorb.tesseract.gui.util.ThumbnailLoader;
 import de.vorb.tesseract.gui.util.ThumbnailLoader.Task;
 import de.vorb.tesseract.gui.view.Dialogs;
+import de.vorb.tesseract.gui.view.FeatureDebugger;
 import de.vorb.tesseract.gui.view.MainComponent;
 import de.vorb.tesseract.gui.view.NewProjectDialog;
-import de.vorb.tesseract.gui.view.RecognitionParametersDialog;
 import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
+import de.vorb.tesseract.gui.view.RecognitionParametersDialog;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
-import de.vorb.tesseract.traineddata.TessdataManager;
+import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TrainingFiles;
+import de.vorb.tesseract.util.feat.Feature3D;
 
 public class TesseractController extends WindowAdapter implements
         ActionListener, ListSelectionListener, Observer, ChangeListener {
     private static final String TRAINING_FILE = "training_file";
 
     private final TesseractFrame view;
+    private final FeatureDebugger featureDebugger;
+
     private MainComponent activeComponent;
 
     private final PageRecognitionProducer pageRecognitionProducer;
@@ -89,6 +94,7 @@ public class TesseractController extends WindowAdapter implements
 
         // create new tesseract frame
         view = new TesseractFrame();
+        featureDebugger = new FeatureDebugger(view);
 
         activeComponent = view.getActiveComponent();
 
@@ -290,7 +296,17 @@ public class TesseractController extends WindowAdapter implements
 
         final Optional<PageModel> pm = view.getPageModel();
         if (pm.isPresent()) {
-            pageRecognitionProducer.getFeaturesForSymbol(selected.getBoundingBox());
+            final BufferedImage pageImg = pm.get().getImage();
+            final Box symbolBox = selected.getBoundingBox();
+            final BufferedImage symbolImg = pageImg.getSubimage(
+                    symbolBox.getX(), symbolBox.getY(),
+                    symbolBox.getWidth(), symbolBox.getHeight());
+
+            final List<Feature3D> features =
+                    pageRecognitionProducer.getFeaturesForSymbol(symbolImg);
+
+            featureDebugger.setFeatures(features);
+            featureDebugger.setVisible(true);
         }
     }
 
