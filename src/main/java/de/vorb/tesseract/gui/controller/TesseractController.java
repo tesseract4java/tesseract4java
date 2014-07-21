@@ -7,6 +7,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -49,14 +50,19 @@ import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
 import de.vorb.tesseract.gui.view.RecognitionParametersDialog;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
+import de.vorb.tesseract.traineddata.IntTemplates;
+import de.vorb.tesseract.traineddata.ReadableByteBuffer;
+import de.vorb.tesseract.traineddata.TessdataManager;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TrainingFiles;
 import de.vorb.tesseract.util.feat.Feature3D;
+import de.vorb.util.FileIO;
 
 public class TesseractController extends WindowAdapter implements
         ActionListener, ListSelectionListener, Observer, ChangeListener {
     private static final String TRAINING_FILE = "training_file";
+    private static final String TMP_TRAINING_FILE_BASE = "unspecified.";
 
     private final TesseractFrame view;
     private final FeatureDebugger featureDebugger;
@@ -74,6 +80,9 @@ public class TesseractController extends WindowAdapter implements
     private Optional<TimerTask> lastThumbnailLoad = Optional.absent();
 
     private String lastTrainingFile;
+
+    private final Path tmpDir;
+    private Optional<IntTemplates> prototypes = Optional.absent();
 
     public static void main(String[] args) {
         BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
@@ -99,6 +108,17 @@ public class TesseractController extends WindowAdapter implements
         activeComponent = view.getActiveComponent();
 
         view.setVisible(true);
+
+        Path tmpDir = null;
+        try {
+            tmpDir = Files.createTempDirectory("tess");
+        } catch (IOException e) {
+            Dialogs.showError(view, "Error",
+                    "Training files could not be found.");
+            System.exit(1);
+        } finally {
+            this.tmpDir = tmpDir;
+        }
 
         // init training files
         try {
@@ -262,7 +282,7 @@ public class TesseractController extends WindowAdapter implements
         pageRecognitionProducer.setTrainingFile(trainingFile);
 
         try {
-            loadIntTemplates();
+            loadPrototypes();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -276,18 +296,23 @@ public class TesseractController extends WindowAdapter implements
         lastTrainingFile = trainingFile;
     }
 
-    private void loadIntTemplates() throws IOException {
+    private void loadPrototypes() throws IOException {
         final Path tessdir = TrainingFiles.getTessdataDir();
-        final Path tmpdir = Files.createTempDirectory("tess");
+        final Path base = tmpDir.resolve(TMP_TRAINING_FILE_BASE);
 
-        // FIXME
-        // // extract inttemp
-        // TessdataManager.extract(
-        // tessdir.resolve(lastTrainingFile + ".traineddata"),
-        // tmpdir.resolve("tmp."));
-        //
-        // // TODO load inttemp
-        // System.out.println(Files.exists(tmpdir.resolve("tmp.inttemp")));
+        TessdataManager.extract(
+                tessdir.resolve(lastTrainingFile + ".traineddata"), base);
+
+        final Path prototypeFile =
+                tmpDir.resolve(tmpDir.resolve(TMP_TRAINING_FILE_BASE
+                        + "inttemp"));
+
+        final ReadableByteChannel in = Files.newByteChannel(prototypeFile);
+        final ReadableByteBuffer buf = ReadableByteBuffer.allocate(in, 4096);
+
+        final IntTemplates prototypes = IntTemplates.readFromBuffer(buf);
+
+        this.prototypes = Optional.of(prototypes);
     }
 
     private void handleCompareSymbolToPrototype() {
@@ -347,6 +372,16 @@ public class TesseractController extends WindowAdapter implements
 
     @Override
     public void windowClosed(WindowEvent evt) {
+        // delete temporary directory
+        try {
+            if (Files.exists(tmpDir)) {
+                FileIO.deleteDirectory(tmpDir);
+            }
+        } catch (IOException e) {
+            Dialogs.showError(view, "Error",
+                    "Temporary directory could not be removed completely.");
+        }
+
         pageSelectionTimer.cancel();
         thumbnailLoadTimer.cancel();
     }
@@ -427,6 +462,6 @@ public class TesseractController extends WindowAdapter implements
                     }
                 });
             }
-        }, 500);
+        }, 500); // 500ms delay
     }
 }
