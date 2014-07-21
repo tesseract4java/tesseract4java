@@ -13,21 +13,6 @@ import java.nio.file.Files;
  * @author Paul Vorbach
  */
 public class FileIO {
-  private static FileIO instance = null;
-
-  private FileIO() {
-  }
-
-  /**
-   * @return singleton instance of this class.
-   */
-  public static FileIO getInstance() {
-    if (instance == null)
-      instance = new FileIO();
-
-    return instance;
-  }
-
   /**
    * Reads a whole text file into memory.
    * 
@@ -39,7 +24,7 @@ public class FileIO {
    * @throws IOException
    *           if the file could not be read.
    */
-  public String readFile(File file, Charset encoding) throws IOException {
+  public static String readFile(File file, Charset encoding) throws IOException {
     byte[] encoded = Files.readAllBytes(file.toPath());
     return encoding.decode(ByteBuffer.wrap(encoded)).toString();
   }
@@ -52,7 +37,7 @@ public class FileIO {
    * @param encoding
    * @throws IOException
    */
-  public void writeFile(String content, File file, Charset encoding)
+  public static  void writeFile(String content, File file, Charset encoding)
       throws IOException {
     final PrintWriter to = new PrintWriter(file, "UTF-8");
     to.print(content);
