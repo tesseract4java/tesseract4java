@@ -55,15 +55,15 @@ public class InputBuffer implements Closeable, AutoCloseable {
 
     public boolean readInt() throws IOException {
         if (littleEndian) {
-            buf = (in.read() << 24) // 1st byte
-                    | (in.read() << 16) // 2nd byte
-                    | (in.read() << 8) // 3rd byte
-                    | in.read(); // 4th byte
+            buf = (((long) in.read()) << 24) // 1st byte
+                    | (((long) in.read()) << 16) // 2nd byte
+                    | (((long) in.read()) << 8) // 3rd byte
+                    | ((long) in.read()); // 4th byte
         } else {
-            buf = in.read() // 1st byte
-                    | (in.read() << 8) // 2nd byte
-                    | (in.read() << 16) // 3rd byte
-                    | (in.read() << 24); // 4th byte
+            buf = ((long) in.read()) // 1st byte
+                    | (((long) in.read()) << 8) // 2nd byte
+                    | (((long) in.read()) << 16) // 3rd byte
+                    | (((long) in.read()) << 24); // 4th byte
         }
 
         return buf >= 0L;
