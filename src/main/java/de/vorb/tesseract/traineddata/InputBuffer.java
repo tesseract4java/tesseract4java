@@ -1,12 +1,15 @@
 package de.vorb.tesseract.traineddata;
 
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteOrder;
 
-public class InputBuffer {
+public class InputBuffer implements Closeable, AutoCloseable {
     protected final BufferedInputStream in;
     protected long buf;
+    protected boolean littleEndian = true;
 
     protected InputBuffer(BufferedInputStream in) {
         this.in = in;
@@ -16,9 +19,18 @@ public class InputBuffer {
         this(new BufferedInputStream(in, capacity));
     }
 
+    public ByteOrder getByteOrder() {
+        return littleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+    }
+
+    public void setByteOrder(ByteOrder order) {
+        littleEndian = order == ByteOrder.LITTLE_ENDIAN;
+    }
+
     public boolean readByte() throws IOException {
         buf = in.read();
-        return buf != -1L;
+
+        return buf >= 0L;
     }
 
     public byte getByte() {
@@ -26,13 +38,15 @@ public class InputBuffer {
     }
 
     public boolean readShort() throws IOException {
-        // 1st byte
-        buf = in.read();
-        buf <<= 8;
+        if (littleEndian) {
+            buf = (in.read() << 8) // 1st byte
+                    | in.read(); // 2nd byte
+        } else {
+            buf = in.read() // 1st byte
+                    | (in.read() << 8); // 2nd byte
+        }
 
-        // 2nd byte
-        buf |= in.read();
-        return buf != -1L;
+        return buf >= 0L;
     }
 
     public short getShort() {
@@ -40,21 +54,19 @@ public class InputBuffer {
     }
 
     public boolean readInt() throws IOException {
-        // 1st byte
-        buf = in.read();
-        buf <<= 8;
+        if (littleEndian) {
+            buf = (in.read() << 24) // 1st byte
+                    | (in.read() << 16) // 2nd byte
+                    | (in.read() << 8) // 3rd byte
+                    | in.read(); // 4th byte
+        } else {
+            buf = in.read() // 1st byte
+                    | (in.read() << 8) // 2nd byte
+                    | (in.read() << 16) // 3rd byte
+                    | (in.read() << 24); // 4th byte
+        }
 
-        // 2nd byte
-        buf |= in.read();
-        buf <<= 8;
-
-        // 3rd byte
-        buf |= in.read();
-        buf <<= 8;
-
-        // 4th byte
-        buf |= in.read();
-        return buf != -1L;
+        return buf >= 0L;
     }
 
     public int getInt() {
@@ -62,37 +74,27 @@ public class InputBuffer {
     }
 
     public boolean readLong() throws IOException {
-        // 1st byte
-        buf = in.read();
-        buf <<= 8;
+        if (littleEndian) {
+            buf = (((long) in.read()) << 56) // 1st byte
+                    | (((long) in.read()) << 48) // 2nd byte
+                    | (((long) in.read()) << 40) // 3rd byte
+                    | (((long) in.read()) << 32) // 4th byte
+                    | (((long) in.read()) << 24) // 5th byte
+                    | (((long) in.read()) << 16) // 6th byte
+                    | (((long) in.read()) << 8) // 7th byte
+                    | ((long) in.read()); // 8th byte
+        } else {
+            buf = ((long) in.read()) // 1st byte
+                    | (((long) in.read()) << 8) // 2nd byte
+                    | (((long) in.read()) << 16) // 3rd byte
+                    | (((long) in.read()) << 24) // 4th byte
+                    | (((long) in.read()) << 32) // 5th byte
+                    | (((long) in.read()) << 40) // 6th byte
+                    | (((long) in.read()) << 48) // 7th byte
+                    | (((long) in.read()) << 56); // 8th byte
+        }
 
-        // 2nd byte
-        buf |= in.read();
-        buf <<= 8;
-
-        // 3rd byte
-        buf |= in.read();
-        buf <<= 8;
-
-        // 4th byte
-        buf = in.read();
-        buf <<= 8;
-
-        // 5th byte
-        buf |= in.read();
-        buf <<= 8;
-
-        // 6th byte
-        buf |= in.read();
-        buf <<= 8;
-
-        // 7th byte
-        buf |= in.read();
-        buf <<= 8;
-
-        // 8th byte
-        buf |= in.read();
-        return buf != -1L;
+        return buf >= 0L;
     }
 
     public long getLong() {
@@ -129,6 +131,11 @@ public class InputBuffer {
 
     public int readBuffer(byte[] buf, int off, int len) throws IOException {
         return in.read(buf, off, len);
+    }
+
+    @Override
+    public void close() throws IOException {
+        in.close();
     }
 
     public static InputBuffer allocate(BufferedInputStream in) {
