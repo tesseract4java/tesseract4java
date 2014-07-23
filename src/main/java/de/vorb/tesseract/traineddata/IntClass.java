@@ -47,21 +47,21 @@ public class IntClass {
         return fontSetId;
     }
 
-    public static IntClass readFromBuffer(ReadableByteBuffer buf)
+    public static IntClass readFromBuffer(InputBuffer buf)
             throws IOException {
-        if (!buf.hasNext(4)) {
+        if (!buf.readInt()) {
             throw new IOException("invalid int class header");
         }
 
         // see intproto.cpp@966
         final int numProtos = buf.getShort() & 0xFFFF;
-        final int numProtoSets = buf.get() & 0xFF;
-        final int numConfigs = buf.get() & 0xFF;
+        final int numProtoSets = buf.getByte() & 0xFF;
+        final int numConfigs = buf.getByte() & 0xFF;
 
         // read config lengths
         final int[] configLengths = new int[numConfigs];
         for (int i = 0; i < numConfigs; i++) {
-            if (!buf.hasNext(2)) {
+            if (!buf.readInt()) {
                 throw new IOException("not enough config lengths");
             }
 
@@ -72,11 +72,11 @@ public class IntClass {
         final short[] protoLengths = new short[numProtoSets
                 * PROTOS_PER_PROTO_SET];
         for (int i = 0; i < protoLengths.length; i++) {
-            if (!buf.hasNext(1)) {
+            if (!buf.readByte()) {
                 throw new IOException("not enough proto lengths");
             }
 
-            protoLengths[i] = (short) (buf.get() & 0xFF);
+            protoLengths[i] = (short) (buf.getByte() & 0xFF);
         }
 
         // read proto sets
@@ -87,7 +87,7 @@ public class IntClass {
             for (int x = 0; x < 3; x++) {
                 for (int y = 0; y < 64; y++) {
                     for (int z = 0; z < 2; z++) {
-                        if (!buf.hasNext(1)) {
+                        if (!buf.readInt()) {
                             throw new IOException("not enough proto pruners");
                         }
 
@@ -99,19 +99,30 @@ public class IntClass {
             final ArrayList<Feature4D> protos =
                     new ArrayList<>(PROTOS_PER_PROTO_SET);
             for (int x = 0; x < PROTOS_PER_PROTO_SET; x++) {
-                if (!buf.hasNext(4)) {
+                // get prototype information
+                if (!buf.readByte()) {
                     throw new IOException("not enough protos");
                 }
+                final byte a = buf.getByte();
 
-                // get prototype information
-                final byte a = buf.get();
-                final byte b = buf.get();
-                final byte c = buf.get();
-                final byte angle = buf.get();
+                if (!buf.readByte()) {
+                    throw new IOException("not enough protos");
+                }
+                final byte b = buf.getByte();
+
+                if (!buf.readByte()) {
+                    throw new IOException("not enough protos");
+                }
+                final byte c = buf.getByte();
+
+                if (!buf.readByte()) {
+                    throw new IOException("not enough protos");
+                }
+                final byte angle = buf.getByte();
 
                 final int[] configs = new int[WERDS_PER_CONFIG_VEC];
                 for (int y = 0; y < WERDS_PER_CONFIG_VEC; y++) {
-                    if (!buf.hasNext(4)) {
+                    if (!buf.readInt()) {
                         throw new IOException("not enough prototype configs");
                     }
 

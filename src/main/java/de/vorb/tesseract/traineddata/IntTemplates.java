@@ -1,13 +1,10 @@
 package de.vorb.tesseract.traineddata;
 
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import de.vorb.tesseract.traineddata.ClassPruner;
-import de.vorb.tesseract.traineddata.IntClass;
-import de.vorb.tesseract.traineddata.ReadableByteBuffer;
 
 public class IntTemplates {
     public static final float PICO_FEATURE_LENGTH = 0.05f;
@@ -45,16 +42,22 @@ public class IntTemplates {
         return Collections.unmodifiableList(pruners);
     }
 
-    public static IntTemplates readFromBuffer(ReadableByteBuffer buf)
+    public static IntTemplates readFromBuffer(InputBuffer buf)
             throws IOException {
-        if (!buf.hasNext(3 * 4)) {
-            throw new IOException("invalid header");
-        }
+        buf.setByteOrder(ByteOrder.BIG_ENDIAN);
 
+        if (!buf.readInt())
+            throw new IOException("invalid header");
         // only needed by older formats
         @SuppressWarnings("unused")
         final int unicharsetSize = buf.getInt();
+
+        if (!buf.readInt())
+            throw new IOException("invalid header");
         int numClasses = buf.getInt();
+
+        if (!buf.readInt())
+            throw new IOException("invalid header");
         final int numPruners = buf.getInt();
 
         final int versionId;
