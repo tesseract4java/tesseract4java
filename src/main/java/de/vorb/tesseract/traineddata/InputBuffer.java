@@ -5,13 +5,15 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class InputBuffer {
-    private final BufferedInputStream in;
-    private long buf;
+    protected final BufferedInputStream in;
+    protected long buf;
 
-    private InputBuffer(InputStream in, int capacity) {
-        this.in = (in instanceof BufferedInputStream)
-                ? (BufferedInputStream) in
-                : new BufferedInputStream(in, capacity);
+    protected InputBuffer(BufferedInputStream in) {
+        this.in = in;
+    }
+
+    protected InputBuffer(InputStream in, int capacity) {
+        this(new BufferedInputStream(in, capacity));
     }
 
     public boolean readByte() throws IOException {
@@ -119,6 +121,18 @@ public class InputBuffer {
 
     public double getDouble() {
         return Double.longBitsToDouble(buf);
+    }
+
+    public int readBuffer(byte[] buf) throws IOException {
+        return in.read(buf);
+    }
+
+    public int readBuffer(byte[] buf, int off, int len) throws IOException {
+        return in.read(buf, off, len);
+    }
+
+    public static InputBuffer allocate(BufferedInputStream in) {
+        return new InputBuffer(in);
     }
 
     public static InputBuffer allocate(InputStream in, int capacity) {
