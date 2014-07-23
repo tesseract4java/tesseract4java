@@ -38,8 +38,7 @@ public class ClassPruner {
                                             x, y, z, w));
                         }
 
-                        final int val = buf.getInt();
-                        p[x][y][z][w] = val;
+                        p[x][y][z][w] = buf.getInt();
                     }
                 }
             }

@@ -13,13 +13,13 @@ import de.vorb.tesseract.util.feat.Feature4D;
 public class IntClass {
     private final int numProtos;
     private final ArrayList<ProtoSet> protoSets;
-    private final short[] protoLengths;
-    private final int[] configLengths;
+    private final byte[] protoLengths;
+    private final short[] configLengths;
     private final int fontSetId;
 
     private IntClass(int numProtos, ArrayList<ProtoSet> protoSets,
-            short[] protoLengths,
-            int[] configLengths, int fontSetId) {
+            byte[] protoLengths,
+            short[] configLengths, int fontSetId) {
         this.numProtos = numProtos;
         this.protoSets = protoSets;
         this.protoLengths = protoLengths;
@@ -35,11 +35,11 @@ public class IntClass {
         return Collections.unmodifiableList(protoSets);
     }
 
-    public short[] getProtoLengths() {
+    public byte[] getProtoLengths() {
         return protoLengths;
     }
 
-    public int[] getConfigLengths() {
+    public short[] getConfigLengths() {
         return configLengths;
     }
 
@@ -49,34 +49,42 @@ public class IntClass {
 
     public static IntClass readFromBuffer(InputBuffer buf)
             throws IOException {
-        if (!buf.readInt()) {
-            throw new IOException("invalid int class header");
-        }
 
         // see intproto.cpp@966
+        if (!buf.readShort()) {
+            throw new IOException("invalid int class header");
+        }
         final int numProtos = buf.getShort() & 0xFFFF;
+
+        if (!buf.readByte()) {
+            throw new IOException("invalid int class header");
+        }
         final int numProtoSets = buf.getByte() & 0xFF;
+
+        if (!buf.readByte()) {
+            throw new IOException("invalid int class header");
+        }
         final int numConfigs = buf.getByte() & 0xFF;
 
         // read config lengths
-        final int[] configLengths = new int[numConfigs];
+        final short[] configLengths = new short[numConfigs];
         for (int i = 0; i < numConfigs; i++) {
-            if (!buf.readInt()) {
+            if (!buf.readShort()) {
                 throw new IOException("not enough config lengths");
             }
 
-            configLengths[i] = buf.getShort() & 0xFFFF;
+            configLengths[i] = buf.getShort();
         }
 
         // read proto lengths
-        final short[] protoLengths = new short[numProtoSets
+        final byte[] protoLengths = new byte[numProtoSets
                 * PROTOS_PER_PROTO_SET];
         for (int i = 0; i < protoLengths.length; i++) {
             if (!buf.readByte()) {
                 throw new IOException("not enough proto lengths");
             }
 
-            protoLengths[i] = (short) (buf.getByte() & 0xFF);
+            protoLengths[i] = buf.getByte();
         }
 
         // read proto sets
@@ -100,32 +108,26 @@ public class IntClass {
                     new ArrayList<>(PROTOS_PER_PROTO_SET);
             for (int x = 0; x < PROTOS_PER_PROTO_SET; x++) {
                 // get prototype information
-                if (!buf.readByte()) {
+                if (!buf.readByte())
                     throw new IOException("not enough protos");
-                }
                 final byte a = buf.getByte();
 
-                if (!buf.readByte()) {
+                if (!buf.readByte())
                     throw new IOException("not enough protos");
-                }
                 final byte b = buf.getByte();
 
-                if (!buf.readByte()) {
+                if (!buf.readByte())
                     throw new IOException("not enough protos");
-                }
                 final byte c = buf.getByte();
 
-                if (!buf.readByte()) {
+                if (!buf.readByte())
                     throw new IOException("not enough protos");
-                }
                 final byte angle = buf.getByte();
 
                 final int[] configs = new int[WERDS_PER_CONFIG_VEC];
                 for (int y = 0; y < WERDS_PER_CONFIG_VEC; y++) {
-                    if (!buf.readInt()) {
+                    if (!buf.readInt())
                         throw new IOException("not enough prototype configs");
-                    }
-
                     configs[y] = buf.getInt();
                 }
 
@@ -135,6 +137,8 @@ public class IntClass {
             protoSets.add(new ProtoSet(protoPruner, protos));
         }
 
+        if (!buf.readInt())
+            throw new IOException("missing font set id");
         final int fontSetId = buf.getInt();
 
         return new IntClass(numProtos, protoSets, protoLengths, configLengths,

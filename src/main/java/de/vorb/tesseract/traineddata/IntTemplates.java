@@ -64,6 +64,9 @@ public class IntTemplates {
         if (numClasses < 0) {
             // this file has a version id!
             versionId = -numClasses;
+
+            if (!buf.readInt())
+                throw new IOException("invalid header");
             numClasses = buf.getInt();
         } else {
             versionId = 0;
