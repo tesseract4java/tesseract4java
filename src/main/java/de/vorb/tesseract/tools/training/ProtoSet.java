@@ -1,4 +1,4 @@
-package de.vorb.tesseract.traineddata;
+package de.vorb.tesseract.tools.training;
 
 import java.util.ArrayList;
 import java.util.Collections;

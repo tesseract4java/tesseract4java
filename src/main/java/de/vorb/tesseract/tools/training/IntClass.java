@@ -1,7 +1,7 @@
-package de.vorb.tesseract.traineddata;
+package de.vorb.tesseract.tools.training;
 
-import static de.vorb.tesseract.traineddata.IntTemplates.PROTOS_PER_PROTO_SET;
-import static de.vorb.tesseract.traineddata.IntTemplates.WERDS_PER_CONFIG_VEC;
+import static de.vorb.tesseract.tools.training.IntTemplates.PROTOS_PER_PROTO_SET;
+import static de.vorb.tesseract.tools.training.IntTemplates.WERDS_PER_CONFIG_VEC;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package de.vorb.tesseract.traineddata;
+package de.vorb.tesseract.tools.training;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -42,7 +42,7 @@ public class IntTemplates {
         return Collections.unmodifiableList(pruners);
     }
 
-    public static IntTemplates readFromBuffer(InputBuffer buf)
+    public static IntTemplates readFrom(InputBuffer buf)
             throws IOException {
         buf.setByteOrder(ByteOrder.BIG_ENDIAN);
 

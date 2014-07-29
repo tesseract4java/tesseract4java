@@ -1,7 +1,7 @@
-package de.vorb.tesseract.traineddata;
+package de.vorb.tesseract.tools.training;
 
-import static de.vorb.tesseract.traineddata.IntTemplates.NUM_CP_BUCKETS;
-import static de.vorb.tesseract.traineddata.IntTemplates.WERDS_PER_CP_VECTOR;
+import static de.vorb.tesseract.tools.training.IntTemplates.NUM_CP_BUCKETS;
+import static de.vorb.tesseract.tools.training.IntTemplates.WERDS_PER_CP_VECTOR;
 
 import java.io.IOException;
 

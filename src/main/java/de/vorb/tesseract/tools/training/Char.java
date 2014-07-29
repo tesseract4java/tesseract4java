@@ -1,6 +1,5 @@
-package de.vorb.tesseract.traineddata;
+package de.vorb.tesseract.tools.training;
 
-import de.vorb.tesseract.tools.training.CharacterProperties;
 
 public class Char {
     private final String text;

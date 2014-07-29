@@ -1,4 +1,4 @@
-package de.vorb.tesseract.traineddata;
+package de.vorb.tesseract.tools.training;
 
 public enum TessdataType {
     LANG_CONFIG, // 0

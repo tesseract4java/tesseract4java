@@ -1,4 +1,4 @@
-package de.vorb.tesseract.traineddata;
+package de.vorb.tesseract.tools.training;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,8 +9,6 @@ import java.util.Scanner;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import de.vorb.tesseract.tools.training.CharacterProperties;
 
 public class Unicharset {
     private static final Pattern LONG_LINE =

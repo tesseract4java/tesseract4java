@@ -1,4 +1,4 @@
-package de.vorb.tesseract.traineddata;
+package de.vorb.tesseract.tools.training;
 
 public class CharacterDimensions {
     public static final CharacterDimensions DEFAULT = new CharacterDimensions(
