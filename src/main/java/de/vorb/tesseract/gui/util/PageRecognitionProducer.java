@@ -15,7 +15,6 @@ import java.util.Map.Entry;
 import javax.imageio.ImageIO;
 
 import org.bridj.Pointer;
-import org.bridj.PointerIO;
 
 import com.google.common.base.Optional;
 

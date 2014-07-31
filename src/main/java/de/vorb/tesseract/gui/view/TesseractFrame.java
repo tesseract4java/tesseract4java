@@ -15,13 +15,9 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import com.google.common.base.Optional;
 
@@ -33,7 +29,6 @@ import de.vorb.tesseract.gui.util.FilterProvider;
 import de.vorb.tesseract.gui.util.Resources;
 import de.vorb.tesseract.gui.view.i18n.Labels;
 import de.vorb.tesseract.gui.view.renderer.PageListCellRenderer;
-import de.vorb.tesseract.util.Symbol;
 
 /**
  * Swing component that allows to compare the results of Tesseract.

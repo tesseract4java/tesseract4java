@@ -3,7 +3,6 @@ package de.vorb.tesseract.gui.view.renderer;
 import java.awt.Component;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
