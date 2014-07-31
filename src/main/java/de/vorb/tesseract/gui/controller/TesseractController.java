@@ -7,7 +7,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -50,9 +50,9 @@ import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
 import de.vorb.tesseract.gui.view.RecognitionParametersDialog;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
-import de.vorb.tesseract.traineddata.IntTemplates;
-import de.vorb.tesseract.traineddata.ReadableByteBuffer;
-import de.vorb.tesseract.traineddata.TessdataManager;
+import de.vorb.tesseract.tools.training.InputBuffer;
+import de.vorb.tesseract.tools.training.IntTemplates;
+import de.vorb.tesseract.tools.training.TessdataManager;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TrainingFiles;
@@ -82,7 +82,6 @@ public class TesseractController extends WindowAdapter implements
     private String lastTrainingFile;
 
     private final Path tmpDir;
-    private Optional<IntTemplates> prototypes = Optional.absent();
 
     public static void main(String[] args) {
         BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
@@ -120,6 +119,10 @@ public class TesseractController extends WindowAdapter implements
             this.tmpDir = tmpDir;
         }
 
+        pageRecognitionProducer = new PageRecognitionProducer(
+                TrainingFiles.getTessdataDir(),
+                RecognitionProducer.DEFAULT_TRAINING_FILE);
+
         // init training files
         try {
             final List<String> trainingFiles = TrainingFiles.getAvailable();
@@ -145,14 +148,13 @@ public class TesseractController extends WindowAdapter implements
                     TRAINING_FILE, RecognitionProducer.DEFAULT_TRAINING_FILE);
 
             trainingFilesList.setSelectedValue(lastTrainingFile, true);
+
+            // handle the new training file selection
+            handleTrainingFileSelection();
         } catch (IOException e) {
             Dialogs.showError(view, "Error",
                     "Training files could not be found.");
         }
-
-        pageRecognitionProducer = new PageRecognitionProducer(
-                TrainingFiles.getTessdataDir(),
-                RecognitionProducer.DEFAULT_TRAINING_FILE);
 
         try {
             pageRecognitionProducer.init();
@@ -282,7 +284,8 @@ public class TesseractController extends WindowAdapter implements
         pageRecognitionProducer.setTrainingFile(trainingFile);
 
         try {
-            loadPrototypes();
+            final Optional<IntTemplates> prototypes = loadPrototypes();
+            featureDebugger.setPrototypes(prototypes);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -296,7 +299,7 @@ public class TesseractController extends WindowAdapter implements
         lastTrainingFile = trainingFile;
     }
 
-    private void loadPrototypes() throws IOException {
+    private Optional<IntTemplates> loadPrototypes() throws IOException {
         final Path tessdir = TrainingFiles.getTessdataDir();
         final Path base = tmpDir.resolve(TMP_TRAINING_FILE_BASE);
 
@@ -307,12 +310,12 @@ public class TesseractController extends WindowAdapter implements
                 tmpDir.resolve(tmpDir.resolve(TMP_TRAINING_FILE_BASE
                         + "inttemp"));
 
-        final ReadableByteChannel in = Files.newByteChannel(prototypeFile);
-        final ReadableByteBuffer buf = ReadableByteBuffer.allocate(in, 4096);
+        final InputStream in = Files.newInputStream(prototypeFile);
+        final InputBuffer buf = InputBuffer.allocate(in, 4096);
 
-        final IntTemplates prototypes = IntTemplates.readFromBuffer(buf);
+        final IntTemplates prototypes = IntTemplates.readFrom(buf);
 
-        this.prototypes = Optional.of(prototypes);
+        return Optional.of(prototypes);
     }
 
     private void handleCompareSymbolToPrototype() {
