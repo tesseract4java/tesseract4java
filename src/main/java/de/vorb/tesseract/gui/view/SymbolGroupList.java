@@ -13,8 +13,9 @@ import javax.swing.ListSelectionModel;
 
 import de.vorb.tesseract.gui.view.renderer.GlyphSelectionRenderer;
 import de.vorb.tesseract.util.Symbol;
+import javax.swing.border.EmptyBorder;
 
-public class GlyphSelectionPane extends JPanel {
+public class SymbolGroupList extends JPanel {
     private static final long serialVersionUID = 1L;
 
     private final JList<Entry<String, Set<Symbol>>> selectionList;
@@ -22,11 +23,12 @@ public class GlyphSelectionPane extends JPanel {
     /**
      * Create the panel.
      */
-    public GlyphSelectionPane() {
+    public SymbolGroupList() {
         super();
         setLayout(new BorderLayout(0, 0));
 
         JPanel panel = new JPanel();
+        panel.setBorder(new EmptyBorder(3, 0, 3, 0));
         FlowLayout flowLayout = (FlowLayout) panel.getLayout();
         flowLayout.setAlignment(FlowLayout.LEADING);
         add(panel, BorderLayout.NORTH);

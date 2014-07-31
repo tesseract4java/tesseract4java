@@ -13,8 +13,13 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
 import de.vorb.tesseract.util.Symbol;
+import java.awt.Component;
+import javax.swing.Box;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
+import de.vorb.tesseract.gui.model.SymbolOrder;
 
-public class GlyphListPane extends JPanel {
+public class SymbolVariantList extends JPanel {
     private static final long serialVersionUID = 1L;
     private final JList<Symbol> glyphList;
     private final JMenuItem showInBoxEditor;
@@ -23,7 +28,7 @@ public class GlyphListPane extends JPanel {
     /**
      * Create the panel.
      */
-    public GlyphListPane() {
+    public SymbolVariantList() {
         super();
         setLayout(new BorderLayout(0, 0));
 
@@ -34,6 +39,17 @@ public class GlyphListPane extends JPanel {
 
         JLabel lblVariants = new JLabel("Variants");
         panel.add(lblVariants);
+
+        Component horizontalStrut = Box.createHorizontalStrut(20);
+        panel.add(horizontalStrut);
+
+        JLabel lblOrder = new JLabel("Order by");
+        panel.add(lblOrder);
+
+        JComboBox<SymbolOrder> cbOrdering = new JComboBox<>();
+        cbOrdering.setModel(new DefaultComboBoxModel<SymbolOrder>(
+                SymbolOrder.values()));
+        panel.add(cbOrdering);
 
         JScrollPane scrollPane = new JScrollPane();
         add(scrollPane, BorderLayout.CENTER);

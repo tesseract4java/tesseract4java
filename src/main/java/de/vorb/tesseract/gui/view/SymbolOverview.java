@@ -39,11 +39,11 @@ import de.vorb.tesseract.util.Word;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
-public class GlyphExportPane extends JPanel implements MainComponent {
+public class SymbolOverview extends JPanel implements MainComponent {
     private static final long serialVersionUID = 1L;
 
-    private final GlyphSelectionPane glyphSelectionPane;
-    private final GlyphListPane glyphListPane;
+    private final SymbolGroupList glyphSelectionPane;
+    private final SymbolVariantList glyphListPane;
 
     private Optional<PageModel> model = Optional.absent();
 
@@ -73,35 +73,25 @@ public class GlyphExportPane extends JPanel implements MainComponent {
     /**
      * Create the panel.
      */
-    public GlyphExportPane() {
+    public SymbolOverview() {
         super();
         setLayout(new BorderLayout(0, 0));
-
-        JPanel panel = new JPanel();
-        panel.setBackground(Color.WHITE);
-        FlowLayout flowLayout = (FlowLayout) panel.getLayout();
-        flowLayout.setAlignment(FlowLayout.TRAILING);
-        add(panel, BorderLayout.SOUTH);
-
-        JButton btnExport = new JButton("Export ...");
-        btnExport.setBackground(Color.WHITE);
-        panel.add(btnExport);
 
         JSplitPane splitPane = new JSplitPane();
         add(splitPane, BorderLayout.CENTER);
 
-        glyphSelectionPane = new GlyphSelectionPane();
-        glyphListPane = new GlyphListPane();
+        glyphSelectionPane = new SymbolGroupList();
+        glyphListPane = new SymbolVariantList();
 
         splitPane.setLeftComponent(glyphSelectionPane);
         splitPane.setRightComponent(glyphListPane);
     }
 
-    public GlyphSelectionPane getGlyphSelectionPane() {
+    public SymbolGroupList getGlyphSelectionPane() {
         return glyphSelectionPane;
     }
 
-    public GlyphListPane getGlyphListPane() {
+    public SymbolVariantList getGlyphListPane() {
         return glyphListPane;
     }
 
