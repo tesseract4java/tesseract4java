@@ -2,42 +2,28 @@ package de.vorb.tesseract.gui.view;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.FlowLayout;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 
-import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.event.SymbolLinkListener;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.renderer.GlyphListCellRenderer;
-import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Line;
 import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
-
-import java.awt.Color;
-import java.awt.image.BufferedImage;
 
 public class SymbolOverview extends JPanel implements MainComponent {
     private static final long serialVersionUID = 1L;
@@ -50,11 +36,11 @@ public class SymbolOverview extends JPanel implements MainComponent {
     private final LinkedList<SymbolLinkListener> listeners =
             new LinkedList<SymbolLinkListener>();
 
-    public static final Comparator<Entry<String, Set<Symbol>>> GLYPH_COMP =
-            new Comparator<Entry<String, Set<Symbol>>>() {
+    public static final Comparator<Entry<String, List<Symbol>>> SYMBOL_GROUP_COMP =
+            new Comparator<Entry<String, List<Symbol>>>() {
                 @Override
-                public int compare(Entry<String, Set<Symbol>> o1,
-                        Entry<String, Set<Symbol>> o2) {
+                public int compare(Entry<String, List<Symbol>> o1,
+                        Entry<String, List<Symbol>> o2) {
                     return o2.getValue().size() - o1.getValue().size();
                 }
             };
@@ -87,11 +73,11 @@ public class SymbolOverview extends JPanel implements MainComponent {
         splitPane.setRightComponent(glyphListPane);
     }
 
-    public SymbolGroupList getGlyphSelectionPane() {
+    public SymbolGroupList getSymbolGroupList() {
         return glyphSelectionPane;
     }
 
-    public SymbolVariantList getGlyphListPane() {
+    public SymbolVariantList getSymbolVariantList() {
         return glyphListPane;
     }
 
@@ -102,22 +88,16 @@ public class SymbolOverview extends JPanel implements MainComponent {
         if (!model.isPresent())
             return;
 
-        final JList<Entry<String, Set<Symbol>>> glyphList =
-                getGlyphSelectionPane().getList();
+        final JList<Entry<String, List<Symbol>>> glyphList =
+                getSymbolGroupList().getList();
 
-        final HashMap<String, Set<Symbol>> glyphs = new HashMap<>();
+        final HashMap<String, List<Symbol>> glyphs = new HashMap<>();
 
         final Page page = model.get().getPage();
 
         // set a new renderer that has a reference to the thresholded image
-        getGlyphListPane().getList().setCellRenderer(
+        getSymbolVariantList().getList().setCellRenderer(
                 new GlyphListCellRenderer(model.get().getImage()));
-
-        // // TODO remove
-        // BufferedImage img = model.get().getImage();
-        // try {
-        // final Path dir = Paths.get("symbols");
-        // Files.createDirectories(dir);
 
         // insert all symbols into the map
         for (final Line line : page.getLines()) {
@@ -125,59 +105,24 @@ public class SymbolOverview extends JPanel implements MainComponent {
                 for (final Symbol symbol : word.getSymbols()) {
                     final String sym = symbol.getText();
 
-                    // String dirname = sym.replaceAll("\\p{Lu}", "+$0");
-                    // dirname = dirname.replaceAll("ß", "scharfs");
-                    // dirname = dirname.replaceAll("ſ", "langs");
-                    // dirname = dirname.replaceAll(",", "komma");
-                    // dirname = dirname.replaceAll("\\.", "punkt");
-                    // dirname = dirname.replaceAll("-", "bindestrich");
-                    // dirname = dirname.replaceAll("„", "anfz_unten");
-                    // dirname = dirname.replaceAll("“", "anfz_oben");
-                    // dirname = dirname.replaceAll("\\?", "fragezeichen");
-                    // dirname = dirname.replaceAll("!", "ausrufezeichen");
-                    // dirname = dirname.replaceAll("ä", "ae");
-                    // dirname = dirname.replaceAll("ö", "oe");
-                    // dirname = dirname.replaceAll("ü", "ue");
-                    // dirname = dirname.replaceAll("\\(", "klammer_auf");
-                    // dirname = dirname.replaceAll("\\)", "klammer_zu");
-                    // dirname = dirname.replaceAll("\\*", "stern");
-                    // Path dir2 = dir.resolve(dirname.replaceAll(
-                    // "[^a-zA-Z0-9\\.\\-+]", "_"));
-                    // Files.createDirectories(dir2);
-
                     if (!glyphs.containsKey(sym)) {
-                        glyphs.put(sym, new TreeSet<Symbol>(SYMBOL_COMP));
+                        glyphs.put(sym, new ArrayList<Symbol>());
                     }
 
                     glyphs.get(sym).add(symbol);
-
-                    // Box bbox = symbol.getBoundingBox();
-                    //
-                    // BufferedImage sub = img.getSubimage(bbox.getX(),
-                    // bbox.getY(),
-                    // bbox.getWidth(), bbox.getHeight());
-                    // int i = 1;
-                    // for (Path p : Files.newDirectoryStream(dir2)) {
-                    // i++;
-                    // }
-                    // ImageIO.write(sub, "PNG",
-                    // dir2.resolve(i + ".png").toFile());
                 }
             }
         }
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        // }
 
-        final ArrayList<Entry<String, Set<Symbol>>> entries = new ArrayList<>(
+        final ArrayList<Entry<String, List<Symbol>>> entries = new ArrayList<>(
                 glyphs.entrySet());
 
-        Collections.sort(entries, GLYPH_COMP);
+        Collections.sort(entries, SYMBOL_GROUP_COMP);
 
-        final DefaultListModel<Entry<String, Set<Symbol>>> listModel =
+        final DefaultListModel<Entry<String, List<Symbol>>> listModel =
                 new DefaultListModel<>();
 
-        for (final Entry<String, Set<Symbol>> entry : entries) {
+        for (final Entry<String, List<Symbol>> entry : entries) {
             listModel.addElement(entry);
         }
 

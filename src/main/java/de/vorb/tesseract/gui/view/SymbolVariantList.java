@@ -13,15 +13,21 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
 import de.vorb.tesseract.util.Symbol;
+
 import java.awt.Component;
+
 import javax.swing.Box;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+
 import de.vorb.tesseract.gui.model.SymbolOrder;
+
+import java.awt.Color;
 
 public class SymbolVariantList extends JPanel {
     private static final long serialVersionUID = 1L;
     private final JList<Symbol> glyphList;
+    private final JComboBox<SymbolOrder> cbOrdering;
     private final JMenuItem showInBoxEditor;
     private final JMenuItem compareToPrototype;
 
@@ -33,6 +39,7 @@ public class SymbolVariantList extends JPanel {
         setLayout(new BorderLayout(0, 0));
 
         JPanel panel = new JPanel();
+        panel.setBackground(Color.WHITE);
         FlowLayout fl_panel = (FlowLayout) panel.getLayout();
         fl_panel.setAlignment(FlowLayout.LEADING);
         add(panel, BorderLayout.NORTH);
@@ -46,7 +53,8 @@ public class SymbolVariantList extends JPanel {
         JLabel lblOrder = new JLabel("Order by");
         panel.add(lblOrder);
 
-        JComboBox<SymbolOrder> cbOrdering = new JComboBox<>();
+        cbOrdering = new JComboBox<>();
+        cbOrdering.setBackground(Color.WHITE);
         cbOrdering.setModel(new DefaultComboBoxModel<SymbolOrder>(
                 SymbolOrder.values()));
         panel.add(cbOrdering);
@@ -88,6 +96,10 @@ public class SymbolVariantList extends JPanel {
 
     public JList<Symbol> getList() {
         return glyphList;
+    }
+
+    public JComboBox<SymbolOrder> getOrderingCheckBox() {
+        return cbOrdering;
     }
 
     public JMenuItem getShowInBoxEditor() {

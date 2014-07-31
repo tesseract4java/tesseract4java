@@ -44,7 +44,7 @@ public class TesseractFrame extends JFrame {
     private final FilteredList<String> listTrainingFiles;
     private final BoxEditor boxEditor;
     private final RecognitionPane recognitionPane;
-    private final GlyphExportPane glyphOverview;
+    private final SymbolOverview glyphOverview;
 
     private final JLabel lblScaleFactor;
     private final JProgressBar pbLoadPage;
@@ -78,7 +78,7 @@ public class TesseractFrame extends JFrame {
         scale = new Scale();
         boxEditor = new BoxEditor(scale);
         recognitionPane = new RecognitionPane();
-        glyphOverview = new GlyphExportPane();
+        glyphOverview = new SymbolOverview();
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 
@@ -147,32 +147,6 @@ public class TesseractFrame extends JFrame {
                 });
 
         listTrainingFiles.setBorder(BorderFactory.createTitledBorder("Training File"));
-
-        glyphOverview.getGlyphSelectionPane().getList().addListSelectionListener(
-                new ListSelectionListener() {
-                    public void valueChanged(ListSelectionEvent e) {
-                        if (e.getValueIsAdjusting()) {
-                            return;
-                        }
-
-                        @SuppressWarnings("unchecked")
-                        final JList<Entry<String, Set<Symbol>>> selectionList =
-                                (JList<Entry<String, Set<Symbol>>>) e.getSource();
-
-                        final Set<Symbol> symbols = selectionList.getModel().getElementAt(
-                                selectionList.getSelectedIndex()).getValue();
-
-                        final DefaultListModel<Symbol> model = new DefaultListModel<>();
-                        for (final Symbol symbol : symbols) {
-                            if (symbol.getBoundingBox().getHeight() > 0) {
-                                model.addElement(symbol);
-                            }
-                        }
-
-                        glyphOverview.getGlyphListPane().getList().setModel(
-                                model);
-                    }
-                });
 
         setTitle(Labels.getLabel(getLocale(), "frame_title"));
 
@@ -259,7 +233,7 @@ public class TesseractFrame extends JFrame {
                 Resources.getIcon("table_edit"), boxEditor);
 
         tabsMain.addTab(
-                Labels.getLabel(getLocale(), "tab_main_glyphoverview"),
+                Labels.getLabel(getLocale(), "tab_main_symboloverview"),
                 Resources.getIcon("application_view_icons"),
                 glyphOverview);
 
@@ -311,7 +285,7 @@ public class TesseractFrame extends JFrame {
         return recognitionPane;
     }
 
-    public GlyphExportPane getGlyphExportPane() {
+    public SymbolOverview getGlyphOverviewPane() {
         return glyphOverview;
     }
 

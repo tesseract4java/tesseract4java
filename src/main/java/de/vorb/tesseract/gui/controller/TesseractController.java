@@ -14,8 +14,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -37,6 +39,7 @@ import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.GlobalPrefs;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
+import de.vorb.tesseract.gui.model.SymbolListModel;
 import de.vorb.tesseract.gui.util.PageListLoader;
 import de.vorb.tesseract.gui.util.PageModelLoader;
 import de.vorb.tesseract.gui.util.PageRecognitionProducer;
@@ -61,34 +64,37 @@ import de.vorb.util.FileIO;
 
 public class TesseractController extends WindowAdapter implements
         ActionListener, ListSelectionListener, Observer, ChangeListener {
-    private static final String TRAINING_FILE = "training_file";
-    private static final String TMP_TRAINING_FILE_BASE = "unspecified.";
-
-    private final TesseractFrame view;
-    private final FeatureDebugger featureDebugger;
-
-    private MainComponent activeComponent;
-
-    private final PageRecognitionProducer pageRecognitionProducer;
-    private Optional<PageModelLoader> pageModelLoader = Optional.absent();
-    private Optional<ThumbnailLoader> thumbnailLoader = Optional.absent();
-
-    private final Timer pageSelectionTimer = new Timer("PageSelectionTimer");
-    private Optional<TimerTask> lastPageSelection = Optional.absent();
-
-    private final Timer thumbnailLoadTimer = new Timer("ThumbnailLoadTimer");
-    private Optional<TimerTask> lastThumbnailLoad = Optional.absent();
-
-    private String lastTrainingFile;
-
-    private final Path tmpDir;
-
     public static void main(String[] args) {
         BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
         BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
 
         new TesseractController();
     }
+
+    private static final String TRAINING_FILE = "training_file";
+
+    private static final String TMP_TRAINING_FILE_BASE = "unspecified.";
+    private final TesseractFrame view;
+
+    private final FeatureDebugger featureDebugger;
+
+    private MainComponent activeComponent;
+    private final PageRecognitionProducer pageRecognitionProducer;
+    private Optional<PageModelLoader> pageModelLoader = Optional.absent();
+
+    private Optional<ThumbnailLoader> thumbnailLoader = Optional.absent();
+    private final Timer pageSelectionTimer = new Timer("PageSelectionTimer");
+
+    private Optional<TimerTask> lastPageSelection = Optional.absent();
+    private final Timer thumbnailLoadTimer = new Timer("ThumbnailLoadTimer");
+
+    private Optional<TimerTask> lastThumbnailLoad = Optional.absent();
+
+    private String lastTrainingFile;
+
+    private final Path tmpDir;
+
+    private final List<Task> tasks = new LinkedList<Task>();
 
     public TesseractController() {
         try {
@@ -173,18 +179,18 @@ public class TesseractController extends WindowAdapter implements
         view.getTrainingFiles().getList().addListSelectionListener(this);
         view.getScale().addObserver(this);
 
-        // glyph export pane
-        view.getGlyphExportPane().getGlyphListPane().getCompareToPrototype()
-                .addActionListener(this);
-        view.getGlyphExportPane().getGlyphListPane().getShowInBoxEditor()
+        // glyph overview pane
+        view.getGlyphOverviewPane().getSymbolGroupList().getList()
+                .addListSelectionListener(this);
+        view.getGlyphOverviewPane().getSymbolVariantList().getList()
+                .addListSelectionListener(this);
+        view.getGlyphOverviewPane().getSymbolVariantList()
+                .getCompareToPrototype().addActionListener(this);
+        view.getGlyphOverviewPane().getSymbolVariantList().getShowInBoxEditor()
                 .addActionListener(this);
 
         // recognition pane
         view.getRecognitionPane().getParametersButton().addActionListener(this);
-    }
-
-    public PageRecognitionProducer getPageRecognitionProducer() {
-        return pageRecognitionProducer;
     }
 
     @Override
@@ -192,10 +198,10 @@ public class TesseractController extends WindowAdapter implements
         final Object source = evt.getSource();
         if (source.equals(view.getMenuItemNewProject())) {
             handleNewProject();
-        } else if (source.equals(view.getGlyphExportPane().getGlyphListPane()
+        } else if (source.equals(view.getGlyphOverviewPane().getSymbolVariantList()
                 .getCompareToPrototype())) {
             handleCompareSymbolToPrototype();
-        } else if (source.equals(view.getGlyphExportPane().getGlyphListPane()
+        } else if (source.equals(view.getGlyphOverviewPane().getSymbolVariantList()
                 .getShowInBoxEditor())) {
             handleShowSymbolInBoxEditor();
         } else if (source.equals(view.getRecognitionPane().getParametersButton())) {
@@ -203,14 +209,43 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
-    @Override
-    public void valueChanged(ListSelectionEvent evt) {
-        final Object source = evt.getSource();
-        if (source.equals(view.getPages().getList())) {
-            handlePageSelection();
-        } else if (source.equals(view.getTrainingFiles().getList())) {
-            handleTrainingFileSelection();
+    public PageRecognitionProducer getPageRecognitionProducer() {
+        return pageRecognitionProducer;
+    }
+
+    public TesseractFrame getView() {
+        return view;
+    }
+
+    private void handleCompareSymbolToPrototype() {
+        final Symbol selected = view.getGlyphOverviewPane().getSymbolVariantList()
+                .getList().getSelectedValue();
+
+        final Optional<PageModel> pm = view.getPageModel();
+        if (pm.isPresent()) {
+            final BufferedImage pageImg = pm.get().getImage();
+            final Box symbolBox = selected.getBoundingBox();
+            final BufferedImage symbolImg = pageImg.getSubimage(
+                    symbolBox.getX(), symbolBox.getY(),
+                    symbolBox.getWidth(), symbolBox.getHeight());
+
+            final List<Feature3D> features =
+                    pageRecognitionProducer.getFeaturesForSymbol(symbolImg);
+
+            featureDebugger.setFeatures(features);
+            featureDebugger.setVisible(true);
         }
+    }
+
+    private void handleMainComponentChange() {
+        final MainComponent newActiveComponent = view.getActiveComponent();
+        if (activeComponent == newActiveComponent) {
+            return;
+        }
+
+        newActiveComponent.setPageModel(activeComponent.getPageModel());
+
+        activeComponent = newActiveComponent;
     }
 
     private void handleNewProject() {
@@ -275,71 +310,20 @@ public class TesseractController extends WindowAdapter implements
         lastPageSelection = Optional.of(task);
     }
 
-    private void handleTrainingFileSelection() {
-        final String trainingFile =
-                view.getTrainingFiles().getList().getSelectedValue();
+    private void handleParametersButtonClick() {
+        final Optional<Float> ratio =
+                RecognitionParametersDialog.showDialog(view);
 
-        GlobalPrefs.getPrefs().put(TRAINING_FILE, trainingFile);
-
-        pageRecognitionProducer.setTrainingFile(trainingFile);
-
-        try {
-            final Optional<IntTemplates> prototypes = loadPrototypes();
-            featureDebugger.setPrototypes(prototypes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // if the training file has changed, ask to reload the page
-        if (!view.getPages().getList().isSelectionEmpty()
-                && trainingFile != lastTrainingFile) {
+        if (ratio.isPresent()
+                && !view.getPages().getList().isSelectionEmpty()) {
+            pageRecognitionProducer.setVariable("textord_noise_hfract",
+                    ratio.get().toString());
             handlePageSelection();
-        }
-
-        lastTrainingFile = trainingFile;
-    }
-
-    private Optional<IntTemplates> loadPrototypes() throws IOException {
-        final Path tessdir = TrainingFiles.getTessdataDir();
-        final Path base = tmpDir.resolve(TMP_TRAINING_FILE_BASE);
-
-        TessdataManager.extract(
-                tessdir.resolve(lastTrainingFile + ".traineddata"), base);
-
-        final Path prototypeFile =
-                tmpDir.resolve(tmpDir.resolve(TMP_TRAINING_FILE_BASE
-                        + "inttemp"));
-
-        final InputStream in = Files.newInputStream(prototypeFile);
-        final InputBuffer buf = InputBuffer.allocate(in, 4096);
-
-        final IntTemplates prototypes = IntTemplates.readFrom(buf);
-
-        return Optional.of(prototypes);
-    }
-
-    private void handleCompareSymbolToPrototype() {
-        final Symbol selected = view.getGlyphExportPane().getGlyphListPane()
-                .getList().getSelectedValue();
-
-        final Optional<PageModel> pm = view.getPageModel();
-        if (pm.isPresent()) {
-            final BufferedImage pageImg = pm.get().getImage();
-            final Box symbolBox = selected.getBoundingBox();
-            final BufferedImage symbolImg = pageImg.getSubimage(
-                    symbolBox.getX(), symbolBox.getY(),
-                    symbolBox.getWidth(), symbolBox.getHeight());
-
-            final List<Feature3D> features =
-                    pageRecognitionProducer.getFeaturesForSymbol(symbolImg);
-
-            featureDebugger.setFeatures(features);
-            featureDebugger.setVisible(true);
         }
     }
 
     private void handleShowSymbolInBoxEditor() {
-        final Symbol selected = view.getGlyphExportPane().getGlyphListPane()
+        final Symbol selected = view.getGlyphOverviewPane().getSymbolVariantList()
                 .getList().getSelectedValue();
 
         if (selected == null) {
@@ -361,67 +345,21 @@ public class TesseractController extends WindowAdapter implements
         view.getMainTabs().setSelectedComponent(view.getBoxEditor());
     }
 
-    private void handleParametersButtonClick() {
-        final Optional<Float> ratio =
-                RecognitionParametersDialog.showDialog(view);
+    private void handleSymbolGroupSelection() {
+        final JList<Entry<String, List<Symbol>>> selectionList =
+                view.getGlyphOverviewPane().getSymbolGroupList().getList();
 
-        if (ratio.isPresent()
-                && !view.getPages().getList().isSelectionEmpty()) {
-            pageRecognitionProducer.setVariable("textord_noise_hfract",
-                    ratio.get().toString());
-            handlePageSelection();
-        }
-    }
+        final List<Symbol> symbols = selectionList.getModel().getElementAt(
+                selectionList.getSelectedIndex()).getValue();
 
-    @Override
-    public void windowClosed(WindowEvent evt) {
-        // delete temporary directory
-        try {
-            if (Files.exists(tmpDir)) {
-                FileIO.deleteDirectory(tmpDir);
-            }
-        } catch (IOException e) {
-            Dialogs.showError(view, "Error",
-                    "Temporary directory could not be removed completely.");
+        final SymbolListModel model = new SymbolListModel();
+        for (final Symbol symbol : symbols) {
+            model.addElement(symbol);
         }
 
-        pageSelectionTimer.cancel();
-        thumbnailLoadTimer.cancel();
+        view.getGlyphOverviewPane().getSymbolVariantList().getList().setModel(
+                model);
     }
-
-    public TesseractFrame getView() {
-        return view;
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-        if (o == view.getScale()) {
-            view.getScaleLabel().setText(o.toString());
-        }
-    }
-
-    @Override
-    public void stateChanged(ChangeEvent evt) {
-        final Object source = evt.getSource();
-        if (source == view.getPages().getList().getParent()) {
-            handleThumbnailLoading();
-        } else if (source == view.getMainTabs()) {
-            handleMainComponentChange();
-        }
-    }
-
-    private void handleMainComponentChange() {
-        final MainComponent newActiveComponent = view.getActiveComponent();
-        if (activeComponent == newActiveComponent) {
-            return;
-        }
-
-        newActiveComponent.setPageModel(activeComponent.getPageModel());
-
-        activeComponent = newActiveComponent;
-    }
-
-    private final List<Task> tasks = new LinkedList<Task>();
 
     private void handleThumbnailLoading() {
         if (!thumbnailLoader.isPresent())
@@ -466,5 +404,98 @@ public class TesseractController extends WindowAdapter implements
                 });
             }
         }, 500); // 500ms delay
+    }
+
+    private void handleTrainingFileSelection() {
+        final String trainingFile =
+                view.getTrainingFiles().getList().getSelectedValue();
+
+        GlobalPrefs.getPrefs().put(TRAINING_FILE, trainingFile);
+
+        pageRecognitionProducer.setTrainingFile(trainingFile);
+
+        try {
+            final Optional<IntTemplates> prototypes = loadPrototypes();
+            featureDebugger.setPrototypes(prototypes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // if the training file has changed, ask to reload the page
+        if (!view.getPages().getList().isSelectionEmpty()
+                && trainingFile != lastTrainingFile) {
+            handlePageSelection();
+        }
+
+        lastTrainingFile = trainingFile;
+    }
+
+    private Optional<IntTemplates> loadPrototypes() throws IOException {
+        final Path tessdir = TrainingFiles.getTessdataDir();
+        final Path base = tmpDir.resolve(TMP_TRAINING_FILE_BASE);
+
+        TessdataManager.extract(
+                tessdir.resolve(lastTrainingFile + ".traineddata"), base);
+
+        final Path prototypeFile =
+                tmpDir.resolve(tmpDir.resolve(TMP_TRAINING_FILE_BASE
+                        + "inttemp"));
+
+        final InputStream in = Files.newInputStream(prototypeFile);
+        final InputBuffer buf = InputBuffer.allocate(in, 4096);
+
+        final IntTemplates prototypes = IntTemplates.readFrom(buf);
+
+        return Optional.of(prototypes);
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent evt) {
+        final Object source = evt.getSource();
+        if (source == view.getPages().getList().getParent()) {
+            handleThumbnailLoading();
+        } else if (source == view.getMainTabs()) {
+            handleMainComponentChange();
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o == view.getScale()) {
+            view.getScaleLabel().setText(o.toString());
+        }
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent evt) {
+        if (evt.getValueIsAdjusting()) {
+            return;
+        }
+
+        final Object source = evt.getSource();
+        if (source.equals(view.getPages().getList())) {
+            handlePageSelection();
+        } else if (source.equals(view.getTrainingFiles().getList())) {
+            handleTrainingFileSelection();
+        } else if (source.equals(view.getGlyphOverviewPane()
+                .getSymbolGroupList().getList())) {
+            handleSymbolGroupSelection();
+        }
+    }
+
+    @Override
+    public void windowClosed(WindowEvent evt) {
+        // delete temporary directory
+        try {
+            if (Files.exists(tmpDir)) {
+                FileIO.deleteDirectory(tmpDir);
+            }
+        } catch (IOException e) {
+            Dialogs.showError(view, "Error",
+                    "Temporary directory could not be removed completely.");
+        }
+
+        pageSelectionTimer.cancel();
+        thumbnailLoadTimer.cancel();
     }
 }

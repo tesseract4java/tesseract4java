@@ -2,6 +2,7 @@ package de.vorb.tesseract.gui.view;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -13,12 +14,15 @@ import javax.swing.ListSelectionModel;
 
 import de.vorb.tesseract.gui.view.renderer.GlyphSelectionRenderer;
 import de.vorb.tesseract.util.Symbol;
+
 import javax.swing.border.EmptyBorder;
+
+import java.awt.Color;
 
 public class SymbolGroupList extends JPanel {
     private static final long serialVersionUID = 1L;
 
-    private final JList<Entry<String, Set<Symbol>>> selectionList;
+    private final JList<Entry<String, List<Symbol>>> selectionList;
 
     /**
      * Create the panel.
@@ -28,6 +32,7 @@ public class SymbolGroupList extends JPanel {
         setLayout(new BorderLayout(0, 0));
 
         JPanel panel = new JPanel();
+        panel.setBackground(Color.WHITE);
         panel.setBorder(new EmptyBorder(3, 0, 3, 0));
         FlowLayout flowLayout = (FlowLayout) panel.getLayout();
         flowLayout.setAlignment(FlowLayout.LEADING);
@@ -46,7 +51,7 @@ public class SymbolGroupList extends JPanel {
         scrollPane.setViewportView(selectionList);
     }
 
-    public JList<Entry<String, Set<Symbol>>> getList() {
+    public JList<Entry<String, List<Symbol>>> getList() {
         return selectionList;
     }
 }
