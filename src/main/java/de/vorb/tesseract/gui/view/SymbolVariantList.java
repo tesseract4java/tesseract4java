@@ -64,6 +64,7 @@ public class SymbolVariantList extends JPanel {
 
         glyphList = new JList<Symbol>();
         glyphList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        glyphList.setVisibleRowCount(-1);
         scrollPane.setViewportView(glyphList);
 
         final JPopupMenu popupMenu = new JPopupMenu();

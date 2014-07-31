@@ -285,7 +285,7 @@ public class TesseractFrame extends JFrame {
         return recognitionPane;
     }
 
-    public SymbolOverview getGlyphOverviewPane() {
+    public SymbolOverview getSymbolOverview() {
         return glyphOverview;
     }
 

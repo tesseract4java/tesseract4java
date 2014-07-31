@@ -12,14 +12,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JViewport;
 import javax.swing.ListModel;
@@ -40,6 +40,7 @@ import de.vorb.tesseract.gui.model.GlobalPrefs;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.model.SymbolListModel;
+import de.vorb.tesseract.gui.model.SymbolOrder;
 import de.vorb.tesseract.gui.util.PageListLoader;
 import de.vorb.tesseract.gui.util.PageModelLoader;
 import de.vorb.tesseract.gui.util.PageRecognitionProducer;
@@ -64,6 +65,7 @@ import de.vorb.util.FileIO;
 
 public class TesseractController extends WindowAdapter implements
         ActionListener, ListSelectionListener, Observer, ChangeListener {
+
     public static void main(String[] args) {
         BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
         BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
@@ -180,13 +182,15 @@ public class TesseractController extends WindowAdapter implements
         view.getScale().addObserver(this);
 
         // glyph overview pane
-        view.getGlyphOverviewPane().getSymbolGroupList().getList()
+        view.getSymbolOverview().getSymbolGroupList().getList()
                 .addListSelectionListener(this);
-        view.getGlyphOverviewPane().getSymbolVariantList().getList()
+        view.getSymbolOverview().getSymbolVariantList().getList()
                 .addListSelectionListener(this);
-        view.getGlyphOverviewPane().getSymbolVariantList()
+        view.getSymbolOverview().getSymbolVariantList()
                 .getCompareToPrototype().addActionListener(this);
-        view.getGlyphOverviewPane().getSymbolVariantList().getShowInBoxEditor()
+        view.getSymbolOverview().getSymbolVariantList().getShowInBoxEditor()
+                .addActionListener(this);
+        view.getSymbolOverview().getSymbolVariantList().getOrderingCheckBox()
                 .addActionListener(this);
 
         // recognition pane
@@ -198,14 +202,16 @@ public class TesseractController extends WindowAdapter implements
         final Object source = evt.getSource();
         if (source.equals(view.getMenuItemNewProject())) {
             handleNewProject();
-        } else if (source.equals(view.getGlyphOverviewPane().getSymbolVariantList()
+        } else if (source.equals(view.getSymbolOverview().getSymbolVariantList()
                 .getCompareToPrototype())) {
             handleCompareSymbolToPrototype();
-        } else if (source.equals(view.getGlyphOverviewPane().getSymbolVariantList()
+        } else if (source.equals(view.getSymbolOverview().getSymbolVariantList()
                 .getShowInBoxEditor())) {
             handleShowSymbolInBoxEditor();
         } else if (source.equals(view.getRecognitionPane().getParametersButton())) {
             handleParametersButtonClick();
+        } else if (source.equals(view.getSymbolOverview().getSymbolVariantList().getOrderingCheckBox())) {
+            handleSymbolReordering();
         }
     }
 
@@ -218,7 +224,7 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handleCompareSymbolToPrototype() {
-        final Symbol selected = view.getGlyphOverviewPane().getSymbolVariantList()
+        final Symbol selected = view.getSymbolOverview().getSymbolVariantList()
                 .getList().getSelectedValue();
 
         final Optional<PageModel> pm = view.getPageModel();
@@ -323,7 +329,7 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handleShowSymbolInBoxEditor() {
-        final Symbol selected = view.getGlyphOverviewPane().getSymbolVariantList()
+        final Symbol selected = view.getSymbolOverview().getSymbolVariantList()
                 .getList().getSelectedValue();
 
         if (selected == null) {
@@ -347,7 +353,7 @@ public class TesseractController extends WindowAdapter implements
 
     private void handleSymbolGroupSelection() {
         final JList<Entry<String, List<Symbol>>> selectionList =
-                view.getGlyphOverviewPane().getSymbolGroupList().getList();
+                view.getSymbolOverview().getSymbolGroupList().getList();
 
         final List<Symbol> symbols = selectionList.getModel().getElementAt(
                 selectionList.getSelectedIndex()).getValue();
@@ -357,8 +363,16 @@ public class TesseractController extends WindowAdapter implements
             model.addElement(symbol);
         }
 
-        view.getGlyphOverviewPane().getSymbolVariantList().getList().setModel(
+        final JComboBox<SymbolOrder> ordering = view.getSymbolOverview()
+                .getSymbolVariantList().getOrderingCheckBox();
+        model.sortBy(ordering.getItemAt(ordering.getSelectedIndex()));
+
+        view.getSymbolOverview().getSymbolVariantList().getList().setModel(
                 model);
+    }
+
+    private void handleSymbolReordering() {
+
     }
 
     private void handleThumbnailLoading() {
@@ -477,7 +491,7 @@ public class TesseractController extends WindowAdapter implements
             handlePageSelection();
         } else if (source.equals(view.getTrainingFiles().getList())) {
             handleTrainingFileSelection();
-        } else if (source.equals(view.getGlyphOverviewPane()
+        } else if (source.equals(view.getSymbolOverview()
                 .getSymbolGroupList().getList())) {
             handleSymbolGroupSelection();
         }
