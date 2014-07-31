@@ -131,7 +131,8 @@ public class PageRecognitionProducer extends RecognitionProducer {
         final Pointer<Integer> numFeatures = Pointer.allocateInt();
         final Pointer<Integer> outlineIndexes = Pointer.allocateInts(512);
         final Pointer<Byte> features = Pointer.allocateBytes(4 * 512);
-        final Pointer<INT_FEATURE_STRUCT> intFeatures = features.as(INT_FEATURE_STRUCT.class);
+        final Pointer<INT_FEATURE_STRUCT> intFeatures =
+                features.as(INT_FEATURE_STRUCT.class);
         LibTess.TessBaseAPIGetFeaturesForBlob(getHandle(), blob, intFeatures,
                 numFeatures, outlineIndexes);
 
