@@ -1,5 +1,6 @@
 package de.vorb.tesseract.tools.recognition;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 import org.bridj.Pointer;
@@ -10,29 +11,29 @@ import de.vorb.tesseract.LibTess.TessPageIterator;
 import de.vorb.tesseract.LibTess.TessResultIterator;
 import de.vorb.tesseract.PageIteratorLevel;
 
-public abstract class RecognitionProducer {
-    public static final String LANGUAGE_DEFAULT = "eng";
+public abstract class RecognitionProducer implements Closeable {
+    public static final String DEFAULT_TRAINING_FILE = "eng";
 
     private Pointer<TessBaseAPI> handle;
-    private String language = LANGUAGE_DEFAULT;
+    private String trainingFile = DEFAULT_TRAINING_FILE;
 
     public RecognitionProducer() {
     }
 
-    public RecognitionProducer(String initialLanguage) {
-        setLanguage(initialLanguage);
+    public RecognitionProducer(String trainingFile) {
+        setTrainingFile(trainingFile);
     }
 
     public Pointer<TessBaseAPI> getHandle() {
         return this.handle;
     }
 
-    public String getLanguage() {
-        return language;
+    public String getTrainingFile() {
+        return trainingFile;
     }
 
-    public void setLanguage(String language) {
-        this.language = language;
+    public void setTrainingFile(String trainingFile) {
+        this.trainingFile = trainingFile;
     }
 
     protected void setHandle(Pointer<TessBaseAPI> handle) {
@@ -67,7 +68,6 @@ public abstract class RecognitionProducer {
         boolean inWord = false;
 
         do {
-
             // beginning of a symbol
             if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
                     level) == LibTess.TRUE) {

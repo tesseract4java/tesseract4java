@@ -4,8 +4,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import de.vorb.tesseract.tools.training.CharacterProperties;
-
 public class CharacterPropertiesTest {
   final CharacterProperties semicolon = new CharacterProperties(false, false,
       false, false, true);

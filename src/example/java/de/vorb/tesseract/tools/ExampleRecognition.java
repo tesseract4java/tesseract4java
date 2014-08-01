@@ -32,7 +32,7 @@ public class ExampleRecognition extends RecognitionProducer {
         LibTess.TessBaseAPIInit2(
                 getHandle(),
                 Pointer.pointerToCString("E:\\Masterarbeit\\Ressourcen\\tessdata"),
-                Pointer.pointerToCString(getLanguage()), OCREngineMode.DEFAULT);
+                Pointer.pointerToCString(getTrainingFile()), OCREngineMode.DEFAULT);
 
         // set page segmentation mode
         LibTess.TessBaseAPISetPageSegMode(getHandle(), PageSegMode.AUTO);

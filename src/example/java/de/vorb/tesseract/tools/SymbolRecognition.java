@@ -37,7 +37,7 @@ public class SymbolRecognition extends RecognitionProducer {
         LibTess.TessBaseAPIInit2(
                 getHandle(),
                 Pointer.pointerToCString("E:\\Masterarbeit\\Ressourcen\\tessdata"),
-                Pointer.pointerToCString(getLanguage()),
+                Pointer.pointerToCString(getTrainingFile()),
                 OCREngineMode.DEFAULT);
 
         // set page segmentation mode

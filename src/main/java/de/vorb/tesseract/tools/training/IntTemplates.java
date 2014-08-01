@@ -44,8 +44,6 @@ public class IntTemplates {
 
     public static IntTemplates readFrom(InputBuffer buf)
             throws IOException {
-        buf.setByteOrder(ByteOrder.BIG_ENDIAN);
-
         if (!buf.readInt())
             throw new IOException("invalid header");
         // only needed by older formats

@@ -59,6 +59,10 @@ public class Box {
         this.height = height;
     }
 
+    public int getArea() {
+        return width * height;
+    }
+
     public Rectangle toRectangle() {
         return new Rectangle(x, y, width, height);
     }

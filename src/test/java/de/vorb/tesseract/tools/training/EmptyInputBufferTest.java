@@ -7,8 +7,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.vorb.tesseract.traineddata.InputBuffer;
-
 public class EmptyInputBufferTest {
     private InputBuffer empty;
 

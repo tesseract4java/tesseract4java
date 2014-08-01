@@ -6,8 +6,6 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.vorb.tesseract.traineddata.InputBuffer;
-
 public class SmallInputBufferTest {
     private static final byte[] bytes = new byte[256];
 

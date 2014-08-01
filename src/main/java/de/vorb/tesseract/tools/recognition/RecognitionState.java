@@ -2,14 +2,16 @@ package de.vorb.tesseract.tools.recognition;
 
 import org.bridj.Pointer;
 
+import de.vorb.leptonica.Pix;
+import de.vorb.tesseract.INT_FEATURE_STRUCT;
 import de.vorb.tesseract.LibTess;
 import de.vorb.tesseract.PageIteratorLevel;
+import de.vorb.tesseract.TBLOB;
 import de.vorb.tesseract.util.Baseline;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.FontAttributes;
 
 public class RecognitionState {
-    @SuppressWarnings("unused")
     private final Pointer<LibTess.TessBaseAPI> apiHandle;
     private final Pointer<LibTess.TessResultIterator> resultIt;
     private final Pointer<LibTess.TessPageIterator> pageIt;
@@ -102,6 +104,26 @@ public class RecognitionState {
      */
     public float getConfidence(PageIteratorLevel level) {
         return LibTess.TessResultIteratorConfidence(resultIt, level);
+    }
+
+    private void getSymbolFeatures(Pointer<Pix> image) {
+        final Pointer<Integer> left = Pointer.allocateInt();
+        final Pointer<Integer> top = Pointer.allocateInt();
+
+        final Pointer<Pix> pix = LibTess.TessPageIteratorGetImage(pageIt,
+                PageIteratorLevel.SYMBOL, 1, image, left, top);
+        final Pointer<TBLOB> blob = LibTess.TessMakeTBLOB(pix);
+
+        final Pointer<Integer> numFeatures = Pointer.allocateInt();
+        final Pointer<Integer> featOutlineIndex = Pointer.allocateInt();
+
+        final Pointer<INT_FEATURE_STRUCT> intFeatures = Pointer.allocateArray(
+                INT_FEATURE_STRUCT.class, 512);
+        LibTess.TessBaseAPIGetFeaturesForBlob(apiHandle, blob, intFeatures,
+                numFeatures, featOutlineIndex);
+
+        Pointer.release(left, top, blob, numFeatures, featOutlineIndex,
+                intFeatures);
     }
 
     /**

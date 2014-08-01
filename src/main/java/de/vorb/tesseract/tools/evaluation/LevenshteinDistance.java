@@ -70,8 +70,8 @@ public class LevenshteinDistance {
 
   public static void main(String[] args) throws IOException {
     long start = System.currentTimeMillis();
-    Path tess = Paths.get("E:\\Masterarbeit\\Ressourcen\\DE-20__32_AM_49000_L869_G927-1\\deu-frak\\complete-tesseract.txt");
-    Path fine = Paths.get("E:\\Masterarbeit\\Ressourcen\\DE-20__32_AM_49000_L869_G927-1\\korrigiert\\gesamt.txt");
+    Path tess = Paths.get("E:\\Masterarbeit\\Ressourcen\\DE-20__32_AM_49000_L869_G927-1\\reviewed\\tess_sauvola\\DE-20__32_AM_49000_L869_G927-1__0068__0041.txt");
+    Path fine = Paths.get("E:\\Masterarbeit\\Ressourcen\\DE-20__32_AM_49000_L869_G927-1\\reviewed\\hand\\DE-20__32_AM_49000_L869_G927-1__0068__0041.txt");
 
     System.out.println(distance(readFile(tess), readFile(fine)));
     System.out.println(System.currentTimeMillis() - start + "ms");
