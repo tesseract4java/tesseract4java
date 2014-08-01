@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +71,15 @@ public class TesseractController extends WindowAdapter implements
         BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
         BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
 
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            // fail silently
+
+            // If the system LaF is not available, use whatever LaF is already
+            // being used.
+        }
+
         new TesseractController();
     }
 
@@ -99,15 +109,6 @@ public class TesseractController extends WindowAdapter implements
     private final List<Task> tasks = new LinkedList<Task>();
 
     public TesseractController() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            // fail silently
-
-            // If the system LaF is not available, use whatever LaF is already
-            // being used.
-        }
-
         // create new tesseract frame
         view = new TesseractFrame();
         featureDebugger = new FeatureDebugger(view);
@@ -190,7 +191,7 @@ public class TesseractController extends WindowAdapter implements
                 .getCompareToPrototype().addActionListener(this);
         view.getSymbolOverview().getSymbolVariantList().getShowInBoxEditor()
                 .addActionListener(this);
-        view.getSymbolOverview().getSymbolVariantList().getOrderingCheckBox()
+        view.getSymbolOverview().getSymbolVariantList().getOrderingComboBox()
                 .addActionListener(this);
 
         // recognition pane
@@ -208,10 +209,12 @@ public class TesseractController extends WindowAdapter implements
         } else if (source.equals(view.getSymbolOverview().getSymbolVariantList()
                 .getShowInBoxEditor())) {
             handleShowSymbolInBoxEditor();
-        } else if (source.equals(view.getRecognitionPane().getParametersButton())) {
-            handleParametersButtonClick();
-        } else if (source.equals(view.getSymbolOverview().getSymbolVariantList().getOrderingCheckBox())) {
+        } else if (source.equals(view.getSymbolOverview().getSymbolVariantList()
+                .getOrderingComboBox())) {
             handleSymbolReordering();
+        } else if (source.equals(view.getRecognitionPane()
+                .getParametersButton())) {
+            handleParametersButtonClick();
         }
     }
 
@@ -358,13 +361,18 @@ public class TesseractController extends WindowAdapter implements
         final List<Symbol> symbols = selectionList.getModel().getElementAt(
                 selectionList.getSelectedIndex()).getValue();
 
-        final SymbolListModel model = new SymbolListModel();
+        // build model
+        final SymbolListModel model = new SymbolListModel(
+                view.getPageModel().get().getImage());
         for (final Symbol symbol : symbols) {
             model.addElement(symbol);
         }
 
+        // get combo box
         final JComboBox<SymbolOrder> ordering = view.getSymbolOverview()
-                .getSymbolVariantList().getOrderingCheckBox();
+                .getSymbolVariantList().getOrderingComboBox();
+
+        // sort symbols
         model.sortBy(ordering.getItemAt(ordering.getSelectedIndex()));
 
         view.getSymbolOverview().getSymbolVariantList().getList().setModel(
@@ -372,7 +380,16 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handleSymbolReordering() {
+        // get combo box
+        final JComboBox<SymbolOrder> ordering = view.getSymbolOverview()
+                .getSymbolVariantList().getOrderingComboBox();
 
+        // get model
+        final SymbolListModel model = (SymbolListModel) view.getSymbolOverview()
+                .getSymbolVariantList().getList().getModel();
+
+        // sort symbols
+        model.sortBy(ordering.getItemAt(ordering.getSelectedIndex()));
     }
 
     private void handleThumbnailLoading() {
@@ -456,11 +473,19 @@ public class TesseractController extends WindowAdapter implements
                         + "inttemp"));
 
         final InputStream in = Files.newInputStream(prototypeFile);
-        final InputBuffer buf = InputBuffer.allocate(in, 4096);
+        final InputBuffer buf =
+                InputBuffer.allocate(new BufferedInputStream(in));
 
-        final IntTemplates prototypes = IntTemplates.readFrom(buf);
+        try {
+            final IntTemplates prototypes = IntTemplates.readFrom(buf);
 
-        return Optional.of(prototypes);
+            return Optional.of(prototypes);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            // close input buffer, even if an error occurred
+            buf.close();
+        }
     }
 
     @Override
