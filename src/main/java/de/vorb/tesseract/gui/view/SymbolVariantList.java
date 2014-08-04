@@ -99,7 +99,7 @@ public class SymbolVariantList extends JPanel {
         return glyphList;
     }
 
-    public JComboBox<SymbolOrder> getOrderingCheckBox() {
+    public JComboBox<SymbolOrder> getOrderingComboBox() {
         return cbOrdering;
     }
 
