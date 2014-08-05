@@ -13,8 +13,8 @@ import java.nio.file.Paths;
  */
 public class LevenshteinDistance extends EditDistance {
     public int distance(String a, String b) {
-        int aLen = a.length() + 1;
-        int bLen = b.length() + 1;
+        final int aLen = a.length() + 1;
+        final int bLen = b.length() + 1;
 
         // the array of distances
         int[] cost = new int[aLen];
@@ -36,12 +36,12 @@ public class LevenshteinDistance extends EditDistance {
             for (int i = 1; i < aLen; i++) {
 
                 // matching current letters in both strings
-                int match = (a.charAt(i - 1) == b.charAt(j - 1)) ? 0 : 1;
+                final int match = (a.charAt(i - 1) == b.charAt(j - 1)) ? 0 : 1;
 
                 // computing cost for each transformation
-                int cost_replace = cost[i - 1] + match;
-                int cost_insert = cost[i] + 1;
-                int cost_delete = newcost[i - 1] + 1;
+                final int cost_replace = cost[i - 1] + match;
+                final int cost_insert = cost[i] + 1;
+                final int cost_delete = newcost[i - 1] + 1;
 
                 // keep minimum cost
                 newcost[i] = Math.min(Math.min(cost_insert, cost_delete),
@@ -49,7 +49,7 @@ public class LevenshteinDistance extends EditDistance {
             }
 
             // swap cost/newcost arrays
-            int[] swap = cost;
+            final int[] swap = cost;
             cost = newcost;
             newcost = swap;
         }
