@@ -1,23 +1,21 @@
 package de.vorb.tesseract.gui.model;
 
-import java.awt.image.BufferedImage;
-
 import de.vorb.tesseract.util.Page;
 
 public class PageModel {
+    private final ImageModel imageModel;
     private final Page page;
-    private final BufferedImage image;
 
-    public PageModel(Page page, BufferedImage image) {
+    public PageModel(ImageModel imageModel, Page page) {
+        this.imageModel = imageModel;
         this.page = page;
-        this.image = image;
     }
 
     public Page getPage() {
         return page;
     }
 
-    public BufferedImage getImage() {
-        return image;
+    public ImageModel getImageModel() {
+        return imageModel;
     }
 }
