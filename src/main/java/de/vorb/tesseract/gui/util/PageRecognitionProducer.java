@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
@@ -59,11 +58,11 @@ public class PageRecognitionProducer extends RecognitionProducer {
         LibTess.TessBaseAPISetPageSegMode(getHandle(), PageSegMode.AUTO);
 
         // set variables
-        for (Entry<String, String> var : variables.entrySet()) {
-            LibTess.TessBaseAPISetVariable(getHandle(),
-                    Pointer.pointerToCString(var.getKey()),
-                    Pointer.pointerToCString(var.getValue()));
-        }
+        // for (Entry<String, String> var : variables.entrySet()) {
+        // LibTess.TessBaseAPISetVariable(getHandle(),
+        // Pointer.pointerToCString(var.getKey()),
+        // Pointer.pointerToCString(var.getValue()));
+        // }
     }
 
     @Override
