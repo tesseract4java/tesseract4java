@@ -2,12 +2,10 @@ package de.vorb.tesseract.gui.util;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
-import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
@@ -15,6 +13,7 @@ import com.google.common.base.Optional;
 
 import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.gui.controller.TesseractController;
+import de.vorb.tesseract.gui.model.ImageModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.Dialogs;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
@@ -25,16 +24,16 @@ import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
-public class PageModelLoader extends SwingWorker<PageModel, Void> {
+public class RecognitionWorker extends SwingWorker<PageModel, Void> {
     private final TesseractController controller;
-    private final Path imageFile;
+    private final ImageModel imageModel;
     private final String trainingFile;
     private final PageRecognitionProducer producer;
 
-    public PageModelLoader(TesseractController controller, Path imageFile,
-            String trainingFile) {
+    public RecognitionWorker(TesseractController controller,
+            ImageModel imageModel, String trainingFile) {
         this.controller = controller;
-        this.imageFile = imageFile;
+        this.imageModel = imageModel;
         this.trainingFile = trainingFile;
         this.producer = controller.getPageRecognitionProducer();
     }
@@ -45,8 +44,7 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                controller.getView().setPageModel(
-                        Optional.<PageModel> absent());
+                controller.setPageModel(Optional.<PageModel> absent());
                 controller.getView().getProgressBar().setIndeterminate(true);
             }
         });
@@ -57,12 +55,12 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
 
         producer.reset();
 
-        producer.loadImage(imageFile);
+        producer.loadImage(imageModel.getPreprocessedFile());
 
         final Vector<Line> lines = new Vector<Line>();
 
         // Get images
-        final BufferedImage image = ImageIO.read(imageFile.toFile());
+        final BufferedImage image = imageModel.getPreprocessedImage();
 
         producer.recognize(new DefaultRecognitionConsumer() {
             private ArrayList<Word> lineWords;
@@ -111,20 +109,20 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
 
             @Override
             public boolean isCancelled() {
-                return PageModelLoader.this.isCancelled();
+                return RecognitionWorker.this.isCancelled();
             }
         });
 
-        final Page page = new Page(imageFile, image.getWidth(),
-                image.getHeight(), 300, lines);
+        final Page page = new Page(imageModel.getPreprocessedFile(),
+                image.getWidth(), image.getHeight(), 300, lines);
 
-        return new PageModel(page, image);
+        return new PageModel(imageModel, page);
     }
 
     @Override
     protected void done() {
         try {
-            controller.getView().setPageModel(Optional.of(get()));
+            controller.setPageModel(Optional.of(get()));
         } catch (ExecutionException e) {
             final String message;
             if (e.getCause() instanceof IOException) {
@@ -135,7 +133,7 @@ public class PageModelLoader extends SwingWorker<PageModel, Void> {
                 e.printStackTrace();
             }
 
-            controller.getView().setPageModel(Optional.<PageModel> absent());
+            controller.setPageModel(Optional.<PageModel> absent());
 
             Dialogs.showError(controller.getView(), "Error during recognition",
                     message);

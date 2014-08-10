@@ -15,12 +15,13 @@ import javax.swing.SwingWorker;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.model.PageThumbnail;
-import de.vorb.tesseract.gui.view.NewProjectDialog;
-import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
+import de.vorb.tesseract.gui.model.ProjectModel;
 
-public class ThumbnailLoader extends
-        SwingWorker<Void, ThumbnailLoader.Task> {
-    private final Result projectConfig;
+public class ThumbnailWorker extends
+        SwingWorker<Void, ThumbnailWorker.Task> {
+    public static final String THUMBNAIL_DIR = "thumbs";
+
+    private final ProjectModel projectModel;
     private final DefaultListModel<PageThumbnail> pages;
 
     private final Queue<Task> tasks = new ConcurrentLinkedQueue<Task>();
@@ -40,9 +41,9 @@ public class ThumbnailLoader extends
         }
     }
 
-    public ThumbnailLoader(final NewProjectDialog.Result projectConfig,
+    public ThumbnailWorker(final ProjectModel project,
             DefaultListModel<PageThumbnail> pages) {
-        this.projectConfig = projectConfig;
+        this.projectModel = project;
         this.pages = pages;
     }
 
@@ -53,7 +54,7 @@ public class ThumbnailLoader extends
     @Override
     protected Void doInBackground() throws Exception {
         final Path thumbsDir =
-                projectConfig.directory.resolve(".tess/thumbs");
+                projectModel.getProjectDir().resolve(THUMBNAIL_DIR);
 
         // mkdir -p thumbsDir
         Files.createDirectories(thumbsDir);
