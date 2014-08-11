@@ -29,7 +29,6 @@ public class SymbolGroupList extends JPanel {
         setLayout(new BorderLayout(0, 0));
 
         JPanel panel = new JPanel();
-        panel.setBackground(Color.WHITE);
         panel.setBorder(new EmptyBorder(3, 0, 3, 0));
         FlowLayout flowLayout = (FlowLayout) panel.getLayout();
         flowLayout.setAlignment(FlowLayout.LEADING);

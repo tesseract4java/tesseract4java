@@ -25,6 +25,7 @@ import de.vorb.tesseract.tools.preprocessing.binarization.BinarizationMethod;
 import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
 import de.vorb.tesseract.tools.preprocessing.filter.BlobSizeFilter;
 import de.vorb.tesseract.tools.preprocessing.filter.ImageFilter;
+import javax.swing.border.BevelBorder;
 
 public class PreprocessingPane extends JPanel implements ImageModelComponent {
     private static final long serialVersionUID = 1L;
@@ -53,7 +54,6 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
         add(splitPane);
 
         JPanel panel_3 = new JPanel();
-        panel_3.setBackground(Color.WHITE);
         splitPane.setLeftComponent(panel_3);
         panel_3.setLayout(new BoxLayout(panel_3, BoxLayout.Y_AXIS));
 
@@ -159,17 +159,14 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
         scrollPane.setColumnHeaderView(lblPreviewHeading);
 
         JPanel panel_2 = new JPanel();
-        panel_2.setBackground(Color.WHITE);
         FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
         flowLayout.setAlignment(FlowLayout.TRAILING);
         add(panel_2, BorderLayout.SOUTH);
 
         btnApplyToPage = new JButton("Apply to current page");
-        btnApplyToPage.setBackground(Color.WHITE);
         panel_2.add(btnApplyToPage);
 
         btnApplyToAllPages = new JButton("Apply to all pages");
-        btnApplyToAllPages.setBackground(Color.WHITE);
         panel_2.add(btnApplyToAllPages);
 
     }

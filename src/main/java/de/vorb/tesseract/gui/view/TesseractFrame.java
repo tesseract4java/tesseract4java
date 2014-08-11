@@ -40,6 +40,7 @@ public class TesseractFrame extends JFrame {
     private final SymbolOverview glyphOverview;
     private final RecognitionPane recognitionPane;
     private final EvaluationPane evaluationPane;
+    private final BatchProcessor batchProcessor;
 
     private final JLabel lblScaleFactor;
     private final JProgressBar pbLoadPage;
@@ -48,6 +49,8 @@ public class TesseractFrame extends JFrame {
     private final JTabbedPane tabsMain;
 
     private final Scale scale;
+    private JMenu mnEdit;
+    private JMenuItem mntmPreferences;
 
     /**
      * Create the application.
@@ -76,6 +79,7 @@ public class TesseractFrame extends JFrame {
         glyphOverview = new SymbolOverview();
         recognitionPane = new RecognitionPane(scale);
         evaluationPane = new EvaluationPane(scale);
+        batchProcessor = new BatchProcessor();
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 
@@ -172,6 +176,14 @@ public class TesseractFrame extends JFrame {
             }
         });
         mnFile.add(mntmExit);
+        
+        mnEdit = new JMenu("Edit");
+        menuBar.add(mnEdit);
+        
+        mntmPreferences = new JMenuItem("Preferences");
+        mntmPreferences.setIcon(new ImageIcon(TesseractFrame.class.getResource("/icons/cog.png")));
+        mntmPreferences.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK));
+        mnEdit.add(mntmPreferences);
 
         final JMenu mnHelp = new JMenu(
                 Labels.getLabel(getLocale(), "menu_help"));
@@ -179,6 +191,7 @@ public class TesseractFrame extends JFrame {
 
         final JMenuItem mntmAbout = new JMenuItem(Labels.getLabel(getLocale(),
                 "menu_about"));
+        mntmAbout.setIcon(new ImageIcon(TesseractFrame.class.getResource("/icons/information.png")));
         mntmAbout.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(TesseractFrame.this,
@@ -245,6 +258,11 @@ public class TesseractFrame extends JFrame {
                 Resources.getIcon("chart_curve"),
                 evaluationPane);
 
+        tabsMain.addTab(
+                Labels.getLabel(getLocale(), "tab_main_batchprocessing"),
+                batchProcessor);
+        tabsMain.setIconAt(5, new ImageIcon(TesseractFrame.class.getResource("/icons/pictures.png")));
+
         spMain.setRightComponent(tabsMain);
 
         JSplitPane splitPane = new JSplitPane();
@@ -259,47 +277,51 @@ public class TesseractFrame extends JFrame {
         return (MainComponent) tabsMain.getSelectedComponent();
     }
 
-    public FilteredList<PageThumbnail> getPages() {
-        return listPages;
-    }
-
-    public FilteredList<String> getTrainingFiles() {
-        return listTrainingFiles;
-    }
-
-    public JLabel getScaleLabel() {
-        return lblScaleFactor;
-    }
-
-    public Scale getScale() {
-        return scale;
-    }
-
-    public PreprocessingPane getPreprocessingPane() {
-        return preprocessingPane;
+    public BatchProcessor getBatchProcessor() {
+        return batchProcessor;
     }
 
     public BoxEditor getBoxEditor() {
         return boxEditor;
     }
 
-    public RecognitionPane getRecognitionPane() {
-        return recognitionPane;
-    }
-
-    public SymbolOverview getSymbolOverview() {
-        return glyphOverview;
-    }
-
-    public JProgressBar getProgressBar() {
-        return pbLoadPage;
+    public JTabbedPane getMainTabs() {
+        return tabsMain;
     }
 
     public JMenuItem getMenuItemNewProject() {
         return mnNewProject;
     }
 
-    public JTabbedPane getMainTabs() {
-        return tabsMain;
+    public FilteredList<PageThumbnail> getPages() {
+        return listPages;
+    }
+
+    public PreprocessingPane getPreprocessingPane() {
+        return preprocessingPane;
+    }
+
+    public JProgressBar getProgressBar() {
+        return pbLoadPage;
+    }
+
+    public RecognitionPane getRecognitionPane() {
+        return recognitionPane;
+    }
+
+    public Scale getScale() {
+        return scale;
+    }
+
+    public JLabel getScaleLabel() {
+        return lblScaleFactor;
+    }
+
+    public SymbolOverview getSymbolOverview() {
+        return glyphOverview;
+    }
+
+    public FilteredList<String> getTrainingFiles() {
+        return listTrainingFiles;
     }
 }

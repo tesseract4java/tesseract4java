@@ -39,7 +39,6 @@ public class SymbolVariantList extends JPanel {
         setLayout(new BorderLayout(0, 0));
 
         JPanel panel = new JPanel();
-        panel.setBackground(Color.WHITE);
         FlowLayout fl_panel = (FlowLayout) panel.getLayout();
         fl_panel.setAlignment(FlowLayout.LEADING);
         add(panel, BorderLayout.NORTH);
