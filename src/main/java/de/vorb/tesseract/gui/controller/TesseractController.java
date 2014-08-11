@@ -44,6 +44,10 @@ import de.vorb.tesseract.gui.util.RecognitionWorker;
 import de.vorb.tesseract.gui.util.ThumbnailWorker;
 import de.vorb.tesseract.gui.util.ThumbnailWorker.Task;
 import de.vorb.tesseract.gui.view.*;
+import de.vorb.tesseract.gui.view.dialogs.BatchExportDialog;
+import de.vorb.tesseract.gui.view.dialogs.Dialogs;
+import de.vorb.tesseract.gui.view.dialogs.NewProjectDialog;
+import de.vorb.tesseract.gui.view.dialogs.RecognitionParametersDialog;
 import de.vorb.tesseract.tools.preprocessing.DefaultPreprocessor;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
@@ -133,8 +137,6 @@ public class TesseractController extends WindowAdapter implements
 
         handleActiveComponentChange();
 
-        view.setVisible(true);
-
         pageRecognitionProducer = new PageRecognitionProducer(
                 TrainingFiles.getTessdataDir(),
                 RecognitionProducer.DEFAULT_TRAINING_FILE);
@@ -181,7 +183,17 @@ public class TesseractController extends WindowAdapter implements
         // register listeners
         view.addWindowListener(this);
         view.getMainTabs().addChangeListener(this);
-        view.getMenuItemNewProject().addActionListener(this);
+
+        {
+            // menu
+            view.getMenuItemNewProject().addActionListener(this);
+            view.getMenuItemOpenProject().addActionListener(this);
+            view.getMenuItemSaveProject().addActionListener(this);
+            view.getMenuItemCloseProject().addActionListener(this);
+            view.getMenuItemBatchExport().addActionListener(this);
+            view.getMenuItemPreferences().addActionListener(this);
+        }
+
         view.getPages().getList().addListSelectionListener(this);
         final JViewport pagesViewport =
                 (JViewport) view.getPages().getList().getParent();
@@ -215,6 +227,12 @@ public class TesseractController extends WindowAdapter implements
 
         // recognition pane
         view.getRecognitionPane().getParametersButton().addActionListener(this);
+
+        {
+            // batch export
+        }
+
+        view.setVisible(true);
     }
 
     @Override
@@ -222,14 +240,23 @@ public class TesseractController extends WindowAdapter implements
         final Object source = evt.getSource();
         final SymbolOverview symbolOverview = view.getSymbolOverview();
         final PreprocessingPane preprocPane = view.getPreprocessingPane();
-        if (preprocPane.getPreviewButton().equals(source)) {
+
+        if (source.equals(view.getMenuItemNewProject())) {
+            handleNewProject();
+        } else if (source.equals(view.getMenuItemOpenProject())) {
+            handleOpenProject();
+        } else if (source.equals(view.getMenuItemSaveProject())) {
+            handleSaveProject();
+        } else if (source.equals(view.getMenuItemCloseProject())) {
+            handleCloseProject();
+        } else if (source.equals(view.getMenuItemBatchExport())) {
+            handleBatchExport();
+        } else if (preprocPane.getPreviewButton().equals(source)) {
             handlePreprocessorPreview();
         } else if (preprocPane.getApplyPageButton().equals(source)) {
             handlePreprocessorChange(false);
         } else if (preprocPane.getApplyAllPagesButton().equals(source)) {
             handlePreprocessorChange(true);
-        } else if (source.equals(view.getMenuItemNewProject())) {
-            handleNewProject();
         } else if (source.equals(symbolOverview.getSymbolVariantList()
                 .getCompareToPrototype())) {
             handleCompareSymbolToPrototype();
@@ -322,6 +349,10 @@ public class TesseractController extends WindowAdapter implements
         activeComponent = active;
     }
 
+    private void handleBatchExport() {
+        BatchExportDialog.showBatchExportDialog(this);
+    }
+
     private void handleCompareSymbolToPrototype() {
         final Symbol selected = view.getSymbolOverview().getSymbolVariantList()
                 .getList().getSelectedValue();
@@ -349,6 +380,8 @@ public class TesseractController extends WindowAdapter implements
         if (!result.isPresent())
             return;
 
+        setProjectEnabled(true);
+
         this.projectModel = result;
         final ProjectModel projectModel = result.get();
 
@@ -364,6 +397,27 @@ public class TesseractController extends WindowAdapter implements
                 new PageListWorker(projectModel, pages);
 
         pageListLoader.execute();
+    }
+
+    private void setProjectEnabled(boolean b) {
+        view.getMenuItemSaveProject().setEnabled(b);
+        view.getMenuItemCloseProject().setEnabled(b);
+        view.getMenuItemBatchExport().setEnabled(b);
+    }
+
+    private void handleOpenProject() {
+        // TODO Auto-generated method stub
+
+    }
+
+    private void handleSaveProject() {
+        // TODO Auto-generated method stub
+
+    }
+
+    private void handleCloseProject() {
+        // TODO Auto-generated method stub
+
     }
 
     private void handlePageSelection() {

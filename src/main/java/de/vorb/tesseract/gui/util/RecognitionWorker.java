@@ -15,7 +15,7 @@ import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.gui.model.ImageModel;
 import de.vorb.tesseract.gui.model.PageModel;
-import de.vorb.tesseract.gui.view.Dialogs;
+import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
 import de.vorb.tesseract.tools.recognition.RecognitionState;
 import de.vorb.tesseract.util.Box;

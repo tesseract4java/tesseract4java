@@ -40,7 +40,6 @@ public class TesseractFrame extends JFrame {
     private final SymbolOverview glyphOverview;
     private final RecognitionPane recognitionPane;
     private final EvaluationPane evaluationPane;
-    private final BatchProcessor batchProcessor;
 
     private final JLabel lblScaleFactor;
     private final JProgressBar pbLoadPage;
@@ -50,7 +49,13 @@ public class TesseractFrame extends JFrame {
 
     private final Scale scale;
     private JMenu mnEdit;
-    private JMenuItem mntmPreferences;
+    private JMenuItem mnPreferences;
+    private JMenuItem mnBatchExport;
+    private JSeparator separator_1;
+    private JMenuItem mnOpenProject;
+    private JMenuItem mnSaveProject;
+    private JSeparator separator_2;
+    private JMenuItem mnCloseProject;
 
     /**
      * Create the application.
@@ -79,7 +84,6 @@ public class TesseractFrame extends JFrame {
         glyphOverview = new SymbolOverview();
         recognitionPane = new RecognitionPane(scale);
         evaluationPane = new EvaluationPane(scale);
-        batchProcessor = new BatchProcessor();
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 
@@ -165,6 +169,37 @@ public class TesseractFrame extends JFrame {
                 InputEvent.CTRL_MASK));
         mnFile.add(mnNewProject);
 
+        mnOpenProject = new JMenuItem("Open Project...");
+        mnOpenProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
+                InputEvent.CTRL_MASK));
+        mnFile.add(mnOpenProject);
+
+        separator_2 = new JSeparator();
+        mnFile.add(separator_2);
+
+        mnSaveProject = new JMenuItem("Save Project");
+        mnSaveProject.setEnabled(false);
+        mnSaveProject.setIcon(new ImageIcon(
+                TesseractFrame.class.getResource("/icons/disk.png")));
+        mnSaveProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                InputEvent.CTRL_MASK));
+        mnFile.add(mnSaveProject);
+
+        mnCloseProject = new JMenuItem("Close Project");
+        mnCloseProject.setEnabled(false);
+        mnFile.add(mnCloseProject);
+
+        separator_1 = new JSeparator();
+        mnFile.add(separator_1);
+
+        mnBatchExport = new JMenuItem("Batch Export...");
+        mnBatchExport.setEnabled(false);
+        mnBatchExport.setIcon(new ImageIcon(
+                TesseractFrame.class.getResource("/icons/database_save.png")));
+        mnBatchExport.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B,
+                InputEvent.CTRL_MASK));
+        mnFile.add(mnBatchExport);
+
         final JSeparator separator = new JSeparator();
         mnFile.add(separator);
 
@@ -176,14 +211,14 @@ public class TesseractFrame extends JFrame {
             }
         });
         mnFile.add(mntmExit);
-        
+
         mnEdit = new JMenu("Edit");
         menuBar.add(mnEdit);
-        
-        mntmPreferences = new JMenuItem("Preferences");
-        mntmPreferences.setIcon(new ImageIcon(TesseractFrame.class.getResource("/icons/cog.png")));
-        mntmPreferences.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK));
-        mnEdit.add(mntmPreferences);
+
+        mnPreferences = new JMenuItem("Preferences");
+        mnPreferences.setIcon(new ImageIcon(
+                TesseractFrame.class.getResource("/icons/cog.png")));
+        mnEdit.add(mnPreferences);
 
         final JMenu mnHelp = new JMenu(
                 Labels.getLabel(getLocale(), "menu_help"));
@@ -191,7 +226,8 @@ public class TesseractFrame extends JFrame {
 
         final JMenuItem mntmAbout = new JMenuItem(Labels.getLabel(getLocale(),
                 "menu_about"));
-        mntmAbout.setIcon(new ImageIcon(TesseractFrame.class.getResource("/icons/information.png")));
+        mntmAbout.setIcon(new ImageIcon(
+                TesseractFrame.class.getResource("/icons/information.png")));
         mntmAbout.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(TesseractFrame.this,
@@ -258,11 +294,6 @@ public class TesseractFrame extends JFrame {
                 Resources.getIcon("chart_curve"),
                 evaluationPane);
 
-        tabsMain.addTab(
-                Labels.getLabel(getLocale(), "tab_main_batchprocessing"),
-                batchProcessor);
-        tabsMain.setIconAt(5, new ImageIcon(TesseractFrame.class.getResource("/icons/pictures.png")));
-
         spMain.setRightComponent(tabsMain);
 
         JSplitPane splitPane = new JSplitPane();
@@ -277,10 +308,6 @@ public class TesseractFrame extends JFrame {
         return (MainComponent) tabsMain.getSelectedComponent();
     }
 
-    public BatchProcessor getBatchProcessor() {
-        return batchProcessor;
-    }
-
     public BoxEditor getBoxEditor() {
         return boxEditor;
     }
@@ -291,6 +318,26 @@ public class TesseractFrame extends JFrame {
 
     public JMenuItem getMenuItemNewProject() {
         return mnNewProject;
+    }
+
+    public JMenuItem getMenuItemOpenProject() {
+        return mnOpenProject;
+    }
+
+    public JMenuItem getMenuItemSaveProject() {
+        return mnSaveProject;
+    }
+
+    public JMenuItem getMenuItemCloseProject() {
+        return mnCloseProject;
+    }
+
+    public JMenuItem getMenuItemBatchExport() {
+        return mnBatchExport;
+    }
+
+    public JMenuItem getMenuItemPreferences() {
+        return mnPreferences;
     }
 
     public FilteredList<PageThumbnail> getPages() {

@@ -1,4 +1,4 @@
-package de.vorb.tesseract.gui.view;
+package de.vorb.tesseract.gui.view.dialogs;
 
 import java.awt.BorderLayout;
 
