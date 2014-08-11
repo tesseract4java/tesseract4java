@@ -89,6 +89,7 @@ public class TesseractController extends WindowAdapter implements
      */
     private final TesseractFrame view;
     private final FeatureDebugger featureDebugger;
+    private MainComponent activeComponent;
 
     private final PageRecognitionProducer pageRecognitionProducer;
     private Optional<PreprocessingWorker> preprocessingWorker =
@@ -112,8 +113,6 @@ public class TesseractController extends WindowAdapter implements
      */
     private Optional<ProjectModel> projectModel = Optional.absent();
     private Optional<PageThumbnail> pageThumbnail = Optional.absent();
-    private Optional<ImageModel> imageModel = Optional.absent();
-    private Optional<PageModel> pageModel = Optional.absent();
 
     private String lastTrainingFile;
 
@@ -287,11 +286,40 @@ public class TesseractController extends WindowAdapter implements
     private void handleActiveComponentChange() {
         final MainComponent active = view.getActiveComponent();
 
-        if (active instanceof ImageModelComponent) {
-            ((ImageModelComponent) active).setImageModel(imageModel);
-        } else if (active instanceof PageModelComponent) {
-            ((PageModelComponent) active).setPageModel(pageModel);
+        // didn't change
+        if (active == activeComponent) {
+            return;
         }
+
+        if (active instanceof ImageModelComponent) {
+            if (activeComponent instanceof ImageModelComponent) {
+                setImageModel(((ImageModelComponent) activeComponent)
+                        .getImageModel());
+            } else if (activeComponent instanceof PageModelComponent) {
+                final Optional<PageModel> pm =
+                        ((PageModelComponent) activeComponent).getPageModel();
+
+                if (pm.isPresent()) {
+                    setImageModel(Optional.of(pm.get().getImageModel()));
+                } else {
+                    setImageModel(Optional.<ImageModel> absent());
+                }
+            } else {
+                setImageModel(Optional.<ImageModel> absent());
+            }
+        } else if (active instanceof PageModelComponent) {
+            if (activeComponent instanceof PageModelComponent) {
+                setPageModel(((PageModelComponent) activeComponent)
+                        .getPageModel());
+            } else if (activeComponent instanceof ImageModelComponent) {
+                setImageModel(((ImageModelComponent) activeComponent)
+                        .getImageModel());
+            } else {
+                setPageModel(Optional.<PageModel> absent());
+            }
+        }
+
+        activeComponent = active;
     }
 
     private void handleCompareSymbolToPrototype() {
@@ -341,6 +369,11 @@ public class TesseractController extends WindowAdapter implements
     private void handlePageSelection() {
         final PageThumbnail pt =
                 view.getPages().getList().getSelectedValue();
+
+        // if the page selection did not change, ignore it
+        if (pageThumbnail.isPresent() && pageThumbnail.get().equals(pt)) {
+            return;
+        }
 
         pageThumbnail = Optional.fromNullable(pt);
 
@@ -493,7 +526,7 @@ public class TesseractController extends WindowAdapter implements
                         for (int i = first; i <= last; i++) {
                             final PageThumbnail pt = model.getElementAt(i);
 
-                            if (pt.getThumbnail().isPresent())
+                            if (pt == null || pt.getThumbnail().isPresent())
                                 continue;
 
                             final Task t = new Task(i, pt);
@@ -531,13 +564,6 @@ public class TesseractController extends WindowAdapter implements
     }
 
     public void setPageModel(Optional<PageModel> model) {
-        pageModel = model;
-
-        // implicitly also set the image model
-        if (model.isPresent()) {
-            imageModel = Optional.of(model.get().getImageModel());
-        }
-
         final MainComponent active = view.getActiveComponent();
 
         if (active instanceof PageModelComponent) {
@@ -663,7 +689,8 @@ public class TesseractController extends WindowAdapter implements
         final MainComponent active = view.getActiveComponent();
 
         if (active instanceof PageModelComponent) {
-            ((PageModelComponent) active).setPageModel(Optional.<PageModel> absent());
+            ((PageModelComponent) active).setPageModel(
+                    Optional.<PageModel> absent());
 
             if (recognitionWorker.isPresent()) {
                 recognitionWorker.get().cancel(false);
