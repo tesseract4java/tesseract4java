@@ -15,5 +15,5 @@ public interface Binarization {
      *            input image
      * @return binary image
      */
-    BufferedImage apply(BufferedImage image);
+    BufferedImage binarize(BufferedImage image);
 }

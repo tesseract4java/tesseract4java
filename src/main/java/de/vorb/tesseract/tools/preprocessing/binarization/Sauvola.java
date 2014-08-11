@@ -56,7 +56,7 @@ public class Sauvola implements Binarization {
     }
 
     @Override
-    public BufferedImage apply(BufferedImage image) {
+    public BufferedImage binarize(BufferedImage image) {
         final int width = image.getWidth();
         final int height = image.getHeight();
 
@@ -67,7 +67,8 @@ public class Sauvola implements Binarization {
             return image;
         } else if (image.getType() == BufferedImage.TYPE_BYTE_GRAY) {
             grayscale = image;
-        } else if (image.getType() == BufferedImage.TYPE_INT_RGB) {
+        } else if (image.getType() == BufferedImage.TYPE_INT_RGB
+                || image.getType() == BufferedImage.TYPE_BYTE_INDEXED) {
             grayscale = new BufferedImage(width, height,
                     BufferedImage.TYPE_BYTE_GRAY);
 
@@ -121,7 +122,7 @@ public class Sauvola implements Binarization {
     public static void main(String[] args) throws IOException {
         final BufferedImage color = ImageIO.read(new File(
                 "C:/Users/Paul/Desktop/78v.png"));
-        ImageIO.write(new Sauvola().apply(color), "PNG", new File(
+        ImageIO.write(new Sauvola().binarize(color), "PNG", new File(
                 "C:/Users/Paul/Desktop/78v_bin.png"));
     }
 }
