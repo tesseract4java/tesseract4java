@@ -23,7 +23,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Component;
 
-public class EvaluationPane extends JPanel {
+public class EvaluationPane extends JPanel implements MainComponent {
     private static final long serialVersionUID = 1L;
 
     private JTable table;
@@ -164,4 +164,8 @@ public class EvaluationPane extends JPanel {
 
     }
 
+    @Override
+    public Component asComponent() {
+        return this;
+    }
 }
