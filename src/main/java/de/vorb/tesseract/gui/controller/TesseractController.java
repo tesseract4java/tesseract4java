@@ -1,5 +1,6 @@
 package de.vorb.tesseract.gui.controller;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -11,13 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JComboBox;
@@ -27,6 +23,7 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -40,20 +37,24 @@ import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.GlobalPrefs;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
+import de.vorb.tesseract.gui.model.ProjectModel;
 import de.vorb.tesseract.gui.model.SymbolListModel;
 import de.vorb.tesseract.gui.model.SymbolOrder;
-import de.vorb.tesseract.gui.util.PageListLoader;
-import de.vorb.tesseract.gui.util.PageModelLoader;
+import de.vorb.tesseract.gui.util.PageListWorker;
+import de.vorb.tesseract.gui.util.RecognitionWorker;
 import de.vorb.tesseract.gui.util.PageRecognitionProducer;
-import de.vorb.tesseract.gui.util.ThumbnailLoader;
-import de.vorb.tesseract.gui.util.ThumbnailLoader.Task;
+import de.vorb.tesseract.gui.util.ThumbnailWorker;
+import de.vorb.tesseract.gui.util.ThumbnailWorker.Task;
 import de.vorb.tesseract.gui.view.Dialogs;
 import de.vorb.tesseract.gui.view.FeatureDebugger;
-import de.vorb.tesseract.gui.view.MainComponent;
+import de.vorb.tesseract.gui.view.PageModelComponent;
 import de.vorb.tesseract.gui.view.NewProjectDialog;
-import de.vorb.tesseract.gui.view.NewProjectDialog.Result;
 import de.vorb.tesseract.gui.view.RecognitionParametersDialog;
 import de.vorb.tesseract.gui.view.TesseractFrame;
+import de.vorb.tesseract.tools.preprocessing.DefaultPreprocessor;
+import de.vorb.tesseract.tools.preprocessing.Preprocessor;
+import de.vorb.tesseract.tools.preprocessing.binarization.Binarization;
+import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 import de.vorb.tesseract.tools.training.InputBuffer;
 import de.vorb.tesseract.tools.training.IntTemplates;
@@ -73,8 +74,13 @@ public class TesseractController extends WindowAdapter implements
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
+        } catch (Exception e1) {
             // fail silently
+            try {
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            } catch (Exception e2) {
+                // fail silently
+            }
 
             // If the system LaF is not available, use whatever LaF is already
             // being used.
@@ -83,50 +89,52 @@ public class TesseractController extends WindowAdapter implements
         new TesseractController();
     }
 
+    /*
+     * constants
+     */
     private static final String TRAINING_FILE = "training_file";
 
     private static final String TMP_TRAINING_FILE_BASE = "unspecified.";
-    private final TesseractFrame view;
 
+    public static final Preprocessor DEFAULT_PREPROCESSOR =
+            new DefaultPreprocessor();
+
+    /*
+     * components references
+     */
+    private final TesseractFrame view;
     private final FeatureDebugger featureDebugger;
 
-    private MainComponent activeComponent;
+    private Optional<PageModelComponent> activePageModelComponent;
     private final PageRecognitionProducer pageRecognitionProducer;
-    private Optional<PageModelLoader> pageModelLoader = Optional.absent();
+    private Optional<RecognitionWorker> pageModelLoader = Optional.absent();
 
-    private Optional<ThumbnailLoader> thumbnailLoader = Optional.absent();
+    /*
+     * IO workers, timers and tasks
+     */
+    private Optional<ThumbnailWorker> thumbnailLoader = Optional.absent();
     private final Timer pageSelectionTimer = new Timer("PageSelectionTimer");
 
-    private Optional<TimerTask> lastPageSelection = Optional.absent();
+    private Optional<TimerTask> lastPageSelectionTask = Optional.absent();
     private final Timer thumbnailLoadTimer = new Timer("ThumbnailLoadTimer");
 
-    private Optional<TimerTask> lastThumbnailLoad = Optional.absent();
-
-    private String lastTrainingFile;
-
-    private final Path tmpDir;
+    private Optional<TimerTask> lastThumbnailLoadTask = Optional.absent();
 
     private final List<Task> tasks = new LinkedList<Task>();
+
+    // models
+    private Optional<ProjectModel> projectModel = Optional.absent();
+    private String lastTrainingFile;
 
     public TesseractController() {
         // create new tesseract frame
         view = new TesseractFrame();
         featureDebugger = new FeatureDebugger(view);
 
-        activeComponent = view.getActiveComponent();
+        activePageModelComponent = Optional.absent();
+        handleActiveComponentChange();
 
         view.setVisible(true);
-
-        Path tmpDir = null;
-        try {
-            tmpDir = Files.createTempDirectory("tess");
-        } catch (IOException e) {
-            Dialogs.showError(view, "Error",
-                    "Training files could not be found.");
-            System.exit(1);
-        } finally {
-            this.tmpDir = tmpDir;
-        }
 
         pageRecognitionProducer = new PageRecognitionProducer(
                 TrainingFiles.getTessdataDir(),
@@ -222,6 +230,35 @@ public class TesseractController extends WindowAdapter implements
         return pageRecognitionProducer;
     }
 
+    public Optional<Path> getSelectedPage() {
+        final PageThumbnail thumbnail =
+                view.getPages().getList().getSelectedValue();
+
+        if (thumbnail == null) {
+            return Optional.absent();
+        } else {
+            return Optional.of(thumbnail.getFile());
+        }
+    }
+
+    public void setPageModel(Optional<PageModel> model) {
+        if (activePageModelComponent.isPresent()) {
+            activePageModelComponent.get().setPageModel(model);
+        }
+    }
+
+    public Optional<PageModel> getPageModel() {
+        if (activePageModelComponent.isPresent()) {
+            return activePageModelComponent.get().getPageModel();
+        } else {
+            return Optional.<PageModel> absent();
+        }
+    }
+
+    public Optional<ProjectModel> getProjectModel() {
+        return projectModel;
+    }
+
     public TesseractFrame getView() {
         return view;
     }
@@ -230,9 +267,10 @@ public class TesseractController extends WindowAdapter implements
         final Symbol selected = view.getSymbolOverview().getSymbolVariantList()
                 .getList().getSelectedValue();
 
-        final Optional<PageModel> pm = view.getPageModel();
+        final Optional<PageModel> pm = getPageModel();
         if (pm.isPresent()) {
-            final BufferedImage pageImg = pm.get().getImage();
+            final BufferedImage pageImg = pm.get().getImageModel()
+                    .getPreprocessedImage();
             final Box symbolBox = selected.getBoundingBox();
             final BufferedImage symbolImg = pageImg.getSubimage(
                     symbolBox.getX(), symbolBox.getY(),
@@ -246,36 +284,39 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
-    private void handleMainComponentChange() {
-        final MainComponent newActiveComponent = view.getActiveComponent();
-        if (activeComponent == newActiveComponent) {
-            return;
+    private void handleActiveComponentChange() {
+        final Component active = view.getActiveComponent();
+
+        if (active instanceof PageModelComponent) {
+            final PageModelComponent pmc = (PageModelComponent) active;
+
+            if (activePageModelComponent.isPresent()) {
+                pmc.setPageModel(activePageModelComponent.get().getPageModel());
+            }
+
+            activePageModelComponent = Optional.of(pmc);
         }
-
-        newActiveComponent.setPageModel(activeComponent.getPageModel());
-
-        activeComponent = newActiveComponent;
     }
 
     private void handleNewProject() {
-        final Optional<NewProjectDialog.Result> result =
-                NewProjectDialog.showDialog(view);
+        final Optional<ProjectModel> result = NewProjectDialog.showDialog(view);
 
         if (!result.isPresent())
             return;
 
-        final Result projectConfig = result.get();
+        this.projectModel = result;
+        final ProjectModel projectModel = result.get();
 
         final DefaultListModel<PageThumbnail> pages =
                 view.getPages().getListModel();
 
-        final ThumbnailLoader thumbnailLoader =
-                new ThumbnailLoader(projectConfig, pages);
+        final ThumbnailWorker thumbnailLoader =
+                new ThumbnailWorker(projectModel, pages);
         thumbnailLoader.execute();
         this.thumbnailLoader = Optional.of(thumbnailLoader);
 
-        final PageListLoader pageListLoader =
-                new PageListLoader(projectConfig, pages);
+        final PageListWorker pageListLoader =
+                new PageListWorker(projectModel, pages);
 
         pageListLoader.execute();
     }
@@ -286,9 +327,9 @@ public class TesseractController extends WindowAdapter implements
         final String trainingFile =
                 view.getTrainingFiles().getList().getSelectedValue();
 
-        // cancel the last page load if it is present
-        if (lastPageSelection.isPresent()) {
-            lastPageSelection.get().cancel();
+        // cancel the last page loading task if it is present
+        if (lastPageSelectionTask.isPresent()) {
+            lastPageSelectionTask.get().cancel();
         }
 
         // new task
@@ -301,7 +342,7 @@ public class TesseractController extends WindowAdapter implements
                 }
 
                 // create swingworker to load model
-                final PageModelLoader pml = new PageModelLoader(
+                final RecognitionWorker pml = new RecognitionWorker(
                         TesseractController.this, pt.getFile(), trainingFile);
 
                 // save reference
@@ -313,10 +354,11 @@ public class TesseractController extends WindowAdapter implements
         };
 
         // run the page loader with a delay of 1 second
-        pageSelectionTimer.schedule(task, 1000);
+        // the user has 1 second to change the page before it starts loading
+        pageSelectionTimer.schedule(task, 500);
 
         // set as new timer task
-        lastPageSelection = Optional.of(task);
+        lastPageSelectionTask = Optional.of(task);
     }
 
     private void handleParametersButtonClick() {
@@ -358,12 +400,16 @@ public class TesseractController extends WindowAdapter implements
         final JList<Entry<String, List<Symbol>>> selectionList =
                 view.getSymbolOverview().getSymbolGroupList().getList();
 
+        final int index = selectionList.getSelectedIndex();
+        if (index == -1)
+            return;
+
         final List<Symbol> symbols = selectionList.getModel().getElementAt(
-                selectionList.getSelectedIndex()).getValue();
+                index).getValue();
 
         // build model
         final SymbolListModel model = new SymbolListModel(
-                view.getPageModel().get().getImage());
+                getPageModel().get().getImageModel().getPreprocessedImage());
         for (final Symbol symbol : symbols) {
             model.addElement(symbol);
         }
@@ -396,7 +442,7 @@ public class TesseractController extends WindowAdapter implements
         if (!thumbnailLoader.isPresent())
             return;
 
-        final ThumbnailLoader thumbnailLoader = this.thumbnailLoader.get();
+        final ThumbnailWorker thumbnailLoader = this.thumbnailLoader.get();
 
         for (Task t : tasks) {
             t.cancel();
@@ -404,8 +450,8 @@ public class TesseractController extends WindowAdapter implements
 
         tasks.clear();
 
-        if (lastThumbnailLoad.isPresent()) {
-            lastThumbnailLoad.get().cancel();
+        if (lastThumbnailLoadTask.isPresent()) {
+            lastThumbnailLoadTask.get().cancel();
         }
 
         thumbnailLoadTimer.schedule(new TimerTask() {
@@ -445,12 +491,12 @@ public class TesseractController extends WindowAdapter implements
 
         pageRecognitionProducer.setTrainingFile(trainingFile);
 
-        try {
-            final Optional<IntTemplates> prototypes = loadPrototypes();
-            featureDebugger.setPrototypes(prototypes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // try {
+        // final Optional<IntTemplates> prototypes = loadPrototypes();
+        // featureDebugger.setPrototypes(prototypes);
+        // } catch (IOException e) {
+        // e.printStackTrace();
+        // }
 
         // if the training file has changed, ask to reload the page
         if (!view.getPages().getList().isSelectionEmpty()
@@ -461,32 +507,33 @@ public class TesseractController extends WindowAdapter implements
         lastTrainingFile = trainingFile;
     }
 
-    private Optional<IntTemplates> loadPrototypes() throws IOException {
-        final Path tessdir = TrainingFiles.getTessdataDir();
-        final Path base = tmpDir.resolve(TMP_TRAINING_FILE_BASE);
-
-        TessdataManager.extract(
-                tessdir.resolve(lastTrainingFile + ".traineddata"), base);
-
-        final Path prototypeFile =
-                tmpDir.resolve(tmpDir.resolve(TMP_TRAINING_FILE_BASE
-                        + "inttemp"));
-
-        final InputStream in = Files.newInputStream(prototypeFile);
-        final InputBuffer buf =
-                InputBuffer.allocate(new BufferedInputStream(in));
-
-        try {
-            final IntTemplates prototypes = IntTemplates.readFrom(buf);
-
-            return Optional.of(prototypes);
-        } catch (IOException e) {
-            throw e;
-        } finally {
-            // close input buffer, even if an error occurred
-            buf.close();
-        }
-    }
+    // TODO prototype loading?
+    // private Optional<IntTemplates> loadPrototypes() throws IOException {
+    // final Path tessdir = TrainingFiles.getTessdataDir();
+    // final Path base = tmpDir.resolve(TMP_TRAINING_FILE_BASE);
+    //
+    // TessdataManager.extract(
+    // tessdir.resolve(lastTrainingFile + ".traineddata"), base);
+    //
+    // final Path prototypeFile =
+    // tmpDir.resolve(tmpDir.resolve(TMP_TRAINING_FILE_BASE
+    // + "inttemp"));
+    //
+    // final InputStream in = Files.newInputStream(prototypeFile);
+    // final InputBuffer buf =
+    // InputBuffer.allocate(new BufferedInputStream(in));
+    //
+    // try {
+    // final IntTemplates prototypes = IntTemplates.readFrom(buf);
+    //
+    // return Optional.of(prototypes);
+    // } catch (IOException e) {
+    // throw e;
+    // } finally {
+    // // close input buffer, even if an error occurred
+    // buf.close();
+    // }
+    // }
 
     @Override
     public void stateChanged(ChangeEvent evt) {
@@ -494,7 +541,7 @@ public class TesseractController extends WindowAdapter implements
         if (source == view.getPages().getList().getParent()) {
             handleThumbnailLoading();
         } else if (source == view.getMainTabs()) {
-            handleMainComponentChange();
+            handleActiveComponentChange();
         }
     }
 
@@ -524,16 +571,6 @@ public class TesseractController extends WindowAdapter implements
 
     @Override
     public void windowClosed(WindowEvent evt) {
-        // delete temporary directory
-        try {
-            if (Files.exists(tmpDir)) {
-                FileIO.deleteDirectory(tmpDir);
-            }
-        } catch (IOException e) {
-            Dialogs.showError(view, "Error",
-                    "Temporary directory could not be removed completely.");
-        }
-
         pageSelectionTimer.cancel();
         thumbnailLoadTimer.cancel();
     }

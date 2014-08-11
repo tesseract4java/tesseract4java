@@ -3,20 +3,21 @@ package de.vorb.tesseract.gui.util;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.ExecutionException;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 
-import de.vorb.tesseract.gui.controller.TesseractController;
+import de.vorb.tesseract.gui.controller.PreprocessingController;
 import de.vorb.tesseract.gui.model.ImageModel;
 
 public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
-    private final TesseractController controller;
+    private final PreprocessingController controller;
     private final Path sourceFile;
     private final Path destinationDir;
 
-    public PreprocessingWorker(TesseractController controller, Path sourceFile,
-            Path destinationDir) {
+    public PreprocessingWorker(PreprocessingController controller,
+            Path sourceFile, Path destinationDir) {
         this.controller = controller;
         this.sourceFile = sourceFile;
         this.destinationDir = destinationDir;
@@ -30,7 +31,8 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
                 destinationDir.resolve(sourceFile.getFileName());
 
         final BufferedImage binaryImg;
-        if (!controller.hasPreprocessingChanged() && Files.exists(destFile)) {
+        if (!controller.hasPreprocessorChanged(sourceFile)
+                && Files.exists(destFile)) {
             binaryImg = ImageIO.read(destFile.toFile());
         } else if (sourceImg.getType() == BufferedImage.TYPE_BYTE_BINARY) {
             binaryImg = sourceImg;
@@ -44,6 +46,11 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
 
     @Override
     protected void done() {
-        super.done();
+        try {
+            ImageModel imageModel = get();
+
+            controller.setImageModel(sourceFile, imageModel);
+        } catch (InterruptedException | ExecutionException e) {
+        }
     }
 }

@@ -1,0 +1,168 @@
+package de.vorb.tesseract.gui.view;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+
+public class PreprocessingPane extends JPanel {
+    private static final long serialVersionUID = 1L;
+
+    private final JButton btnPreview;
+    private final JButton btnApplyToPage;
+    private final JButton btnApplyToAllPages;
+
+    private final JLabel lblPreview;
+
+    /**
+     * Create the panel.
+     */
+    public PreprocessingPane() {
+        setBackground(Color.WHITE);
+        setLayout(new BorderLayout(0, 0));
+
+        JSplitPane splitPane = new JSplitPane();
+        add(splitPane);
+
+        JPanel panel_3 = new JPanel();
+        panel_3.setBackground(Color.WHITE);
+        splitPane.setLeftComponent(panel_3);
+        panel_3.setLayout(new BoxLayout(panel_3, BoxLayout.Y_AXIS));
+
+        JPanel panel = new JPanel();
+        panel_3.add(panel);
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new CompoundBorder(new TitledBorder(
+                UIManager.getBorder("TitledBorder.border"), "Binarization",
+                TitledBorder.LEADING, TitledBorder.TOP, null,
+                new Color(0, 0, 0)), new EmptyBorder(4, 4, 4, 4)));
+        GridBagLayout gbl_panel = new GridBagLayout();
+        gbl_panel.columnWidths = new int[] { 0, 0, 0 };
+        gbl_panel.rowHeights = new int[] { 0, 0 };
+        gbl_panel.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
+        gbl_panel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        panel.setLayout(gbl_panel);
+
+        JLabel lblMethod = new JLabel("Method");
+        GridBagConstraints gbc_lblMethod = new GridBagConstraints();
+        gbc_lblMethod.insets = new Insets(0, 0, 0, 5);
+        gbc_lblMethod.anchor = GridBagConstraints.EAST;
+        gbc_lblMethod.gridx = 0;
+        gbc_lblMethod.gridy = 0;
+        panel.add(lblMethod, gbc_lblMethod);
+
+        JComboBox cbSauvola = new JComboBox();
+        cbSauvola.setBackground(Color.WHITE);
+        cbSauvola.setModel(new DefaultComboBoxModel(new String[] { "Sauvola" }));
+        cbSauvola.setSelectedIndex(0);
+        GridBagConstraints gbc_cbSauvola = new GridBagConstraints();
+        gbc_cbSauvola.fill = GridBagConstraints.HORIZONTAL;
+        gbc_cbSauvola.gridx = 1;
+        gbc_cbSauvola.gridy = 0;
+        panel.add(cbSauvola, gbc_cbSauvola);
+
+        JPanel panel_1 = new JPanel();
+        panel_3.add(panel_1);
+        panel_1.setBackground(Color.WHITE);
+        panel_1.setBorder(new CompoundBorder(new TitledBorder(
+                UIManager.getBorder("TitledBorder.border"), "Filters",
+                TitledBorder.LEADING, TitledBorder.TOP, null,
+                new Color(0, 0, 0)), new EmptyBorder(4, 4, 4, 4)));
+        GridBagLayout gbl_panel_1 = new GridBagLayout();
+        gbl_panel_1.columnWidths = new int[] { 0, 0, 0 };
+        gbl_panel_1.rowHeights = new int[] { 0, 0, 0 };
+        gbl_panel_1.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+        gbl_panel_1.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+        panel_1.setLayout(gbl_panel_1);
+
+        JLabel lblBlobMinSizeFilter = new JLabel("Blob size filter (min)");
+        lblBlobMinSizeFilter.setBackground(Color.WHITE);
+        GridBagConstraints gbc_lblBlobMinSizeFilter = new GridBagConstraints();
+        gbc_lblBlobMinSizeFilter.insets = new Insets(0, 0, 5, 5);
+        gbc_lblBlobMinSizeFilter.gridx = 0;
+        gbc_lblBlobMinSizeFilter.gridy = 0;
+        panel_1.add(lblBlobMinSizeFilter, gbc_lblBlobMinSizeFilter);
+
+        JSpinner spinnerBlobMinSize = new JSpinner();
+        spinnerBlobMinSize.setToolTipText("If this value is 0, it is ignored");
+        spinnerBlobMinSize.setModel(new SpinnerNumberModel(0, 0, 300, 1));
+        GridBagConstraints gbc_spinnerBlobMinSize = new GridBagConstraints();
+        gbc_spinnerBlobMinSize.fill = GridBagConstraints.HORIZONTAL;
+        gbc_spinnerBlobMinSize.insets = new Insets(0, 0, 5, 0);
+        gbc_spinnerBlobMinSize.gridx = 1;
+        gbc_spinnerBlobMinSize.gridy = 0;
+        panel_1.add(spinnerBlobMinSize, gbc_spinnerBlobMinSize);
+
+        JLabel lblBlobsizefiltermax = new JLabel("BlobSizeFilter (max)");
+        GridBagConstraints gbc_lblBlobsizefiltermax = new GridBagConstraints();
+        gbc_lblBlobsizefiltermax.insets = new Insets(0, 0, 0, 5);
+        gbc_lblBlobsizefiltermax.gridx = 0;
+        gbc_lblBlobsizefiltermax.gridy = 1;
+        panel_1.add(lblBlobsizefiltermax, gbc_lblBlobsizefiltermax);
+
+        JSpinner spinnerBlobMaxSize = new JSpinner();
+        spinnerBlobMaxSize.setToolTipText("If this value is 0, it is ignored");
+        GridBagConstraints gbc_spinnerBlobMaxSize = new GridBagConstraints();
+        gbc_spinnerBlobMaxSize.fill = GridBagConstraints.HORIZONTAL;
+        gbc_spinnerBlobMaxSize.gridx = 1;
+        gbc_spinnerBlobMaxSize.gridy = 1;
+        panel_1.add(spinnerBlobMaxSize, gbc_spinnerBlobMaxSize);
+
+        JPanel panel_4 = new JPanel();
+        panel_4.setBackground(Color.WHITE);
+        panel_3.add(panel_4);
+        panel_4.setLayout(new FlowLayout(FlowLayout.CENTER, 2, 2));
+
+        btnPreview = new JButton("Preview");
+        btnPreview.setBackground(Color.WHITE);
+        panel_4.add(btnPreview);
+
+        JScrollPane scrollPane = new JScrollPane();
+        splitPane.setRightComponent(scrollPane);
+
+        lblPreview = new JLabel();
+        scrollPane.setViewportView(lblPreview);
+
+        JLabel lblPreviewHeading = new JLabel("Preview");
+        lblPreviewHeading.setBorder(new EmptyBorder(0, 4, 0, 0));
+        scrollPane.setColumnHeaderView(lblPreviewHeading);
+
+        JPanel panel_2 = new JPanel();
+        panel_2.setBackground(Color.WHITE);
+        FlowLayout flowLayout = (FlowLayout) panel_2.getLayout();
+        flowLayout.setAlignment(FlowLayout.TRAILING);
+        add(panel_2, BorderLayout.SOUTH);
+
+        btnApplyToPage = new JButton("Apply to current page");
+        btnApplyToPage.setBackground(Color.WHITE);
+        panel_2.add(btnApplyToPage);
+
+        btnApplyToAllPages = new JButton("Apply to all pages");
+        btnApplyToAllPages.setBackground(Color.WHITE);
+        panel_2.add(btnApplyToAllPages);
+
+    }
+
+    public JButton getPreviewButton() {
+        return btnPreview;
+    }
+
+    public JButton getApplyToAllPagesButton() {
+        return btnApplyToAllPages;
+    }
+
+    public JButton getApplyToPageButton() {
+        return btnApplyToPage;
+    }
+
+    public JLabel getPreviewLabel() {
+        return lblPreview;
+    }
+}
