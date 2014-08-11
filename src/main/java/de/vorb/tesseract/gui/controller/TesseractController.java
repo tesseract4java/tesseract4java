@@ -1,16 +1,12 @@
 package de.vorb.tesseract.gui.controller;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.Map.Entry;
@@ -18,12 +14,12 @@ import java.util.Map.Entry;
 import javax.swing.DefaultListModel;
 import javax.swing.JComboBox;
 import javax.swing.JList;
+import javax.swing.JProgressBar;
 import javax.swing.JViewport;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -35,35 +31,26 @@ import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.GlobalPrefs;
+import de.vorb.tesseract.gui.model.ImageModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.model.ProjectModel;
 import de.vorb.tesseract.gui.model.SymbolListModel;
 import de.vorb.tesseract.gui.model.SymbolOrder;
 import de.vorb.tesseract.gui.util.PageListWorker;
-import de.vorb.tesseract.gui.util.RecognitionWorker;
 import de.vorb.tesseract.gui.util.PageRecognitionProducer;
+import de.vorb.tesseract.gui.util.PreprocessingWorker;
+import de.vorb.tesseract.gui.util.RecognitionWorker;
 import de.vorb.tesseract.gui.util.ThumbnailWorker;
 import de.vorb.tesseract.gui.util.ThumbnailWorker.Task;
-import de.vorb.tesseract.gui.view.Dialogs;
-import de.vorb.tesseract.gui.view.FeatureDebugger;
-import de.vorb.tesseract.gui.view.PageModelComponent;
-import de.vorb.tesseract.gui.view.NewProjectDialog;
-import de.vorb.tesseract.gui.view.RecognitionParametersDialog;
-import de.vorb.tesseract.gui.view.TesseractFrame;
+import de.vorb.tesseract.gui.view.*;
 import de.vorb.tesseract.tools.preprocessing.DefaultPreprocessor;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
-import de.vorb.tesseract.tools.preprocessing.binarization.Binarization;
-import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
-import de.vorb.tesseract.tools.training.InputBuffer;
-import de.vorb.tesseract.tools.training.IntTemplates;
-import de.vorb.tesseract.tools.training.TessdataManager;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TrainingFiles;
 import de.vorb.tesseract.util.feat.Feature3D;
-import de.vorb.util.FileIO;
 
 public class TesseractController extends WindowAdapter implements
         ActionListener, ListSelectionListener, Observer, ChangeListener {
@@ -94,8 +81,6 @@ public class TesseractController extends WindowAdapter implements
      */
     private static final String TRAINING_FILE = "training_file";
 
-    private static final String TMP_TRAINING_FILE_BASE = "unspecified.";
-
     public static final Preprocessor DEFAULT_PREPROCESSOR =
             new DefaultPreprocessor();
 
@@ -105,9 +90,9 @@ public class TesseractController extends WindowAdapter implements
     private final TesseractFrame view;
     private final FeatureDebugger featureDebugger;
 
-    private Optional<PageModelComponent> activePageModelComponent;
     private final PageRecognitionProducer pageRecognitionProducer;
-    private Optional<RecognitionWorker> pageModelLoader = Optional.absent();
+    private Optional<PreprocessingWorker> preprocessingWorker =
+            Optional.absent();
 
     /*
      * IO workers, timers and tasks
@@ -122,16 +107,31 @@ public class TesseractController extends WindowAdapter implements
 
     private final List<Task> tasks = new LinkedList<Task>();
 
-    // models
+    /*
+     * models
+     */
     private Optional<ProjectModel> projectModel = Optional.absent();
+    private Optional<PageThumbnail> pageThumbnail = Optional.absent();
+    private Optional<ImageModel> imageModel = Optional.absent();
+    private Optional<PageModel> pageModel = Optional.absent();
+
     private String lastTrainingFile;
+
+    /*
+     * preprocessing
+     */
+    private Preprocessor defaultPreprocessor;
+    private final Map<Path, Preprocessor> preprocessors = new HashMap<>();
+
+    private Set<Path> changedPreprocessors = new HashSet<>();
+
+    private Optional<RecognitionWorker> recognitionWorker = Optional.absent();
 
     public TesseractController() {
         // create new tesseract frame
         view = new TesseractFrame();
         featureDebugger = new FeatureDebugger(view);
 
-        activePageModelComponent = Optional.absent();
         handleActiveComponentChange();
 
         view.setVisible(true);
@@ -190,17 +190,29 @@ public class TesseractController extends WindowAdapter implements
         view.getTrainingFiles().getList().addListSelectionListener(this);
         view.getScale().addObserver(this);
 
-        // glyph overview pane
-        view.getSymbolOverview().getSymbolGroupList().getList()
-                .addListSelectionListener(this);
-        view.getSymbolOverview().getSymbolVariantList().getList()
-                .addListSelectionListener(this);
-        view.getSymbolOverview().getSymbolVariantList()
-                .getCompareToPrototype().addActionListener(this);
-        view.getSymbolOverview().getSymbolVariantList().getShowInBoxEditor()
-                .addActionListener(this);
-        view.getSymbolOverview().getSymbolVariantList().getOrderingComboBox()
-                .addActionListener(this);
+        {
+            // preprocessing pane
+            final PreprocessingPane preprocessingPane = view.getPreprocessingPane();
+
+            preprocessingPane.getPreviewButton().addActionListener(this);
+            preprocessingPane.getApplyPageButton().addActionListener(this);
+            preprocessingPane.getApplyAllPagesButton().addActionListener(this);
+        }
+
+        {
+            // glyph overview pane
+            final SymbolOverview symbolOverview = view.getSymbolOverview();
+            symbolOverview.getSymbolGroupList().getList()
+                    .addListSelectionListener(this);
+            symbolOverview.getSymbolVariantList().getList()
+                    .addListSelectionListener(this);
+            symbolOverview.getSymbolVariantList().getCompareToPrototype()
+                    .addActionListener(this);
+            symbolOverview.getSymbolVariantList().getShowInBoxEditor()
+                    .addActionListener(this);
+            symbolOverview.getSymbolVariantList().getOrderingComboBox()
+                    .addActionListener(this);
+        }
 
         // recognition pane
         view.getRecognitionPane().getParametersButton().addActionListener(this);
@@ -209,15 +221,23 @@ public class TesseractController extends WindowAdapter implements
     @Override
     public void actionPerformed(ActionEvent evt) {
         final Object source = evt.getSource();
-        if (source.equals(view.getMenuItemNewProject())) {
+        final SymbolOverview symbolOverview = view.getSymbolOverview();
+        final PreprocessingPane preprocPane = view.getPreprocessingPane();
+        if (preprocPane.getPreviewButton().equals(source)) {
+            handlePreprocessorPreview();
+        } else if (preprocPane.getApplyPageButton().equals(source)) {
+            handlePreprocessorChange(false);
+        } else if (preprocPane.getApplyAllPagesButton().equals(source)) {
+            handlePreprocessorChange(true);
+        } else if (source.equals(view.getMenuItemNewProject())) {
             handleNewProject();
-        } else if (source.equals(view.getSymbolOverview().getSymbolVariantList()
+        } else if (source.equals(symbolOverview.getSymbolVariantList()
                 .getCompareToPrototype())) {
             handleCompareSymbolToPrototype();
-        } else if (source.equals(view.getSymbolOverview().getSymbolVariantList()
+        } else if (source.equals(symbolOverview.getSymbolVariantList()
                 .getShowInBoxEditor())) {
             handleShowSymbolInBoxEditor();
-        } else if (source.equals(view.getSymbolOverview().getSymbolVariantList()
+        } else if (source.equals(symbolOverview.getSymbolVariantList()
                 .getOrderingComboBox())) {
             handleSymbolReordering();
         } else if (source.equals(view.getRecognitionPane()
@@ -226,8 +246,22 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
+    public Optional<PageModel> getPageModel() {
+        final MainComponent active = view.getActiveComponent();
+
+        if (active instanceof PageModelComponent) {
+            return ((PageModelComponent) active).getPageModel();
+        }
+
+        return Optional.<PageModel> absent();
+    }
+
     public PageRecognitionProducer getPageRecognitionProducer() {
         return pageRecognitionProducer;
+    }
+
+    public Optional<ProjectModel> getProjectModel() {
+        return projectModel;
     }
 
     public Optional<Path> getSelectedPage() {
@@ -241,26 +275,23 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
-    public void setPageModel(Optional<PageModel> model) {
-        if (activePageModelComponent.isPresent()) {
-            activePageModelComponent.get().setPageModel(model);
-        }
-    }
-
-    public Optional<PageModel> getPageModel() {
-        if (activePageModelComponent.isPresent()) {
-            return activePageModelComponent.get().getPageModel();
-        } else {
-            return Optional.<PageModel> absent();
-        }
-    }
-
-    public Optional<ProjectModel> getProjectModel() {
-        return projectModel;
+    public Optional<String> getTrainingFile() {
+        return Optional.fromNullable(
+                view.getTrainingFiles().getList().getSelectedValue());
     }
 
     public TesseractFrame getView() {
         return view;
+    }
+
+    private void handleActiveComponentChange() {
+        final MainComponent active = view.getActiveComponent();
+
+        if (active instanceof ImageModelComponent) {
+            ((ImageModelComponent) active).setImageModel(imageModel);
+        } else if (active instanceof PageModelComponent) {
+            ((PageModelComponent) active).setPageModel(pageModel);
+        }
     }
 
     private void handleCompareSymbolToPrototype() {
@@ -281,20 +312,6 @@ public class TesseractController extends WindowAdapter implements
 
             featureDebugger.setFeatures(features);
             featureDebugger.setVisible(true);
-        }
-    }
-
-    private void handleActiveComponentChange() {
-        final Component active = view.getActiveComponent();
-
-        if (active instanceof PageModelComponent) {
-            final PageModelComponent pmc = (PageModelComponent) active;
-
-            if (activePageModelComponent.isPresent()) {
-                pmc.setPageModel(activePageModelComponent.get().getPageModel());
-            }
-
-            activePageModelComponent = Optional.of(pmc);
         }
     }
 
@@ -324,8 +341,13 @@ public class TesseractController extends WindowAdapter implements
     private void handlePageSelection() {
         final PageThumbnail pt =
                 view.getPages().getList().getSelectedValue();
-        final String trainingFile =
-                view.getTrainingFiles().getList().getSelectedValue();
+
+        pageThumbnail = Optional.fromNullable(pt);
+
+        // don't do anything, if no page is selected
+        if (pt == null) {
+            return;
+        }
 
         // cancel the last page loading task if it is present
         if (lastPageSelectionTask.isPresent()) {
@@ -337,19 +359,20 @@ public class TesseractController extends WindowAdapter implements
             @Override
             public void run() {
                 // cancel last task
-                if (pageModelLoader.isPresent()) {
-                    pageModelLoader.get().cancel(false);
+                if (preprocessingWorker.isPresent()) {
+                    preprocessingWorker.get().cancel(false);
                 }
 
-                // create swingworker to load model
-                final RecognitionWorker pml = new RecognitionWorker(
-                        TesseractController.this, pt.getFile(), trainingFile);
+                // create swingworker to preprocess page
+                final PreprocessingWorker pw = new PreprocessingWorker(
+                        TesseractController.this, pt.getFile(),
+                        getProjectModel().get().getPreprocessedDir());
 
                 // save reference
-                pageModelLoader = Optional.of(pml);
+                preprocessingWorker = Optional.of(pw);
 
                 // execute it
-                pml.execute();
+                pw.execute();
             }
         };
 
@@ -507,6 +530,21 @@ public class TesseractController extends WindowAdapter implements
         lastTrainingFile = trainingFile;
     }
 
+    public void setPageModel(Optional<PageModel> model) {
+        pageModel = model;
+
+        // implicitly also set the image model
+        if (model.isPresent()) {
+            imageModel = Optional.of(model.get().getImageModel());
+        }
+
+        final MainComponent active = view.getActiveComponent();
+
+        if (active instanceof PageModelComponent) {
+            ((PageModelComponent) active).setPageModel(model);
+        }
+    }
+
     // TODO prototype loading?
     // private Optional<IntTemplates> loadPrototypes() throws IOException {
     // final Path tessdir = TrainingFiles.getTessdataDir();
@@ -573,5 +611,126 @@ public class TesseractController extends WindowAdapter implements
     public void windowClosed(WindowEvent evt) {
         pageSelectionTimer.cancel();
         thumbnailLoadTimer.cancel();
+    }
+
+    public Preprocessor getDefaultPreprocessor() {
+        return defaultPreprocessor;
+    }
+
+    public Preprocessor getPreprocessor(Path sourceFile) {
+        final Optional<Path> selected = getSelectedPage();
+        if (selected.isPresent() && selected.get().equals(sourceFile)
+                && view.getActiveComponent() == view.getPreprocessingPane()) {
+            final Preprocessor preview =
+                    view.getPreprocessingPane().getPreprocessor();
+            return preview;
+        }
+
+        final Preprocessor preprocessor = preprocessors.get(sourceFile);
+
+        if (preprocessor == null) {
+            return defaultPreprocessor;
+        }
+
+        return preprocessors.get(sourceFile);
+    }
+
+    public boolean hasPreprocessorChanged(Path sourceFile) {
+        // try to remove it and return true if the set contained the sourceFile
+        return changedPreprocessors.contains(sourceFile);
+    }
+
+    public void setDefaultPreprocessor(Preprocessor preprocessor) {
+        defaultPreprocessor = preprocessor;
+    }
+
+    public void setPreprocessor(Path sourceFile, Preprocessor preprocessor) {
+        if (preprocessor.equals(defaultPreprocessor))
+            preprocessors.remove(sourceFile);
+        else
+            preprocessors.put(sourceFile, preprocessor);
+    }
+
+    public void setPreprocessorChanged(Path sourceFile, boolean changed) {
+        if (changed)
+            changedPreprocessors.add(sourceFile);
+        else
+            changedPreprocessors.remove(sourceFile);
+    }
+
+    public void setImageModel(Optional<ImageModel> model) {
+        view.getProgressBar().setIndeterminate(false);
+        final MainComponent active = view.getActiveComponent();
+
+        if (active instanceof PageModelComponent) {
+            ((PageModelComponent) active).setPageModel(Optional.<PageModel> absent());
+
+            if (recognitionWorker.isPresent()) {
+                recognitionWorker.get().cancel(false);
+            }
+
+            final Optional<String> trainingFile = getTrainingFile();
+
+            if (!model.isPresent() || !trainingFile.isPresent()) {
+                return;
+            }
+
+            final RecognitionWorker rw = new RecognitionWorker(this,
+                    model.get(), trainingFile.get());
+
+            rw.execute();
+
+            recognitionWorker = Optional.of(rw);
+
+            return;
+        } else if (!(active instanceof ImageModelComponent)) {
+            return;
+        }
+
+        if (!model.isPresent()) {
+            ((ImageModelComponent) active).setImageModel(model);
+            return;
+        }
+
+        final Path sourceFile = model.get().getSourceFile();
+        final Optional<Path> selectedPage = getSelectedPage();
+
+        if (!selectedPage.isPresent()
+                || !sourceFile.equals(selectedPage.get())) {
+            ((ImageModelComponent) active).setImageModel(
+                    Optional.<ImageModel> absent());
+            return;
+        }
+
+        ((ImageModelComponent) active).setImageModel(model);
+    }
+
+    private void handlePreprocessorPreview() {
+        final Optional<Path> selectedPage = getSelectedPage();
+
+        // if no page is selected, simply ignore it
+        if (!selectedPage.isPresent()) {
+            Dialogs.showWarning(view, "No project",
+                    "No page has been selected. You need to select a page first.");
+            return;
+        }
+
+        final JProgressBar progress = view.getProgressBar();
+        progress.setIndeterminate(true);
+
+        final Optional<ProjectModel> projectModel = getProjectModel();
+
+        if (!projectModel.isPresent()) {
+            Dialogs.showWarning(view, "No project",
+                    "No project has been selected. You need to create a project first.");
+            return;
+        }
+
+        new PreprocessingWorker(this, selectedPage.get(),
+                projectModel.get().getProjectDir());
+    }
+
+    private void handlePreprocessorChange(boolean allPages) {
+
     }
 }

@@ -8,15 +8,17 @@ import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 
-import de.vorb.tesseract.gui.controller.PreprocessingController;
+import com.google.common.base.Optional;
+
+import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.gui.model.ImageModel;
 
 public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
-    private final PreprocessingController controller;
+    private final TesseractController controller;
     private final Path sourceFile;
     private final Path destinationDir;
 
-    public PreprocessingWorker(PreprocessingController controller,
+    public PreprocessingWorker(TesseractController controller,
             Path sourceFile, Path destinationDir) {
         this.controller = controller;
         this.sourceFile = sourceFile;
@@ -26,6 +28,8 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
     @Override
     protected ImageModel doInBackground() throws Exception {
         final BufferedImage sourceImg = ImageIO.read(sourceFile.toFile());
+
+        Files.createDirectories(destinationDir);
 
         final Path destFile =
                 destinationDir.resolve(sourceFile.getFileName());
@@ -47,9 +51,7 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
     @Override
     protected void done() {
         try {
-            ImageModel imageModel = get();
-
-            controller.setImageModel(sourceFile, imageModel);
+            controller.setImageModel(Optional.of(get()));
         } catch (InterruptedException | ExecutionException e) {
         }
     }
