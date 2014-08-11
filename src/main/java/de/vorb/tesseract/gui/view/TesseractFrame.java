@@ -21,7 +21,6 @@ import javax.swing.border.EmptyBorder;
 
 import com.google.common.base.Optional;
 
-import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.util.Filter;
@@ -37,9 +36,11 @@ public class TesseractFrame extends JFrame {
     private static final long serialVersionUID = 1L;
     private final FilteredList<PageThumbnail> listPages;
     private final FilteredList<String> listTrainingFiles;
+    private final PreprocessingPane preprocessingPane;
     private final BoxEditor boxEditor;
-    private final RecognitionPane recognitionPane;
     private final SymbolOverview glyphOverview;
+    private final RecognitionPane recognitionPane;
+    private final EvaluationPane evaluationPane;
 
     private final JLabel lblScaleFactor;
     private final JProgressBar pbLoadPage;
@@ -71,9 +72,11 @@ public class TesseractFrame extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         scale = new Scale();
+        preprocessingPane = new PreprocessingPane();
         boxEditor = new BoxEditor(scale);
-        recognitionPane = new RecognitionPane();
         glyphOverview = new SymbolOverview();
+        recognitionPane = new RecognitionPane(scale);
+        evaluationPane = new EvaluationPane(scale);
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 
@@ -224,6 +227,9 @@ public class TesseractFrame extends JFrame {
         getContentPane().add(spMain, BorderLayout.CENTER);
 
         tabsMain = new JTabbedPane();
+        tabsMain.addTab(Labels.getLabel(getLocale(), "tab_main_preprocessing"),
+                Resources.getIcon("contrast"), preprocessingPane);
+
         tabsMain.addTab(Labels.getLabel(getLocale(), "tab_main_boxeditor"),
                 Resources.getIcon("table_edit"), boxEditor);
 
@@ -236,6 +242,10 @@ public class TesseractFrame extends JFrame {
                 Resources.getIcon("application_tile_horizontal"),
                 recognitionPane);
 
+        tabsMain.addTab(Labels.getLabel(getLocale(), "tab_main_evaluation"),
+                Resources.getIcon("chart_curve"),
+                evaluationPane);
+
         spMain.setRightComponent(tabsMain);
 
         JSplitPane splitPane = new JSplitPane();
@@ -247,13 +257,7 @@ public class TesseractFrame extends JFrame {
     }
 
     public MainComponent getActiveComponent() {
-        final Component main = tabsMain.getSelectedComponent();
-        if (main instanceof MainComponent) {
-            return (MainComponent) main;
-        } else {
-            throw new IllegalStateException(
-                    "The current main component is not an instance of MainComponent.");
-        }
+        return (MainComponent) tabsMain.getSelectedComponent();
     }
 
     public FilteredList<PageThumbnail> getPages() {
@@ -272,6 +276,10 @@ public class TesseractFrame extends JFrame {
         return scale;
     }
 
+    public PreprocessingPane getPreprocessingPane() {
+        return preprocessingPane;
+    }
+
     public BoxEditor getBoxEditor() {
         return boxEditor;
     }
@@ -286,14 +294,6 @@ public class TesseractFrame extends JFrame {
 
     public JProgressBar getProgressBar() {
         return pbLoadPage;
-    }
-
-    public void setPageModel(Optional<PageModel> model) {
-        getActiveComponent().setPageModel(model);
-    }
-
-    public Optional<PageModel> getPageModel() {
-        return getActiveComponent().getPageModel();
     }
 
     public JMenuItem getMenuItemNewProject() {

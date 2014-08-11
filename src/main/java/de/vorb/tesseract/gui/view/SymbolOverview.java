@@ -25,7 +25,7 @@ import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
-public class SymbolOverview extends JPanel implements MainComponent {
+public class SymbolOverview extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;
 
     private final SymbolGroupList glyphSelectionPane;
@@ -73,6 +73,20 @@ public class SymbolOverview extends JPanel implements MainComponent {
         splitPane.setRightComponent(glyphListPane);
     }
 
+    public void addSymbolLinkListener(SymbolLinkListener listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public Component asComponent() {
+        return this;
+    }
+
+    @Override
+    public Optional<PageModel> getPageModel() {
+        return model;
+    }
+
     public SymbolGroupList getSymbolGroupList() {
         return glyphSelectionPane;
     }
@@ -97,7 +111,8 @@ public class SymbolOverview extends JPanel implements MainComponent {
 
         // set a new renderer that has a reference to the thresholded image
         getSymbolVariantList().getList().setCellRenderer(
-                new GlyphListCellRenderer(model.get().getImage()));
+                new GlyphListCellRenderer(
+                        model.get().getImageModel().getPreprocessedImage()));
 
         // insert all symbols into the map
         for (final Line line : page.getLines()) {
@@ -127,19 +142,5 @@ public class SymbolOverview extends JPanel implements MainComponent {
         }
 
         glyphList.setModel(listModel);
-    }
-
-    public void addSymbolLinkListener(SymbolLinkListener listener) {
-        listeners.add(listener);
-    }
-
-    @Override
-    public Optional<PageModel> getPageModel() {
-        return model;
-    }
-
-    @Override
-    public Component asComponent() {
-        return this;
     }
 }

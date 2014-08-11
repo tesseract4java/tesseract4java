@@ -69,7 +69,7 @@ public class SymbolVariantList extends JPanel {
 
         final JPopupMenu popupMenu = new JPopupMenu();
         showInBoxEditor = new JMenuItem("Show in Box Editor");
-        compareToPrototype = new JMenuItem("Compare to Prototype");
+        compareToPrototype = new JMenuItem("Show features");
         popupMenu.add(showInBoxEditor);
         popupMenu.add(compareToPrototype);
         glyphList.addMouseListener(new MouseAdapter() {

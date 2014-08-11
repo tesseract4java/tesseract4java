@@ -39,7 +39,8 @@ public class BoxFileRenderer implements PageRenderer {
 
         // TODO add a version of render() that takes two rectangles and a new
         // box and updates the necessary area only
-        final BufferedImage image = pageModel.get().getImage();
+        final BufferedImage image = pageModel.get().getImageModel()
+                .getPreprocessedImage();
 
         // calculate image dimensions
         final int w = image.getWidth();

@@ -2,24 +2,45 @@ package de.vorb.tesseract.gui.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-public class PreprocessingPane extends JPanel {
+import com.google.common.base.Optional;
+
+import de.vorb.tesseract.gui.model.ImageModel;
+import de.vorb.tesseract.tools.preprocessing.DefaultPreprocessor;
+import de.vorb.tesseract.tools.preprocessing.Preprocessor;
+import de.vorb.tesseract.tools.preprocessing.binarization.Binarization;
+import de.vorb.tesseract.tools.preprocessing.binarization.BinarizationMethod;
+import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
+import de.vorb.tesseract.tools.preprocessing.filter.BlobSizeFilter;
+import de.vorb.tesseract.tools.preprocessing.filter.ImageFilter;
+
+public class PreprocessingPane extends JPanel implements ImageModelComponent {
     private static final long serialVersionUID = 1L;
 
+    private final JComboBox<BinarizationMethod> comboBinarization;
+    private JSpinner spinnerBlobMinSize;
+    private JSpinner spinnerBlobMaxSize;
+
     private final JButton btnPreview;
+
+    private final JLabel lblPreview;
+
     private final JButton btnApplyToPage;
     private final JButton btnApplyToAllPages;
 
-    private final JLabel lblPreview;
+    private Optional<ImageModel> imageModel;
 
     /**
      * Create the panel.
@@ -58,15 +79,16 @@ public class PreprocessingPane extends JPanel {
         gbc_lblMethod.gridy = 0;
         panel.add(lblMethod, gbc_lblMethod);
 
-        JComboBox cbSauvola = new JComboBox();
-        cbSauvola.setBackground(Color.WHITE);
-        cbSauvola.setModel(new DefaultComboBoxModel(new String[] { "Sauvola" }));
-        cbSauvola.setSelectedIndex(0);
-        GridBagConstraints gbc_cbSauvola = new GridBagConstraints();
-        gbc_cbSauvola.fill = GridBagConstraints.HORIZONTAL;
-        gbc_cbSauvola.gridx = 1;
-        gbc_cbSauvola.gridy = 0;
-        panel.add(cbSauvola, gbc_cbSauvola);
+        comboBinarization = new JComboBox<>();
+        comboBinarization.setBackground(Color.WHITE);
+        comboBinarization.setModel(new DefaultComboBoxModel<>(
+                BinarizationMethod.values()));
+        comboBinarization.setSelectedIndex(0);
+        GridBagConstraints gbc_cbBinarization = new GridBagConstraints();
+        gbc_cbBinarization.fill = GridBagConstraints.HORIZONTAL;
+        gbc_cbBinarization.gridx = 1;
+        gbc_cbBinarization.gridy = 0;
+        panel.add(comboBinarization, gbc_cbBinarization);
 
         JPanel panel_1 = new JPanel();
         panel_3.add(panel_1);
@@ -90,7 +112,7 @@ public class PreprocessingPane extends JPanel {
         gbc_lblBlobMinSizeFilter.gridy = 0;
         panel_1.add(lblBlobMinSizeFilter, gbc_lblBlobMinSizeFilter);
 
-        JSpinner spinnerBlobMinSize = new JSpinner();
+        spinnerBlobMinSize = new JSpinner();
         spinnerBlobMinSize.setToolTipText("If this value is 0, it is ignored");
         spinnerBlobMinSize.setModel(new SpinnerNumberModel(0, 0, 300, 1));
         GridBagConstraints gbc_spinnerBlobMinSize = new GridBagConstraints();
@@ -107,7 +129,7 @@ public class PreprocessingPane extends JPanel {
         gbc_lblBlobsizefiltermax.gridy = 1;
         panel_1.add(lblBlobsizefiltermax, gbc_lblBlobsizefiltermax);
 
-        JSpinner spinnerBlobMaxSize = new JSpinner();
+        spinnerBlobMaxSize = new JSpinner();
         spinnerBlobMaxSize.setToolTipText("If this value is 0, it is ignored");
         GridBagConstraints gbc_spinnerBlobMaxSize = new GridBagConstraints();
         gbc_spinnerBlobMaxSize.fill = GridBagConstraints.HORIZONTAL;
@@ -125,6 +147,8 @@ public class PreprocessingPane extends JPanel {
         panel_4.add(btnPreview);
 
         JScrollPane scrollPane = new JScrollPane();
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(10);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(10);
         splitPane.setRightComponent(scrollPane);
 
         lblPreview = new JLabel();
@@ -154,15 +178,72 @@ public class PreprocessingPane extends JPanel {
         return btnPreview;
     }
 
-    public JButton getApplyToAllPagesButton() {
+    public JButton getApplyAllPagesButton() {
         return btnApplyToAllPages;
     }
 
-    public JButton getApplyToPageButton() {
+    public JButton getApplyPageButton() {
         return btnApplyToPage;
     }
 
     public JLabel getPreviewLabel() {
         return lblPreview;
+    }
+
+    public Binarization getBinarization() {
+        final BinarizationMethod method =
+                (BinarizationMethod) comboBinarization.getSelectedItem();
+
+        final Binarization binarization;
+        switch (method) {
+        case SAUVOLA:
+            binarization = new Sauvola();
+            break;
+        default:
+            binarization = new Sauvola();
+        }
+
+        return binarization;
+    }
+
+    public List<ImageFilter> getFilters() {
+        int min = (Integer) spinnerBlobMinSize.getModel().getValue();
+        int max = (Integer) spinnerBlobMaxSize.getModel().getValue();
+
+        if (max == 0) {
+            max = Integer.MAX_VALUE;
+        }
+
+        final ImageFilter blobSizeFilter = new BlobSizeFilter(min, max);
+
+        final LinkedList<ImageFilter> result = new LinkedList<>();
+        result.add(blobSizeFilter);
+        return result;
+    }
+
+    public Preprocessor getPreprocessor() {
+        return new DefaultPreprocessor(getBinarization(), getFilters());
+    }
+
+    @Override
+    public Component asComponent() {
+        return this;
+    }
+
+    @Override
+    public void setImageModel(Optional<ImageModel> model) {
+        imageModel = model;
+
+        if (model.isPresent()) {
+            lblPreview.setIcon(new ImageIcon(
+                    model.get().getPreprocessedImage()));
+        } else {
+            lblPreview.setIcon(null);
+        }
+    }
+
+    @Override
+    public Optional<ImageModel> getImageModel() {
+        return imageModel;
     }
 }

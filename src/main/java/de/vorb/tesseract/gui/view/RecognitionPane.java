@@ -30,6 +30,7 @@ import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.event.ComparatorSettingsChangeListener;
 import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.util.Baseline;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.FontAttributes;
@@ -41,7 +42,7 @@ import de.vorb.tesseract.util.Word;
 
 public class RecognitionPane extends JPanel implements
         ComparatorSettingsChangeListener,
-        MainComponent {
+        PageModelComponent {
     private static final long serialVersionUID = 1L;
 
     private static final int SCROLL_UNITS = 12;
@@ -165,8 +166,10 @@ public class RecognitionPane extends JPanel implements
 
     /**
      * Create the panel.
+     * 
+     * @param scale
      */
-    public RecognitionPane() {
+    public RecognitionPane(Scale scale) {
         setLayout(new BorderLayout(0, 0));
 
         JPanel panel = new JPanel();
@@ -306,6 +309,9 @@ public class RecognitionPane extends JPanel implements
         lblOriginal.setVerticalAlignment(SwingConstants.TOP);
         spOriginal.setViewportView(lblOriginal);
 
+        lblOriginal_1 = new JLabel("Original");
+        spOriginal.setColumnHeaderView(lblOriginal_1);
+
         final JScrollPane spHOCR = new JScrollPane();
         spHOCR.getHorizontalScrollBar().setUnitIncrement(SCROLL_UNITS);
         spHOCR.getVerticalScrollBar().setUnitIncrement(SCROLL_UNITS);
@@ -315,6 +321,9 @@ public class RecognitionPane extends JPanel implements
         lblHOCR.addMouseListener(mouseListener);
         lblHOCR.setVerticalAlignment(SwingConstants.TOP);
         spHOCR.setViewportView(lblHOCR);
+
+        lblRecognized = new JLabel("Recognized");
+        spHOCR.setColumnHeaderView(lblRecognized);
 
         final ChangeListener checkBoxListener = new ChangeListener() {
             public void stateChanged(ChangeEvent ev) {
@@ -458,6 +467,8 @@ public class RecognitionPane extends JPanel implements
     private Component horizontalStrut;
     private JLabel lblFontAttributes;
     private JTextField tfFontAttributes;
+    private JLabel lblOriginal_1;
+    private JLabel lblRecognized;
 
     public void settingsChanged() {
         render();
@@ -478,7 +489,8 @@ public class RecognitionPane extends JPanel implements
 
         final Page page = getPageModel().get().getPage();
         final List<Line> lines = page.getLines();
-        final BufferedImage normal = getPageModel().get().getImage();
+        final BufferedImage normal = getPageModel().get().getImageModel()
+                .getPreprocessedImage();
 
         // font for line numbers
         final Font lineNumberFont = new Font("Dialog", Font.PLAIN, 12);
