@@ -43,6 +43,8 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
         } else {
             binaryImg = controller.getPreprocessor(sourceFile).process(
                     sourceImg);
+
+            ImageIO.write(binaryImg, "PNG", destFile.toFile());
         }
 
         return new ImageModel(sourceFile, sourceImg, destFile, binaryImg);
