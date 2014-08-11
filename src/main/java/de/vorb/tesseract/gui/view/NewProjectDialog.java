@@ -27,22 +27,10 @@ import javax.swing.event.DocumentListener;
 
 import com.google.common.base.Optional;
 
+import de.vorb.tesseract.gui.model.ProjectModel;
+
 public class NewProjectDialog extends JDialog implements ActionListener,
         DocumentListener {
-    public static class Result {
-        public final Path directory;
-        public final boolean tiff;
-        public final boolean png;
-        public final boolean jpeg;
-
-        private Result(Path directory, boolean tiff, boolean png, boolean jpeg) {
-            this.directory = directory;
-            this.tiff = tiff;
-            this.png = png;
-            this.jpeg = jpeg;
-        }
-    }
-
     private static final long serialVersionUID = 1L;
 
     private static final String PREF_DIR = "dir";
@@ -57,7 +45,7 @@ public class NewProjectDialog extends JDialog implements ActionListener,
     private final JButton btnCreate;
     private final JButton btnCancel;
 
-    private Optional<Result> result = Optional.absent();
+    private Optional<ProjectModel> result = Optional.absent();
 
     /**
      * Create the dialog.
@@ -211,8 +199,9 @@ public class NewProjectDialog extends JDialog implements ActionListener,
             // set result if settings are valid
             if (isStateValid()) {
                 Path dir = Paths.get(tfPath.getText());
-                this.result = Optional.of(new Result(dir, cbTiff.isSelected(),
-                        cbPng.isSelected(), cbJpeg.isSelected()));
+                this.result = Optional.of(new ProjectModel(dir,
+                        cbTiff.isSelected(), cbPng.isSelected(),
+                        cbJpeg.isSelected()));
             }
 
             this.dispose();
@@ -259,7 +248,7 @@ public class NewProjectDialog extends JDialog implements ActionListener,
         return Preferences.userNodeForPackage(getClass());
     }
 
-    public static Optional<Result> showDialog(Window parent) {
+    public static Optional<ProjectModel> showDialog(Window parent) {
         final NewProjectDialog dialog = new NewProjectDialog(parent);
         dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -267,7 +256,7 @@ public class NewProjectDialog extends JDialog implements ActionListener,
 
         if (dialog.result.isPresent()) {
             dialog.getPreferences().put(PREF_DIR,
-                    dialog.result.get().directory.toString());
+                    dialog.result.get().getImageDir().toString());
         }
 
         return dialog.result;
