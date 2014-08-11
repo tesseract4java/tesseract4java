@@ -72,6 +72,10 @@ public class FilteredListModel<T> extends AbstractListModel<T> {
 
     @Override
     public T getElementAt(int index) {
+        if (index < 0) {
+            return null;
+        }
+
         if (!filter.isPresent()) {
             return source.getElementAt(index);
         }
