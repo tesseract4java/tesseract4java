@@ -44,7 +44,6 @@ public class BlobSizeFilter implements ImageFilter {
 
         g2d.setColor(Color.BLACK);
         for (final ConnectedComponent connComp : connectedComponents) {
-            System.out.println(connComp.getOuterContour().getBounds());
             if (connComp.getArea() <= maxArea &&
                     connComp.getArea() >= minArea) {
                 connComp.drawOn(g2d);
