@@ -19,8 +19,6 @@ import de.vorb.tesseract.gui.model.ProjectModel;
 
 public class ThumbnailWorker extends
         SwingWorker<Void, ThumbnailWorker.Task> {
-    public static final String THUMBNAIL_DIR = "thumbs";
-
     private final ProjectModel projectModel;
     private final DefaultListModel<PageThumbnail> pages;
 
@@ -53,8 +51,7 @@ public class ThumbnailWorker extends
 
     @Override
     protected Void doInBackground() throws Exception {
-        final Path thumbsDir =
-                projectModel.getProjectDir().resolve(THUMBNAIL_DIR);
+        final Path thumbsDir = projectModel.getThumbnailDir();
 
         // mkdir -p thumbsDir
         Files.createDirectories(thumbsDir);

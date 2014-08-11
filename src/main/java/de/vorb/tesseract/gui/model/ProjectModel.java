@@ -8,6 +8,8 @@ import java.nio.file.Path;
 
 public class ProjectModel {
     public static final String PROJECT_DIR = ".tess";
+    public static final String THUMBNAIL_DIR = "thumbs";
+    public static final String PREPROCESSED_DIR = "preprocessed";
 
     private final Path imageDir;
 
@@ -46,6 +48,14 @@ public class ProjectModel {
 
     public Path getProjectDir() {
         return imageDir.resolve(PROJECT_DIR);
+    }
+
+    public Path getThumbnailDir() {
+        return getProjectDir().resolve(THUMBNAIL_DIR);
+    }
+
+    public Path getPreprocessedDir() {
+        return getProjectDir().resolve(PREPROCESSED_DIR);
     }
 
     public Iterable<Path> getImageFiles() throws IOException {
