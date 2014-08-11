@@ -5,21 +5,25 @@ import java.util.Collections;
 import java.util.List;
 
 import de.vorb.tesseract.tools.preprocessing.binarization.Binarization;
+import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
 import de.vorb.tesseract.tools.preprocessing.filter.ImageFilter;
 
 public class DefaultPreprocessor implements Preprocessor {
     private final Binarization binarization;
     private final List<ImageFilter> filters;
 
-    public DefaultPreprocessor(Binarization binarization) {
-        this.binarization = binarization;
-        this.filters = Collections.emptyList();
-    }
-
     public DefaultPreprocessor(Binarization binarization,
             List<ImageFilter> filters) {
         this.binarization = binarization;
         this.filters = filters;
+    }
+
+    public DefaultPreprocessor() {
+        this(new Sauvola(), Collections.<ImageFilter> emptyList());
+    }
+
+    public DefaultPreprocessor(Binarization binarization) {
+        this(binarization, Collections.<ImageFilter> emptyList());
     }
 
     @Override
