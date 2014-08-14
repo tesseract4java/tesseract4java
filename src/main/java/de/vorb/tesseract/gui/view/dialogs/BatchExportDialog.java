@@ -10,6 +10,11 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -21,7 +26,9 @@ import com.google.common.base.Optional;
 import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.gui.model.BatchExportModel;
 import de.vorb.tesseract.gui.model.ProjectModel;
+
 import java.awt.Component;
+import java.awt.Toolkit;
 
 public class BatchExportDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = 1L;
@@ -41,14 +48,19 @@ public class BatchExportDialog extends JDialog implements ActionListener {
     private final JLabel lblDestinationDir;
     private final JLabel lblFileFormats;
     private final JButton btnCancel;
+    private final JCheckBox chckbxOpenDestination;
 
     private final TesseractController controller;
-    private JCheckBox chckbxOpenDestination;
+
+    private BatchExportModel exportModel = null;
+    private JCheckBox chckbxExportImages;
+    private JLabel lblExport;
 
     /**
      * Create the panel.
      */
     public BatchExportDialog(TesseractController controller) {
+        setIconImage(Toolkit.getDefaultToolkit().getImage(BatchExportDialog.class.getResource("/icons/book_next.png")));
         setLocationRelativeTo(controller.getView());
 
         this.controller = controller;
@@ -68,7 +80,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
 
         btnExport = new JButton("Export");
         btnExport.addActionListener(this);
-        
+
         chckbxOpenDestination = new JCheckBox("Open Destination");
         panel.add(chckbxOpenDestination);
         panel.add(btnExport);
@@ -90,10 +102,10 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         panel_1.add(panel_3);
         GridBagLayout gbl_panel_3 = new GridBagLayout();
         gbl_panel_3.columnWidths = new int[] { 0, 0, 0, 0 };
-        gbl_panel_3.rowHeights = new int[] { 0, 0, 0, 0 };
+        gbl_panel_3.rowHeights = new int[] { 0, 0, 0, 0, 0 };
         gbl_panel_3.columnWeights = new double[] { 0.0, 1.0, 0.0,
                 Double.MIN_VALUE };
-        gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+        gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
         panel_3.setLayout(gbl_panel_3);
 
         lblDestinationDir = new JLabel("Destination Directory");
@@ -141,10 +153,26 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         chckbxHtml = new JCheckBox("HTML");
         GridBagConstraints gbc_chckbxHtml = new GridBagConstraints();
         gbc_chckbxHtml.anchor = GridBagConstraints.WEST;
-        gbc_chckbxHtml.insets = new Insets(0, 0, 0, 5);
+        gbc_chckbxHtml.insets = new Insets(0, 0, 5, 5);
         gbc_chckbxHtml.gridx = 1;
         gbc_chckbxHtml.gridy = 2;
         panel_3.add(chckbxHtml, gbc_chckbxHtml);
+        
+        lblExport = new JLabel("Export");
+        GridBagConstraints gbc_lblExport = new GridBagConstraints();
+        gbc_lblExport.anchor = GridBagConstraints.EAST;
+        gbc_lblExport.insets = new Insets(0, 0, 0, 5);
+        gbc_lblExport.gridx = 0;
+        gbc_lblExport.gridy = 3;
+        panel_3.add(lblExport, gbc_lblExport);
+        
+        chckbxExportImages = new JCheckBox("Preprocessed Images");
+        chckbxExportImages.setSelected(true);
+        GridBagConstraints gbc_chckbxExportImages = new GridBagConstraints();
+        gbc_chckbxExportImages.insets = new Insets(0, 0, 0, 5);
+        gbc_chckbxExportImages.gridx = 1;
+        gbc_chckbxExportImages.gridy = 3;
+        panel_3.add(chckbxExportImages, gbc_chckbxExportImages);
 
         panel_2 = new JPanel();
         panel_2.setBorder(new CompoundBorder(new TitledBorder(
@@ -180,7 +208,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
 
         pack();
         setMinimumSize(getSize());
-        setSize(new Dimension(450, 0));
+        setSize(new Dimension(276, 280));
 
         setLocationRelativeTo(controller.getView());
     }
@@ -209,14 +237,15 @@ public class BatchExportDialog extends JDialog implements ActionListener {
             TesseractController controller) {
         final BatchExportDialog dialog = new BatchExportDialog(controller);
         dialog.setVisible(true);
-        return null;
+
+        return Optional.fromNullable(dialog.exportModel);
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == btnCancel) {
+    public void actionPerformed(ActionEvent evt) {
+        if (evt.getSource() == btnCancel) {
             this.dispose();
-        } else if (e.getSource() == btnDestinationDir) {
+        } else if (evt.getSource() == btnDestinationDir) {
             final JFileChooser dirChooser = new JFileChooser(
                     controller.getProjectModel().get().getProjectDir().toFile());
             dirChooser.setDialogTitle("Choose Destination Directory");
@@ -225,6 +254,36 @@ public class BatchExportDialog extends JDialog implements ActionListener {
             if (result == JFileChooser.APPROVE_OPTION) {
                 final File destinationDir = dirChooser.getSelectedFile();
                 tfDestinationDir.setText(destinationDir.toString());
+            }
+        } else if (evt.getSource() == btnExport) {
+            try {
+                if (tfDestinationDir.getText().equals("")) {
+                    throw new InvalidPathException("", "empty");
+                }
+
+                final Path destinationDir =
+                        Paths.get(tfDestinationDir.getText());
+
+                if (!Files.exists(destinationDir)) {
+                    throw new InvalidPathException(destinationDir.toString(),
+                            "doesn't exist");
+                }
+
+                final boolean exportTXT = chckbxText.isSelected();
+                final boolean exportHTML = chckbxHtml.isSelected();
+                final boolean openDestination = chckbxOpenDestination.isSelected();
+                final int numThreads = (Integer) spinnerWorkerThreads.getValue();
+
+                final BatchExportModel export = new BatchExportModel(
+                        destinationDir, exportTXT, exportHTML, numThreads,
+                        openDestination);
+
+                exportModel = export;
+
+                this.setVisible(false);
+            } catch (InvalidPathException e) {
+                Dialogs.showError(this, "Invalid Destination Directory",
+                        "The given destination directory doesn't exist.");
             }
         }
     }

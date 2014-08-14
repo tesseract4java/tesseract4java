@@ -46,16 +46,18 @@ public class TesseractFrame extends JFrame {
     private final JSplitPane spMain;
     private final JMenuItem mnNewProject;
     private final JTabbedPane tabsMain;
+    private final JMenuItem mnPreferences;
+    private final JMenuItem mnBatchExport;
+    private final JSeparator separator_1;
+    private final JMenuItem mnOpenProject;
+    private final JMenuItem mnSaveProject;
+    private final JSeparator separator_2;
+    private final JMenuItem mnCloseProject;
+    private final JMenuItem mnSaveBoxFile;
 
     private final Scale scale;
-    private JMenu mnEdit;
-    private JMenuItem mnPreferences;
-    private JMenuItem mnBatchExport;
-    private JSeparator separator_1;
-    private JMenuItem mnOpenProject;
-    private JMenuItem mnSaveProject;
-    private JSeparator separator_2;
-    private JMenuItem mnCloseProject;
+    private final JMenu mnEdit;
+    private JMenuItem mnSavePage;
 
     /**
      * Create the application.
@@ -185,6 +187,20 @@ public class TesseractFrame extends JFrame {
                 InputEvent.CTRL_MASK));
         mnFile.add(mnSaveProject);
 
+        mnSaveBoxFile = new JMenuItem("Save Box File");
+        mnSaveBoxFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+        mnSaveBoxFile.setEnabled(false);
+        mnSaveBoxFile.setIcon(new ImageIcon(
+                TesseractFrame.class.getResource("/icons/table_save.png")));
+        mnFile.add(mnSaveBoxFile);
+
+        mnSavePage = new JMenuItem("Save Page...");
+        mnSavePage.setEnabled(false);
+        mnSavePage.setIcon(new ImageIcon(
+                TesseractFrame.class.getResource("/icons/page_save.png")));
+        mnFile.add(mnSavePage);
+
         mnCloseProject = new JMenuItem("Close Project");
         mnCloseProject.setEnabled(false);
         mnFile.add(mnCloseProject);
@@ -195,8 +211,8 @@ public class TesseractFrame extends JFrame {
         mnBatchExport = new JMenuItem("Batch Export...");
         mnBatchExport.setEnabled(false);
         mnBatchExport.setIcon(new ImageIcon(
-                TesseractFrame.class.getResource("/icons/database_save.png")));
-        mnBatchExport.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B,
+                TesseractFrame.class.getResource("/icons/book_next.png")));
+        mnBatchExport.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,
                 InputEvent.CTRL_MASK));
         mnFile.add(mnBatchExport);
 
@@ -326,6 +342,14 @@ public class TesseractFrame extends JFrame {
 
     public JMenuItem getMenuItemSaveProject() {
         return mnSaveProject;
+    }
+
+    public JMenuItem getMenuItemSaveBoxFile() {
+        return mnSaveBoxFile;
+    }
+
+    public JMenuItem getMenuItemSavePage() {
+        return mnSavePage;
     }
 
     public JMenuItem getMenuItemCloseProject() {

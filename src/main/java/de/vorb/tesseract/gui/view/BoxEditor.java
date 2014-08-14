@@ -17,10 +17,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
@@ -51,7 +55,9 @@ public class BoxEditor extends JPanel implements PageModelComponent {
 
     private final BoxFileRenderer renderer;
 
+    // state
     private final Scale scale;
+    private boolean changed = false;
 
     private Optional<PageModel> model = Optional.absent();
     private final SingleSelectionModel selectionModel =
@@ -65,6 +71,9 @@ public class BoxEditor extends JPanel implements PageModelComponent {
     private final JSpinner spinnerY;
     private final JSpinner spinnerWidth;
     private final JSpinner spinnerHeight;
+
+    // events
+    private final List<ChangeListener> changeListeners = new ArrayList<>();
 
     private final PropertyChangeListener spinnerListener =
             new PropertyChangeListener() {
@@ -106,6 +115,8 @@ public class BoxEditor extends JPanel implements PageModelComponent {
                     final JTable table = tabSymbols.getTable();
                     table.tableChanged(new TableModelEvent(table.getModel(),
                             table.getSelectedRow()));
+
+                    changed = true;
                 }
             };
 
@@ -591,5 +602,26 @@ public class BoxEditor extends JPanel implements PageModelComponent {
 
     public JSpinner getHeightSpinner() {
         return spinnerHeight;
+    }
+
+    public void addChangeListener(ChangeListener listener) {
+        changeListeners.add(listener);
+    }
+
+    public void removeChangeListener(ChangeListener listener) {
+        changeListeners.remove(listener);
+    }
+
+    public boolean hasChanged() {
+        return changed;
+    }
+
+    public void setChanged(boolean b) {
+        changed = b;
+
+        final ChangeEvent evt = new ChangeEvent(this);
+        for (ChangeListener l : changeListeners) {
+            l.stateChanged(evt);
+        }
     }
 }

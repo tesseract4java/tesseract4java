@@ -1,4 +1,4 @@
-package de.vorb.tesseract.gui.util;
+package de.vorb.tesseract.gui.work;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;

@@ -1,4 +1,4 @@
-package de.vorb.tesseract.gui.util;
+package de.vorb.tesseract.gui.work;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
