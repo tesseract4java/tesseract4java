@@ -7,10 +7,10 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -25,10 +25,6 @@ import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.gui.model.BatchExportModel;
-import de.vorb.tesseract.gui.model.ProjectModel;
-
-import java.awt.Component;
-import java.awt.Toolkit;
 
 public class BatchExportDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = 1L;
@@ -38,7 +34,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
     private static final int DEFAULT_THREADS = MAX_THREADS - 1;
 
     private final JButton btnExport;
-    private final JCheckBox chckbxText;
+    private final JCheckBox chckbxTxt;
     private final JCheckBox chckbxHtml;
     private final JSpinner spinnerWorkerThreads;
     private final JPanel panel_2;
@@ -55,12 +51,14 @@ public class BatchExportDialog extends JDialog implements ActionListener {
     private BatchExportModel exportModel = null;
     private JCheckBox chckbxExportImages;
     private JLabel lblExport;
+    private JCheckBox chckbxXml;
 
     /**
      * Create the panel.
      */
     public BatchExportDialog(TesseractController controller) {
-        setIconImage(Toolkit.getDefaultToolkit().getImage(BatchExportDialog.class.getResource("/icons/book_next.png")));
+        setIconImage(Toolkit.getDefaultToolkit().getImage(
+                BatchExportDialog.class.getResource("/icons/book_next.png")));
         setLocationRelativeTo(controller.getView());
 
         this.controller = controller;
@@ -102,10 +100,11 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         panel_1.add(panel_3);
         GridBagLayout gbl_panel_3 = new GridBagLayout();
         gbl_panel_3.columnWidths = new int[] { 0, 0, 0, 0 };
-        gbl_panel_3.rowHeights = new int[] { 0, 0, 0, 0, 0 };
+        gbl_panel_3.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
         gbl_panel_3.columnWeights = new double[] { 0.0, 1.0, 0.0,
                 Double.MIN_VALUE };
-        gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+        gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
+                Double.MIN_VALUE };
         panel_3.setLayout(gbl_panel_3);
 
         lblDestinationDir = new JLabel("Destination Directory");
@@ -141,14 +140,14 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         gbc_lblFileFormats.gridy = 1;
         panel_3.add(lblFileFormats, gbc_lblFileFormats);
 
-        chckbxText = new JCheckBox("Text");
+        chckbxTxt = new JCheckBox("Text");
         GridBagConstraints gbc_chckbxText = new GridBagConstraints();
         gbc_chckbxText.anchor = GridBagConstraints.WEST;
         gbc_chckbxText.insets = new Insets(0, 0, 5, 5);
         gbc_chckbxText.gridx = 1;
         gbc_chckbxText.gridy = 1;
-        panel_3.add(chckbxText, gbc_chckbxText);
-        chckbxText.setSelected(true);
+        panel_3.add(chckbxTxt, gbc_chckbxText);
+        chckbxTxt.setSelected(true);
 
         chckbxHtml = new JCheckBox("HTML");
         GridBagConstraints gbc_chckbxHtml = new GridBagConstraints();
@@ -157,21 +156,29 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         gbc_chckbxHtml.gridx = 1;
         gbc_chckbxHtml.gridy = 2;
         panel_3.add(chckbxHtml, gbc_chckbxHtml);
-        
+
+        chckbxXml = new JCheckBox("XML");
+        GridBagConstraints gbc_chckbxXml = new GridBagConstraints();
+        gbc_chckbxXml.anchor = GridBagConstraints.WEST;
+        gbc_chckbxXml.insets = new Insets(0, 0, 5, 5);
+        gbc_chckbxXml.gridx = 1;
+        gbc_chckbxXml.gridy = 3;
+        panel_3.add(chckbxXml, gbc_chckbxXml);
+
         lblExport = new JLabel("Export");
         GridBagConstraints gbc_lblExport = new GridBagConstraints();
         gbc_lblExport.anchor = GridBagConstraints.EAST;
         gbc_lblExport.insets = new Insets(0, 0, 0, 5);
         gbc_lblExport.gridx = 0;
-        gbc_lblExport.gridy = 3;
+        gbc_lblExport.gridy = 4;
         panel_3.add(lblExport, gbc_lblExport);
-        
+
         chckbxExportImages = new JCheckBox("Preprocessed Images");
         chckbxExportImages.setSelected(true);
         GridBagConstraints gbc_chckbxExportImages = new GridBagConstraints();
         gbc_chckbxExportImages.insets = new Insets(0, 0, 0, 5);
         gbc_chckbxExportImages.gridx = 1;
-        gbc_chckbxExportImages.gridy = 3;
+        gbc_chckbxExportImages.gridy = 4;
         panel_3.add(chckbxExportImages, gbc_chckbxExportImages);
 
         panel_2 = new JPanel();
@@ -218,7 +225,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
     }
 
     public JCheckBox getTextCheckBox() {
-        return chckbxText;
+        return chckbxTxt;
     }
 
     public JCheckBox getHTMLCheckBox() {
@@ -269,14 +276,15 @@ public class BatchExportDialog extends JDialog implements ActionListener {
                             "doesn't exist");
                 }
 
-                final boolean exportTXT = chckbxText.isSelected();
+                final boolean exportTXT = chckbxTxt.isSelected();
                 final boolean exportHTML = chckbxHtml.isSelected();
+                final boolean exportXML = chckbxXml.isSelected();
                 final boolean openDestination = chckbxOpenDestination.isSelected();
                 final int numThreads = (Integer) spinnerWorkerThreads.getValue();
 
                 final BatchExportModel export = new BatchExportModel(
-                        destinationDir, exportTXT, exportHTML, numThreads,
-                        openDestination);
+                        destinationDir, exportTXT, exportHTML, exportXML,
+                        numThreads, openDestination);
 
                 exportModel = export;
 

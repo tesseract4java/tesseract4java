@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.Timer;
+import java.util.concurrent.Future;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -23,6 +24,7 @@ import org.bridj.BridJ;
 
 import com.google.common.base.Optional;
 
+import de.vorb.tesseract.gui.model.BatchExportModel;
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.GlobalPrefs;
 import de.vorb.tesseract.gui.model.ImageModel;
@@ -39,9 +41,12 @@ import de.vorb.tesseract.gui.view.PreprocessingPane;
 import de.vorb.tesseract.gui.view.SymbolOverview;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.gui.view.dialogs.BatchExportDialog;
+import de.vorb.tesseract.gui.view.dialogs.BatchExportProgressDialog;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.gui.view.dialogs.NewProjectDialog;
 import de.vorb.tesseract.gui.view.dialogs.RecognitionParametersDialog;
+import de.vorb.tesseract.gui.work.BatchExecutor;
+import de.vorb.tesseract.gui.work.OCRTaskCallback;
 import de.vorb.tesseract.gui.work.PageListWorker;
 import de.vorb.tesseract.gui.work.PageRecognitionProducer;
 import de.vorb.tesseract.gui.work.PreprocessingWorker;
@@ -355,7 +360,83 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handleBatchExport() {
-        BatchExportDialog.showBatchExportDialog(this);
+        final Optional<BatchExportModel> export =
+                BatchExportDialog.showBatchExportDialog(this);
+
+        if (export.isPresent()) {
+            final BatchExecutor batchExec = new BatchExecutor(this,
+                    this.getProjectModel().get(), export.get());
+
+            try {
+                final int totalFiles;
+                {
+                    // count number of files to process
+                    int count = 0;
+                    for (@SuppressWarnings("unused")
+                    final Path f : this.getProjectModel().get()
+                            .getImageFiles()) {
+                        count++;
+                    }
+                    totalFiles = count;
+                }
+
+                final BatchExportProgressDialog progressDialog =
+                        new BatchExportProgressDialog();
+
+                final JLabel fileNameLabel = progressDialog.getFileNameLabel();
+                final JProgressBar progressBar =
+                        progressDialog.getProgressBar();
+                progressBar.setMaximum(totalFiles);
+
+                final Future<Void> execution =
+                        batchExec.start(new OCRTaskCallback() {
+                            @Override
+                            public void taskStart(Path sourceFile) {
+                                // update filename
+                                final String fname =
+                                        sourceFile.getFileName().toString();
+                                SwingUtilities.invokeLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        fileNameLabel.setText(fname);
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void taskComplete(
+                                    Optional<Exception> exception,
+                                    final Optional<Path> sourceFile) {
+                                if (exception.isPresent()) {
+                                    exception.get().printStackTrace();
+                                } else {
+                                    // update progress
+                                    SwingUtilities.invokeLater(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            final int value =
+                                                    progressBar.getValue() + 1;
+
+                                            // increment progress
+                                            progressBar.setValue(value);
+                                        }
+                                    });
+                                }
+                            }
+                        });
+
+                progressDialog.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        execution.cancel(false);
+                    }
+                });
+
+                progressDialog.setVisible(true);
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void handleCompareSymbolToPrototype() {

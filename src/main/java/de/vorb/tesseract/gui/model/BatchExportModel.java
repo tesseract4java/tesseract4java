@@ -7,15 +7,17 @@ public class BatchExportModel {
     private final Path destinationDir;
     private final boolean exportTXT;
     private final boolean exportHTML;
+    private final boolean exportXML;
     private final boolean openDestination;
     private final int numThreads;
 
     public BatchExportModel(Path destinationDir, boolean exportTXT,
-            boolean exportHTML, int numThreads, boolean openDestination) {
-
+            boolean exportHTML, boolean exportXML, int numThreads,
+            boolean openDestination) {
         this.destinationDir = destinationDir;
         this.exportTXT = exportTXT;
         this.exportHTML = exportHTML;
+        this.exportXML = exportXML;
         this.numThreads = numThreads;
         this.openDestination = openDestination;
     }
@@ -30,6 +32,10 @@ public class BatchExportModel {
 
     public boolean isExportHTML() {
         return exportHTML;
+    }
+
+    public boolean isExportXML() {
+        return exportXML;
     }
 
     public boolean isOpenDestination() {
