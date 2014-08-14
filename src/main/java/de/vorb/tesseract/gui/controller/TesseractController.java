@@ -10,20 +10,14 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.Timer;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JComboBox;
-import javax.swing.JList;
-import javax.swing.JProgressBar;
-import javax.swing.JViewport;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 
 import org.bridj.BridJ;
 
@@ -43,7 +37,13 @@ import de.vorb.tesseract.gui.util.PreprocessingWorker;
 import de.vorb.tesseract.gui.util.RecognitionWorker;
 import de.vorb.tesseract.gui.util.ThumbnailWorker;
 import de.vorb.tesseract.gui.util.ThumbnailWorker.Task;
-import de.vorb.tesseract.gui.view.*;
+import de.vorb.tesseract.gui.view.FeatureDebugger;
+import de.vorb.tesseract.gui.view.ImageModelComponent;
+import de.vorb.tesseract.gui.view.MainComponent;
+import de.vorb.tesseract.gui.view.PageModelComponent;
+import de.vorb.tesseract.gui.view.PreprocessingPane;
+import de.vorb.tesseract.gui.view.SymbolOverview;
+import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.gui.view.dialogs.BatchExportDialog;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.gui.view.dialogs.NewProjectDialog;
@@ -189,6 +189,8 @@ public class TesseractController extends WindowAdapter implements
             view.getMenuItemNewProject().addActionListener(this);
             view.getMenuItemOpenProject().addActionListener(this);
             view.getMenuItemSaveProject().addActionListener(this);
+            view.getMenuItemSaveBoxFile().addActionListener(this);
+            view.getMenuItemSavePage().addActionListener(this);
             view.getMenuItemCloseProject().addActionListener(this);
             view.getMenuItemBatchExport().addActionListener(this);
             view.getMenuItemPreferences().addActionListener(this);
@@ -269,6 +271,9 @@ public class TesseractController extends WindowAdapter implements
         } else if (source.equals(view.getRecognitionPane()
                 .getParametersButton())) {
             handleParametersButtonClick();
+        } else {
+            throw new UnsupportedOperationException("Unhandled ActionEvent "
+                    + evt);
         }
     }
 
@@ -406,13 +411,44 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handleOpenProject() {
-        // TODO Auto-generated method stub
+        final JFileChooser fc = new JFileChooser();
+        fc.setFileFilter(new FileFilter() {
+            @Override
+            public String getDescription() {
+                return "Tesseract Project Files (*.tesseract-project)";
+            }
 
+            @Override
+            public boolean accept(File f) {
+                return f.isFile() && f.getName().endsWith(".tesseract-project");
+            }
+        });
+        final int result = fc.showOpenDialog(view);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            // TODO load project
+
+        }
     }
 
     private void handleSaveProject() {
-        // TODO Auto-generated method stub
+        final JFileChooser fc = new JFileChooser(
+                projectModel.get().getProjectDir().toFile());
+        fc.setFileFilter(new FileFilter() {
+            @Override
+            public String getDescription() {
+                return "Tesseract Project Files (*.tesseract-project)";
+            }
 
+            @Override
+            public boolean accept(File f) {
+                return f.isFile() && f.getName().endsWith(".tesseract-project");
+            }
+        });
+        final int result = fc.showSaveDialog(view);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            // TODO save project
+
+        }
     }
 
     private void handleCloseProject() {
@@ -427,6 +463,23 @@ public class TesseractController extends WindowAdapter implements
         // if the page selection did not change, ignore it
         if (pageThumbnail.isPresent() && pageThumbnail.get().equals(pt)) {
             return;
+        }
+
+        // ask to save box file
+        if (view.getActiveComponent() == view.getBoxEditor()
+                && view.getBoxEditor().hasChanged()) {
+            final boolean changePage = Dialogs.ask(
+                    view,
+                    "Unsaved Changes",
+                    "The current box file has not been saved. Do you really want to change the page?");
+
+            if (!changePage) {
+                // reselect the old page
+                view.getPages().getList().setSelectedValue(pageThumbnail.get(),
+                        true);
+                // don't change the page
+                return;
+            }
         }
 
         pageThumbnail = Optional.fromNullable(pt);
