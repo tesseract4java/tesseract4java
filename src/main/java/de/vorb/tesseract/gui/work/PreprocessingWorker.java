@@ -12,6 +12,7 @@ import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.gui.model.ImageModel;
+import de.vorb.util.FileNames;
 
 public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
     private final TesseractController controller;
@@ -27,19 +28,17 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
 
     @Override
     protected ImageModel doInBackground() throws Exception {
-        final BufferedImage sourceImg = ImageIO.read(sourceFile.toFile());
-
         Files.createDirectories(destinationDir);
 
-        final Path destFile =
-                destinationDir.resolve(sourceFile.getFileName());
+        final Path destFile = destinationDir.resolve(FileNames.replaceExtension(
+                sourceFile.getFileName(), "png"));
+
+        final BufferedImage sourceImg = ImageIO.read(sourceFile.toFile());
 
         final BufferedImage binaryImg;
         if (!controller.hasPreprocessorChanged(sourceFile)
                 && Files.exists(destFile)) {
             binaryImg = ImageIO.read(destFile.toFile());
-        } else if (sourceImg.getType() == BufferedImage.TYPE_BYTE_BINARY) {
-            binaryImg = sourceImg;
         } else {
             binaryImg = controller.getPreprocessor(sourceFile).process(
                     sourceImg);
