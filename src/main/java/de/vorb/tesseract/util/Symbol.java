@@ -13,14 +13,8 @@ import de.vorb.tesseract.util.xml.BoxAdapter;
  * @author Paul Vorbach
  */
 public class Symbol {
-    @XmlValue
     private String text;
-
-    @XmlAttribute(name = "bounding-box")
-    @XmlJavaTypeAdapter(BoxAdapter.class)
     private Box bbox;
-
-    @XmlAttribute
     private final float confidence;
 
     /**
@@ -42,6 +36,7 @@ public class Symbol {
     /**
      * @return recognized text
      */
+    @XmlValue
     public String getText() {
         return text;
     }
@@ -58,6 +53,7 @@ public class Symbol {
     /**
      * @return recognition confidence
      */
+    @XmlAttribute
     public float getConfidence() {
         return confidence;
     }
@@ -65,6 +61,8 @@ public class Symbol {
     /**
      * @return bounding box
      */
+    @XmlAttribute(name = "bounding-box")
+    @XmlJavaTypeAdapter(BoxAdapter.class)
     public Box getBoundingBox() {
         return bbox;
     }

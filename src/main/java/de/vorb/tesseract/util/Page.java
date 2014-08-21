@@ -93,14 +93,14 @@ public class Page {
         return Collections.unmodifiableList(lines);
     }
 
-    public void writeTo(OutputStream os)
+    public void writeTo(OutputStream w)
             throws IOException, JAXBException {
         final JAXBContext jc = JAXBContext.newInstance(Page.class);
         final Marshaller marshaller = jc.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         final JAXBElement<Page> jaxbElement = new JAXBElement<Page>(new QName(
                 "page"), Page.class, this);
 
-        marshaller.marshal(jaxbElement, os);
+        marshaller.marshal(jaxbElement, w);
     }
 }
