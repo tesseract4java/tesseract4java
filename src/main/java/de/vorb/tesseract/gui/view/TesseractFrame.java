@@ -307,7 +307,7 @@ public class TesseractFrame extends JFrame {
                 recognitionPane);
 
         tabsMain.addTab(Labels.getLabel(getLocale(), "tab_main_evaluation"),
-                Resources.getIcon("chart_curve"),
+                Resources.getIcon("chart_pie"),
                 evaluationPane);
 
         spMain.setRightComponent(tabsMain);

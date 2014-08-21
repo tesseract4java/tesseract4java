@@ -12,6 +12,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.swing.ProgressMonitor;
 
 import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.gui.model.BatchExportModel;
@@ -32,26 +35,32 @@ public class BatchExecutor {
         this.export = export;
     }
 
-    public Future<Void> start(OCRTaskCallback callback) throws IOException,
-            InterruptedException {
+    public Future<Void> start(ProgressMonitor progressMonitor)
+            throws IOException, InterruptedException {
         final int numThreads = export.getNumThreads();
 
         final ExecutorService threadPool =
                 Executors.newFixedThreadPool(numThreads);
 
         final LinkedBlockingQueue<PageRecognitionProducer> recognizers =
-                new LinkedBlockingQueue<>();
+                new LinkedBlockingQueue<>(numThreads);
 
         final String trainingFile = controller.getTrainingFile().get();
         for (int i = 0; i < numThreads; i++) {
-            recognizers.put(new PageRecognitionProducer(
-                    TrainingFiles.getTessdataDir(), trainingFile));
+            final PageRecognitionProducer recognizer =
+                    new PageRecognitionProducer(TrainingFiles.getTessdataDir(),
+                            trainingFile);
+            recognizer.init();
+            recognizers.put(recognizer);
         }
 
         final List<Future<?>> futures = new ArrayList<>();
 
         // ensure the destination directory exists
         Files.createDirectories(project.getPreprocessedDir());
+
+        // holds progress count
+        final AtomicInteger progress = new AtomicInteger(0);
 
         // create tasks and submit them
         for (final Path sourceFile : project.getImageFiles()) {
@@ -63,7 +72,7 @@ public class BatchExecutor {
 
             final OCRTask task = new OCRTask(sourceFile,
                     project, export, preprocessor, recognizers,
-                    hasPreprocessorChanged, callback);
+                    hasPreprocessorChanged, progressMonitor, progress);
 
             futures.add(threadPool.submit(task));
         }

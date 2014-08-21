@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
+import java.awt.Toolkit;
 
 public class BatchExportProgressDialog extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -27,9 +28,10 @@ public class BatchExportProgressDialog extends JDialog {
      * Create the dialog.
      */
     public BatchExportProgressDialog() {
+        setIconImage(Toolkit.getDefaultToolkit().getImage(BatchExportProgressDialog.class.getResource("/icons/book_next.png")));
         setModalityType(ModalityType.APPLICATION_MODAL);
-        setAlwaysOnTop(true);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setResizable(false);
         setTitle("Batch Export Progress");
         setBounds(100, 100, 450, 130);
         getContentPane().setLayout(new BorderLayout());
