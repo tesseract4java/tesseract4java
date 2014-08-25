@@ -29,6 +29,7 @@ import javax.swing.BoxLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Font;
+import javax.swing.Box;
 
 public class EvaluationPane extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;
@@ -46,6 +47,7 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
 
     private final JButton btnZoomOut;
     private final JButton btnZoomIn;
+    private final JButton btnUseOcrResult;
 
     /**
      * Create the panel.
@@ -94,81 +96,100 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         panel_1.add(btnSaveTranscription);
 
         btnGenerateReport = new JButton("Generate Report");
+        btnGenerateReport.setIcon(new ImageIcon(
+                EvaluationPane.class.getResource("/icons/report.png")));
         btnGenerateReport.setEnabled(false);
         panel_1.add(btnGenerateReport);
 
         JPanel panel_2 = new JPanel();
-        panel_2.setBorder(new EmptyBorder(2, 2, 2, 2));
+        panel_2.setBorder(new EmptyBorder(0, 4, 2, 4));
         add(panel_2, BorderLayout.NORTH);
         panel_2.setBackground(Color.WHITE);
         GridBagLayout gbl_panel_2 = new GridBagLayout();
-        gbl_panel_2.columnWidths = new int[]{67, 29, 0, 0};
-        gbl_panel_2.rowHeights = new int[]{25, 0};
-        gbl_panel_2.columnWeights = new double[]{1.0, 0.0, 0.0, Double.MIN_VALUE};
-        gbl_panel_2.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+        gbl_panel_2.columnWidths = new int[] { 67, 29, 0, 0, 0, 0 };
+        gbl_panel_2.rowHeights = new int[] { 25, 0 };
+        gbl_panel_2.columnWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 1.0,
+                Double.MIN_VALUE };
+        gbl_panel_2.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
         panel_2.setLayout(gbl_panel_2);
-                
-                JLabel lblOcrevaluation = new JLabel("ocrevalUAtion");
-                lblOcrevaluation.setFont(new Font("Tahoma", Font.PLAIN, 12));
-                GridBagConstraints gbc_lblOcrevaluation = new GridBagConstraints();
-                gbc_lblOcrevaluation.anchor = GridBagConstraints.WEST;
-                gbc_lblOcrevaluation.insets = new Insets(0, 0, 0, 5);
-                gbc_lblOcrevaluation.gridx = 0;
-                gbc_lblOcrevaluation.gridy = 0;
-                panel_2.add(lblOcrevaluation, gbc_lblOcrevaluation);
-                        
-                                btnZoomOut = new JButton();
-                                btnZoomOut.setAlignmentX(Component.RIGHT_ALIGNMENT);
-                                btnZoomOut.setMargin(BUTTON_MARGIN);
-                                btnZoomOut.setBackground(Color.WHITE);
-                                btnZoomOut.setIcon(new ImageIcon(
-                                        EvaluationPane.class.getResource("/icons/zoom_out.png")));
-                                GridBagConstraints gbc_btnZoomOut = new GridBagConstraints();
-                                gbc_btnZoomOut.anchor = GridBagConstraints.EAST;
-                                gbc_btnZoomOut.insets = new Insets(0, 0, 0, 5);
-                                gbc_btnZoomOut.gridx = 1;
-                                gbc_btnZoomOut.gridy = 0;
-                                panel_2.add(btnZoomOut, gbc_btnZoomOut);
-                                
-                                        btnZoomOut.addActionListener(new ActionListener() {
-                                            public void actionPerformed(ActionEvent evt) {
-                                                if (scale.hasPrevious()) {
-                                                    renderer.render(getPageModel(), scale.previous());
-                                                }
-                                
-                                                if (!scale.hasPrevious()) {
-                                                    btnZoomOut.setEnabled(false);
-                                                }
-                                
-                                                btnZoomIn.setEnabled(true);
-                                            }
-                                        });
-                
-                        btnZoomIn = new JButton();
-                        btnZoomIn.setAlignmentX(Component.RIGHT_ALIGNMENT);
-                        btnZoomIn.setMargin(BUTTON_MARGIN);
-                        btnZoomIn.setBackground(Color.WHITE);
-                        btnZoomIn.setIcon(new ImageIcon(
-                                EvaluationPane.class.getResource("/icons/zoom_in.png")));
-                        GridBagConstraints gbc_btnZoomIn = new GridBagConstraints();
-                        gbc_btnZoomIn.anchor = GridBagConstraints.EAST;
-                        gbc_btnZoomIn.gridx = 2;
-                        gbc_btnZoomIn.gridy = 0;
-                        panel_2.add(btnZoomIn, gbc_btnZoomIn);
-                
-                        btnZoomIn.addActionListener(new ActionListener() {
-                            public void actionPerformed(ActionEvent evt) {
-                                if (scale.hasNext()) {
-                                    renderer.render(getPageModel(), scale.next());
-                                }
-                
-                                if (!scale.hasNext()) {
-                                    btnZoomIn.setEnabled(false);
-                                }
-                
-                                btnZoomOut.setEnabled(true);
-                            }
-                        });
+
+        JLabel lblOcrevaluation = new JLabel("ocrevalUAtion");
+        lblOcrevaluation.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        GridBagConstraints gbc_lblOcrevaluation = new GridBagConstraints();
+        gbc_lblOcrevaluation.anchor = GridBagConstraints.WEST;
+        gbc_lblOcrevaluation.insets = new Insets(0, 0, 0, 5);
+        gbc_lblOcrevaluation.gridx = 0;
+        gbc_lblOcrevaluation.gridy = 0;
+        panel_2.add(lblOcrevaluation, gbc_lblOcrevaluation);
+
+        btnZoomOut = new JButton();
+        btnZoomOut.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        btnZoomOut.setMargin(BUTTON_MARGIN);
+        btnZoomOut.setBackground(Color.WHITE);
+        btnZoomOut.setIcon(new ImageIcon(
+                EvaluationPane.class.getResource("/icons/zoom_out.png")));
+        GridBagConstraints gbc_btnZoomOut = new GridBagConstraints();
+        gbc_btnZoomOut.anchor = GridBagConstraints.EAST;
+        gbc_btnZoomOut.insets = new Insets(0, 0, 0, 5);
+        gbc_btnZoomOut.gridx = 1;
+        gbc_btnZoomOut.gridy = 0;
+        panel_2.add(btnZoomOut, gbc_btnZoomOut);
+
+        btnZoomOut.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                if (scale.hasPrevious()) {
+                    renderer.render(getPageModel(), scale.previous());
+                }
+
+                if (!scale.hasPrevious()) {
+                    btnZoomOut.setEnabled(false);
+                }
+
+                btnZoomIn.setEnabled(true);
+            }
+        });
+
+        btnZoomIn = new JButton();
+        btnZoomIn.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        btnZoomIn.setMargin(BUTTON_MARGIN);
+        btnZoomIn.setBackground(Color.WHITE);
+        btnZoomIn.setIcon(new ImageIcon(
+                EvaluationPane.class.getResource("/icons/zoom_in.png")));
+        GridBagConstraints gbc_btnZoomIn = new GridBagConstraints();
+        gbc_btnZoomIn.insets = new Insets(0, 0, 0, 5);
+        gbc_btnZoomIn.anchor = GridBagConstraints.WEST;
+        gbc_btnZoomIn.gridx = 2;
+        gbc_btnZoomIn.gridy = 0;
+        panel_2.add(btnZoomIn, gbc_btnZoomIn);
+
+        Component horizontalStrut = Box.createHorizontalStrut(30);
+        GridBagConstraints gbc_horizontalStrut = new GridBagConstraints();
+        gbc_horizontalStrut.insets = new Insets(0, 0, 0, 5);
+        gbc_horizontalStrut.gridx = 3;
+        gbc_horizontalStrut.gridy = 0;
+        panel_2.add(horizontalStrut, gbc_horizontalStrut);
+
+        btnUseOcrResult = new JButton("Use OCR Result");
+        btnUseOcrResult.setBackground(Color.WHITE);
+        GridBagConstraints gbc_btnUseOcrResult = new GridBagConstraints();
+        gbc_btnUseOcrResult.anchor = GridBagConstraints.EAST;
+        gbc_btnUseOcrResult.gridx = 4;
+        gbc_btnUseOcrResult.gridy = 0;
+        panel_2.add(btnUseOcrResult, gbc_btnUseOcrResult);
+
+        btnZoomIn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                if (scale.hasNext()) {
+                    renderer.render(getPageModel(), scale.next());
+                }
+
+                if (!scale.hasNext()) {
+                    btnZoomIn.setEnabled(false);
+                }
+
+                btnZoomOut.setEnabled(true);
+            }
+        });
     }
 
     @Override
@@ -182,6 +203,10 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
 
     public JButton getSaveTranscriptionButton() {
         return btnSaveTranscription;
+    }
+
+    public JButton getUseOCRResultButton() {
+        return btnUseOcrResult;
     }
 
     public JLabel getOriginal() {

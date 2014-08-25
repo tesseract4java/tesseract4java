@@ -51,6 +51,8 @@ public class TesseractFrame extends JFrame {
     private final JSeparator separator_1;
     private final JMenuItem mnOpenProject;
     private final JMenuItem mnSaveProject;
+    private final JMenuItem mnOpenProjectDirectory;
+
     private final JSeparator separator_2;
     private final JMenuItem mnCloseProject;
     private final JMenuItem mnSaveBoxFile;
@@ -87,7 +89,9 @@ public class TesseractFrame extends JFrame {
         glyphOverview = new SymbolOverview();
         recognitionPane = new RecognitionPane(scale);
         evaluationPane = new EvaluationPane(scale);
-        evaluationPane.getGenerateReportButton().setIcon(new ImageIcon(TesseractFrame.class.getResource("/icons/report.png")));
+        evaluationPane.getGenerateReportButton().setIcon(
+                new ImageIcon(
+                        TesseractFrame.class.getResource("/icons/report.png")));
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 
@@ -202,6 +206,12 @@ public class TesseractFrame extends JFrame {
         mnSavePage.setIcon(new ImageIcon(
                 TesseractFrame.class.getResource("/icons/page_save.png")));
         mnFile.add(mnSavePage);
+
+        mnOpenProjectDirectory = new JMenuItem("Open Project Directory");
+        mnOpenProjectDirectory.setEnabled(false);
+        mnOpenProjectDirectory.setIcon(new ImageIcon(
+                TesseractFrame.class.getResource("/icons/folder_explore.png")));
+        mnFile.add(mnOpenProjectDirectory);
 
         mnCloseProject = new JMenuItem("Close Project");
         mnCloseProject.setEnabled(false);
@@ -362,6 +372,14 @@ public class TesseractFrame extends JFrame {
 
     public JMenuItem getMenuItemCloseProject() {
         return mnCloseProject;
+    }
+
+    public JMenuItem getMenuItemOpenProjectDirectory() {
+        return mnOpenProjectDirectory;
+    }
+
+    public JMenuItem getMenuItemImportTranscriptions() {
+        return mnImportTranscriptions;
     }
 
     public JMenuItem getMenuItemBatchExport() {

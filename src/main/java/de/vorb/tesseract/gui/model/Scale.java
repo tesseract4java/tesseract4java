@@ -6,7 +6,7 @@ import java.util.Observable;
 public class Scale extends Observable {
     private static final float[] VALUES =
             new float[] { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.75f, 1f, 2f };
-    private int cursor = 6;
+    private int cursor = 2;
 
     public boolean hasNext() {
         return cursor < VALUES.length - 1;
