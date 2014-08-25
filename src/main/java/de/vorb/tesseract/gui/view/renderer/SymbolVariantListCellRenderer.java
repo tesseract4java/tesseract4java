@@ -41,6 +41,8 @@ public class SymbolVariantListCellRenderer extends JLabel implements
                 bbox.getY(), bbox.getWidth(), bbox.getHeight());
 
         setIcon(new ImageIcon(subImage));
+        setToolTipText(String.format("confidence = %.2f%%",
+                value.getConfidence()));
 
         return this;
     }
