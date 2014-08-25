@@ -16,7 +16,7 @@ public class PlainTextWriter implements RecognitionWriter {
             for (final Word word : line.getWords()) {
                 writer.write(word.getText());
 
-                if (wordIndex++ < wordsInLine) {
+                if (++wordIndex < wordsInLine) {
                     writer.write(' ');
                 }
             }
