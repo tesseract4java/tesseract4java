@@ -1,7 +1,5 @@
 package de.vorb.tesseract.gui.model;
 
-import com.google.common.base.Optional;
-
 import de.vorb.tesseract.util.Page;
 
 public class PageModel {

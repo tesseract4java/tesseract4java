@@ -25,7 +25,6 @@ import de.vorb.tesseract.tools.preprocessing.binarization.BinarizationMethod;
 import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
 import de.vorb.tesseract.tools.preprocessing.filter.BlobSizeFilter;
 import de.vorb.tesseract.tools.preprocessing.filter.ImageFilter;
-import javax.swing.border.BevelBorder;
 
 public class PreprocessingPane extends JPanel implements ImageModelComponent {
     private static final long serialVersionUID = 1L;

@@ -1,7 +1,6 @@
 package de.vorb.tesseract.gui.view;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.util.List;
 import java.util.Map.Entry;

@@ -23,8 +23,6 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 
-import com.google.common.base.Optional;
-
 public class ImportTranscriptionDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
