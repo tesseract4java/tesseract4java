@@ -392,6 +392,10 @@ public class TesseractFrame extends JFrame {
         return glyphOverview;
     }
 
+    public EvaluationPane getEvaluationPane() {
+        return evaluationPane;
+    }
+
     public FilteredList<String> getTrainingFiles() {
         return listTrainingFiles;
     }

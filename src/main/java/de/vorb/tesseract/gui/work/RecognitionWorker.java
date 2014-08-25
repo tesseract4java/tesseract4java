@@ -1,7 +1,6 @@
 package de.vorb.tesseract.gui.work;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
@@ -66,7 +65,7 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
         final Page page = new Page(imageModel.getPreprocessedFile(),
                 image.getWidth(), image.getHeight(), 300, lines);
 
-        return new PageModel(imageModel, page);
+        return new PageModel(imageModel, page, "");
     }
 
     @Override
@@ -74,21 +73,16 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
         try {
             controller.setPageModel(Optional.of(get()));
         } catch (ExecutionException e) {
-            final String message;
-            if (e.getCause() instanceof IOException) {
-                message = "The page image file could not be read.";
-            } else {
-                message = "The page could not be recognized";
+            e.printStackTrace();
 
-                e.printStackTrace();
-            }
+            final String message = "The page could not be recognized";
 
             controller.setPageModel(Optional.<PageModel> absent());
 
             Dialogs.showError(controller.getView(), "Error during recognition",
                     message);
         } catch (InterruptedException e) {
-            // unexpected
+            // unexpected: if it is thrown, it is a bug
             e.printStackTrace();
 
             Dialogs.showError(controller.getView(), "Error during recognition",

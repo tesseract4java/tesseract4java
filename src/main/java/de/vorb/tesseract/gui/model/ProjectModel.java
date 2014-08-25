@@ -8,8 +8,11 @@ import java.nio.file.Path;
 
 public class ProjectModel {
     public static final String PROJECT_DIR = ".tess";
-    public static final String THUMBNAIL_DIR = "thumbs";
-    public static final String PREPROCESSED_DIR = "preprocessed";
+    public static final String THUMBNAIL_DIR = ".tess/thumbs";
+    public static final String PREPROCESSED_DIR = ".tess/preprocessed";
+    public static final String TRANSCRIPTION_DIR = ".tess/transcriptions";
+    public static final String OCR_DIR = ".tess/ocr";
+    public static final String EVALUATION_DIR = ".tess/evaluation";
 
     private final Path imageDir;
 
@@ -51,11 +54,23 @@ public class ProjectModel {
     }
 
     public Path getThumbnailDir() {
-        return getProjectDir().resolve(THUMBNAIL_DIR);
+        return imageDir.resolve(THUMBNAIL_DIR);
     }
 
     public Path getPreprocessedDir() {
-        return getProjectDir().resolve(PREPROCESSED_DIR);
+        return imageDir.resolve(PREPROCESSED_DIR);
+    }
+
+    public Path getTranscriptionDir() {
+        return imageDir.resolve(TRANSCRIPTION_DIR);
+    }
+
+    public Path getOCRDir() {
+        return imageDir.resolve(OCR_DIR);
+    }
+
+    public Path getEvaluationDir() {
+        return imageDir.resolve(EVALUATION_DIR);
     }
 
     public Iterable<Path> getImageFiles() throws IOException {

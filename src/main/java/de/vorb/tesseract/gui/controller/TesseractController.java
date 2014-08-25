@@ -1,5 +1,6 @@
 package de.vorb.tesseract.gui.controller;
 
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -7,10 +8,15 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -18,6 +24,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
+import javax.xml.transform.TransformerException;
 
 import org.bridj.BridJ;
 
@@ -32,6 +39,8 @@ import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.model.ProjectModel;
 import de.vorb.tesseract.gui.model.SymbolListModel;
 import de.vorb.tesseract.gui.model.SymbolOrder;
+import de.vorb.tesseract.gui.util.DocumentWriter;
+import de.vorb.tesseract.gui.view.EvaluationPane;
 import de.vorb.tesseract.gui.view.FeatureDebugger;
 import de.vorb.tesseract.gui.view.ImageModelComponent;
 import de.vorb.tesseract.gui.view.MainComponent;
@@ -46,6 +55,7 @@ import de.vorb.tesseract.gui.view.dialogs.RecognitionParametersDialog;
 import de.vorb.tesseract.gui.work.BatchExecutor;
 import de.vorb.tesseract.gui.work.PageListWorker;
 import de.vorb.tesseract.gui.work.PageRecognitionProducer;
+import de.vorb.tesseract.gui.work.PlainTextWriter;
 import de.vorb.tesseract.gui.work.PreprocessingWorker;
 import de.vorb.tesseract.gui.work.RecognitionWorker;
 import de.vorb.tesseract.gui.work.ThumbnailWorker;
@@ -57,11 +67,20 @@ import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TrainingFiles;
 import de.vorb.tesseract.util.feat.Feature3D;
+import de.vorb.util.FileNames;
+
+import eu.digitisation.input.Batch;
+import eu.digitisation.input.Parameters;
+import eu.digitisation.input.WarningException;
+import eu.digitisation.output.Report;
 
 public class TesseractController extends WindowAdapter implements
         ActionListener, ListSelectionListener, Observer, ChangeListener {
 
     public static void main(String[] args) {
+        // disable logging of ocrevalUAtion
+        Logger.getLogger("ApplicationLog").setLevel(Level.OFF);
+
         BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
         BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
 
@@ -229,8 +248,18 @@ public class TesseractController extends WindowAdapter implements
                     .addActionListener(this);
         }
 
-        // recognition pane
-        view.getRecognitionPane().getParametersButton().addActionListener(this);
+        {
+            // recognition pane
+            view.getRecognitionPane().getParametersButton().addActionListener(
+                    this);
+        }
+
+        {
+            // evaluation pane
+            final EvaluationPane evalPane = view.getEvaluationPane();
+            evalPane.getSaveTranscriptionButton().addActionListener(this);
+            evalPane.getGenerateReportButton().addActionListener(this);
+        }
 
         view.setVisible(true);
     }
@@ -240,6 +269,7 @@ public class TesseractController extends WindowAdapter implements
         final Object source = evt.getSource();
         final SymbolOverview symbolOverview = view.getSymbolOverview();
         final PreprocessingPane preprocPane = view.getPreprocessingPane();
+        final EvaluationPane evalPane = view.getEvaluationPane();
 
         if (source.equals(view.getMenuItemNewProject())) {
             handleNewProject();
@@ -269,6 +299,10 @@ public class TesseractController extends WindowAdapter implements
         } else if (source.equals(view.getRecognitionPane()
                 .getParametersButton())) {
             handleParametersButtonClick();
+        } else if (source.equals(evalPane.getSaveTranscriptionButton())) {
+            handleTranscriptionSave();
+        } else if (source.equals(evalPane.getGenerateReportButton())) {
+            handleGenerateReport();
         } else {
             throw new UnsupportedOperationException("Unhandled ActionEvent "
                     + evt);
@@ -403,6 +437,80 @@ public class TesseractController extends WindowAdapter implements
             featureDebugger.setFeatures(features);
             featureDebugger.setVisible(true);
         }
+    }
+
+    private void handleGenerateReport() {
+        final Optional<Path> transcritpionFile = handleTranscriptionSave();
+
+        if (!transcritpionFile.isPresent()) {
+            Dialogs.showWarning(view, "Report",
+                    "The report could not be generated.");
+            return;
+        }
+
+        final Path sourceFile =
+                getPageModel().get().getImageModel().getSourceFile();
+        final Path fname =
+                FileNames.replaceExtension(sourceFile.getFileName(), "txt");
+        final Path repName = FileNames.replaceExtension(fname, "html");
+        final Path plain =
+                projectModel.get().getOCRDir().resolve(fname);
+        final Path report =
+                projectModel.get().getEvaluationDir().resolve(repName);
+
+        try {
+            Files.createDirectories(projectModel.get().getEvaluationDir());
+
+            final Batch reportBatch = new Batch(
+                    transcritpionFile.get().toFile(), plain.toFile());
+            final Parameters pars = new Parameters();
+            final Report rep = new Report(reportBatch, pars);
+
+            // write to file
+            DocumentWriter.writeToFile(rep.document(), report);
+
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(report.toFile());
+            }
+        } catch (WarningException | IOException | TransformerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Optional<Path> handleTranscriptionSave() {
+        try {
+            if (projectModel.isPresent() && getPageModel().isPresent()) {
+                Files.createDirectories(
+                        projectModel.get().getTranscriptionDir());
+
+                final Path sourceFile =
+                        getPageModel().get().getImageModel().getSourceFile();
+                final Path fileName =
+                        FileNames.replaceExtension(sourceFile.getFileName(),
+                                "txt");
+
+                final Path transcriptionFile =
+                        projectModel.get().getTranscriptionDir().resolve(
+                                fileName);
+
+                try (final Writer writer = Files.newBufferedWriter(
+                        transcriptionFile, StandardCharsets.UTF_8)) {
+
+                    final String transcription =
+                            view.getEvaluationPane().getTextAreaTranscript()
+                                    .getText();
+
+                    writer.write(transcription);
+
+                    return Optional.of(transcriptionFile);
+                }
+            }
+        } catch (IOException e) {
+            Dialogs.showError(view, "Exception",
+                    "Transcription could not be saved.");
+        }
+
+        return Optional.absent();
     }
 
     private void handleNewProject() {
@@ -697,6 +805,42 @@ public class TesseractController extends WindowAdapter implements
     }
 
     public void setPageModel(Optional<PageModel> model) {
+        if (projectModel.isPresent() && model.isPresent()) {
+            try {
+                // plain text file name
+                final Path fname =
+                        FileNames.replaceExtension(model.get().getImageModel()
+                                .getSourceFile().getFileName(), "txt");
+
+                // create ocr directory
+                Files.createDirectories(projectModel.get().getOCRDir());
+
+                // write the plain text ocr file
+                final Path plain =
+                        projectModel.get().getOCRDir().resolve(fname);
+
+                final Writer writer = Files.newBufferedWriter(plain,
+                        StandardCharsets.UTF_8);
+                new PlainTextWriter().write(model.get().getPage(), writer);
+                writer.close();
+
+                // read the transcription file
+                final Path transcr =
+                        projectModel.get().getTranscriptionDir().resolve(fname);
+
+                if (Files.isRegularFile(transcr)) {
+                    final byte[] bytes = Files.readAllBytes(transcr);
+                    final String transcription = new String(bytes,
+                            StandardCharsets.UTF_8);
+
+                    model = Optional.of(model.get().withTranscription(
+                            transcription));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         final MainComponent active = view.getActiveComponent();
 
         if (active instanceof PageModelComponent) {
