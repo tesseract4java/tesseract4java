@@ -51,7 +51,6 @@ import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.gui.view.dialogs.BatchExportDialog;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.gui.view.dialogs.NewProjectDialog;
-import de.vorb.tesseract.gui.view.dialogs.RecognitionParametersDialog;
 import de.vorb.tesseract.gui.work.BatchExecutor;
 import de.vorb.tesseract.gui.work.PageListWorker;
 import de.vorb.tesseract.gui.work.PageRecognitionProducer;
@@ -249,12 +248,6 @@ public class TesseractController extends WindowAdapter implements
         }
 
         {
-            // recognition pane
-            view.getRecognitionPane().getParametersButton().addActionListener(
-                    this);
-        }
-
-        {
             // evaluation pane
             final EvaluationPane evalPane = view.getEvaluationPane();
             evalPane.getSaveTranscriptionButton().addActionListener(this);
@@ -296,9 +289,6 @@ public class TesseractController extends WindowAdapter implements
         } else if (source.equals(symbolOverview.getSymbolVariantList()
                 .getOrderingComboBox())) {
             handleSymbolReordering();
-        } else if (source.equals(view.getRecognitionPane()
-                .getParametersButton())) {
-            handleParametersButtonClick();
         } else if (source.equals(evalPane.getSaveTranscriptionButton())) {
             handleTranscriptionSave();
         } else if (source.equals(evalPane.getGenerateReportButton())) {
@@ -656,18 +646,6 @@ public class TesseractController extends WindowAdapter implements
 
         // set as new timer task
         lastPageSelectionTask = Optional.of(task);
-    }
-
-    private void handleParametersButtonClick() {
-        final Optional<Float> ratio =
-                RecognitionParametersDialog.showDialog(view);
-
-        if (ratio.isPresent()
-                && !view.getPages().getList().isSelectionEmpty()) {
-            pageRecognitionProducer.setVariable("textord_noise_hfract",
-                    ratio.get().toString());
-            handlePageSelection();
-        }
     }
 
     private void handleShowSymbolInBoxEditor() {

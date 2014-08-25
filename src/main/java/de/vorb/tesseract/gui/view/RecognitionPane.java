@@ -145,7 +145,6 @@ public class RecognitionPane extends JPanel implements
     private final JLabel lblOriginal;
     private final JLabel lblHOCR;
     private final JSlider zoomSlider;
-    private final JButton btnParameters;
 
     private final JCheckBox cbWordBoxes;
     private final JCheckBox cbSymbolBoxes;
@@ -394,10 +393,6 @@ public class RecognitionPane extends JPanel implements
         zoomSlider.setMajorTickSpacing(1);
         zoomSlider.setValue(5);
         zoomSlider.setMaximum(9);
-
-        btnParameters = new JButton("Parameters...");
-        btnParameters.setBackground(Color.WHITE);
-        panel_1.add(btnParameters);
         zoomSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ev) {
@@ -760,10 +755,6 @@ public class RecognitionPane extends JPanel implements
         cbLineNumbers.setEnabled(enabled);
         cbBaseline.setEnabled(enabled);
         cbXLine.setEnabled(enabled);
-    }
-
-    public JButton getParametersButton() {
-        return btnParameters;
     }
 
     @Override

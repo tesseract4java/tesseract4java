@@ -54,10 +54,11 @@ public class TesseractFrame extends JFrame {
     private final JSeparator separator_2;
     private final JMenuItem mnCloseProject;
     private final JMenuItem mnSaveBoxFile;
+    private final JMenuItem mnSavePage;
+    private final JMenuItem mnImportTranscriptions;
 
     private final Scale scale;
     private final JMenu mnEdit;
-    private JMenuItem mnSavePage;
 
     /**
      * Create the application.
@@ -86,6 +87,7 @@ public class TesseractFrame extends JFrame {
         glyphOverview = new SymbolOverview();
         recognitionPane = new RecognitionPane(scale);
         evaluationPane = new EvaluationPane(scale);
+        evaluationPane.getGenerateReportButton().setIcon(new ImageIcon(TesseractFrame.class.getResource("/icons/report.png")));
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 
@@ -208,12 +210,18 @@ public class TesseractFrame extends JFrame {
         separator_1 = new JSeparator();
         mnFile.add(separator_1);
 
+        mnImportTranscriptions = new JMenuItem("Import Transcriptions...");
+        mnImportTranscriptions.setEnabled(false);
+        mnImportTranscriptions.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_I, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+        mnFile.add(mnImportTranscriptions);
+
         mnBatchExport = new JMenuItem("Batch Export...");
         mnBatchExport.setEnabled(false);
         mnBatchExport.setIcon(new ImageIcon(
                 TesseractFrame.class.getResource("/icons/book_next.png")));
         mnBatchExport.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,
-                InputEvent.CTRL_MASK));
+                InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
         mnFile.add(mnBatchExport);
 
         final JSeparator separator = new JSeparator();
