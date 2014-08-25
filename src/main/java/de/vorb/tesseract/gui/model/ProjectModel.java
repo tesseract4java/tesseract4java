@@ -7,12 +7,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ProjectModel {
-    public static final String PROJECT_DIR = ".tess";
-    public static final String THUMBNAIL_DIR = ".tess/thumbs";
-    public static final String PREPROCESSED_DIR = ".tess/preprocessed";
-    public static final String TRANSCRIPTION_DIR = ".tess/transcriptions";
-    public static final String OCR_DIR = ".tess/ocr";
-    public static final String EVALUATION_DIR = ".tess/evaluation";
+    public static final String PROJECT_DIR = "tesseract-project";
+    public static final String THUMBNAIL_DIR = "tesseract-project/thumbs";
+    public static final String PREPROCESSED_DIR = "tesseract-project/preprocessed";
+    public static final String TRANSCRIPTION_DIR = "tesseract-project/transcriptions";
+    public static final String OCR_DIR = "tesseract-project/ocr";
+    public static final String EVALUATION_DIR = "tesseract-project/evaluation";
 
     private final Path imageDir;
 
