@@ -13,7 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 
-import de.vorb.tesseract.gui.view.renderer.GlyphSelectionRenderer;
+import de.vorb.tesseract.gui.view.renderer.SymbolGroupListCellRenderer;
 import de.vorb.tesseract.util.Symbol;
 
 public class SymbolGroupList extends JPanel {
@@ -43,7 +43,7 @@ public class SymbolGroupList extends JPanel {
         selectionList = new JList<>();
         selectionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        selectionList.setCellRenderer(new GlyphSelectionRenderer());
+        selectionList.setCellRenderer(new SymbolGroupListCellRenderer());
         scrollPane.setViewportView(selectionList);
     }
 

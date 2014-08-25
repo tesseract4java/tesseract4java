@@ -789,7 +789,7 @@ public class TesseractController extends WindowAdapter implements
                 .getSymbolVariantList().getOrderingComboBox();
 
         // sort symbols
-        model.sortBy(ordering.getItemAt(ordering.getSelectedIndex()));
+        model.sortBy((SymbolOrder) ordering.getSelectedItem());
 
         view.getSymbolOverview().getSymbolVariantList().getList().setModel(
                 model);
@@ -805,7 +805,7 @@ public class TesseractController extends WindowAdapter implements
                 .getSymbolVariantList().getList().getModel();
 
         // sort symbols
-        model.sortBy(ordering.getItemAt(ordering.getSelectedIndex()));
+        model.sortBy((SymbolOrder) ordering.getSelectedItem());
     }
 
     private void handleThumbnailLoading() {

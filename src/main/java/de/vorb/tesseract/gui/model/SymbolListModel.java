@@ -26,9 +26,9 @@ public class SymbolListModel implements ListModel<Symbol> {
             final float conf2 = s2.getConfidence();
 
             if (conf1 > conf2)
-                return 1;
-            if (conf1 < conf2)
                 return -1;
+            if (conf1 < conf2)
+                return 1;
 
             return 0;
         }

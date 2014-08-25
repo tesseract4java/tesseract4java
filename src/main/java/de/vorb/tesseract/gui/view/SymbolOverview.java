@@ -19,7 +19,7 @@ import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.event.SymbolLinkListener;
 import de.vorb.tesseract.gui.model.PageModel;
-import de.vorb.tesseract.gui.view.renderer.GlyphListCellRenderer;
+import de.vorb.tesseract.gui.view.renderer.SymbolVariantListCellRenderer;
 import de.vorb.tesseract.util.Line;
 import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Symbol;
@@ -111,7 +111,7 @@ public class SymbolOverview extends JPanel implements PageModelComponent {
 
         // set a new renderer that has a reference to the thresholded image
         getSymbolVariantList().getList().setCellRenderer(
-                new GlyphListCellRenderer(
+                new SymbolVariantListCellRenderer(
                         model.get().getImageModel().getPreprocessedImage()));
 
         // insert all symbols into the map
