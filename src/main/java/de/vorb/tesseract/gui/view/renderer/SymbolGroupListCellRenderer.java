@@ -11,11 +11,11 @@ import javax.swing.ListCellRenderer;
 
 import de.vorb.tesseract.util.Symbol;
 
-public class GlyphSelectionRenderer extends JLabel implements
+public class SymbolGroupListCellRenderer extends JLabel implements
         ListCellRenderer<Entry<String, List<Symbol>>> {
     private static final long serialVersionUID = 1L;
 
-    public GlyphSelectionRenderer() {
+    public SymbolGroupListCellRenderer() {
         super();
         setOpaque(true);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));

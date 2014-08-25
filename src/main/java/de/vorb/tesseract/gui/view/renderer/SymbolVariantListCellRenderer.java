@@ -12,13 +12,13 @@ import javax.swing.ListCellRenderer;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 
-public class GlyphListCellRenderer extends JLabel implements
+public class SymbolVariantListCellRenderer extends JLabel implements
         ListCellRenderer<Symbol> {
     private static final long serialVersionUID = 1L;
 
     private final BufferedImage source;
 
-    public GlyphListCellRenderer(BufferedImage source) {
+    public SymbolVariantListCellRenderer(BufferedImage source) {
         super();
         this.source = source;
         setOpaque(true);
