@@ -1,7 +1,8 @@
 package de.vorb.tesseract.tools.preprocessing.binarization;
 
 public enum BinarizationMethod {
-    SAUVOLA("Sauvola");
+    SAUVOLA("Sauvola"),
+    OTSU("Otsu");
 
     private String name;
 

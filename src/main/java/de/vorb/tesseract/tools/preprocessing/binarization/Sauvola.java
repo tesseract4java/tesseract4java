@@ -18,10 +18,6 @@ import javax.imageio.ImageIO;
  * @author Paul Vorbach
  */
 public class Sauvola implements Binarization {
-    private static final ColorConvertOp RGB_TO_GRAYSCALE = new ColorConvertOp(
-            ColorSpace.getInstance(ColorSpace.CS_sRGB),
-            ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
-
     private static final int FOREGROUND = 0xFFFFFFFF;
     private static final int BACKGROUND = 0xFF000000;
 
@@ -60,25 +56,8 @@ public class Sauvola implements Binarization {
         final int width = image.getWidth();
         final int height = image.getHeight();
 
-        final BufferedImage grayscale;
-
-        // return the buffered image as-is, if it is binary already
-        if (image.getType() == BufferedImage.TYPE_BYTE_BINARY) {
-            return image;
-        } else if (image.getType() == BufferedImage.TYPE_BYTE_GRAY) {
-            grayscale = image;
-        } else if (image.getType() == BufferedImage.TYPE_INT_RGB
-                || image.getType() == BufferedImage.TYPE_BYTE_INDEXED) {
-            grayscale = new BufferedImage(width, height,
-                    BufferedImage.TYPE_BYTE_GRAY);
-
-            // convert rgb image to grayscale
-            RGB_TO_GRAYSCALE.filter(image, grayscale);
-        } else {
-            throw new IllegalArgumentException(String.format(
-                    "illegal color space: %s",
-                    image.getColorModel().getColorSpace().getType()));
-        }
+        final BufferedImage grayscale =
+                BinarizationUtilities.imageToGrayscale(image);
 
         final BufferedImage result = new BufferedImage(width, height,
                 BufferedImage.TYPE_BYTE_BINARY);
