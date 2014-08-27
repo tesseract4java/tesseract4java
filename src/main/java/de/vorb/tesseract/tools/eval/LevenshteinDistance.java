@@ -1,4 +1,4 @@
-package de.vorb.tesseract.tools.evaluation;
+package de.vorb.tesseract.tools.eval;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

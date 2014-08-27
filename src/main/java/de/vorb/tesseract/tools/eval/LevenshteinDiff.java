@@ -1,4 +1,4 @@
-package de.vorb.tesseract.tools.evaluation;
+package de.vorb.tesseract.tools.eval;
 
 import java.io.BufferedReader;
 import java.io.IOException;
