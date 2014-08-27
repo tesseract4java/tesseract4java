@@ -49,6 +49,8 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
         try {
             controller.setImageModel(Optional.of(get()));
         } catch (InterruptedException | ExecutionException e) {
+        } finally {
+            controller.getView().getProgressBar().setIndeterminate(false);
         }
     }
 }
