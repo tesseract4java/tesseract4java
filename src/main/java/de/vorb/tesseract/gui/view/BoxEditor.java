@@ -624,4 +624,9 @@ public class BoxEditor extends JPanel implements PageModelComponent {
             l.stateChanged(evt);
         }
     }
+
+    @Override
+    public void freeResources() {
+        lblCanvas.setIcon(null);
+    }
 }

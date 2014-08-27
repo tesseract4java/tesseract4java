@@ -308,4 +308,9 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     public Optional<ImageModel> getImageModel() {
         return imageModel;
     }
+
+    @Override
+    public void freeResources() {
+        lblPreview.setIcon(null);
+    }
 }

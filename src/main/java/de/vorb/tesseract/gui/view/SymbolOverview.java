@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
@@ -142,5 +143,13 @@ public class SymbolOverview extends JPanel implements PageModelComponent {
         }
 
         glyphList.setModel(listModel);
+    }
+
+    @Override
+    public void freeResources() {
+        getSymbolGroupList().getList().setModel(
+                new DefaultListModel<Map.Entry<String, List<Symbol>>>());
+        getSymbolVariantList().getList().setModel(
+                new DefaultListModel<Symbol>());
     }
 }

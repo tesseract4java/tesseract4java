@@ -761,4 +761,10 @@ public class RecognitionPane extends JPanel implements
     public Component asComponent() {
         return this;
     }
+
+    @Override
+    public void freeResources() {
+        lblOriginal.setIcon(null);
+        lblHOCR.setIcon(null);
+    }
 }

@@ -245,4 +245,9 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
     public Optional<PageModel> getPageModel() {
         return pageModel;
     }
+
+    @Override
+    public void freeResources() {
+        lblOriginal.setIcon(null);
+    }
 }
