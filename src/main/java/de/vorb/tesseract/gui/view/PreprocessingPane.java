@@ -7,6 +7,9 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +25,7 @@ import de.vorb.tesseract.tools.preprocessing.DefaultPreprocessor;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.tesseract.tools.preprocessing.binarization.Binarization;
 import de.vorb.tesseract.tools.preprocessing.binarization.BinarizationMethod;
+import de.vorb.tesseract.tools.preprocessing.binarization.Otsu;
 import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
 import de.vorb.tesseract.tools.preprocessing.filter.BlobSizeFilter;
 import de.vorb.tesseract.tools.preprocessing.filter.ImageFilter;
@@ -30,11 +34,12 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     private static final long serialVersionUID = 1L;
 
     private final JComboBox<BinarizationMethod> comboBinarization;
-    private JSpinner spinnerBlobMinSize;
-    private JSpinner spinnerBlobMaxSize;
+    private final JSpinner spinnerWindowRadius;
+
+    private final JSpinner spinnerBlobMinSize;
+    private final JSpinner spinnerBlobMaxSize;
 
     private final JButton btnPreview;
-
     private final JLabel lblPreview;
 
     private final JButton btnApplyToPage;
@@ -65,14 +70,14 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
                 new Color(0, 0, 0)), new EmptyBorder(4, 4, 4, 4)));
         GridBagLayout gbl_panel = new GridBagLayout();
         gbl_panel.columnWidths = new int[] { 0, 0, 0 };
-        gbl_panel.rowHeights = new int[] { 0, 0 };
+        gbl_panel.rowHeights = new int[] { 0, 0, 0 };
         gbl_panel.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
-        gbl_panel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        gbl_panel.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
         panel.setLayout(gbl_panel);
 
         JLabel lblMethod = new JLabel("Method");
         GridBagConstraints gbc_lblMethod = new GridBagConstraints();
-        gbc_lblMethod.insets = new Insets(0, 0, 0, 5);
+        gbc_lblMethod.insets = new Insets(0, 0, 5, 5);
         gbc_lblMethod.anchor = GridBagConstraints.EAST;
         gbc_lblMethod.gridx = 0;
         gbc_lblMethod.gridy = 0;
@@ -84,10 +89,37 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
                 BinarizationMethod.values()));
         comboBinarization.setSelectedIndex(0);
         GridBagConstraints gbc_cbBinarization = new GridBagConstraints();
+        gbc_cbBinarization.insets = new Insets(0, 0, 5, 0);
         gbc_cbBinarization.fill = GridBagConstraints.HORIZONTAL;
         gbc_cbBinarization.gridx = 1;
         gbc_cbBinarization.gridy = 0;
         panel.add(comboBinarization, gbc_cbBinarization);
+
+        comboBinarization.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (comboBinarization.getSelectedItem() == BinarizationMethod.SAUVOLA) {
+                    spinnerWindowRadius.setEnabled(true);
+                } else {
+                    spinnerWindowRadius.setEnabled(false);
+                }
+            }
+        });
+
+        JLabel lblWindowRadius = new JLabel("Window Radius");
+        GridBagConstraints gbc_lblWindowSize = new GridBagConstraints();
+        gbc_lblWindowSize.insets = new Insets(0, 0, 0, 5);
+        gbc_lblWindowSize.gridx = 0;
+        gbc_lblWindowSize.gridy = 1;
+        panel.add(lblWindowRadius, gbc_lblWindowSize);
+
+        spinnerWindowRadius = new JSpinner();
+        spinnerWindowRadius.setModel(new SpinnerNumberModel(15, 5, 50, 1));
+        GridBagConstraints gbc_spinner = new GridBagConstraints();
+        gbc_spinner.fill = GridBagConstraints.HORIZONTAL;
+        gbc_spinner.gridx = 1;
+        gbc_spinner.gridy = 1;
+        panel.add(spinnerWindowRadius, gbc_spinner);
 
         JPanel panel_1 = new JPanel();
         panel_3.add(panel_1);
@@ -106,6 +138,7 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
         JLabel lblBlobMinSizeFilter = new JLabel("Blob size filter (min)");
         lblBlobMinSizeFilter.setBackground(Color.WHITE);
         GridBagConstraints gbc_lblBlobMinSizeFilter = new GridBagConstraints();
+        gbc_lblBlobMinSizeFilter.anchor = GridBagConstraints.EAST;
         gbc_lblBlobMinSizeFilter.insets = new Insets(0, 0, 5, 5);
         gbc_lblBlobMinSizeFilter.gridx = 0;
         gbc_lblBlobMinSizeFilter.gridy = 0;
@@ -123,6 +156,7 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
 
         JLabel lblBlobsizefiltermax = new JLabel("BlobSizeFilter (max)");
         GridBagConstraints gbc_lblBlobsizefiltermax = new GridBagConstraints();
+        gbc_lblBlobsizefiltermax.anchor = GridBagConstraints.EAST;
         gbc_lblBlobsizefiltermax.insets = new Insets(0, 0, 0, 5);
         gbc_lblBlobsizefiltermax.gridx = 0;
         gbc_lblBlobsizefiltermax.gridy = 1;
@@ -163,9 +197,13 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
         add(panel_2, BorderLayout.SOUTH);
 
         btnApplyToPage = new JButton("Apply to current page");
+        btnApplyToPage.setIcon(new ImageIcon(
+                PreprocessingPane.class.getResource("/icons/page_white.png")));
         panel_2.add(btnApplyToPage);
 
         btnApplyToAllPages = new JButton("Apply to all pages");
+        btnApplyToAllPages.setIcon(new ImageIcon(
+                PreprocessingPane.class.getResource("/icons/page_white_stack.png")));
         panel_2.add(btnApplyToAllPages);
 
     }
@@ -193,7 +231,10 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
         final Binarization binarization;
         switch (method) {
         case SAUVOLA:
-            binarization = new Sauvola();
+            binarization = new Sauvola((int) spinnerWindowRadius.getValue());
+            break;
+        case OTSU:
+            binarization = new Otsu();
             break;
         default:
             binarization = new Sauvola();
@@ -203,11 +244,11 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     }
 
     public List<ImageFilter> getFilters() {
-        int min = (Integer) spinnerBlobMinSize.getModel().getValue();
-        int max = (Integer) spinnerBlobMaxSize.getModel().getValue();
+        int min = (int) spinnerBlobMinSize.getModel().getValue();
+        int max = (int) spinnerBlobMaxSize.getModel().getValue();
 
-        if (max == 0) {
-            max = Integer.MAX_VALUE;
+        if (min == 0 && max == 0) {
+            return Collections.emptyList();
         }
 
         final ImageFilter blobSizeFilter = new BlobSizeFilter(min, max);
@@ -219,6 +260,31 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
 
     public Preprocessor getPreprocessor() {
         return new DefaultPreprocessor(getBinarization(), getFilters());
+    }
+
+    public void setPreprocessor(Preprocessor preprocessor) {
+        if (preprocessor instanceof DefaultPreprocessor) {
+            final DefaultPreprocessor p = (DefaultPreprocessor) preprocessor;
+            final Binarization b = p.getBinarization();
+            if (b instanceof Sauvola) {
+                comboBinarization.setSelectedItem(BinarizationMethod.SAUVOLA);
+                spinnerWindowRadius.setValue(((Sauvola) b).getRadius());
+            } else if (b instanceof Otsu) {
+                comboBinarization.setSelectedItem(BinarizationMethod.OTSU);
+            }
+
+            for (ImageFilter f : p.getFilters()) {
+                if (f instanceof BlobSizeFilter) {
+                    final BlobSizeFilter bsf = (BlobSizeFilter) f;
+                    spinnerBlobMinSize.setValue(bsf.getMinArea());
+                    spinnerBlobMaxSize.setValue(bsf.getMaxArea());
+                    return;
+                }
+            }
+
+            spinnerBlobMinSize.setValue(0);
+            spinnerBlobMaxSize.setValue(0);
+        }
     }
 
     @Override

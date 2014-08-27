@@ -544,6 +544,7 @@ public class TesseractController extends WindowAdapter implements
         try {
             Files.createDirectories(projectModel.get().getEvaluationDir());
 
+            // generate report
             final Batch reportBatch = new Batch(
                     transcritpionFile.get().toFile(), plain.toFile());
             final Parameters pars = new Parameters();
@@ -684,6 +685,9 @@ public class TesseractController extends WindowAdapter implements
             return;
         }
 
+        final Preprocessor preprocessor = getPreprocessor(pt.getFile());
+        view.getPreprocessingPane().setPreprocessor(preprocessor);
+
         // ask to save box file
         if (view.getActiveComponent() == view.getBoxEditor()
                 && view.getBoxEditor().hasChanged()) {
@@ -724,7 +728,8 @@ public class TesseractController extends WindowAdapter implements
 
                 // create swingworker to preprocess page
                 final PreprocessingWorker pw = new PreprocessingWorker(
-                        TesseractController.this, pt.getFile(),
+                        TesseractController.this,
+                        getPreprocessor(pt.getFile()), pt.getFile(),
                         getProjectModel().get().getPreprocessedDir());
 
                 // save reference
@@ -877,6 +882,45 @@ public class TesseractController extends WindowAdapter implements
         lastTrainingFile = trainingFile;
     }
 
+    private void handlePreprocessorPreview() {
+        final Optional<Path> selectedPage = getSelectedPage();
+
+        // if no page is selected, simply ignore it
+        if (!selectedPage.isPresent()) {
+            Dialogs.showWarning(view, "No project",
+                    "No page has been selected. You need to select a page first.");
+            return;
+        }
+
+        final JProgressBar progress = view.getProgressBar();
+        progress.setIndeterminate(true);
+
+        final Optional<ProjectModel> projectModel = getProjectModel();
+
+        if (!projectModel.isPresent()) {
+            Dialogs.showWarning(view, "No project",
+                    "No project has been selected. You need to create a project first.");
+            return;
+        }
+
+        final Preprocessor preprocessor = getPreprocessor(selectedPage.get());
+
+        new PreprocessingWorker(this, preprocessor, selectedPage.get(),
+                projectModel.get().getProjectDir());
+    }
+
+    private void handlePreprocessorChange(boolean allPages) {
+        final Preprocessor preprocessor =
+                view.getPreprocessingPane().getPreprocessor();
+
+        if (allPages) {
+            defaultPreprocessor = preprocessor;
+            preprocessors.clear();
+        } else if (getSelectedPage().isPresent()) {
+            setPreprocessor(getSelectedPage().get(), preprocessor);
+        }
+    }
+
     public void setPageModel(Optional<PageModel> model) {
         if (projectModel.isPresent() && model.isPresent()) {
             try {
@@ -994,14 +1038,6 @@ public class TesseractController extends WindowAdapter implements
     }
 
     public Preprocessor getPreprocessor(Path sourceFile) {
-        final Optional<Path> selected = getSelectedPage();
-        if (selected.isPresent() && selected.get().equals(sourceFile)
-                && view.getActiveComponent() == view.getPreprocessingPane()) {
-            final Preprocessor preview =
-                    view.getPreprocessingPane().getPreprocessor();
-            return preview;
-        }
-
         final Preprocessor preprocessor = preprocessors.get(sourceFile);
 
         if (preprocessor == null) {
@@ -1080,34 +1116,5 @@ public class TesseractController extends WindowAdapter implements
         }
 
         ((ImageModelComponent) active).setImageModel(model);
-    }
-
-    private void handlePreprocessorPreview() {
-        final Optional<Path> selectedPage = getSelectedPage();
-
-        // if no page is selected, simply ignore it
-        if (!selectedPage.isPresent()) {
-            Dialogs.showWarning(view, "No project",
-                    "No page has been selected. You need to select a page first.");
-            return;
-        }
-
-        final JProgressBar progress = view.getProgressBar();
-        progress.setIndeterminate(true);
-
-        final Optional<ProjectModel> projectModel = getProjectModel();
-
-        if (!projectModel.isPresent()) {
-            Dialogs.showWarning(view, "No project",
-                    "No project has been selected. You need to create a project first.");
-            return;
-        }
-
-        new PreprocessingWorker(this, selectedPage.get(),
-                projectModel.get().getProjectDir());
-    }
-
-    private void handlePreprocessorChange(boolean allPages) {
-
     }
 }
