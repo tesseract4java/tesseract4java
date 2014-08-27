@@ -23,7 +23,19 @@ public class BlobSizeFilter implements ImageFilter {
 
     public BlobSizeFilter(int minArea, int maxArea) {
         this.minArea = minArea;
-        this.maxArea = maxArea;
+        if (maxArea == 0) {
+            this.maxArea = Integer.MAX_VALUE;
+        } else {
+            this.maxArea = maxArea;
+        }
+    }
+
+    public int getMinArea() {
+        return minArea;
+    }
+
+    public int getMaxArea() {
+        return maxArea == Integer.MAX_VALUE ? 0 : maxArea;
     }
 
     @Override

@@ -3,9 +3,7 @@ package de.vorb.tesseract.tools.preprocessing.binarization;
 import ij.plugin.filter.RankFilters;
 import ij.process.FloatProcessor;
 
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +47,10 @@ public class Sauvola implements Binarization {
 
     public Sauvola() {
         this(15);
+    }
+
+    public int getRadius() {
+        return radius;
     }
 
     @Override
