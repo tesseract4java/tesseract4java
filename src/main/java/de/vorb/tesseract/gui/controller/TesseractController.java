@@ -685,6 +685,11 @@ public class TesseractController extends WindowAdapter implements
             return;
         }
 
+        // don't do anything, if no page is selected
+        if (pt == null) {
+            return;
+        }
+
         final Preprocessor preprocessor = getPreprocessor(pt.getFile());
         view.getPreprocessingPane().setPreprocessor(preprocessor);
 
@@ -703,14 +708,11 @@ public class TesseractController extends WindowAdapter implements
                 // don't change the page
                 return;
             }
+        } else if (view.getActiveComponent() == view.getSymbolOverview()) {
+            view.getSymbolOverview().freeResources();
         }
 
         pageThumbnail = Optional.fromNullable(pt);
-
-        // don't do anything, if no page is selected
-        if (pt == null) {
-            return;
-        }
 
         // cancel the last page loading task if it is present
         if (lastPageSelectionTask.isPresent()) {
@@ -735,6 +737,7 @@ public class TesseractController extends WindowAdapter implements
                 // save reference
                 preprocessingWorker = Optional.of(pw);
 
+                view.getProgressBar().setIndeterminate(true);
                 // execute it
                 pw.execute();
             }
@@ -892,9 +895,6 @@ public class TesseractController extends WindowAdapter implements
             return;
         }
 
-        final JProgressBar progress = view.getProgressBar();
-        progress.setIndeterminate(true);
-
         final Optional<ProjectModel> projectModel = getProjectModel();
 
         if (!projectModel.isPresent()) {
@@ -903,21 +903,38 @@ public class TesseractController extends WindowAdapter implements
             return;
         }
 
-        final Preprocessor preprocessor = getPreprocessor(selectedPage.get());
+        final Preprocessor preprocessor =
+                view.getPreprocessingPane().getPreprocessor();
 
-        new PreprocessingWorker(this, preprocessor, selectedPage.get(),
+        if (preprocessingWorker.isPresent()) {
+            preprocessingWorker.get().cancel(false);
+        }
+
+        final PreprocessingWorker pw = new PreprocessingWorker(this,
+                preprocessor, selectedPage.get(),
                 projectModel.get().getProjectDir());
+
+        preprocessingWorker = Optional.of(pw);
+
+        view.getProgressBar().setIndeterminate(true);
+        pw.execute();
     }
 
     private void handlePreprocessorChange(boolean allPages) {
         final Preprocessor preprocessor =
                 view.getPreprocessingPane().getPreprocessor();
 
-        if (allPages) {
+        if (allPages
+                && Dialogs.ask(view, "Confirmation",
+                        "Do you really want to apply the current preprocessing methods to all pages?")) {
             defaultPreprocessor = preprocessor;
             preprocessors.clear();
+
+            handlePreprocessorPreview();
         } else if (getSelectedPage().isPresent()) {
             setPreprocessor(getSelectedPage().get(), preprocessor);
+
+            handlePreprocessorPreview();
         }
     }
 
