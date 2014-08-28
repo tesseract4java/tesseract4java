@@ -43,6 +43,7 @@ import de.vorb.tesseract.gui.model.SymbolOrder;
 import de.vorb.tesseract.gui.util.DocumentWriter;
 import de.vorb.tesseract.gui.view.EvaluationPane;
 import de.vorb.tesseract.gui.view.FeatureDebugger;
+import de.vorb.tesseract.gui.view.FilteredTable;
 import de.vorb.tesseract.gui.view.ImageModelComponent;
 import de.vorb.tesseract.gui.view.MainComponent;
 import de.vorb.tesseract.gui.view.PageModelComponent;
@@ -759,19 +760,18 @@ public class TesseractController extends WindowAdapter implements
             return;
         }
 
-        final ListModel<Symbol> symbols =
-                view.getBoxEditor().getSymbols().getListModel();
-        final int size = symbols.getSize();
+        view.getMainTabs().setSelectedComponent(view.getBoxEditor());
+
+        final FilteredTable<Symbol> symbols = view.getBoxEditor().getSymbols();
+        final ListModel<Symbol> model = symbols.getListModel();
+        final int size = model.getSize();
 
         // find the selected symbol in
         for (int i = 0; i < size; i++) {
-            if (selected == symbols.getElementAt(i)) {
-                view.getBoxEditor().getSymbols().getTable()
-                        .setRowSelectionInterval(i, i);
+            if (selected == model.getElementAt(i)) {
+                symbols.getTable().setRowSelectionInterval(i, i);
             }
         }
-
-        view.getMainTabs().setSelectedComponent(view.getBoxEditor());
     }
 
     private void handleSymbolGroupSelection() {
