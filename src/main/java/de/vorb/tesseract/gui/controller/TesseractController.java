@@ -439,6 +439,8 @@ public class TesseractController extends WindowAdapter implements
                     final BufferedWriter writer = Files.newBufferedWriter(
                             transcription, StandardCharsets.UTF_8);
 
+                    int lines = 0;
+
                     // read file line by line
                     String line = null;
                     while ((line = reader.readLine()) != null) {
@@ -448,9 +450,15 @@ public class TesseractController extends WindowAdapter implements
                             break;
                         }
 
+                        lines++;
                         // otherwise write the line to the current file
                         writer.write(line);
                         writer.write('\n');
+                    }
+
+                    // if a transcription file is empty, delete it
+                    if (lines == 0) {
+                        Files.delete(transcription);
                     }
 
                     writer.write('\n');
