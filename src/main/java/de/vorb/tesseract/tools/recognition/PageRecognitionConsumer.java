@@ -1,22 +1,51 @@
 package de.vorb.tesseract.tools.recognition;
 
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.List;
 
 import de.vorb.tesseract.PageIteratorLevel;
+import de.vorb.tesseract.util.Block;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Line;
+import de.vorb.tesseract.util.Paragraph;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
 public abstract class PageRecognitionConsumer extends
         DefaultRecognitionConsumer {
-    private final Vector<Line> lines;
+
+    private final List<Block> blocks;
+    private ArrayList<Paragraph> blockParagraphs;
+    private ArrayList<Line> paragraphLines;
     private ArrayList<Word> lineWords;
     private ArrayList<Symbol> wordSymbols;
 
-    public PageRecognitionConsumer(Vector<Line> lines) {
-        this.lines = lines;
+    public PageRecognitionConsumer(List<Block> blocks) {
+        this.blocks = blocks;
+    }
+
+    @Override
+    public void blockBegin() {
+        blockParagraphs = new ArrayList<>();
+    }
+
+    @Override
+    public void blockEnd() {
+        final PageIteratorLevel level = PageIteratorLevel.BLOCK;
+        blocks.add(new Block(getState().getBoundingBox(level),
+                blockParagraphs));
+    }
+
+    @Override
+    public void paragraphBegin() {
+        paragraphLines = new ArrayList<>();
+    }
+
+    @Override
+    public void paragraphEnd() {
+        final PageIteratorLevel level = PageIteratorLevel.PARA;
+        blockParagraphs.add(new Paragraph(getState().getBoundingBox(level),
+                paragraphLines));
     }
 
     @Override
@@ -27,8 +56,8 @@ public abstract class PageRecognitionConsumer extends
     @Override
     public void lineEnd() {
         final PageIteratorLevel level = PageIteratorLevel.TEXTLINE;
-        lines.add(new Line(getState().getBoundingBox(level), lineWords,
-                getState().getBaseline(level)));
+        paragraphLines.add(new Line(getState().getBoundingBox(level),
+                lineWords, getState().getBaseline(level)));
     }
 
     @Override
@@ -53,10 +82,5 @@ public abstract class PageRecognitionConsumer extends
         wordSymbols.add(new Symbol(getState().getText(level),
                 getState().getBoundingBox(level),
                 getState().getConfidence(level)));
-
-        // Optional<Pointer<Pix>> img = producer.getImage();
-        // if (img.isPresent()) {
-        // getState().getSymbolFeatures(img.get());
-        // }
     }
 }
