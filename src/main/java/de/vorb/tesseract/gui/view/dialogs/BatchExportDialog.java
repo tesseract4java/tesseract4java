@@ -52,6 +52,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
     private JCheckBox chckbxExportImages;
     private JLabel lblExport;
     private JCheckBox chckbxXml;
+    private JCheckBox chckbxEvaluationReports;
 
     /**
      * Create the panel.
@@ -100,10 +101,10 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         panel_1.add(panel_3);
         GridBagLayout gbl_panel_3 = new GridBagLayout();
         gbl_panel_3.columnWidths = new int[] { 0, 0, 0, 0 };
-        gbl_panel_3.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
+        gbl_panel_3.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
         gbl_panel_3.columnWeights = new double[] { 0.0, 1.0, 0.0,
                 Double.MIN_VALUE };
-        gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
+        gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                 Double.MIN_VALUE };
         panel_3.setLayout(gbl_panel_3);
 
@@ -168,7 +169,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         lblExport = new JLabel("Export");
         GridBagConstraints gbc_lblExport = new GridBagConstraints();
         gbc_lblExport.anchor = GridBagConstraints.EAST;
-        gbc_lblExport.insets = new Insets(0, 0, 0, 5);
+        gbc_lblExport.insets = new Insets(0, 0, 5, 5);
         gbc_lblExport.gridx = 0;
         gbc_lblExport.gridy = 4;
         panel_3.add(lblExport, gbc_lblExport);
@@ -176,10 +177,19 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         chckbxExportImages = new JCheckBox("Preprocessed Images");
         chckbxExportImages.setSelected(true);
         GridBagConstraints gbc_chckbxExportImages = new GridBagConstraints();
-        gbc_chckbxExportImages.insets = new Insets(0, 0, 0, 5);
+        gbc_chckbxExportImages.insets = new Insets(0, 0, 5, 5);
         gbc_chckbxExportImages.gridx = 1;
         gbc_chckbxExportImages.gridy = 4;
         panel_3.add(chckbxExportImages, gbc_chckbxExportImages);
+        
+        chckbxEvaluationReports = new JCheckBox("Evaluation Reports");
+        chckbxEvaluationReports.setSelected(true);
+        GridBagConstraints gbc_chckbxEvaluationReports = new GridBagConstraints();
+        gbc_chckbxEvaluationReports.anchor = GridBagConstraints.WEST;
+        gbc_chckbxEvaluationReports.insets = new Insets(0, 0, 0, 5);
+        gbc_chckbxEvaluationReports.gridx = 1;
+        gbc_chckbxEvaluationReports.gridy = 5;
+        panel_3.add(chckbxEvaluationReports, gbc_chckbxEvaluationReports);
 
         panel_2 = new JPanel();
         panel_2.setBorder(new CompoundBorder(new TitledBorder(

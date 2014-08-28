@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -116,18 +117,16 @@ public class SymbolOverview extends JPanel implements PageModelComponent {
                         model.get().getImageModel().getPreprocessedImage()));
 
         // insert all symbols into the map
-        for (final Line line : page.getLines()) {
-            for (final Word word : line.getWords()) {
-                for (final Symbol symbol : word.getSymbols()) {
-                    final String sym = symbol.getText();
+        final Iterator<Symbol> symbolIt = page.symbolIterator();
+        while (symbolIt.hasNext()) {
+            final Symbol symbol = symbolIt.next();
+            final String text = symbol.getText();
 
-                    if (!glyphs.containsKey(sym)) {
-                        glyphs.put(sym, new ArrayList<Symbol>());
-                    }
-
-                    glyphs.get(sym).add(symbol);
-                }
+            if (!glyphs.containsKey(text)) {
+                glyphs.put(text, new ArrayList<Symbol>());
             }
+
+            glyphs.get(text).add(symbol);
         }
 
         final ArrayList<Entry<String, List<Symbol>>> entries = new ArrayList<>(

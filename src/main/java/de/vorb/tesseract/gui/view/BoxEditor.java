@@ -43,7 +43,6 @@ import de.vorb.tesseract.gui.util.Filter;
 import de.vorb.tesseract.gui.util.FilterProvider;
 import de.vorb.tesseract.gui.view.renderer.BoxFileRenderer;
 import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.Iterators;
 import de.vorb.tesseract.util.Point;
 import de.vorb.tesseract.util.Symbol;
 
@@ -466,7 +465,7 @@ public class BoxEditor extends JPanel implements PageModelComponent {
                         unscaled(e.getY(), scale.current()));
 
                 final Iterator<Symbol> it =
-                        Iterators.symbolIterator(getPageModel().get().getPage());
+                        getPageModel().get().getPage().iterator();
 
                 final ListSelectionModel sel =
                         tabSymbols.getTable().getSelectionModel();
@@ -521,6 +520,8 @@ public class BoxEditor extends JPanel implements PageModelComponent {
                 spinnerY.setValue(bbox.getY());
                 spinnerWidth.setValue(bbox.getWidth());
                 spinnerHeight.setValue(bbox.getHeight());
+
+                lblCanvas.scrollRectToVisible(bbox.toRectangle());
             }
         });
 
@@ -544,8 +545,7 @@ public class BoxEditor extends JPanel implements PageModelComponent {
 
         if (model.isPresent()) {
             // fill table model and render the page
-            final Iterator<Symbol> it =
-                    Iterators.symbolIterator(model.get().getPage());
+            final Iterator<Symbol> it = model.get().getPage().iterator();
 
             while (it.hasNext()) {
                 source.addElement(it.next());

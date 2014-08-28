@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.ListModel;
 import javax.swing.SwingWorker;
@@ -32,7 +33,12 @@ public class BoxFileRenderer implements PageRenderer {
     @Override
     public void render(final Optional<PageModel> pageModel, final float scale) {
         if (!pageModel.isPresent()) {
-            // remove image, if no pagemodel is given
+            // remove image, if no pagemodel is given and free resources
+            final Icon icon = boxEditor.getCanvas().getIcon();
+            if (icon != null && icon instanceof ImageIcon) {
+                ((ImageIcon) icon).getImage().flush();
+            }
+
             boxEditor.getCanvas().setIcon(null);
             return;
         }

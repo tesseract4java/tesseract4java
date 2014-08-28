@@ -19,6 +19,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -246,8 +247,13 @@ public class RecognitionPane extends JPanel implements
                 // true if clicked a box (word)
                 boolean hit = false;
 
-                for (Line line : page.getLines()) {
-                    for (Word word : line.getWords()) {
+                final Iterator<Line> lineIt = page.lineIterator();
+                while (lineIt.hasNext()) {
+                    final Iterator<Word> wordIt =
+                            lineIt.next().getWords().iterator();
+
+                    while (wordIt.hasNext()) {
+                        final Word word = wordIt.next();
 
                         // word.setSelected(false);
 
@@ -483,7 +489,7 @@ public class RecognitionPane extends JPanel implements
         final float factor = getScaleFactor();
 
         final Page page = getPageModel().get().getPage();
-        final List<Line> lines = page.getLines();
+        final Iterator<Line> lines = page.lineIterator();
         final BufferedImage normal = getPageModel().get().getImageModel()
                 .getPreprocessedImage();
 
@@ -707,7 +713,8 @@ public class RecognitionPane extends JPanel implements
                 scanGfx.setFont(lineNumberFont);
 
                 int lineNumber = 1;
-                for (Line line : lines) {
+                while (lines.hasNext()) {
+                    final Line line = lines.next();
                     if (zoom >= 1 && showLineNumbers) {
                         drawLineNumber(line, lineNumber, Colors.LINE_NUMBER);
                     }
