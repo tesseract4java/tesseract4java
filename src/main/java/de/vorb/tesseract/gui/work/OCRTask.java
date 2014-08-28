@@ -5,7 +5,8 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,7 +19,7 @@ import de.vorb.tesseract.gui.model.BatchExportModel;
 import de.vorb.tesseract.gui.model.ProjectModel;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.tesseract.tools.recognition.PageRecognitionConsumer;
-import de.vorb.tesseract.util.Line;
+import de.vorb.tesseract.util.Block;
 import de.vorb.tesseract.util.Page;
 import de.vorb.util.FileNames;
 
@@ -94,16 +95,16 @@ public class OCRTask implements Callable<Void> {
             recognizer.reset();
             recognizer.loadImage(imgDestFile);
 
-            final Vector<Line> lines = new Vector<>();
+            final List<Block> blocks = new ArrayList<>();
 
-            recognizer.recognize(new PageRecognitionConsumer(lines) {
+            recognizer.recognize(new PageRecognitionConsumer(blocks) {
                 @Override
                 public boolean isCancelled() {
                     return Thread.currentThread().isInterrupted();
                 }
             });
 
-            final Page page = new Page(sourceFile, width, height, 300, lines);
+            final Page page = new Page(sourceFile, width, height, 300, blocks);
 
             if (export.isExportXML()) {
                 final Path xmlFile = export.getDestinationDir().resolve(

@@ -1,7 +1,8 @@
 package de.vorb.tesseract.gui.work;
 
 import java.awt.image.BufferedImage;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.SwingUtilities;
@@ -14,7 +15,7 @@ import de.vorb.tesseract.gui.model.ImageModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.tools.recognition.PageRecognitionConsumer;
-import de.vorb.tesseract.util.Line;
+import de.vorb.tesseract.util.Block;
 import de.vorb.tesseract.util.Page;
 
 public class RecognitionWorker extends SwingWorker<PageModel, Void> {
@@ -50,12 +51,12 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
 
         producer.loadImage(imageModel.getPreprocessedFile());
 
-        final Vector<Line> lines = new Vector<Line>();
+        final List<Block> blocks = new ArrayList<>(1);
 
         // Get images
         final BufferedImage image = imageModel.getPreprocessedImage();
 
-        producer.recognize(new PageRecognitionConsumer(lines) {
+        producer.recognize(new PageRecognitionConsumer(blocks) {
             @Override
             public boolean isCancelled() {
                 return RecognitionWorker.this.isCancelled();
@@ -63,7 +64,7 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
         });
 
         final Page page = new Page(imageModel.getPreprocessedFile(),
-                image.getWidth(), image.getHeight(), 300, lines);
+                image.getWidth(), image.getHeight(), 300, blocks);
 
         return new PageModel(imageModel, page, "");
     }
