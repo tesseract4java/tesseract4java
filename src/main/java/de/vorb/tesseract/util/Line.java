@@ -45,8 +45,7 @@ public class Line {
      */
     @Override
     public String toString() {
-        return "Line(bbox = " + bbox + ", words = [...], baseline = "
-                + baseline
-                + ")";
+        return String.format("Line(bbox = %s, words = [%d], baseline = %s)",
+                bbox, words.size(), baseline);
     }
 }
