@@ -500,10 +500,14 @@ public class TesseractController extends WindowAdapter implements
                 }
 
                 final ProgressMonitor progressMonitor = new ProgressMonitor(
-                        view, "Processing:", "", 0, totalFiles);
+                        view, "Processing:", "", 0, totalFiles + 1);
                 progressMonitor.setProgress(0);
 
-                batchExec.start(progressMonitor);
+                final BufferedWriter errorLog = Files.newBufferedWriter(
+                        export.get().getDestinationDir().resolve("errors.log"),
+                        StandardCharsets.UTF_8);
+
+                batchExec.start(progressMonitor, errorLog);
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
@@ -532,9 +536,9 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handleGenerateReport() {
-        final Optional<Path> transcritpionFile = handleTranscriptionSave();
+        final Optional<Path> transcriptionFile = handleTranscriptionSave();
 
-        if (!transcritpionFile.isPresent()) {
+        if (!transcriptionFile.isPresent()) {
             Dialogs.showWarning(view, "Report",
                     "The report could not be generated.");
             return;
@@ -555,7 +559,7 @@ public class TesseractController extends WindowAdapter implements
 
             // generate report
             final Batch reportBatch = new Batch(
-                    transcritpionFile.get().toFile(), plain.toFile());
+                    transcriptionFile.get().toFile(), plain.toFile());
             final Parameters pars = new Parameters();
             final Report rep = new Report(reportBatch, pars);
 

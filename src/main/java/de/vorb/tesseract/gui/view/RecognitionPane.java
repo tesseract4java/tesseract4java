@@ -3,15 +3,7 @@ package de.vorb.tesseract.gui.view;
 import static de.vorb.tesseract.gui.model.Scale.scaled;
 import static de.vorb.tesseract.gui.model.Scale.unscaled;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -21,7 +13,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -32,14 +23,9 @@ import com.google.common.base.Optional;
 import de.vorb.tesseract.gui.event.ComparatorSettingsChangeListener;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
-import de.vorb.tesseract.util.Baseline;
+import de.vorb.tesseract.util.*;
 import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.FontAttributes;
-import de.vorb.tesseract.util.Line;
-import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Point;
-import de.vorb.tesseract.util.Symbol;
-import de.vorb.tesseract.util.Word;
 
 public class RecognitionPane extends JPanel implements
         ComparatorSettingsChangeListener,
@@ -489,6 +475,8 @@ public class RecognitionPane extends JPanel implements
         final float factor = getScaleFactor();
 
         final Page page = getPageModel().get().getPage();
+        final Iterator<Block> blocks = page.blockIterator();
+        final Iterator<Paragraph> paragraphs = page.paragraphIterator();
         final Iterator<Line> lines = page.lineIterator();
         final BufferedImage normal = getPageModel().get().getImageModel()
                 .getPreprocessedImage();
@@ -711,6 +699,26 @@ public class RecognitionPane extends JPanel implements
 
                 // stays the same for all lines
                 scanGfx.setFont(lineNumberFont);
+
+                hocrGfx.setPaint(new Color(0x33, 0x99, 0xFF, 0x66));
+                while (blocks.hasNext()) {
+                    final Block block = blocks.next();
+                    final Box bbox = block.getBoundingBox();
+                    hocrGfx.fillRect(scaled(bbox.getX(), factor),
+                            scaled(bbox.getY(), factor),
+                            scaled(bbox.getWidth(), factor),
+                            scaled(bbox.getHeight(), factor));
+                }
+
+                hocrGfx.setPaint(new Color(0xFF, 0x99, 0x33, 0x66));
+                while (paragraphs.hasNext()) {
+                    final Paragraph paragraph = paragraphs.next();
+                    final Box bbox = paragraph.getBoundingBox();
+                    hocrGfx.fillRect(scaled(bbox.getX(), factor),
+                            scaled(bbox.getY(), factor),
+                            scaled(bbox.getWidth(), factor),
+                            scaled(bbox.getHeight(), factor));
+                }
 
                 int lineNumber = 1;
                 while (lines.hasNext()) {

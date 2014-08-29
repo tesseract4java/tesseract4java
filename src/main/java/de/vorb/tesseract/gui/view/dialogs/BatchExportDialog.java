@@ -104,7 +104,8 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         gbl_panel_3.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
         gbl_panel_3.columnWeights = new double[] { 0.0, 1.0, 0.0,
                 Double.MIN_VALUE };
-        gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0,
                 Double.MIN_VALUE };
         panel_3.setLayout(gbl_panel_3);
 
@@ -141,7 +142,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         gbc_lblFileFormats.gridy = 1;
         panel_3.add(lblFileFormats, gbc_lblFileFormats);
 
-        chckbxTxt = new JCheckBox("Text");
+        chckbxTxt = new JCheckBox("TXT");
         GridBagConstraints gbc_chckbxText = new GridBagConstraints();
         gbc_chckbxText.anchor = GridBagConstraints.WEST;
         gbc_chckbxText.insets = new Insets(0, 0, 5, 5);
@@ -181,7 +182,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         gbc_chckbxExportImages.gridx = 1;
         gbc_chckbxExportImages.gridy = 4;
         panel_3.add(chckbxExportImages, gbc_chckbxExportImages);
-        
+
         chckbxEvaluationReports = new JCheckBox("Evaluation Reports");
         chckbxEvaluationReports.setSelected(true);
         GridBagConstraints gbc_chckbxEvaluationReports = new GridBagConstraints();
@@ -219,7 +220,6 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         gbc_spinnerWorkerThreads.gridx = 1;
         gbc_spinnerWorkerThreads.gridy = 0;
         panel_2.add(spinnerWorkerThreads, gbc_spinnerWorkerThreads);
-        spinnerWorkerThreads.setToolTipText("Using at most one thread less than the maximum is recommended in order to keep your system responsive");
         spinnerWorkerThreads.setModel(new SpinnerNumberModel(DEFAULT_THREADS,
                 MIN_THREADS, MAX_THREADS, 1));
 
@@ -289,12 +289,15 @@ public class BatchExportDialog extends JDialog implements ActionListener {
                 final boolean exportTXT = chckbxTxt.isSelected();
                 final boolean exportHTML = chckbxHtml.isSelected();
                 final boolean exportXML = chckbxXml.isSelected();
+                final boolean exportImages = chckbxExportImages.isSelected();
+                final boolean exportReports = chckbxEvaluationReports.isSelected();
                 final boolean openDestination = chckbxOpenDestination.isSelected();
                 final int numThreads = (Integer) spinnerWorkerThreads.getValue();
 
                 final BatchExportModel export = new BatchExportModel(
                         destinationDir, exportTXT, exportHTML, exportXML,
-                        numThreads, openDestination);
+                        exportImages, exportReports, numThreads,
+                        openDestination);
 
                 exportModel = export;
 

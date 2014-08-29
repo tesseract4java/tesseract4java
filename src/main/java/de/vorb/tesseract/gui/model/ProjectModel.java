@@ -14,6 +14,8 @@ public class ProjectModel {
     public static final String OCR_DIR = "tesseract-project/ocr";
     public static final String EVALUATION_DIR = "tesseract-project/evaluation";
 
+    private final String projectName;
+
     private final Path imageDir;
 
     private final boolean tiffFiles;
@@ -38,11 +40,17 @@ public class ProjectModel {
 
     public ProjectModel(Path projectDir, boolean tiffFiles, boolean pngFiles,
             boolean jpegFiles) {
+        projectName = projectDir.getFileName().toString();
+
         this.imageDir = projectDir;
 
         this.tiffFiles = tiffFiles;
         this.pngFiles = pngFiles;
         this.jpegFiles = jpegFiles;
+    }
+
+    public String getProjectName() {
+        return projectName;
     }
 
     public Path getImageDir() {
