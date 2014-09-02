@@ -51,9 +51,11 @@ import de.vorb.tesseract.gui.view.PreprocessingPane;
 import de.vorb.tesseract.gui.view.SymbolOverview;
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.gui.view.dialogs.BatchExportDialog;
+import de.vorb.tesseract.gui.view.dialogs.CharacterHistogram;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.gui.view.dialogs.ImportTranscriptionDialog;
 import de.vorb.tesseract.gui.view.dialogs.NewProjectDialog;
+import de.vorb.tesseract.gui.view.dialogs.UnicharsetDebugger;
 import de.vorb.tesseract.gui.work.BatchExecutor;
 import de.vorb.tesseract.gui.work.PageListWorker;
 import de.vorb.tesseract.gui.work.PageRecognitionProducer;
@@ -65,6 +67,7 @@ import de.vorb.tesseract.gui.work.ThumbnailWorker.Task;
 import de.vorb.tesseract.tools.preprocessing.DefaultPreprocessor;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
+import de.vorb.tesseract.tools.training.Unicharset;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TrainingFiles;
@@ -216,6 +219,8 @@ public class TesseractController extends WindowAdapter implements
             view.getMenuItemImportTranscriptions().addActionListener(this);
             view.getMenuItemBatchExport().addActionListener(this);
             view.getMenuItemPreferences().addActionListener(this);
+            view.getMenuItemCharacterHistogram().addActionListener(this);
+            view.getMenuItemInspectUnicharset().addActionListener(this);
         }
 
         view.getPages().getList().addListSelectionListener(this);
@@ -281,6 +286,10 @@ public class TesseractController extends WindowAdapter implements
             handleImportTranscriptions();
         } else if (source.equals(view.getMenuItemBatchExport())) {
             handleBatchExport();
+        } else if (source.equals(view.getMenuItemCharacterHistogram())) {
+            handleCharacterHistogram();
+        } else if (source.equals(view.getMenuItemInspectUnicharset())) {
+            handleInspectUnicharset();
         } else if (preprocPane.getPreviewButton().equals(source)) {
             handlePreprocessorPreview();
         } else if (preprocPane.getApplyPageButton().equals(source)) {
@@ -950,6 +959,90 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
+    private void handleCharacterHistogram() {
+        final JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fc.setFileFilter(new FileFilter() {
+            @Override
+            public String getDescription() {
+                return "Text files";
+            }
+
+            @Override
+            public boolean accept(File f) {
+                return f.canRead();
+            }
+        });
+
+        final int approved = fc.showOpenDialog(view);
+        if (approved == JFileChooser.APPROVE_OPTION) {
+            final Path textFile = fc.getSelectedFile().toPath();
+
+            try {
+                final BufferedReader reader = Files.newBufferedReader(
+                        textFile, StandardCharsets.UTF_8);
+
+                final Map<Character, Integer> histogram =
+                        new HashMap<Character, Integer>();
+
+                int c = -1;
+                while ((c = reader.read()) != -1) {
+                    final char character = (char) c;
+
+                    Integer val = histogram.get(character);
+
+                    if (val == null) {
+                        val = 0;
+                    }
+
+                    histogram.put(character, val + 1);
+                }
+
+                final CharacterHistogram ch = new CharacterHistogram(histogram);
+                ch.setLocationRelativeTo(view);
+                ch.setVisible(true);
+            } catch (IOException e) {
+                Dialogs.showError(view, "Invalid text file",
+                        "Could not read the text file.");
+            }
+        }
+    }
+
+    private void handleInspectUnicharset() {
+        final JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fc.setFileFilter(new FileFilter() {
+            @Override
+            public String getDescription() {
+                return "Unicharset files";
+            }
+
+            @Override
+            public boolean accept(File f) {
+                return f.isDirectory() || f.getName().endsWith("unicharset");
+            }
+        });
+
+        final int approved = fc.showOpenDialog(view);
+        if (approved == JFileChooser.APPROVE_OPTION) {
+            final Path unicharsetFile = fc.getSelectedFile().toPath();
+            try {
+                final Unicharset unicharset =
+                        Unicharset.readFrom(Files.newBufferedReader(
+                                unicharsetFile, StandardCharsets.UTF_8));
+
+                // show the unicharset dialog
+                final UnicharsetDebugger uniDebugger =
+                        new UnicharsetDebugger(unicharset);
+                uniDebugger.setLocationRelativeTo(view);
+                uniDebugger.setVisible(true);
+            } catch (IOException e) {
+                Dialogs.showError(view, "Invalid Unicharset",
+                        "Could not read the unicharset file. It may have an incompatible version.");
+            }
+        }
+    }
+
     public void setPageModel(Optional<PageModel> model) {
         if (projectModel.isPresent() && model.isPresent()) {
             try {
@@ -1060,6 +1153,22 @@ public class TesseractController extends WindowAdapter implements
     public void windowClosed(WindowEvent evt) {
         pageSelectionTimer.cancel();
         thumbnailLoadTimer.cancel();
+
+        if (preprocessingWorker.isPresent()) {
+            preprocessingWorker.get().cancel(true);
+        }
+
+        if (recognitionWorker.isPresent()) {
+            recognitionWorker.get().cancel(true);
+        }
+
+        // forcefully shut down the application after 2 seconds
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+        } finally {
+            System.exit(0);
+        }
     }
 
     public Preprocessor getDefaultPreprocessor() {

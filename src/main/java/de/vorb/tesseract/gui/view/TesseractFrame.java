@@ -52,6 +52,7 @@ public class TesseractFrame extends JFrame {
     private final JMenuItem mnOpenProject;
     private final JMenuItem mnSaveProject;
     private final JMenuItem mnOpenProjectDirectory;
+    private final JMenu mnEdit;
 
     private final JSeparator separator_2;
     private final JMenuItem mnCloseProject;
@@ -59,8 +60,11 @@ public class TesseractFrame extends JFrame {
     private final JMenuItem mnSavePage;
     private final JMenuItem mnImportTranscriptions;
 
+    private final JMenu mnTools;
+    private final JMenuItem mnCharacterHistogram;
+    private final JMenuItem mnInspectUnicharset;
+
     private final Scale scale;
-    private final JMenu mnEdit;
 
     /**
      * Create the application.
@@ -254,6 +258,15 @@ public class TesseractFrame extends JFrame {
                 TesseractFrame.class.getResource("/icons/cog.png")));
         mnEdit.add(mnPreferences);
 
+        mnTools = new JMenu("Tools");
+        menuBar.add(mnTools);
+        
+        mnCharacterHistogram = new JMenuItem("Character Histogram...");
+        mnTools.add(mnCharacterHistogram);
+
+        mnInspectUnicharset = new JMenuItem("Debug Unicharset...");
+        mnTools.add(mnInspectUnicharset);
+
         final JMenu mnHelp = new JMenu(
                 Labels.getLabel(getLocale(), "menu_help"));
         menuBar.add(mnHelp);
@@ -388,6 +401,14 @@ public class TesseractFrame extends JFrame {
 
     public JMenuItem getMenuItemPreferences() {
         return mnPreferences;
+    }
+    
+    public JMenuItem getMenuItemCharacterHistogram() {
+        return mnCharacterHistogram;
+    }
+
+    public JMenuItem getMenuItemInspectUnicharset() {
+        return mnInspectUnicharset;
     }
 
     public FilteredList<PageThumbnail> getPages() {
