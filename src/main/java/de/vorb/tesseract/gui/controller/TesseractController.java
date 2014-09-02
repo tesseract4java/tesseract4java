@@ -983,8 +983,9 @@ public class TesseractController extends WindowAdapter implements
                         textFile, StandardCharsets.UTF_8);
 
                 final Map<Character, Integer> histogram =
-                        new HashMap<Character, Integer>();
+                        new TreeMap<Character, Integer>();
 
+                // build up a histogram
                 int c = -1;
                 while ((c = reader.read()) != -1) {
                     final char character = (char) c;
