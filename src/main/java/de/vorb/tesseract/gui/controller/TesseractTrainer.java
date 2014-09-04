@@ -275,8 +275,6 @@ public class TesseractTrainer extends JFrame {
                 return;
             }
 
-            final String trDir = trainingDir + File.separator;
-
             final Path langdataDir = Paths.get(tfLangdataDir.getText());
             if (checkUseLangdata.isSelected()
                     && !Files.isDirectory(langdataDir)) {
@@ -287,7 +285,6 @@ public class TesseractTrainer extends JFrame {
 
             // indeterminate
             TesseractTrainer.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
             try {
                 Files.deleteIfExists(trainingDir.resolve("training.log"));
 
@@ -296,207 +293,220 @@ public class TesseractTrainer extends JFrame {
                         Files.newOutputStream(trainingDir.resolve("training.log")),
                         true, "UTF-8");
 
-                final DirectoryStream<Path> ds =
-                        Files.newDirectoryStream(trainingDir,
-                                new TrainingFileFilter());
+                try {
 
-                ProcessBuilder pb;
-                InputStream err;
-                int c;
+                    final DirectoryStream<Path> ds =
+                            Files.newDirectoryStream(trainingDir,
+                                    new TrainingFileFilter());
 
-                final LinkedList<String> boxFiles = new LinkedList<>();
-                final LinkedList<String> trFiles = new LinkedList<>();
+                    ProcessBuilder pb;
+                    InputStream err;
+                    int c;
 
-                String base = null;
+                    final LinkedList<String> boxFiles = new LinkedList<>();
+                    final LinkedList<String> trFiles = new LinkedList<>();
 
-                // train
-                for (Path file : ds) {
-                    final String sample = file.toString();
-                    final String sampleBase = sample.replaceFirst("\\.[^.]+$",
-                            "");
+                    String base = null;
 
-                    if (base == null) {
-                        final String fname = file.getFileName().toString();
-                        base = file.getParent().resolve(
-                                fname.replaceFirst("\\..+", "") + ".").toString();
+                    // train
+                    for (Path file : ds) {
+                        final String sample = file.toString();
+                        final String sampleBase = sample.replaceFirst(
+                                "\\.[^.]+$",
+                                "");
+
+                        if (base == null) {
+                            final String fname = file.getFileName().toString();
+                            base = file.getParent().resolve(
+                                    fname.replaceFirst("\\..+", "") + ".").toString();
+                        }
+
+                        boxFiles.add(sampleBase + ".box");
+                        trFiles.add(sampleBase + ".tr");
+
+                        pb = new ProcessBuilder(cmdDir + "tesseract",
+                                sample, sampleBase, "box.train").directory(
+                                trainingDir.toFile());
+
+                        log.println("tesseract " + sample + " box.train:\n");
+                        final Process train = pb.start();
+                        err = train.getErrorStream();
+
+                        while ((c = err.read()) != -1) {
+                            log.print((char) c);
+                        }
+
+                        log.println();
+
+                        if (train.waitFor() != 0) {
+                            throw new Exception("Unable to train '" + sample
+                                    + "'.");
+                        }
                     }
 
-                    boxFiles.add(sampleBase + ".box");
-                    trFiles.add(sampleBase + ".tr");
+                    final String lang = Paths.get(base).getFileName().toString();
 
-                    pb = new ProcessBuilder(cmdDir + "tesseract",
-                            sample, sampleBase, "box.train").directory(
-                            trainingDir.toFile());
+                    // delete old unicharset
+                    Files.deleteIfExists(trainingDir.resolve("unicharset"));
 
-                    log.println("tesseract " + sample + " box.train:\n");
-                    final Process train = pb.start();
-                    err = train.getErrorStream();
+                    // extract unicharset
+                    final List<String> uniExtr = new LinkedList<>();
+                    uniExtr.add(cmdDir + "unicharset_extractor");
+                    uniExtr.addAll(boxFiles);
+
+                    pb = new ProcessBuilder(uniExtr).directory(trainingDir.toFile());
+
+                    log.println("\nunicharset_extractor:\n");
+                    final Process unicharset = pb.start();
+                    err = unicharset.getInputStream();
 
                     while ((c = err.read()) != -1) {
                         log.print((char) c);
                     }
 
-                    log.println();
-
-                    if (train.exitValue() != 0) {
-                        throw new Exception("Unable to train '" + sample + "'.");
+                    if (unicharset.waitFor() != 0) {
+                        throw new Exception("Unable to extract unicharset.");
                     }
-                }
 
-                final String lang = Paths.get(base).getFileName().toString();
+                    // set unicharset properties
+                    if (checkUseLangdata.isSelected()) {
+                        pb = new ProcessBuilder(cmdDir
+                                + "set_unicharset_properties",
+                                "-U", "unicharset", "-O", "out.unicharset",
+                                "--script_dir=" + langdataDir).directory(
+                                trainingDir.toFile());
 
-                // extract unicharset
-                final List<String> uniExtr = new LinkedList<>();
-                uniExtr.add(cmdDir + "unicharset_extractor");
-                uniExtr.addAll(boxFiles);
+                        log.println("\nset_unicharset_properties:\n");
+                        final Process uniProps = pb.start();
+                        err = uniProps.getErrorStream();
 
-                pb = new ProcessBuilder(uniExtr).directory(execDir.toFile());
+                        while ((c = err.read()) != -1) {
+                            log.print((char) c);
+                        }
 
-                log.println("\nunicharset_extractor:\n");
-                final Process unicharset = pb.start();
-                err = unicharset.getErrorStream();
+                        if (uniProps.waitFor() != 0) {
+                            throw new Exception(
+                                    "Unable to set unicharset properties.");
+                        }
+                    } else {
+                        Files.copy(trainingDir.resolve("unicharset"),
+                                trainingDir.resolve("out.unicharset"),
+                                StandardCopyOption.REPLACE_EXISTING);
+                    }
 
-                while ((c = err.read()) != -1) {
-                    log.print((char) c);
-                }
+                    // shapeclustering
+                    final List<String> shapeClustering = new LinkedList<>();
+                    shapeClustering.add(cmdDir + "shapeclustering");
+                    shapeClustering.add("-F");
+                    shapeClustering.add(lang + "font_properties");
+                    shapeClustering.add("-U");
+                    shapeClustering.add("out.unicharset");
+                    shapeClustering.addAll(trFiles);
 
-                if (unicharset.exitValue() != 0) {
-                    throw new Exception("Unable to extract unicharset.");
-                }
+                    pb = new ProcessBuilder(shapeClustering).directory(trainingDir.toFile());
 
-                // set unicharset properties
-                if (checkUseLangdata.isSelected()) {
-                    pb = new ProcessBuilder(cmdDir
-                            + "set_unicharset_properties",
-                            "-U", "unicharset", "-O", "out.unicharset",
-                            "--script_dir=" + langdataDir).directory(
-                            trainingDir.toFile());
-
-                    log.println("\nset_unicharset_properties:\n");
-                    final Process uniProps = pb.start();
-                    err = uniProps.getErrorStream();
+                    log.println("\nshapeclustering:\n");
+                    final Process shapes = pb.start();
+                    err = shapes.getErrorStream();
 
                     while ((c = err.read()) != -1) {
                         log.print((char) c);
                     }
 
-                    if (uniProps.exitValue() != 0) {
-                        throw new Exception(
-                                "Unable to set unicharset properties.");
+                    if (shapes.waitFor() != 0) {
+                        throw new Exception("Unable to do shapeclustering.");
                     }
-                } else {
-                    Files.copy(trainingDir.resolve("unicharset"),
-                            trainingDir.resolve("out.unicharset"),
+
+                    // mftraining
+                    shapeClustering.set(0, cmdDir + "mftraining");
+                    pb = new ProcessBuilder(shapeClustering).directory(trainingDir.toFile());
+
+                    log.println("\nmftraining:\n");
+                    final Process mfTraining = pb.start();
+                    err = mfTraining.getErrorStream();
+
+                    while ((c = err.read()) != -1) {
+                        log.print((char) c);
+                    }
+
+                    if (mfTraining.waitFor() != 0) {
+                        throw new Exception("Unable to do mftraining.");
+                    }
+
+                    // cntraining
+                    final List<String> cnTrainingParams = new LinkedList<>();
+                    cnTrainingParams.add(cmdDir + "cntraining");
+                    cnTrainingParams.addAll(trFiles);
+
+                    pb = new ProcessBuilder(cnTrainingParams).directory(trainingDir.toFile());
+
+                    log.println("\ncntraining:\n");
+                    final Process cnTraining = pb.start();
+                    err = cnTraining.getErrorStream();
+
+                    while ((c = err.read()) != -1) {
+                        log.print((char) c);
+                    }
+
+                    if (cnTraining.waitFor() != 0) {
+                        throw new Exception("Unable to do cntraining.");
+                    }
+
+                    // rename files
+                    Files.move(trainingDir.resolve("inttemp"),
+                            trainingDir.resolve(lang + "inttemp"),
                             StandardCopyOption.REPLACE_EXISTING);
+                    Files.move(trainingDir.resolve("normproto"),
+                            trainingDir.resolve(lang + "normproto"),
+                            StandardCopyOption.REPLACE_EXISTING);
+                    Files.move(trainingDir.resolve("out.unicharset"),
+                            trainingDir.resolve(lang + "unicharset"),
+                            StandardCopyOption.REPLACE_EXISTING);
+                    Files.move(trainingDir.resolve("pffmtable"),
+                            trainingDir.resolve(lang + "pffmtable"),
+                            StandardCopyOption.REPLACE_EXISTING);
+                    Files.move(trainingDir.resolve("shapetable"),
+                            trainingDir.resolve(lang + "shapetable"),
+                            StandardCopyOption.REPLACE_EXISTING);
+
+                    // combine
+                    pb = new ProcessBuilder(cmdDir + "combine_tessdata", lang).directory(trainingDir.toFile());
+
+                    log.println("\ncombine_tessdata:\n");
+                    final Process combine = pb.start();
+                    err = combine.getErrorStream();
+
+                    while ((c = err.read()) != -1) {
+                        log.print((char) c);
+                    }
+
+                    if (combine.waitFor() != 0) {
+                        throw new Exception(
+                                "Unable to combine the training files.");
+                    }
+
+                    Dialogs.showInfo(TesseractTrainer.this,
+                            "Training Complete",
+                            "Training completed successfully.");
+                } catch (Exception e) {
+                    Dialogs.showError(TesseractTrainer.this, "Error",
+                            "Training failed. " + e.getMessage());
+                } finally {
+                    log.close();
+
+                    TesseractTrainer.this.setCursor(Cursor.getDefaultCursor());
+
+                    try {
+                        Desktop.getDesktop().open(
+                                trainingDir.resolve("training.log").toFile());
+                    } catch (IOException e) {
+                        Dialogs.showWarning(TesseractTrainer.this, "Warning",
+                                "Could not open training log file.");
+                    }
                 }
-
-                // shapeclustering
-                final List<String> shapeClustering = new LinkedList<>();
-                shapeClustering.add(cmdDir + "shapeclustering");
-                shapeClustering.add("-F");
-                shapeClustering.add(lang + "font_properties");
-                shapeClustering.add("-U");
-                shapeClustering.add("out.unicharset");
-                shapeClustering.addAll(trFiles);
-
-                pb = new ProcessBuilder(shapeClustering).directory(trainingDir.toFile());
-
-                log.println("\nshapeclustering:\n");
-                final Process shapes = pb.start();
-                err = shapes.getErrorStream();
-
-                while ((c = err.read()) != -1) {
-                    log.print((char) c);
-                }
-
-                if (shapes.exitValue() != 0) {
-                    throw new Exception("Unable to do shapeclustering.");
-                }
-
-                // mftraining
-                shapeClustering.set(0, cmdDir + "mftraining");
-                pb = new ProcessBuilder(shapeClustering).directory(trainingDir.toFile());
-
-                log.println("\nmftraining:\n");
-                final Process mfTraining = pb.start();
-                err = mfTraining.getErrorStream();
-
-                while ((c = err.read()) != -1) {
-                    log.print((char) c);
-                }
-
-                if (mfTraining.exitValue() != 0) {
-                    throw new Exception("Unable to do mftraining.");
-                }
-
-                // cntraining
-                final List<String> cnTrainingParams = new LinkedList<>();
-                cnTrainingParams.add(cmdDir + "cntraining");
-                cnTrainingParams.addAll(trFiles);
-
-                pb = new ProcessBuilder(cnTrainingParams).directory(trainingDir.toFile());
-
-                log.println("\ncntraining:\n");
-                final Process cnTraining = pb.start();
-                err = cnTraining.getErrorStream();
-
-                while ((c = err.read()) != -1) {
-                    log.print((char) c);
-                }
-
-                if (cnTraining.exitValue() != 0) {
-                    throw new Exception("Unable to do cntraining.");
-                }
-
-                // rename files
-                Files.move(trainingDir.resolve("inttemp"),
-                        trainingDir.resolve(lang + "inttemp"),
-                        StandardCopyOption.REPLACE_EXISTING);
-                Files.move(trainingDir.resolve("normproto"),
-                        trainingDir.resolve(lang + "normproto"),
-                        StandardCopyOption.REPLACE_EXISTING);
-                Files.move(trainingDir.resolve("out.unicharset"),
-                        trainingDir.resolve(lang + "unicharset"),
-                        StandardCopyOption.REPLACE_EXISTING);
-                Files.move(trainingDir.resolve("pffmtable"),
-                        trainingDir.resolve(lang + "pffmtable"),
-                        StandardCopyOption.REPLACE_EXISTING);
-                Files.move(trainingDir.resolve("shapetable"),
-                        trainingDir.resolve(lang + "shapetable"),
-                        StandardCopyOption.REPLACE_EXISTING);
-
-                // combine
-                pb = new ProcessBuilder(cmdDir + "combine_tessdata", lang).directory(trainingDir.toFile());
-
-                log.println("\ncombine_tessdata:\n");
-                final Process combine = pb.start();
-                err = combine.getErrorStream();
-
-                while ((c = err.read()) != -1) {
-                    log.print((char) c);
-                }
-
-                if (combine.exitValue() != 0) {
-                    throw new Exception("Unable to combine the training files.");
-                }
-
-                Dialogs.showInfo(TesseractTrainer.this, "Training Complete",
-                        "Training completed successfully.");
-
-                log.close();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 Dialogs.showError(TesseractTrainer.this, "Error",
                         "Training failed. " + e.getMessage());
-            } finally {
-                TesseractTrainer.this.setCursor(Cursor.getDefaultCursor());
-
-                try {
-                    Desktop.getDesktop().open(
-                            trainingDir.resolve("training.log").toFile());
-                } catch (IOException e) {
-                    Dialogs.showWarning(TesseractTrainer.this, "Warning",
-                            "Could not open training log file.");
-                }
             }
         }
     }
