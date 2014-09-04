@@ -1,6 +1,7 @@
 package de.vorb.tesseract.gui.controller;
 
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
@@ -16,6 +17,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,8 +48,6 @@ public class TesseractTrainer extends JFrame {
     private JTextField tfLangdataDir;
     private JTextField tfExecutablesDir;
     private JCheckBox checkUseLangdata;
-
-    private JCheckBox checkIncludeDictionaryData;
 
     public static void main(String[] args) {
         try {
@@ -240,15 +240,6 @@ public class TesseractTrainer extends JFrame {
             }
         });
 
-        checkIncludeDictionaryData = new JCheckBox("Include dictionary data");
-        GridBagConstraints gbc_chckbxIncludeDictionaryData = new GridBagConstraints();
-        gbc_chckbxIncludeDictionaryData.anchor = GridBagConstraints.WEST;
-        gbc_chckbxIncludeDictionaryData.insets = new Insets(0, 0, 5, 5);
-        gbc_chckbxIncludeDictionaryData.gridx = 1;
-        gbc_chckbxIncludeDictionaryData.gridy = 4;
-        contentPane.add(checkIncludeDictionaryData,
-                gbc_chckbxIncludeDictionaryData);
-
         JButton btnTrain = new JButton("Train");
         btnTrain.setIcon(new ImageIcon(
                 TesseractTrainer.class.getResource("/icons/wand.png")));
@@ -268,7 +259,7 @@ public class TesseractTrainer extends JFrame {
 
     private class Trainer implements ActionListener {
         public void actionPerformed(ActionEvent evt) {
-            final Path execDir = Paths.get(tfTrainingDir.getText());
+            final Path execDir = Paths.get(tfExecutablesDir.getText());
             if (!Files.isDirectory(execDir)) {
                 Dialogs.showError(TesseractTrainer.this, "Error",
                         "Invalid executables directory.");
@@ -349,6 +340,8 @@ public class TesseractTrainer extends JFrame {
                     }
                 }
 
+                final String lang = Paths.get(base).getFileName().toString();
+
                 // extract unicharset
                 final List<String> uniExtr = new LinkedList<>();
                 uniExtr.add(cmdDir + "unicharset_extractor");
@@ -371,8 +364,7 @@ public class TesseractTrainer extends JFrame {
                 if (checkUseLangdata.isSelected()) {
                     pb = new ProcessBuilder(cmdDir
                             + "set_unicharset_properties",
-                            "-U " + trDir + "unicharset", "-O "
-                                    + trDir + "out.unicharset",
+                            "-U", "unicharset", "-O", "out.unicharset",
                             "--script_dir=" + langdataDir).directory(
                             trainingDir.toFile());
 
@@ -387,13 +379,19 @@ public class TesseractTrainer extends JFrame {
                         throw new Exception(
                                 "Unable to set unicharset properties.");
                     }
+                } else {
+                    Files.copy(trainingDir.resolve("unicharset"),
+                            trainingDir.resolve("out.unicharset"),
+                            StandardCopyOption.REPLACE_EXISTING);
                 }
 
                 // shapeclustering
                 final List<String> shapeClustering = new LinkedList<>();
                 shapeClustering.add(cmdDir + "shapeclustering");
-                shapeClustering.add("-F " + base + "font_properties");
-                shapeClustering.add("-U " + trDir + "out.unicharset");
+                shapeClustering.add("-F");
+                shapeClustering.add(lang + "font_properties");
+                shapeClustering.add("-U");
+                shapeClustering.add("out.unicharset");
                 shapeClustering.addAll(trFiles);
 
                 pb = new ProcessBuilder(shapeClustering).directory(trainingDir.toFile());
@@ -424,12 +422,28 @@ public class TesseractTrainer extends JFrame {
                     throw new Exception("Unable to do mftraining.");
                 }
 
-                final List<String> cnTraining = new LinkedList<>();
-                cnTraining.add(cmdDir + "cntraining");
-                cnTraining.addAll(trFiles);
+                // cntraining
+                final List<String> cnTrainingParams = new LinkedList<>();
+                cnTrainingParams.add(cmdDir + "cntraining");
+                cnTrainingParams.addAll(trFiles);
+
+                pb = new ProcessBuilder(cnTrainingParams).directory(trainingDir.toFile());
+
+                final Process cnTraining = pb.start();
+                err = cnTraining.getErrorStream();
+
+                while ((c = err.read()) != -1) {
+                    log.print((char) c);
+                }
+
+                if (cnTraining.exitValue() != 0) {
+                    throw new Exception("Unable to do cntraining.");
+                }
 
                 Dialogs.showInfo(TesseractTrainer.this, "Training Complete",
                         "Training completed successfully.");
+                
+                
 
                 log.close();
             } catch (Exception e) {
@@ -437,6 +451,14 @@ public class TesseractTrainer extends JFrame {
                         "Training failed. " + e.getMessage());
             } finally {
                 TesseractTrainer.this.setCursor(Cursor.getDefaultCursor());
+
+                try {
+                    Desktop.getDesktop().open(
+                            trainingDir.resolve("training.log").toFile());
+                } catch (IOException e) {
+                    Dialogs.showWarning(TesseractTrainer.this, "Warning",
+                            "Could not open training log file.");
+                }
             }
         }
     }
