@@ -328,12 +328,15 @@ public class TesseractTrainer extends JFrame {
                             sample, sampleBase, "box.train").directory(
                             trainingDir.toFile());
 
+                    log.println("tesseract " + sample + " box.train:\n");
                     final Process train = pb.start();
                     err = train.getErrorStream();
 
                     while ((c = err.read()) != -1) {
                         log.print((char) c);
                     }
+
+                    log.println();
 
                     if (train.exitValue() != 0) {
                         throw new Exception("Unable to train '" + sample + "'.");
@@ -349,6 +352,7 @@ public class TesseractTrainer extends JFrame {
 
                 pb = new ProcessBuilder(uniExtr).directory(execDir.toFile());
 
+                log.println("\nunicharset_extractor:\n");
                 final Process unicharset = pb.start();
                 err = unicharset.getErrorStream();
 
@@ -368,6 +372,7 @@ public class TesseractTrainer extends JFrame {
                             "--script_dir=" + langdataDir).directory(
                             trainingDir.toFile());
 
+                    log.println("\nset_unicharset_properties:\n");
                     final Process uniProps = pb.start();
                     err = uniProps.getErrorStream();
 
@@ -396,6 +401,7 @@ public class TesseractTrainer extends JFrame {
 
                 pb = new ProcessBuilder(shapeClustering).directory(trainingDir.toFile());
 
+                log.println("\nshapeclustering:\n");
                 final Process shapes = pb.start();
                 err = shapes.getErrorStream();
 
@@ -411,6 +417,7 @@ public class TesseractTrainer extends JFrame {
                 shapeClustering.set(0, cmdDir + "mftraining");
                 pb = new ProcessBuilder(shapeClustering).directory(trainingDir.toFile());
 
+                log.println("\nmftraining:\n");
                 final Process mfTraining = pb.start();
                 err = mfTraining.getErrorStream();
 
@@ -429,6 +436,7 @@ public class TesseractTrainer extends JFrame {
 
                 pb = new ProcessBuilder(cnTrainingParams).directory(trainingDir.toFile());
 
+                log.println("\ncntraining:\n");
                 final Process cnTraining = pb.start();
                 err = cnTraining.getErrorStream();
 
@@ -440,10 +448,40 @@ public class TesseractTrainer extends JFrame {
                     throw new Exception("Unable to do cntraining.");
                 }
 
+                // rename files
+                Files.move(trainingDir.resolve("inttemp"),
+                        trainingDir.resolve(lang + "inttemp"),
+                        StandardCopyOption.REPLACE_EXISTING);
+                Files.move(trainingDir.resolve("normproto"),
+                        trainingDir.resolve(lang + "normproto"),
+                        StandardCopyOption.REPLACE_EXISTING);
+                Files.move(trainingDir.resolve("out.unicharset"),
+                        trainingDir.resolve(lang + "unicharset"),
+                        StandardCopyOption.REPLACE_EXISTING);
+                Files.move(trainingDir.resolve("pffmtable"),
+                        trainingDir.resolve(lang + "pffmtable"),
+                        StandardCopyOption.REPLACE_EXISTING);
+                Files.move(trainingDir.resolve("shapetable"),
+                        trainingDir.resolve(lang + "shapetable"),
+                        StandardCopyOption.REPLACE_EXISTING);
+
+                // combine
+                pb = new ProcessBuilder(cmdDir + "combine_tessdata", lang).directory(trainingDir.toFile());
+
+                log.println("\ncombine_tessdata:\n");
+                final Process combine = pb.start();
+                err = combine.getErrorStream();
+
+                while ((c = err.read()) != -1) {
+                    log.print((char) c);
+                }
+
+                if (combine.exitValue() != 0) {
+                    throw new Exception("Unable to combine the training files.");
+                }
+
                 Dialogs.showInfo(TesseractTrainer.this, "Training Complete",
                         "Training completed successfully.");
-                
-                
 
                 log.close();
             } catch (Exception e) {
