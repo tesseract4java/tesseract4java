@@ -6,17 +6,22 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.prefs.Preferences;
 import java.util.Timer;
 
 import javax.swing.*;
@@ -55,6 +60,8 @@ import de.vorb.tesseract.gui.view.dialogs.CharacterHistogram;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.gui.view.dialogs.ImportTranscriptionDialog;
 import de.vorb.tesseract.gui.view.dialogs.NewProjectDialog;
+import de.vorb.tesseract.gui.view.dialogs.PreferencesDialog;
+import de.vorb.tesseract.gui.view.dialogs.PreferencesDialog.ResultState;
 import de.vorb.tesseract.gui.view.dialogs.UnicharsetDebugger;
 import de.vorb.tesseract.gui.work.BatchExecutor;
 import de.vorb.tesseract.gui.work.PageListWorker;
@@ -83,9 +90,6 @@ public class TesseractController extends WindowAdapter implements
         ActionListener, ListSelectionListener, Observer, ChangeListener {
 
     public static void main(String[] args) {
-        BridJ.setNativeLibraryFile("leptonica", new File("liblept170.dll"));
-        BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
-
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e1) {
@@ -100,7 +104,38 @@ public class TesseractController extends WindowAdapter implements
             // being used.
         }
 
-        new TesseractController();
+        File leptonica = new File("liblept170.dll");
+        File tesseract = new File("libtesseract303.dll");
+
+        try {
+            // Windows?
+            if (leptonica.exists() && tesseract.exists()) {
+                BridJ.setNativeLibraryFile("leptonica", leptonica);
+                BridJ.setNativeLibraryFile("tesseract", tesseract);
+            } else { // Linux?
+                leptonica = new File("liblept.so");
+                tesseract = new File("libtesseract.so");
+
+                if (leptonica.exists() && tesseract.exists()) {
+                    BridJ.setNativeLibraryFile("leptonica", leptonica);
+                    BridJ.setNativeLibraryFile("tesseract", tesseract);
+                } else { // Mac?
+                    leptonica = new File("liblept.dylib");
+                    tesseract = new File("libtesseract.dylib");
+
+                    if (leptonica.exists() && tesseract.exists()) {
+                        BridJ.setNativeLibraryFile("leptonica", leptonica);
+                        BridJ.setNativeLibraryFile("tesseract", tesseract);
+                    }
+                }
+            }
+
+            new TesseractController();
+        } catch (UnsatisfiedLinkError e) {
+            Dialogs.showError(null, "Fatal error",
+                    "The necessary libraries could not be loaded.");
+            System.exit(1);
+        }
     }
 
     /*
@@ -286,6 +321,8 @@ public class TesseractController extends WindowAdapter implements
             handleImportTranscriptions();
         } else if (source.equals(view.getMenuItemBatchExport())) {
             handleBatchExport();
+        } else if (source.equals(view.getMenuItemPreferences())) {
+            handlePreferences();
         } else if (source.equals(view.getMenuItemCharacterHistogram())) {
             handleCharacterHistogram();
         } else if (source.equals(view.getMenuItemInspectUnicharset())) {
@@ -432,6 +469,8 @@ public class TesseractController extends WindowAdapter implements
             final String sep = importDialog.getPageSeparator();
 
             try {
+                Files.createDirectories(projectModel.get().getTranscriptionDir());
+
                 view.getProgressBar().setIndeterminate(true);
 
                 final BufferedReader reader =
@@ -564,12 +603,13 @@ public class TesseractController extends WindowAdapter implements
                 projectModel.get().getEvaluationDir().resolve(repName);
 
         try {
-            Files.createDirectories(projectModel.get().getEvaluationDir());
+            final Path equivalencesFile = prepareReports();
 
             // generate report
             final Batch reportBatch = new Batch(
                     transcriptionFile.get().toFile(), plain.toFile());
             final Parameters pars = new Parameters();
+            pars.eqfile.setValue(equivalencesFile.toFile());
             final Report rep = new Report(reportBatch, pars);
 
             // write to file
@@ -581,6 +621,33 @@ public class TesseractController extends WindowAdapter implements
         } catch (WarningException | IOException | TransformerException e) {
             e.printStackTrace();
         }
+    }
+
+    public Path prepareReports() throws IOException {
+        Files.createDirectories(projectModel.get().getEvaluationDir());
+
+        final Path equivalencesFile = projectModel.get().getProjectDir().resolve(
+                "character_equivalences.csv");
+
+        if (!Files.exists(equivalencesFile)) {
+            // copy the default character equivalences to the equivalences
+            // file
+            final BufferedInputStream defaultEq = new BufferedInputStream(
+                    getClass().getResourceAsStream(
+                            "/default_character_equivalences.csv"));
+            final BufferedOutputStream eq = new BufferedOutputStream(
+                    new FileOutputStream(equivalencesFile.toFile()));
+
+            int c = -1;
+            while ((c = defaultEq.read()) != -1) {
+                eq.write(c);
+            }
+
+            defaultEq.close();
+            eq.close();
+        }
+
+        return equivalencesFile;
     }
 
     private Optional<Path> handleTranscriptionSave() {
@@ -673,6 +740,7 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handleSaveProject() {
+        // TODO fix me
         final JFileChooser fc = new JFileChooser(
                 projectModel.get().getProjectDir().toFile());
         fc.setFileFilter(new FileFilter() {
@@ -911,7 +979,7 @@ public class TesseractController extends WindowAdapter implements
 
         // if no page is selected, simply ignore it
         if (!selectedPage.isPresent()) {
-            Dialogs.showWarning(view, "No project",
+            Dialogs.showWarning(view, "No page selection",
                     "No page has been selected. You need to select a page first.");
             return;
         }
@@ -951,12 +1019,43 @@ public class TesseractController extends WindowAdapter implements
             defaultPreprocessor = preprocessor;
             preprocessors.clear();
 
-            handlePreprocessorPreview();
+            if (getSelectedPage().isPresent()) {
+                handlePreprocessorPreview();
+            }
         } else if (getSelectedPage().isPresent()) {
             setPreprocessor(getSelectedPage().get(), preprocessor);
 
             handlePreprocessorPreview();
         }
+    }
+
+    private void handlePreferences() {
+        final PreferencesDialog prefDialog = new PreferencesDialog();
+        final ResultState result = prefDialog.showPreferencesDialog(view);
+        if (result == ResultState.APPROVE) {
+            final Preferences globalPrefs = GlobalPrefs.getPrefs();
+            try {
+                final Path execDir = Paths.get(prefDialog.getTfExecutablesDir().getText());
+                if (Files.isDirectory(execDir)
+                        && (Files.isExecutable(execDir.resolve("tesseract")) || Files.isExecutable(execDir.resolve("tesseract.exe")))) {
+                    globalPrefs.put(PreferencesDialog.KEY_EXEC_DIR,
+                            execDir.toString());
+                }
+
+                final Path langdataDir = Paths.get(prefDialog.getTfLangdataDir().getText());
+                if (Files.isDirectory(langdataDir)) {
+                    globalPrefs.put(PreferencesDialog.KEY_LANGDATA_DIR,
+                            langdataDir.toString());
+                }
+            } catch (Exception e) {
+                Dialogs.showWarning(view, "Error",
+                        "Could not save the preferences.");
+            }
+        }
+    }
+
+    private void handleTraining() {
+
     }
 
     private void handleCharacterHistogram() {

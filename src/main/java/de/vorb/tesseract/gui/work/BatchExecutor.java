@@ -80,6 +80,9 @@ public class BatchExecutor {
         // holds error count
         final AtomicInteger errors = new AtomicInteger(0);
 
+        // prepare reports
+        final Path equivalencesFile = controller.prepareReports();
+
         // create tasks and submit them
         for (final Path sourceFile : project.getImageFiles()) {
             final Preprocessor preprocessor =
@@ -90,8 +93,8 @@ public class BatchExecutor {
 
             final OCRTask task = new OCRTask(sourceFile,
                     project, export, preprocessor, recognizers,
-                    hasPreprocessorChanged, progressMonitor, progress,
-                    errorLog, errors);
+                    hasPreprocessorChanged, equivalencesFile, progressMonitor,
+                    progress, errorLog, errors);
 
             futures.add(threadPool.submit(task));
         }

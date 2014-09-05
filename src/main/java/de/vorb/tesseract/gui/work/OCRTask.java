@@ -40,6 +40,7 @@ public class OCRTask implements Callable<Void> {
     private final Preprocessor preprocessor;
     private final LinkedBlockingQueue<PageRecognitionProducer> recognizers;
     private final boolean hasPreprocessorChanged;
+    private final Path equivalencesFile;
 
     private final ProgressMonitor progressMonitor;
     private final AtomicInteger progress;
@@ -50,14 +51,16 @@ public class OCRTask implements Callable<Void> {
     public OCRTask(Path sourceFile, ProjectModel project,
             BatchExportModel export, Preprocessor preprocessor,
             LinkedBlockingQueue<PageRecognitionProducer> recognizers,
-            boolean hasPreprocessorChanged, ProgressMonitor progressMonitor,
-            AtomicInteger progress, Writer errorLog, AtomicInteger errors) {
+            boolean hasPreprocessorChanged, Path equivalencesFile,
+            ProgressMonitor progressMonitor, AtomicInteger progress,
+            Writer errorLog, AtomicInteger errors) {
         this.sourceFile = sourceFile;
         this.project = project;
         this.export = export;
         this.preprocessor = preprocessor;
         this.recognizers = recognizers;
         this.hasPreprocessorChanged = hasPreprocessorChanged;
+        this.equivalencesFile = equivalencesFile;
 
         this.progressMonitor = progressMonitor;
         this.progress = progress;
@@ -191,6 +194,7 @@ public class OCRTask implements Callable<Void> {
                         final Batch reportBatch = new Batch(
                                 transcriptionFile.toFile(), txtFile.toFile());
                         final Parameters pars = new Parameters();
+                        pars.eqfile.setValue(equivalencesFile.toFile());
                         Report rep;
                         try {
                             rep = new Report(reportBatch, pars);

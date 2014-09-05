@@ -260,7 +260,7 @@ public class TesseractFrame extends JFrame {
 
         mnTools = new JMenu("Tools");
         menuBar.add(mnTools);
-        
+
         mnCharacterHistogram = new JMenuItem("Character Histogram...");
         mnTools.add(mnCharacterHistogram);
 
@@ -402,7 +402,7 @@ public class TesseractFrame extends JFrame {
     public JMenuItem getMenuItemPreferences() {
         return mnPreferences;
     }
-    
+
     public JMenuItem getMenuItemCharacterHistogram() {
         return mnCharacterHistogram;
     }

@@ -28,6 +28,7 @@ import com.google.common.base.Optional;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.view.renderer.EvaluationPaneRenderer;
+import javax.swing.JCheckBox;
 
 public class EvaluationPane extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;

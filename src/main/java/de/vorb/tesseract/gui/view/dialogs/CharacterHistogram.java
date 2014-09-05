@@ -72,6 +72,8 @@ public class CharacterHistogram extends JFrame {
                 }
                 ));
         scrollPane.setViewportView(tabHistogram);
+
+        setMinimumSize(getSize());
     }
 
 }
