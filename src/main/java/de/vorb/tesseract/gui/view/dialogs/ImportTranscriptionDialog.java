@@ -89,6 +89,7 @@ public class ImportTranscriptionDialog extends JDialog {
             btnSelect.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
                     final JFileChooser fc = new JFileChooser();
+                    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
                     fc.setFileFilter(new FileFilter() {
                         @Override
                         public String getDescription() {
@@ -97,8 +98,8 @@ public class ImportTranscriptionDialog extends JDialog {
 
                         @Override
                         public boolean accept(File f) {
-                            return f.isFile() && f.canRead() &&
-                                    f.getName().endsWith(".txt");
+                            return f.canRead() && (f.isDirectory() ||
+                                    f.getName().endsWith(".txt"));
                         }
                     });
 
@@ -125,8 +126,7 @@ public class ImportTranscriptionDialog extends JDialog {
             contentPanel.add(lblPageSeparator, gbc_lblPageSeparator);
         }
         {
-            tfPageSeparator = new JTextField();
-            tfPageSeparator.setText("~~~~~");
+            tfPageSeparator = new JTextField("~~~~~");
             GridBagConstraints gbc_textField_1 = new GridBagConstraints();
             gbc_textField_1.insets = new Insets(0, 0, 5, 5);
             gbc_textField_1.fill = GridBagConstraints.HORIZONTAL;
