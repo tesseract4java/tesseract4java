@@ -204,6 +204,7 @@ public class BatchExecutor {
             } finally {
                 all = null;
                 if (export.exportReports()) {
+                    progressMonitor.setNote("Final report");
                     // create a single report for all transcriptions
                     DirectoryStream<Path> transcriptions;
                     try {
@@ -214,6 +215,9 @@ public class BatchExecutor {
                                 project.getOCRDir());
 
                         final Parameters params = new Parameters();
+                        final Path eqFile = controller.prepareReports();
+                        params.eqfile.setValue(eqFile.toFile());
+
                         final Report report = new Report(batch, params);
 
                         final Path projectReport = export.getDestinationDir()
