@@ -3,6 +3,7 @@ package de.vorb.tesseract.gui.work;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 import javax.imageio.ImageIO;
@@ -48,7 +49,8 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
     protected void done() {
         try {
             controller.setImageModel(Optional.of(get()));
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException
+                | CancellationException e) {
         } finally {
             controller.getView().getProgressBar().setIndeterminate(false);
         }
