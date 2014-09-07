@@ -1,4 +1,4 @@
-package de.vorb.tesseract.gui.util;
+package de.vorb.tesseract.gui.model;
 
 public enum ApplicationMode {
     NONE,
