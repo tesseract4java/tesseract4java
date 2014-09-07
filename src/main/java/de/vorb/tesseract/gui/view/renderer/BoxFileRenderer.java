@@ -14,14 +14,14 @@ import javax.swing.SwingWorker;
 
 import com.google.common.base.Optional;
 
-import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.view.BoxEditor;
 import de.vorb.tesseract.gui.view.Colors;
 import de.vorb.tesseract.gui.view.Strokes;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 
-public class BoxFileRenderer implements PageRenderer {
+public class BoxFileRenderer {
     private final BoxEditor boxEditor;
 
     private SwingWorker<BufferedImage, Void> renderWorker;
@@ -30,9 +30,8 @@ public class BoxFileRenderer implements PageRenderer {
         this.boxEditor = boxEditor;
     }
 
-    @Override
-    public void render(final Optional<PageModel> pageModel, final float scale) {
-        if (!pageModel.isPresent()) {
+    public void render(final Optional<BoxFileModel> model, final float scale) {
+        if (!model.isPresent()) {
             // remove image, if no pagemodel is given and free resources
             final Icon icon = boxEditor.getCanvas().getIcon();
             if (icon != null && icon instanceof ImageIcon) {
@@ -45,8 +44,7 @@ public class BoxFileRenderer implements PageRenderer {
 
         // TODO add a version of render() that takes two rectangles and a new
         // box and updates the necessary area only
-        final BufferedImage image = pageModel.get().getImageModel()
-                .getPreprocessedImage();
+        final BufferedImage image = model.get().getImage();
 
         // calculate image dimensions
         final int w = image.getWidth();

@@ -39,25 +39,9 @@ import org.bridj.BridJ;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.io.BoxFileReader;
-import de.vorb.tesseract.gui.model.BatchExportModel;
-import de.vorb.tesseract.gui.model.FilteredListModel;
-import de.vorb.tesseract.gui.model.GlobalPrefs;
-import de.vorb.tesseract.gui.model.ImageModel;
-import de.vorb.tesseract.gui.model.PageModel;
-import de.vorb.tesseract.gui.model.PageThumbnail;
-import de.vorb.tesseract.gui.model.ProjectModel;
-import de.vorb.tesseract.gui.model.SymbolListModel;
-import de.vorb.tesseract.gui.model.SymbolOrder;
+import de.vorb.tesseract.gui.model.*;
 import de.vorb.tesseract.gui.util.DocumentWriter;
-import de.vorb.tesseract.gui.view.EvaluationPane;
-import de.vorb.tesseract.gui.view.FeatureDebugger;
-import de.vorb.tesseract.gui.view.FilteredTable;
-import de.vorb.tesseract.gui.view.ImageModelComponent;
-import de.vorb.tesseract.gui.view.MainComponent;
-import de.vorb.tesseract.gui.view.PageModelComponent;
-import de.vorb.tesseract.gui.view.PreprocessingPane;
-import de.vorb.tesseract.gui.view.SymbolOverview;
-import de.vorb.tesseract.gui.view.TesseractFrame;
+import de.vorb.tesseract.gui.view.*;
 import de.vorb.tesseract.gui.view.dialogs.BatchExportDialog;
 import de.vorb.tesseract.gui.view.dialogs.CharacterHistogram;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
@@ -407,10 +391,14 @@ public class TesseractController extends WindowAdapter implements
         }
 
         if (active instanceof ImageModelComponent) {
+            // ImageModelComponent -> ImageModelComponent
             if (activeComponent instanceof ImageModelComponent) {
                 setImageModel(((ImageModelComponent) activeComponent)
                         .getImageModel());
-            } else if (activeComponent instanceof PageModelComponent) {
+            }
+
+            // PageModelComponent -> ImageModelComponent
+            else if (activeComponent instanceof PageModelComponent) {
                 final Optional<PageModel> pm =
                         ((PageModelComponent) activeComponent).getPageModel();
 
@@ -735,7 +723,7 @@ public class TesseractController extends WindowAdapter implements
                 return f.canRead()
                         && (f.isDirectory() || f.isFile()
                                 && (fname.endsWith(".png")
-                                        || fname.endsWith(".tif") || fname.endsWith(".jpg")));
+                                        || fname.matches("\\.tiff?$") || fname.matches("\\.jpe?g$")));
             }
         });
         final int result = fc.showOpenDialog(view);
@@ -1230,7 +1218,75 @@ public class TesseractController extends WindowAdapter implements
 
         if (active instanceof PageModelComponent) {
             ((PageModelComponent) active).setPageModel(model);
+        } else if (active instanceof BoxFileModelComponent) {
+            if (model.isPresent()) {
+                ((BoxFileModelComponent) active).setBoxFileModel(Optional.of(
+                        model.get().toBoxFileModel()));
+            } else {
+                ((BoxFileModelComponent) active).setBoxFileModel(
+                        Optional.<BoxFileModel> absent());
+            }
         }
+    }
+
+    public void setBoxFileModel(Optional<BoxFileModel> model) {
+        view.getProgressBar().setIndeterminate(false);
+
+        final MainComponent active = view.getActiveComponent();
+        if (active instanceof BoxFileModelComponent) {
+            ((BoxFileModelComponent) active).setBoxFileModel(model);
+        } else {
+            Dialogs.showWarning(view, "Illegal Action",
+                    "Could not set the box file");
+        }
+    }
+
+    public void setImageModel(Optional<ImageModel> model) {
+        view.getProgressBar().setIndeterminate(false);
+        final MainComponent active = view.getActiveComponent();
+
+        if (active instanceof PageModelComponent) {
+            ((PageModelComponent) active).setPageModel(
+                    Optional.<PageModel> absent());
+
+            if (recognitionWorker.isPresent()) {
+                recognitionWorker.get().cancel(false);
+            }
+
+            final Optional<String> trainingFile = getTrainingFile();
+
+            if (!model.isPresent() || !trainingFile.isPresent()) {
+                return;
+            }
+
+            final RecognitionWorker rw = new RecognitionWorker(this,
+                    model.get(), trainingFile.get());
+
+            rw.execute();
+
+            recognitionWorker = Optional.of(rw);
+
+            return;
+        } else if (!(active instanceof ImageModelComponent)) {
+            return;
+        }
+
+        if (!model.isPresent()) {
+            ((ImageModelComponent) active).setImageModel(model);
+            return;
+        }
+
+        final Path sourceFile = model.get().getSourceFile();
+        final Optional<Path> selectedPage = getSelectedPage();
+
+        if (!selectedPage.isPresent()
+                || !sourceFile.equals(selectedPage.get())) {
+            ((ImageModelComponent) active).setImageModel(
+                    Optional.<ImageModel> absent());
+            return;
+        }
+
+        ((ImageModelComponent) active).setImageModel(model);
     }
 
     // TODO prototype loading?
@@ -1352,53 +1408,5 @@ public class TesseractController extends WindowAdapter implements
             changedPreprocessors.add(sourceFile);
         else
             changedPreprocessors.remove(sourceFile);
-    }
-
-    public void setImageModel(Optional<ImageModel> model) {
-        view.getProgressBar().setIndeterminate(false);
-        final MainComponent active = view.getActiveComponent();
-
-        if (active instanceof PageModelComponent) {
-            ((PageModelComponent) active).setPageModel(
-                    Optional.<PageModel> absent());
-
-            if (recognitionWorker.isPresent()) {
-                recognitionWorker.get().cancel(false);
-            }
-
-            final Optional<String> trainingFile = getTrainingFile();
-
-            if (!model.isPresent() || !trainingFile.isPresent()) {
-                return;
-            }
-
-            final RecognitionWorker rw = new RecognitionWorker(this,
-                    model.get(), trainingFile.get());
-
-            rw.execute();
-
-            recognitionWorker = Optional.of(rw);
-
-            return;
-        } else if (!(active instanceof ImageModelComponent)) {
-            return;
-        }
-
-        if (!model.isPresent()) {
-            ((ImageModelComponent) active).setImageModel(model);
-            return;
-        }
-
-        final Path sourceFile = model.get().getSourceFile();
-        final Optional<Path> selectedPage = getSelectedPage();
-
-        if (!selectedPage.isPresent()
-                || !sourceFile.equals(selectedPage.get())) {
-            ((ImageModelComponent) active).setImageModel(
-                    Optional.<ImageModel> absent());
-            return;
-        }
-
-        ((ImageModelComponent) active).setImageModel(model);
     }
 }

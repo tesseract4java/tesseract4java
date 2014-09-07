@@ -35,6 +35,7 @@ import javax.swing.table.TableColumnModel;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.event.SelectionListener;
+import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.model.SingleSelectionModel;
@@ -46,7 +47,8 @@ import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Point;
 import de.vorb.tesseract.util.Symbol;
 
-public class BoxEditor extends JPanel implements PageModelComponent {
+public class BoxEditor extends JPanel implements BoxFileModelComponent,
+        PageModelComponent {
     private static final long serialVersionUID = 1L;
 
     private static final Dimension DEFAULT_SPINNER_DIMENSION =
@@ -58,7 +60,9 @@ public class BoxEditor extends JPanel implements PageModelComponent {
     private final Scale scale;
     private boolean changed = false;
 
-    private Optional<PageModel> model = Optional.absent();
+    private Optional<BoxFileModel> model = Optional.absent();
+    private Optional<PageModel> pageModel = Optional.absent();
+
     private final SingleSelectionModel selectionModel =
             new SingleSelectionModel();
 
@@ -107,7 +111,7 @@ public class BoxEditor extends JPanel implements PageModelComponent {
                         bbox.setHeight(height);
 
                         // re-render the whole model
-                        renderer.render(getPageModel(), scale.current());
+                        renderer.render(getBoxFileModel(), scale.current());
                     }
 
                     // propagate table change
@@ -403,7 +407,7 @@ public class BoxEditor extends JPanel implements PageModelComponent {
         btnZoomOut.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 if (scale.hasPrevious()) {
-                    renderer.render(getPageModel(), scale.previous());
+                    renderer.render(getBoxFileModel(), scale.previous());
                 }
 
                 if (!scale.hasPrevious()) {
@@ -417,7 +421,7 @@ public class BoxEditor extends JPanel implements PageModelComponent {
         btnZoomIn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 if (scale.hasNext()) {
-                    renderer.render(getPageModel(), scale.next());
+                    renderer.render(getBoxFileModel(), scale.next());
                 }
 
                 if (!scale.hasNext()) {
@@ -465,7 +469,7 @@ public class BoxEditor extends JPanel implements PageModelComponent {
                         unscaled(e.getY(), scale.current()));
 
                 final Iterator<Symbol> it =
-                        getPageModel().get().getPage().iterator();
+                        model.get().getBoxes().iterator();
 
                 final ListSelectionModel sel =
                         tabSymbols.getTable().getSelectionModel();
@@ -532,7 +536,7 @@ public class BoxEditor extends JPanel implements PageModelComponent {
     }
 
     @Override
-    public void setPageModel(Optional<PageModel> model) {
+    public void setBoxFileModel(Optional<BoxFileModel> model) {
         this.model = model;
 
         final SymbolTableModel tabModel =
@@ -545,7 +549,7 @@ public class BoxEditor extends JPanel implements PageModelComponent {
 
         if (model.isPresent()) {
             // fill table model and render the page
-            final Iterator<Symbol> it = model.get().getPage().iterator();
+            final Iterator<Symbol> it = model.get().getBoxes().iterator();
 
             while (it.hasNext()) {
                 source.addElement(it.next());
@@ -556,8 +560,24 @@ public class BoxEditor extends JPanel implements PageModelComponent {
     }
 
     @Override
-    public Optional<PageModel> getPageModel() {
+    public void setPageModel(Optional<PageModel> model) {
+        if (model.isPresent()) {
+            setBoxFileModel(Optional.of(model.get().toBoxFileModel()));
+            pageModel = model;
+        } else {
+            setBoxFileModel(Optional.<BoxFileModel> absent());
+            pageModel = model;
+        }
+    }
+
+    @Override
+    public Optional<BoxFileModel> getBoxFileModel() {
         return model;
+    }
+
+    @Override
+    public Optional<PageModel> getPageModel() {
+        return pageModel;
     }
 
     public JLabel getCanvas() {

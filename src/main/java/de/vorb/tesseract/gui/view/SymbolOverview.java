@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,20 +19,20 @@ import javax.swing.JSplitPane;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.event.SymbolLinkListener;
+import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.renderer.SymbolVariantListCellRenderer;
-import de.vorb.tesseract.util.Line;
-import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Symbol;
-import de.vorb.tesseract.util.Word;
 
-public class SymbolOverview extends JPanel implements PageModelComponent {
+public class SymbolOverview extends JPanel implements BoxFileModelComponent,
+        PageModelComponent {
     private static final long serialVersionUID = 1L;
 
     private final SymbolGroupList glyphSelectionPane;
     private final SymbolVariantList glyphListPane;
 
-    private Optional<PageModel> model = Optional.absent();
+    private Optional<BoxFileModel> model = Optional.absent();
+    private Optional<PageModel> pageModel = Optional.absent();
 
     private final LinkedList<SymbolLinkListener> listeners =
             new LinkedList<SymbolLinkListener>();
@@ -85,7 +84,7 @@ public class SymbolOverview extends JPanel implements PageModelComponent {
     }
 
     @Override
-    public Optional<PageModel> getPageModel() {
+    public Optional<BoxFileModel> getBoxFileModel() {
         return model;
     }
 
@@ -98,7 +97,7 @@ public class SymbolOverview extends JPanel implements PageModelComponent {
     }
 
     @Override
-    public void setPageModel(Optional<PageModel> model) {
+    public void setBoxFileModel(Optional<BoxFileModel> model) {
         this.model = model;
 
         if (!model.isPresent())
@@ -109,17 +108,14 @@ public class SymbolOverview extends JPanel implements PageModelComponent {
 
         final HashMap<String, List<Symbol>> glyphs = new HashMap<>();
 
-        final Page page = model.get().getPage();
+        final BoxFileModel boxFile = model.get();
 
         // set a new renderer that has a reference to the thresholded image
         getSymbolVariantList().getList().setCellRenderer(
-                new SymbolVariantListCellRenderer(
-                        model.get().getImageModel().getPreprocessedImage()));
+                new SymbolVariantListCellRenderer(boxFile.getImage()));
 
         // insert all symbols into the map
-        final Iterator<Symbol> symbolIt = page.symbolIterator();
-        while (symbolIt.hasNext()) {
-            final Symbol symbol = symbolIt.next();
+        for (final Symbol symbol : boxFile.getBoxes()) {
             final String text = symbol.getText();
 
             if (!glyphs.containsKey(text)) {
@@ -142,6 +138,22 @@ public class SymbolOverview extends JPanel implements PageModelComponent {
         }
 
         glyphList.setModel(listModel);
+    }
+
+    @Override
+    public void setPageModel(Optional<PageModel> model) {
+        if (model.isPresent()) {
+            setBoxFileModel(Optional.of(model.get().toBoxFileModel()));
+            pageModel = model;
+        } else {
+            setBoxFileModel(Optional.<BoxFileModel> absent());
+            pageModel = model;
+        }
+    }
+
+    @Override
+    public Optional<PageModel> getPageModel() {
+        return pageModel;
     }
 
     @Override

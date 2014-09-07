@@ -1,6 +1,11 @@
 package de.vorb.tesseract.gui.model;
 
+import java.awt.image.BufferedImage;
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import de.vorb.tesseract.util.Page;
+import de.vorb.tesseract.util.Symbol;
 
 public class PageModel {
     private final ImageModel imageModel;
@@ -30,5 +35,17 @@ public class PageModel {
             return this;
 
         return new PageModel(imageModel, page, transcription);
+    }
+
+    public BoxFileModel toBoxFileModel() {
+        final BufferedImage image = imageModel.getPreprocessedImage();
+
+        final LinkedList<Symbol> boxes = new LinkedList<>();
+        final Iterator<Symbol> symbolIt = page.symbolIterator();
+        while (symbolIt.hasNext()) {
+            boxes.add(symbolIt.next());
+        }
+
+        return new BoxFileModel(image, boxes);
     }
 }

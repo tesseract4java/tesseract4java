@@ -15,7 +15,7 @@ public class BoxFileModel {
         this.boxes = boxes;
     }
 
-    public BufferedImage getScan() {
+    public BufferedImage getImage() {
         return bwImage;
     }
 
