@@ -1,22 +1,29 @@
 package de.vorb.tesseract.gui.model;
 
 import java.awt.image.BufferedImage;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
 import de.vorb.tesseract.util.Symbol;
 
 public class BoxFileModel {
-    private final BufferedImage bwImage;
+    private final Path file;
+    private final BufferedImage image;
     private final List<Symbol> boxes;
 
-    public BoxFileModel(BufferedImage blackAndWhiteImage, List<Symbol> boxes) {
-        this.bwImage = blackAndWhiteImage;
+    public BoxFileModel(Path file, BufferedImage image, List<Symbol> boxes) {
+        this.file = file;
+        this.image = image;
         this.boxes = boxes;
     }
 
+    public Path getFile() {
+        return file;
+    }
+
     public BufferedImage getImage() {
-        return bwImage;
+        return image;
     }
 
     public List<Symbol> getBoxes() {

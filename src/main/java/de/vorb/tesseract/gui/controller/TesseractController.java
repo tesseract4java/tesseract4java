@@ -21,9 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.prefs.Preferences;
-import java.util.regex.Pattern;
 import java.util.Timer;
+import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -39,6 +38,7 @@ import org.bridj.BridJ;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.io.BoxFileReader;
+import de.vorb.tesseract.gui.io.BoxFileWriter;
 import de.vorb.tesseract.gui.model.*;
 import de.vorb.tesseract.gui.util.DocumentWriter;
 import de.vorb.tesseract.gui.view.*;
@@ -137,6 +137,9 @@ public class TesseractController extends WindowAdapter implements
      * components references
      */
     private final TesseractFrame view;
+
+    private ApplicationMode mode = ApplicationMode.NONE;
+
     private final FeatureDebugger featureDebugger;
     private MainComponent activeComponent;
 
@@ -179,6 +182,8 @@ public class TesseractController extends WindowAdapter implements
         // create new tesseract frame
         view = new TesseractFrame();
         featureDebugger = new FeatureDebugger(view);
+
+        setApplicationMode(ApplicationMode.NONE);
 
         handleActiveComponentChange();
 
@@ -303,6 +308,8 @@ public class TesseractController extends WindowAdapter implements
             handleOpenBoxFile();
         } else if (source.equals(view.getMenuItemSaveProject())) {
             handleSaveProject();
+        } else if (source.equals(view.getMenuItemSaveBoxFile())) {
+            handleSaveBoxFile();
         } else if (source.equals(view.getMenuItemCloseProject())) {
             handleCloseProject();
         } else if (source.equals(view.getMenuItemOpenProjectDirectory())) {
@@ -390,35 +397,46 @@ public class TesseractController extends WindowAdapter implements
             return;
         }
 
-        if (active instanceof ImageModelComponent) {
-            // ImageModelComponent -> ImageModelComponent
-            if (activeComponent instanceof ImageModelComponent) {
-                setImageModel(((ImageModelComponent) activeComponent)
-                        .getImageModel());
+        if (mode == ApplicationMode.BOX_FILE) {
+            // if we're in box file mode, everything is simple
+            if (active == view.getBoxEditor()) {
+                view.getBoxEditor().setBoxFileModel(
+                        view.getSymbolOverview().getBoxFileModel());
+            } else {
+                view.getSymbolOverview().setBoxFileModel(
+                        view.getBoxEditor().getBoxFileModel());
             }
+        } else if (mode == ApplicationMode.PROJECT) {
+            // in project mode, it's a bit more complicated
 
-            // PageModelComponent -> ImageModelComponent
-            else if (activeComponent instanceof PageModelComponent) {
-                final Optional<PageModel> pm =
-                        ((PageModelComponent) activeComponent).getPageModel();
+            if (active instanceof ImageModelComponent) {
+                if (activeComponent instanceof ImageModelComponent) {
+                    // ImageModelComponent -> ImageModelComponent
+                    setImageModel(((ImageModelComponent) activeComponent)
+                            .getImageModel());
+                } else if (activeComponent instanceof PageModelComponent) {
+                    // PageModelComponent -> ImageModelComponent
+                    final Optional<PageModel> pm =
+                            ((PageModelComponent) activeComponent).getPageModel();
 
-                if (pm.isPresent()) {
-                    setImageModel(Optional.of(pm.get().getImageModel()));
+                    if (pm.isPresent()) {
+                        setImageModel(Optional.of(pm.get().getImageModel()));
+                    } else {
+                        setImageModel(Optional.<ImageModel> absent());
+                    }
                 } else {
                     setImageModel(Optional.<ImageModel> absent());
                 }
-            } else {
-                setImageModel(Optional.<ImageModel> absent());
-            }
-        } else if (active instanceof PageModelComponent) {
-            if (activeComponent instanceof PageModelComponent) {
-                setPageModel(((PageModelComponent) activeComponent)
-                        .getPageModel());
-            } else if (activeComponent instanceof ImageModelComponent) {
-                setImageModel(((ImageModelComponent) activeComponent)
-                        .getImageModel());
-            } else {
-                setPageModel(Optional.<PageModel> absent());
+            } else if (active instanceof PageModelComponent) {
+                if (activeComponent instanceof PageModelComponent) {
+                    setPageModel(((PageModelComponent) activeComponent)
+                            .getPageModel());
+                } else if (activeComponent instanceof ImageModelComponent) {
+                    setImageModel(((ImageModelComponent) activeComponent)
+                            .getImageModel());
+                } else {
+                    setPageModel(Optional.<PageModel> absent());
+                }
             }
         }
 
@@ -680,12 +698,16 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handleNewProject() {
+        if (mode == ApplicationMode.BOX_FILE && !handleCloseBoxFile()) {
+            return;
+        } else if (mode == ApplicationMode.PROJECT && !handleCloseProject()) {
+            return;
+        }
+
         final Optional<ProjectModel> result = NewProjectDialog.showDialog(view);
 
         if (!result.isPresent())
             return;
-
-        setProjectEnabled(true);
 
         this.projectModel = result;
         final ProjectModel projectModel = result.get();
@@ -702,11 +724,15 @@ public class TesseractController extends WindowAdapter implements
                 new PageListWorker(projectModel, pages);
 
         pageListLoader.execute();
+
+        setApplicationMode(ApplicationMode.PROJECT);
     }
 
     private void handleOpenBoxFile() {
-        if (projectModel.isPresent()) {
-            handleCloseProject();
+        if (mode == ApplicationMode.BOX_FILE && !handleCloseBoxFile()) {
+            return;
+        } else if (mode == ApplicationMode.PROJECT && !handleCloseProject()) {
+            return;
         }
 
         final JFileChooser fc = new JFileChooser();
@@ -732,30 +758,29 @@ public class TesseractController extends WindowAdapter implements
             final Path imageFile = fc.getSelectedFile().toPath();
 
             try {
+                final Path boxFile = FileNames.replaceExtension(imageFile,
+                        "box");
                 final BufferedImage image = ImageIO.read(imageFile.toFile());
-                final List<Symbol> boxes = BoxFileReader.readBoxFile(
-                        FileNames.replaceExtension(imageFile, "box"),
-                        image.getWidth(), image.getHeight());
+                final List<Symbol> boxes = BoxFileReader.readBoxFile(boxFile,
+                        image.getHeight());
 
-                // TODO apply the model
-                for (final Symbol box : boxes) {
-                    System.out.println(box);
-                }
+                setApplicationMode(ApplicationMode.BOX_FILE);
+
+                setBoxFileModel(Optional.of(new BoxFileModel(boxFile, image,
+                        boxes)));
             } catch (IOException e) {
                 Dialogs.showError(view, "Error", "Box file could not be read.");
             }
         }
     }
 
-    private void setProjectEnabled(boolean b) {
-        view.getMenuItemSaveProject().setEnabled(b);
-        view.getMenuItemCloseProject().setEnabled(b);
-        view.getMenuItemBatchExport().setEnabled(b);
-        view.getMenuItemImportTranscriptions().setEnabled(b);
-        view.getMenuItemOpenProjectDirectory().setEnabled(b);
-    }
-
     private void handleOpenProject() {
+        if (mode == ApplicationMode.BOX_FILE && !handleCloseBoxFile()) {
+            return;
+        } else if (mode == ApplicationMode.PROJECT && !handleCloseProject()) {
+            return;
+        }
+
         final JFileChooser fc = new JFileChooser();
         fc.setFileFilter(new FileFilter() {
             @Override
@@ -797,9 +822,70 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
-    private void handleCloseProject() {
-        // TODO Auto-generated method stub
+    private void handleSaveBoxFile() {
+        final Optional<BoxFileModel> boxFileModel = getBoxFileModel();
 
+        if (boxFileModel.isPresent()) {
+            try {
+                BoxFileWriter.writeBoxFile(boxFileModel.get());
+            } catch (IOException e) {
+                Dialogs.showError(view, "Error",
+                        "Box file could not be written.");
+            }
+        } else {
+            Dialogs.showWarning(view, "Warning", "No box file present.");
+        }
+    }
+
+    private Optional<BoxFileModel> getBoxFileModel() {
+        if (mode == ApplicationMode.NONE) {
+            return Optional.absent();
+        } else if (mode == ApplicationMode.BOX_FILE) {
+            // first check box editor, then symbol overview
+            final Optional<BoxFileModel> model =
+                    view.getBoxEditor().getBoxFileModel();
+
+            if (model.isPresent()) {
+                return model;
+            } else {
+                return view.getSymbolOverview().getBoxFileModel();
+            }
+        } else {
+            final MainComponent active = view.getActiveComponent();
+
+            if (active instanceof PageModelComponent) {
+                return ((PageModelComponent) active).getBoxFileModel();
+            } else {
+                return Optional.absent();
+            }
+        }
+    }
+
+    private boolean handleCloseProject() {
+        final boolean really = Dialogs.ask(view, "Confirmation",
+                "Do you really want to close this project? All unsaved changes will be lost.");
+
+        if (really) {
+            setPageModel(Optional.<PageModel> absent());
+            projectModel = Optional.absent();
+
+            setApplicationMode(ApplicationMode.NONE);
+        }
+
+        return really;
+    }
+
+    private boolean handleCloseBoxFile() {
+        final boolean really = Dialogs.ask(view, "Confirmation",
+                "Do you really want to close this box file? All unsaved changes will be lost.");
+
+        if (really) {
+            setBoxFileModel(Optional.<BoxFileModel> absent());
+
+            setApplicationMode(ApplicationMode.NONE);
+        }
+
+        return really;
     }
 
     private void handlePageSelection() {
@@ -1230,7 +1316,9 @@ public class TesseractController extends WindowAdapter implements
     }
 
     public void setBoxFileModel(Optional<BoxFileModel> model) {
-        view.getProgressBar().setIndeterminate(false);
+        if (!model.isPresent()) {
+
+        }
 
         final MainComponent active = view.getActiveComponent();
         if (active instanceof BoxFileModelComponent) {
@@ -1352,7 +1440,17 @@ public class TesseractController extends WindowAdapter implements
     }
 
     @Override
-    public void windowClosed(WindowEvent evt) {
+    public void windowClosing(WindowEvent e) {
+        if (mode == ApplicationMode.PROJECT) {
+            if (!handleCloseProject()) {
+                return;
+            }
+        } else if (mode == ApplicationMode.BOX_FILE) {
+            if (!handleCloseBoxFile()) {
+                return;
+            }
+        }
+
         pageSelectionTimer.cancel();
         thumbnailLoadTimer.cancel();
 
@@ -1363,7 +1461,10 @@ public class TesseractController extends WindowAdapter implements
         if (recognitionWorker.isPresent()) {
             recognitionWorker.get().cancel(true);
         }
+    }
 
+    @Override
+    public void windowClosed(WindowEvent evt) {
         // forcefully shut down the application after 2 seconds
         try {
             Thread.sleep(5000);
@@ -1408,5 +1509,54 @@ public class TesseractController extends WindowAdapter implements
             changedPreprocessors.add(sourceFile);
         else
             changedPreprocessors.remove(sourceFile);
+    }
+
+    public void setApplicationMode(ApplicationMode mode) {
+        this.mode = mode;
+        final JTabbedPane mainTabs = view.getMainTabs();
+
+        final boolean projectEnabled;
+        final boolean boxFileEnabled;
+        if (mode == ApplicationMode.NONE) {
+            mainTabs.setEnabled(false);
+            projectEnabled = false;
+            boxFileEnabled = false;
+        } else {
+            mainTabs.setEnabled(true);
+            boxFileEnabled = true;
+
+            if (mode == ApplicationMode.BOX_FILE) {
+                // set box file tabs active
+                mainTabs.setEnabledAt(0, false);
+                mainTabs.setEnabledAt(1, true);
+                mainTabs.setEnabledAt(2, true);
+                mainTabs.setEnabledAt(3, false);
+                mainTabs.setEnabledAt(4, false);
+                mainTabs.setSelectedIndex(1);
+
+                projectEnabled = false;
+            } else {
+                // set all tabs active
+                mainTabs.setEnabledAt(0, true);
+                mainTabs.setEnabledAt(1, true);
+                mainTabs.setEnabledAt(2, true);
+                mainTabs.setEnabledAt(3, true);
+                mainTabs.setEnabledAt(4, true);
+
+                projectEnabled = true;
+            }
+        }
+
+        view.getMenuItemSaveBoxFile().setEnabled(boxFileEnabled);
+        view.getMenuItemSavePage().setEnabled(projectEnabled);
+        view.getMenuItemSaveProject().setEnabled(projectEnabled);
+        view.getMenuItemOpenProjectDirectory().setEnabled(projectEnabled);
+        view.getMenuItemBatchExport().setEnabled(projectEnabled);
+        view.getMenuItemImportTranscriptions().setEnabled(projectEnabled);
+        view.getMenuItemCloseProject().setEnabled(projectEnabled);
+    }
+
+    public ApplicationMode getApplicationMode() {
+        return mode;
     }
 }

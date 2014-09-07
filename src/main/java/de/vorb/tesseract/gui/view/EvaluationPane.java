@@ -25,9 +25,11 @@ import javax.swing.border.EmptyBorder;
 
 import com.google.common.base.Optional;
 
+import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.view.renderer.EvaluationPaneRenderer;
+
 import javax.swing.JCheckBox;
 
 public class EvaluationPane extends JPanel implements PageModelComponent {
@@ -56,7 +58,7 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
     private final Scale scale;
     private final EvaluationPaneRenderer renderer;
 
-    private Optional<PageModel> pageModel;
+    private Optional<PageModel> model;
     private final JLabel lblOriginal;
     private final JTextArea textAreaTranscript;
     private final JButton btnSaveTranscription;
@@ -237,18 +239,27 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
 
     @Override
     public void setPageModel(Optional<PageModel> model) {
-        this.pageModel = model;
+        this.model = model;
 
         renderer.render(model, scale.current());
     }
 
     @Override
     public Optional<PageModel> getPageModel() {
-        return pageModel;
+        return model;
     }
 
     @Override
     public void freeResources() {
         lblOriginal.setIcon(null);
+    }
+
+    @Override
+    public Optional<BoxFileModel> getBoxFileModel() {
+        if (model.isPresent()) {
+            return Optional.of(model.get().toBoxFileModel());
+        } else {
+            return Optional.absent();
+        }
     }
 }

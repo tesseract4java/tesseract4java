@@ -21,6 +21,7 @@ import javax.swing.event.ChangeListener;
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.event.ComparatorSettingsChangeListener;
+import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.util.*;
@@ -781,5 +782,14 @@ public class RecognitionPane extends JPanel implements
     public void freeResources() {
         lblOriginal.setIcon(null);
         lblHOCR.setIcon(null);
+    }
+
+    @Override
+    public Optional<BoxFileModel> getBoxFileModel() {
+        if (model.isPresent()) {
+            return Optional.of(model.get().toBoxFileModel());
+        } else {
+            return Optional.absent();
+        }
     }
 }

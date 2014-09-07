@@ -24,8 +24,7 @@ import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.renderer.SymbolVariantListCellRenderer;
 import de.vorb.tesseract.util.Symbol;
 
-public class SymbolOverview extends JPanel implements BoxFileModelComponent,
-        PageModelComponent {
+public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     private static final long serialVersionUID = 1L;
 
     private final SymbolGroupList glyphSelectionPane;

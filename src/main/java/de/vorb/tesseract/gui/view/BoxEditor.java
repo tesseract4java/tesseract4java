@@ -47,8 +47,7 @@ import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Point;
 import de.vorb.tesseract.util.Symbol;
 
-public class BoxEditor extends JPanel implements BoxFileModelComponent,
-        PageModelComponent {
+public class BoxEditor extends JPanel implements BoxFileModelComponent {
     private static final long serialVersionUID = 1L;
 
     private static final Dimension DEFAULT_SPINNER_DIMENSION =
