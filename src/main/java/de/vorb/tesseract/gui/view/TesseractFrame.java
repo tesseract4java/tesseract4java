@@ -52,6 +52,7 @@ public class TesseractFrame extends JFrame {
     private final JMenuItem mnOpenProject;
     private final JMenuItem mnSaveProject;
     private final JMenuItem mnOpenProjectDirectory;
+    private final JMenuItem mnOpenBoxFile;
     private final JMenu mnEdit;
 
     private final JSeparator separator_2;
@@ -185,6 +186,11 @@ public class TesseractFrame extends JFrame {
         mnOpenProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
                 InputEvent.CTRL_MASK));
         mnFile.add(mnOpenProject);
+
+        mnOpenBoxFile = new JMenuItem("Open Box File...");
+        mnOpenBoxFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
+                InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+        mnFile.add(mnOpenBoxFile);
 
         separator_2 = new JSeparator();
         mnFile.add(separator_2);
@@ -369,6 +375,10 @@ public class TesseractFrame extends JFrame {
 
     public JMenuItem getMenuItemOpenProject() {
         return mnOpenProject;
+    }
+
+    public JMenuItem getMenuItemOpenBoxFile() {
+        return mnOpenBoxFile;
     }
 
     public JMenuItem getMenuItemSaveProject() {

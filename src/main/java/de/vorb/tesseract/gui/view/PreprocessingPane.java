@@ -114,6 +114,7 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
         panel.add(lblWindowRadius, gbc_lblWindowSize);
 
         spinnerWindowRadius = new JSpinner();
+        spinnerWindowRadius.setEnabled(false);
         spinnerWindowRadius.setModel(new SpinnerNumberModel(15, 5, 50, 1));
         GridBagConstraints gbc_spinner = new GridBagConstraints();
         gbc_spinner.fill = GridBagConstraints.HORIZONTAL;

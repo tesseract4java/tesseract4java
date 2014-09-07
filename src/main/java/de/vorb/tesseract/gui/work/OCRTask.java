@@ -78,7 +78,7 @@ public class OCRTask implements Callable<Void> {
         progressMonitor.setNote(sourceFile.getFileName().toString());
 
         final Path imgDestFile = project.getPreprocessedDir().resolve(
-                FileNames.replaceExtension(sourceFile.getFileName(), "png"));
+                FileNames.replaceExtension(sourceFile, "png").getFileName());
 
         try {
 
@@ -142,9 +142,7 @@ public class OCRTask implements Callable<Void> {
 
                 if (export.exportXML()) {
                     final Path xmlFile = export.getDestinationDir().resolve(
-                            FileNames.replaceExtension(
-                                    sourceFile.getFileName(),
-                                    "xml"));
+                            FileNames.replaceExtension(sourceFile, "xml").getFileName());
 
                     final BufferedOutputStream out = new BufferedOutputStream(
                             Files.newOutputStream(xmlFile));
@@ -164,8 +162,7 @@ public class OCRTask implements Callable<Void> {
 
                 // write the ocr result as text
                 final Path txtFile = project.getOCRDir().resolve(
-                        FileNames.replaceExtension(sourceFile.getFileName(),
-                                "txt"));
+                        FileNames.replaceExtension(sourceFile, "txt").getFileName());
                 {
                     final Writer out = Files.newBufferedWriter(txtFile,
                             StandardCharsets.UTF_8);
@@ -204,8 +201,7 @@ public class OCRTask implements Callable<Void> {
                                     rep.document(),
                                     export.getDestinationDir().resolve(
                                             FileNames.replaceExtension(
-                                                    sourceFile.getFileName(),
-                                                    "report.html")));
+                                                    sourceFile, "report.html").getFileName()));
                         } catch (TransformerException | WarningException e) {
                             throw e;
                         }

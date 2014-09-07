@@ -22,8 +22,10 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
+import java.util.regex.Pattern;
 import java.util.Timer;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -36,6 +38,7 @@ import org.bridj.BridJ;
 
 import com.google.common.base.Optional;
 
+import de.vorb.tesseract.gui.io.BoxFileReader;
 import de.vorb.tesseract.gui.model.BatchExportModel;
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.GlobalPrefs;
@@ -246,6 +249,7 @@ public class TesseractController extends WindowAdapter implements
             // menu
             view.getMenuItemNewProject().addActionListener(this);
             view.getMenuItemOpenProject().addActionListener(this);
+            view.getMenuItemOpenBoxFile().addActionListener(this);
             view.getMenuItemSaveProject().addActionListener(this);
             view.getMenuItemSaveBoxFile().addActionListener(this);
             view.getMenuItemSavePage().addActionListener(this);
@@ -311,6 +315,8 @@ public class TesseractController extends WindowAdapter implements
             handleNewProject();
         } else if (source.equals(view.getMenuItemOpenProject())) {
             handleOpenProject();
+        } else if (source.equals(view.getMenuItemOpenBoxFile())) {
+            handleOpenBoxFile();
         } else if (source.equals(view.getMenuItemSaveProject())) {
             handleSaveProject();
         } else if (source.equals(view.getMenuItemCloseProject())) {
@@ -478,8 +484,8 @@ public class TesseractController extends WindowAdapter implements
 
                 // for every file
                 for (final Path imgFile : projectModel.get().getImageFiles()) {
-                    final Path fname = FileNames.replaceExtension(
-                            imgFile.getFileName(), "txt");
+                    final Path fname = FileNames.replaceExtension(imgFile,
+                            "txt").getFileName();
                     final Path transcription =
                             projectModel.get().getTranscriptionDir().resolve(
                                     fname);
@@ -595,7 +601,7 @@ public class TesseractController extends WindowAdapter implements
         final Path sourceFile =
                 getPageModel().get().getImageModel().getSourceFile();
         final Path fname =
-                FileNames.replaceExtension(sourceFile.getFileName(), "txt");
+                FileNames.replaceExtension(sourceFile, "txt").getFileName();
         final Path repName = FileNames.replaceExtension(fname, "html");
         final Path plain =
                 projectModel.get().getOCRDir().resolve(fname);
@@ -659,8 +665,7 @@ public class TesseractController extends WindowAdapter implements
                 final Path sourceFile =
                         getPageModel().get().getImageModel().getSourceFile();
                 final Path fileName =
-                        FileNames.replaceExtension(sourceFile.getFileName(),
-                                "txt");
+                        FileNames.replaceExtension(sourceFile, "txt").getFileName();
 
                 final Path transcriptionFile =
                         projectModel.get().getTranscriptionDir().resolve(
@@ -709,6 +714,49 @@ public class TesseractController extends WindowAdapter implements
                 new PageListWorker(projectModel, pages);
 
         pageListLoader.execute();
+    }
+
+    private void handleOpenBoxFile() {
+        if (projectModel.isPresent()) {
+            handleCloseProject();
+        }
+
+        final JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fc.setFileFilter(new FileFilter() {
+            @Override
+            public String getDescription() {
+                return "Image files";
+            }
+
+            @Override
+            public boolean accept(File f) {
+                final String fname = f.getName();
+                return f.canRead()
+                        && (f.isDirectory() || f.isFile()
+                                && (fname.endsWith(".png")
+                                        || fname.endsWith(".tif") || fname.endsWith(".jpg")));
+            }
+        });
+        final int result = fc.showOpenDialog(view);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            final Path imageFile = fc.getSelectedFile().toPath();
+
+            try {
+                final BufferedImage image = ImageIO.read(imageFile.toFile());
+                final List<Symbol> boxes = BoxFileReader.readBoxFile(
+                        FileNames.replaceExtension(imageFile, "box"),
+                        image.getWidth(), image.getHeight());
+
+                // TODO apply the model
+                for (final Symbol box : boxes) {
+                    System.out.println(box);
+                }
+            } catch (IOException e) {
+                Dialogs.showError(view, "Error", "Box file could not be read.");
+            }
+        }
     }
 
     private void setProjectEnabled(boolean b) {
@@ -954,24 +1002,26 @@ public class TesseractController extends WindowAdapter implements
         final String trainingFile =
                 view.getTrainingFiles().getList().getSelectedValue();
 
-        GlobalPrefs.getPrefs().put(TRAINING_FILE, trainingFile);
+        if (trainingFile != null) {
+            GlobalPrefs.getPrefs().put(TRAINING_FILE, trainingFile);
 
-        pageRecognitionProducer.setTrainingFile(trainingFile);
+            pageRecognitionProducer.setTrainingFile(trainingFile);
 
-        // try {
-        // final Optional<IntTemplates> prototypes = loadPrototypes();
-        // featureDebugger.setPrototypes(prototypes);
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        // }
+            // try {
+            // final Optional<IntTemplates> prototypes = loadPrototypes();
+            // featureDebugger.setPrototypes(prototypes);
+            // } catch (IOException e) {
+            // e.printStackTrace();
+            // }
 
-        // if the training file has changed, ask to reload the page
-        if (!view.getPages().getList().isSelectionEmpty()
-                && trainingFile != lastTrainingFile) {
-            handlePageSelection();
+            // if the training file has changed, ask to reload the page
+            if (!view.getPages().getList().isSelectionEmpty()
+                    && trainingFile != lastTrainingFile) {
+                handlePageSelection();
+            }
+
+            lastTrainingFile = trainingFile;
         }
-
-        lastTrainingFile = trainingFile;
     }
 
     private void handlePreprocessorPreview() {
@@ -1052,10 +1102,6 @@ public class TesseractController extends WindowAdapter implements
                         "Could not save the preferences.");
             }
         }
-    }
-
-    private void handleTraining() {
-
     }
 
     private void handleCharacterHistogram() {

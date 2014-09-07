@@ -34,7 +34,7 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
         Files.createDirectories(destinationDir);
 
         final Path destFile = destinationDir.resolve(FileNames.replaceExtension(
-                sourceFile.getFileName(), "png"));
+                sourceFile, "png").getFileName());
 
         final BufferedImage sourceImg = ImageIO.read(sourceFile.toFile());
 

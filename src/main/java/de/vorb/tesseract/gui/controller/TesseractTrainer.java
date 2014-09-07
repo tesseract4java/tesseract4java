@@ -526,8 +526,7 @@ public class TesseractTrainer extends JFrame {
                 return false;
             }
 
-            final Path boxFile = entry.getParent().resolve(
-                    FileNames.replaceExtension(entry.getFileName(), "box"));
+            final Path boxFile = FileNames.replaceExtension(entry, "box"));
             return Files.isRegularFile(boxFile);
         }
     }
