@@ -2,6 +2,7 @@ package de.vorb.tesseract.gui.view.renderer;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.CancellationException;
@@ -132,6 +133,12 @@ public class BoxFileRenderer {
 
         // set selected colors
         if (isSelected) {
+            g2d.setPaint(Colors.SELECTION_BG);
+            g2d.fillRect(scaled(bbox.getX(), scale),
+                    scaled(bbox.getY(), scale),
+                    scaled(bbox.getWidth(), scale),
+                    scaled(bbox.getHeight(), scale));
+
             g2d.setColor(Colors.SELECTION);
             g2d.setStroke(Strokes.SELECTION);
         }
