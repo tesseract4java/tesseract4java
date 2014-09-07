@@ -139,7 +139,7 @@ public class BoxFileRenderer {
                     scaled(bbox.getWidth(), scale),
                     scaled(bbox.getHeight(), scale));
 
-            g2d.setColor(Colors.SELECTION);
+            g2d.setPaint(Colors.SELECTION);
             g2d.setStroke(Strokes.SELECTION);
         }
 
