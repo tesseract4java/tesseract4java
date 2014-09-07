@@ -42,6 +42,12 @@ public class Scale extends Observable {
         return VALUES[cursor];
     }
 
+    public void setTo100Percent() {
+        cursor = 6;
+
+        changed();
+    }
+
     private void changed() {
         setChanged();
         notifyObservers();

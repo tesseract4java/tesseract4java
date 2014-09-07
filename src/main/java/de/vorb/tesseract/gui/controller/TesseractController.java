@@ -128,7 +128,8 @@ public class TesseractController extends WindowAdapter implements
     /*
      * constants
      */
-    private static final String TRAINING_FILE = "training_file";
+    private static final String KEY_TRAINING_FILE = "training_file";
+    private static final String KEY_BOX_FILE = "box_file";
 
     public static final Preprocessor DEFAULT_PREPROCESSOR =
             new DefaultPreprocessor();
@@ -213,7 +214,8 @@ public class TesseractController extends WindowAdapter implements
                     new FilteredListModel<String>(trainingFilesModel));
 
             lastTrainingFile = GlobalPrefs.getPrefs().get(
-                    TRAINING_FILE, RecognitionProducer.DEFAULT_TRAINING_FILE);
+                    KEY_TRAINING_FILE,
+                    RecognitionProducer.DEFAULT_TRAINING_FILE);
 
             trainingFilesList.setSelectedValue(lastTrainingFile, true);
 
@@ -736,6 +738,16 @@ public class TesseractController extends WindowAdapter implements
         }
 
         final JFileChooser fc = new JFileChooser();
+
+        final String lastBoxFile = GlobalPrefs.getPrefs().get(KEY_BOX_FILE,
+                null);
+        if (lastBoxFile != null) {
+            final Path dir = Paths.get(lastBoxFile).getParent();
+            if (Files.isDirectory(dir)) {
+                fc.setCurrentDirectory(dir.toFile());
+            }
+        }
+
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setFileFilter(new FileFilter() {
             @Override
@@ -749,7 +761,10 @@ public class TesseractController extends WindowAdapter implements
                 return f.canRead()
                         && (f.isDirectory() || f.isFile()
                                 && (fname.endsWith(".png")
-                                        || fname.matches("\\.tiff?$") || fname.matches("\\.jpe?g$")));
+                                        || fname.endsWith(".tif")
+                                        || fname.endsWith(".tiff")
+                                        || fname.endsWith(".jpg")
+                                        || fname.endsWith(".jpeg")));
             }
         });
         final int result = fc.showOpenDialog(view);
@@ -765,6 +780,11 @@ public class TesseractController extends WindowAdapter implements
                         image.getHeight());
 
                 setApplicationMode(ApplicationMode.BOX_FILE);
+
+                view.getScale().setTo100Percent();
+
+                GlobalPrefs.getPrefs().put(KEY_BOX_FILE,
+                        boxFile.toAbsolutePath().toString());
 
                 setBoxFileModel(Optional.of(new BoxFileModel(boxFile, image,
                         boxes)));
@@ -828,6 +848,8 @@ public class TesseractController extends WindowAdapter implements
         if (boxFileModel.isPresent()) {
             try {
                 BoxFileWriter.writeBoxFile(boxFileModel.get());
+
+                Dialogs.showInfo(view, "Saved", "The box file has been saved.");
             } catch (IOException e) {
                 Dialogs.showError(view, "Error",
                         "Box file could not be written.");
@@ -997,8 +1019,13 @@ public class TesseractController extends WindowAdapter implements
                 index).getValue();
 
         // build model
-        final SymbolListModel model = new SymbolListModel(
-                getPageModel().get().getImageModel().getPreprocessedImage());
+        final Optional<BoxFileModel> bfm =
+                view.getSymbolOverview().getBoxFileModel();
+
+        if (!bfm.isPresent())
+            return;
+
+        final SymbolListModel model = new SymbolListModel(bfm.get().getImage());
         for (final Symbol symbol : symbols) {
             model.addElement(symbol);
         }
@@ -1077,7 +1104,7 @@ public class TesseractController extends WindowAdapter implements
                 view.getTrainingFiles().getList().getSelectedValue();
 
         if (trainingFile != null) {
-            GlobalPrefs.getPrefs().put(TRAINING_FILE, trainingFile);
+            GlobalPrefs.getPrefs().put(KEY_TRAINING_FILE, trainingFile);
 
             pageRecognitionProducer.setTrainingFile(trainingFile);
 
@@ -1554,6 +1581,9 @@ public class TesseractController extends WindowAdapter implements
         view.getMenuItemBatchExport().setEnabled(projectEnabled);
         view.getMenuItemImportTranscriptions().setEnabled(projectEnabled);
         view.getMenuItemCloseProject().setEnabled(projectEnabled);
+
+        view.getSymbolOverview().getSymbolVariantList().getCompareToPrototype()
+                .setVisible(projectEnabled);
     }
 
     public ApplicationMode getApplicationMode() {
