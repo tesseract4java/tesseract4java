@@ -8,6 +8,7 @@ public class Colors {
 
     public static final Color NORMAL = Color.BLUE;
     public static final Color SELECTION = Color.RED;
+    public static final Color SELECTION_BG = new Color(0x44FF0000, true);
 
     public static final Color CORRECT = new Color(0xFF66CC00);
     public static final Color INCORRECT = Color.RED;
