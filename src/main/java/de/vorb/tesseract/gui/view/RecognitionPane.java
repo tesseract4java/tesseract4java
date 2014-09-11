@@ -3,24 +3,24 @@ package de.vorb.tesseract.gui.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -28,16 +28,11 @@ import javax.swing.event.ChangeListener;
 
 import com.google.common.base.Optional;
 
-import de.vorb.tesseract.gui.event.ComparatorSettingsChangeListener;
 import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.view.renderer.RecognitionRenderer;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.JButton;
-import javax.swing.ImageIcon;
+import javax.swing.Box;
 
 public class RecognitionPane extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;
@@ -75,20 +70,22 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
     private final JCheckBox cbXLines;
     private final JComboBox<FontSelection> comboFont;
 
-    private final LinkedList<ComparatorSettingsChangeListener> zoomChangeListeners = new LinkedList<ComparatorSettingsChangeListener>();
-
     private Optional<PageModel> model = Optional.absent();
 
     private final Timer delayer = new Timer(true);
     private JButton btZoomOut;
     private JButton btZoomIn;
+    private JCheckBox cbBlocks;
+    private JCheckBox cbParagraphs;
+    private JLabel lblFont;
+    private Component horizontalStrut;
 
     /**
      * Create the panel.
      * 
      * @param scale
      */
-    public RecognitionPane(Scale scale) {
+    public RecognitionPane(final Scale scale) {
         setLayout(new BorderLayout(0, 0));
 
         renderer = new RecognitionRenderer(this);
@@ -146,10 +143,12 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         panel_1.setBackground(Color.WHITE);
         add(panel_1, BorderLayout.NORTH);
         GridBagLayout gbl_panel_1 = new GridBagLayout();
-        gbl_panel_1.columnWidths = new int[] { 83, 91, 89, 65, 55, 28, 0, 0, 0,
+        gbl_panel_1.columnWidths = new int[] { 83, 91, 89, 65, 55, 0, 0, 0, 0,
+                28, 0, 0, 0,
                 0 };
         gbl_panel_1.rowHeights = new int[] { 23, 0 };
         gbl_panel_1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0,
                 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
         gbl_panel_1.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
         panel_1.setLayout(gbl_panel_1);
@@ -213,11 +212,44 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         cbXLines.setSelected(false);
         cbXLines.addItemListener(checkBoxListener);
 
+        cbBlocks = new JCheckBox("Blocks");
+        cbBlocks.setBackground(Color.WHITE);
+        GridBagConstraints gbc_chckbxBlocks = new GridBagConstraints();
+        gbc_chckbxBlocks.insets = new Insets(0, 0, 0, 5);
+        gbc_chckbxBlocks.gridx = 5;
+        gbc_chckbxBlocks.gridy = 0;
+        panel_1.add(cbBlocks, gbc_chckbxBlocks);
+        cbBlocks.addItemListener(checkBoxListener);
+
+        cbParagraphs = new JCheckBox("Paragraphs");
+        cbParagraphs.setBackground(Color.WHITE);
+        GridBagConstraints gbc_chckbxParagraphs = new GridBagConstraints();
+        gbc_chckbxParagraphs.insets = new Insets(0, 0, 0, 5);
+        gbc_chckbxParagraphs.gridx = 6;
+        gbc_chckbxParagraphs.gridy = 0;
+        panel_1.add(cbParagraphs, gbc_chckbxParagraphs);
+        cbParagraphs.addItemListener(checkBoxListener);
+
+        horizontalStrut = Box.createHorizontalStrut(20);
+        GridBagConstraints gbc_horizontalStrut = new GridBagConstraints();
+        gbc_horizontalStrut.insets = new Insets(0, 0, 0, 5);
+        gbc_horizontalStrut.gridx = 7;
+        gbc_horizontalStrut.gridy = 0;
+        panel_1.add(horizontalStrut, gbc_horizontalStrut);
+
+        lblFont = new JLabel("Font:");
+        GridBagConstraints gbc_lblFont = new GridBagConstraints();
+        gbc_lblFont.insets = new Insets(0, 0, 0, 5);
+        gbc_lblFont.anchor = GridBagConstraints.EAST;
+        gbc_lblFont.gridx = 8;
+        gbc_lblFont.gridy = 0;
+        panel_1.add(lblFont, gbc_lblFont);
+
         comboFont.setBackground(Color.WHITE);
         GridBagConstraints gbc_comboFont = new GridBagConstraints();
         gbc_comboFont.insets = new Insets(0, 0, 0, 5);
         gbc_comboFont.anchor = GridBagConstraints.WEST;
-        gbc_comboFont.gridx = 5;
+        gbc_comboFont.gridx = 9;
         gbc_comboFont.gridy = 0;
         panel_1.add(comboFont, gbc_comboFont);
 
@@ -225,22 +257,48 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
         btZoomOut = new JButton(new ImageIcon(
                 RecognitionPane.class.getResource("/icons/zoom_out.png")));
+        btZoomOut.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                if (scale.hasPrevious()) {
+                    renderer.render(getPageModel(), scale.previous());
+                }
+
+                if (!scale.hasPrevious()) {
+                    btZoomOut.setEnabled(false);
+                }
+
+                btZoomIn.setEnabled(true);
+            }
+        });
         btZoomOut.setMargin(btnMargin);
         btZoomOut.setToolTipText("Zoom out");
         btZoomOut.setBackground(Color.WHITE);
         GridBagConstraints gbc_btZoomOut = new GridBagConstraints();
         gbc_btZoomOut.insets = new Insets(0, 0, 0, 5);
-        gbc_btZoomOut.gridx = 7;
+        gbc_btZoomOut.gridx = 11;
         gbc_btZoomOut.gridy = 0;
         panel_1.add(btZoomOut, gbc_btZoomOut);
 
         btZoomIn = new JButton(new ImageIcon(
                 RecognitionPane.class.getResource("/icons/zoom_in.png")));
+        btZoomIn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                if (scale.hasNext()) {
+                    renderer.render(getPageModel(), scale.next());
+                }
+
+                if (!scale.hasPrevious()) {
+                    btZoomIn.setEnabled(false);
+                }
+
+                btZoomOut.setEnabled(true);
+            }
+        });
         btZoomIn.setMargin(btnMargin);
         btZoomIn.setToolTipText("Zoom in");
         btZoomIn.setBackground(Color.WHITE);
         GridBagConstraints gbc_btZoomIn = new GridBagConstraints();
-        gbc_btZoomIn.gridx = 8;
+        gbc_btZoomIn.gridx = 12;
         gbc_btZoomIn.gridy = 0;
         panel_1.add(btZoomIn, gbc_btZoomIn);
         // comboFont.setModel(new DefaultComboBoxModel<String>(new String[] {
@@ -281,12 +339,6 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         model = page;
 
         render();
-    }
-
-    private void zoomChanged() {
-        for (ComparatorSettingsChangeListener l : zoomChangeListeners) {
-            l.settingsChanged();
-        }
     }
 
     private void render() {
@@ -350,5 +402,13 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
     public JCheckBox getXLines() {
         return cbXLines;
+    }
+
+    public JCheckBox getBlocks() {
+        return cbBlocks;
+    }
+
+    public JCheckBox getParagraphs() {
+        return cbParagraphs;
     }
 }

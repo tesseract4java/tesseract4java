@@ -132,6 +132,7 @@ public class RecognitionRenderer implements PageRenderer {
     private BufferedImage original = null;
     private BufferedImage recognition = null;
     private float minimumConfidence = 0;
+    private float lastScale;
 
     public RecognitionRenderer(RecognitionPane pane) {
         this.rp = pane;
@@ -169,10 +170,11 @@ public class RecognitionRenderer implements PageRenderer {
 
         final int scaledWidth;
         final int scaledHeight;
-        if (lastPageModel != pageModel.get()) {
+        if (lastPageModel != pageModel.get() || lastScale != scale) {
             // prepare the images if the model has changed
 
             lastPageModel = pageModel.get();
+            lastScale = scale;
 
             // calculate the width and height of the scene
             scaledWidth = scaled(width, scale);
@@ -215,6 +217,8 @@ public class RecognitionRenderer implements PageRenderer {
         final boolean showLineNumbers = rp.getLineNumbers().isSelected();
         final boolean showBaselines = rp.getBaselines().isSelected();
         final boolean showXLines = rp.getXLines().isSelected();
+        final boolean showBlocks = rp.getBlocks().isSelected();
+        final boolean showParagraphs = rp.getParagraphs().isSelected();
 
         renderWorker = new SwingWorker<Void, Void>() {
             private Graphics2D origGfx, recogGfx;
@@ -368,27 +372,40 @@ public class RecognitionRenderer implements PageRenderer {
                 // stays the same for all lines
                 origGfx.setFont(FONT_LINE_NUMBERS);
 
-                recogGfx.setPaint(new Color(0x33, 0x99, 0xFF, 0x66));
-
-                final Iterator<Block> blocks = page.blockIterator();
-                while (blocks.hasNext()) {
-                    final Block block = blocks.next();
-                    final Box bbox = block.getBoundingBox();
-                    recogGfx.fillRect(scaled(bbox.getX(), scale),
-                            scaled(bbox.getY(), scale),
-                            scaled(bbox.getWidth(), scale),
-                            scaled(bbox.getHeight(), scale));
+                if (showBlocks) {
+                    origGfx.setPaint(Colors.BLOCK);
+                    recogGfx.setPaint(Colors.BLOCK);
+                    final Iterator<Block> blocks = page.blockIterator();
+                    while (blocks.hasNext()) {
+                        final Block block = blocks.next();
+                        final Box bbox = block.getBoundingBox();
+                        origGfx.drawRect(scaled(bbox.getX(), scale),
+                                scaled(bbox.getY(), scale),
+                                scaled(bbox.getWidth(), scale),
+                                scaled(bbox.getHeight(), scale));
+                        recogGfx.drawRect(scaled(bbox.getX(), scale),
+                                scaled(bbox.getY(), scale),
+                                scaled(bbox.getWidth(), scale),
+                                scaled(bbox.getHeight(), scale));
+                    }
                 }
 
-                recogGfx.setPaint(new Color(0xFF, 0x99, 0x33, 0x66));
-                final Iterator<Paragraph> paragraphs = page.paragraphIterator();
-                while (paragraphs.hasNext()) {
-                    final Paragraph paragraph = paragraphs.next();
-                    final Box bbox = paragraph.getBoundingBox();
-                    recogGfx.fillRect(scaled(bbox.getX(), scale),
-                            scaled(bbox.getY(), scale),
-                            scaled(bbox.getWidth(), scale),
-                            scaled(bbox.getHeight(), scale));
+                if (showParagraphs) {
+                    origGfx.setPaint(Colors.PARAGRAPH);
+                    recogGfx.setPaint(Colors.PARAGRAPH);
+                    final Iterator<Paragraph> paragraphs = page.paragraphIterator();
+                    while (paragraphs.hasNext()) {
+                        final Paragraph paragraph = paragraphs.next();
+                        final Box bbox = paragraph.getBoundingBox();
+                        origGfx.drawRect(scaled(bbox.getX(), scale),
+                                scaled(bbox.getY(), scale),
+                                scaled(bbox.getWidth(), scale),
+                                scaled(bbox.getHeight(), scale));
+                        recogGfx.drawRect(scaled(bbox.getX(), scale),
+                                scaled(bbox.getY(), scale),
+                                scaled(bbox.getWidth(), scale),
+                                scaled(bbox.getHeight(), scale));
+                    }
                 }
 
                 int lineNumber = 1;
@@ -427,5 +444,9 @@ public class RecognitionRenderer implements PageRenderer {
         };
 
         renderWorker.execute();
+    }
+
+    public void freeResources() {
+        lastPageModel = null;
     }
 }

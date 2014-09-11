@@ -13,4 +13,6 @@ public class Colors {
     public static final Color BASELINE = Color.BLUE;
     public static final Color TEXT = Color.BLACK;
     public static final Color LINE_NUMBER = Color.GRAY;
+    public static final Color BLOCK = Color.GREEN;
+    public static final Color PARAGRAPH = Color.ORANGE;
 }
