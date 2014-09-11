@@ -2,7 +2,6 @@ package de.vorb.tesseract.gui.view.renderer;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.CancellationException;
@@ -40,6 +39,9 @@ public class BoxFileRenderer {
             }
 
             boxEditor.getCanvas().setIcon(null);
+
+            renderWorker = null;
+
             return;
         }
 
@@ -118,7 +120,6 @@ public class BoxFileRenderer {
                         | CancellationException e) {
                     // ignore interrupts of any kind, those are intended
                 } finally {
-                    image.flush();
                     System.gc();
                 }
             }

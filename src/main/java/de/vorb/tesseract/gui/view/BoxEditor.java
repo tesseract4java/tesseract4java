@@ -248,7 +248,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
                 });
 
         JPanel toolbar = new JPanel();
-        toolbar.setBorder(new EmptyBorder(0, 4, 2, 4));
+        toolbar.setBorder(new EmptyBorder(0, 4, 4, 4));
         toolbar.setBackground(UIManager.getColor("window"));
         add(toolbar, BorderLayout.NORTH);
 
