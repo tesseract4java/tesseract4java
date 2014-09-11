@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import de.vorb.tesseract.tools.evaluation.LevenshteinWordDistance;
+import de.vorb.tesseract.tools.eval.LevenshteinWordDistance;
 
 public class DictionaryGenerator {
 

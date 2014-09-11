@@ -10,18 +10,18 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import de.vorb.tesseract.tools.preprocessing.Binarization;
+import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
 
 public class BinarizationExample {
-  public static void main(String[] args) throws IOException {
-    final BufferedImage img = Binarization.getInstance().sauvola(
-        ImageIO.read(new File("src/example/resources/text.png")), 8);
+    public static void main(String[] args) throws IOException {
+        final BufferedImage img = new Sauvola(8).binarize(
+                ImageIO.read(new File("src/example/resources/text.png")));
 
-    final JFrame frame = new JFrame("Binarized");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.getContentPane().add(new JLabel(new ImageIcon(img)),
-        BorderLayout.CENTER);
-    frame.pack();
-    frame.setVisible(true);
-  }
+        final JFrame frame = new JFrame("Binarized");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(new JLabel(new ImageIcon(img)),
+                BorderLayout.CENTER);
+        frame.pack();
+        frame.setVisible(true);
+    }
 }
