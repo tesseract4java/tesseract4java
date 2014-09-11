@@ -109,6 +109,9 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
 
         final BoxFileModel boxFile = model.get();
 
+        getSymbolVariantList().getList().setModel(
+                new DefaultListModel<Symbol>());
+
         // set a new renderer that has a reference to the thresholded image
         getSymbolVariantList().getList().setCellRenderer(
                 new SymbolVariantListCellRenderer(boxFile.getImage()));

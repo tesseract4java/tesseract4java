@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +25,7 @@ import de.vorb.tesseract.LibTess;
 import de.vorb.tesseract.OCREngineMode;
 import de.vorb.tesseract.PageSegMode;
 import de.vorb.tesseract.TBLOB;
+import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 import de.vorb.tesseract.util.feat.Feature3D;
 
@@ -31,11 +33,14 @@ public class PageRecognitionProducer extends RecognitionProducer {
     private final Path tessdataDir;
     private Optional<Pointer<Pix>> lastPix = Optional.absent();
 
-    private HashMap<String, String> variables = new HashMap<>();
+    private final TesseractController controller;
+    private final HashMap<String, String> variables = new HashMap<>();
 
-    public PageRecognitionProducer(Path tessdataDir, String trainingFile) {
+    public PageRecognitionProducer(TesseractController controller,
+            Path tessdataDir, String trainingFile) {
         super(trainingFile);
 
+        this.controller = controller;
         this.tessdataDir = tessdataDir;
     }
 
@@ -113,16 +118,22 @@ public class PageRecognitionProducer extends RecognitionProducer {
         g2d.drawImage(symbol, padding, padding, null);
         g2d.dispose();
 
-        final String tmp = "C:\\Users\\Paul\\Desktop\\tmp.png";
+        // FIXME
+        if (!controller.getProjectModel().isPresent()) {
+            return Collections.emptyList();
+        }
+
+        final String symbolFile = controller.getProjectModel().get().getProjectDir().resolve(
+                "symbol.png").toString();
         try {
-            ImageIO.write(symbWithPadding, "PNG", new File(tmp));
+            ImageIO.write(symbWithPadding, "PNG", new File(symbolFile));
         } catch (IOException e) {
             e.printStackTrace();
             return new LinkedList<Feature3D>();
         }
 
         final Pointer<Pix> pixSymb =
-                LibLept.pixRead(Pointer.pointerToCString(tmp));
+                LibLept.pixRead(Pointer.pointerToCString(symbolFile));
 
         final Pointer<TBLOB> blob = LibTess.TessMakeTBLOB(pixSymb);
         LibLept.pixDestroy(Pointer.pointerToPointer(pixSymb));

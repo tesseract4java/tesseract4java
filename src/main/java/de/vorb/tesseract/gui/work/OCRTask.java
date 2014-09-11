@@ -2,6 +2,7 @@ package de.vorb.tesseract.gui.work;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -202,6 +203,16 @@ public class OCRTask implements Callable<Void> {
                                     export.getDestinationDir().resolve(
                                             FileNames.replaceExtension(
                                                     sourceFile, "report.html").getFileName()));
+
+                            // write csv file
+                            final BufferedWriter csv = Files.newBufferedWriter(
+                                    export.getDestinationDir().resolve(
+                                            FileNames.replaceExtension(
+                                                    sourceFile, "report.csv").getFileName()),
+                                    StandardCharsets.UTF_8);
+
+                            csv.write(rep.getStats().asCSV("\n", ",").toString());
+                            csv.close();
                         } catch (TransformerException | WarningException e) {
                             throw e;
                         }

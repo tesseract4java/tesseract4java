@@ -45,7 +45,7 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     private final JButton btnApplyToPage;
     private final JButton btnApplyToAllPages;
 
-    private Optional<ImageModel> imageModel;
+    private Optional<ImageModel> imageModel = Optional.absent();
 
     /**
      * Create the panel.

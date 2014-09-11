@@ -1,8 +1,10 @@
 package de.vorb.tesseract.gui.work;
 
 import java.awt.Desktop;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +33,7 @@ import de.vorb.tesseract.gui.util.DocumentWriter;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.tesseract.util.TrainingFiles;
+import de.vorb.util.FileNames;
 
 import eu.digitisation.input.Batch;
 import eu.digitisation.input.Parameters;
@@ -63,7 +66,8 @@ public class BatchExecutor {
         final String trainingFile = controller.getTrainingFile().get();
         for (int i = 0; i < numThreads; i++) {
             final PageRecognitionProducer recognizer =
-                    new PageRecognitionProducer(TrainingFiles.getTessdataDir(),
+                    new PageRecognitionProducer(controller,
+                            TrainingFiles.getTessdataDir(),
                             trainingFile);
             recognizer.init();
             recognizers.put(recognizer);
@@ -223,8 +227,17 @@ public class BatchExecutor {
                         final Path projectReport = export.getDestinationDir()
                                 .resolve("project.report.html");
 
+                        // write report html
                         DocumentWriter.writeToFile(report.document(),
                                 projectReport);
+
+                        // write report csv
+                        final BufferedWriter csv = Files.newBufferedWriter(
+                                export.getDestinationDir().resolve(
+                                        "project.report.csv"),
+                                StandardCharsets.UTF_8);
+                        csv.write(report.getStats().asCSV("\n", ",").toString());
+                        csv.close();
                     } catch (IOException | WarningException
                             | TransformerException e) {
                         errors.incrementAndGet();

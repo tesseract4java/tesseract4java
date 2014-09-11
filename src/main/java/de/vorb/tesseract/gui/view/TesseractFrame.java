@@ -66,6 +66,7 @@ public class TesseractFrame extends JFrame {
     private final JMenuItem mnInspectUnicharset;
 
     private final Scale scale;
+    private JMenuItem mnExit;
 
     /**
      * Create the application.
@@ -86,7 +87,7 @@ public class TesseractFrame extends JFrame {
 
         setLocationByPlatform(true);
         setMinimumSize(new Dimension(1100, 680));
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         scale = new Scale();
         preprocessingPane = new PreprocessingPane();
@@ -247,14 +248,8 @@ public class TesseractFrame extends JFrame {
         final JSeparator separator = new JSeparator();
         mnFile.add(separator);
 
-        final JMenuItem mntmExit = new JMenuItem(
-                Labels.getLabel(getLocale(), "menu_exit"));
-        mntmExit.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                TesseractFrame.this.dispose();
-            }
-        });
-        mnFile.add(mntmExit);
+        mnExit = new JMenuItem("Exit");
+        mnFile.add(mnExit);
 
         mnEdit = new JMenu("Edit");
         menuBar.add(mnEdit);
@@ -407,6 +402,10 @@ public class TesseractFrame extends JFrame {
 
     public JMenuItem getMenuItemBatchExport() {
         return mnBatchExport;
+    }
+
+    public JMenuItem getMenuItemExit() {
+        return mnExit;
     }
 
     public JMenuItem getMenuItemPreferences() {

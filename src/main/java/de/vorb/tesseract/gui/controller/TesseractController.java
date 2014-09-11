@@ -189,6 +189,7 @@ public class TesseractController extends WindowAdapter implements
         handleActiveComponentChange();
 
         pageRecognitionProducer = new PageRecognitionProducer(
+                this,
                 TrainingFiles.getTessdataDir(),
                 RecognitionProducer.DEFAULT_TRAINING_FILE);
 
@@ -238,6 +239,7 @@ public class TesseractController extends WindowAdapter implements
 
         {
             // menu
+            view.getMenuItemExit().addActionListener(this);
             view.getMenuItemNewProject().addActionListener(this);
             view.getMenuItemOpenProject().addActionListener(this);
             view.getMenuItemOpenBoxFile().addActionListener(this);
@@ -302,7 +304,9 @@ public class TesseractController extends WindowAdapter implements
         final PreprocessingPane preprocPane = view.getPreprocessingPane();
         final EvaluationPane evalPane = view.getEvaluationPane();
 
-        if (source.equals(view.getMenuItemNewProject())) {
+        if (source.equals(view.getMenuItemExit())) {
+            handleExit();
+        } else if (source.equals(view.getMenuItemNewProject())) {
             handleNewProject();
         } else if (source.equals(view.getMenuItemOpenProject())) {
             handleOpenProject();
@@ -431,9 +435,11 @@ public class TesseractController extends WindowAdapter implements
                 }
             } else if (active instanceof PageModelComponent) {
                 if (activeComponent instanceof PageModelComponent) {
+                    // PageModelComponent -> PageModelComponent
                     setPageModel(((PageModelComponent) activeComponent)
                             .getPageModel());
                 } else if (activeComponent instanceof ImageModelComponent) {
+                    // ImageModelComponent -> PageModelComponent
                     setImageModel(((ImageModelComponent) activeComponent)
                             .getImageModel());
                 } else {
@@ -711,6 +717,8 @@ public class TesseractController extends WindowAdapter implements
         if (!result.isPresent())
             return;
 
+        setProjectModel(result);
+
         this.projectModel = result;
         final ProjectModel projectModel = result.get();
 
@@ -728,6 +736,16 @@ public class TesseractController extends WindowAdapter implements
         pageListLoader.execute();
 
         setApplicationMode(ApplicationMode.PROJECT);
+    }
+
+    private void setProjectModel(Optional<ProjectModel> model) {
+        projectModel = model;
+
+        if (model.isPresent()) {
+            view.setTitle("Tesseract OCR GUI - " + model.get().getProjectName());
+        } else {
+            view.setTitle("Tesseract OCR GUI");
+        }
     }
 
     private void handleOpenBoxFile() {
@@ -788,8 +806,9 @@ public class TesseractController extends WindowAdapter implements
 
                 setBoxFileModel(Optional.of(new BoxFileModel(boxFile, image,
                         boxes)));
-            } catch (IOException e) {
-                Dialogs.showError(view, "Error", "Box file could not be read.");
+            } catch (IOException | IndexOutOfBoundsException e) {
+                Dialogs.showError(view, "Error",
+                        "Box file could not be opened.");
             }
         }
     }
@@ -914,11 +933,6 @@ public class TesseractController extends WindowAdapter implements
         final PageThumbnail pt =
                 view.getPages().getList().getSelectedValue();
 
-        // if the page selection did not change, ignore it
-        if (pageThumbnail.isPresent() && pageThumbnail.get().equals(pt)) {
-            return;
-        }
-
         // don't do anything, if no page is selected
         if (pt == null) {
             return;
@@ -996,6 +1010,7 @@ public class TesseractController extends WindowAdapter implements
         view.getMainTabs().setSelectedComponent(view.getBoxEditor());
 
         final FilteredTable<Symbol> symbols = view.getBoxEditor().getSymbols();
+        symbols.getTextField().setText("");
         final ListModel<Symbol> model = symbols.getListModel();
         final int size = model.getSize();
 
@@ -1370,7 +1385,11 @@ public class TesseractController extends WindowAdapter implements
 
             final Optional<String> trainingFile = getTrainingFile();
 
-            if (!model.isPresent() || !trainingFile.isPresent()) {
+            if (!trainingFile.isPresent()) {
+                Dialogs.showWarning(view, "Warning",
+                        "Please select a training file.");
+                return;
+            } else if (!model.isPresent()) {
                 return;
             }
 
@@ -1466,6 +1485,14 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
+    private void handleExit() {
+        windowClosing(new WindowEvent(view, WindowEvent.WINDOW_CLOSING));
+
+        if (!view.isVisible()) {
+            windowClosed(new WindowEvent(view, WindowEvent.WINDOW_CLOSED));
+        }
+    }
+
     @Override
     public void windowClosing(WindowEvent e) {
         if (mode == ApplicationMode.PROJECT) {
@@ -1488,13 +1515,15 @@ public class TesseractController extends WindowAdapter implements
         if (recognitionWorker.isPresent()) {
             recognitionWorker.get().cancel(true);
         }
+
+        view.dispose();
     }
 
     @Override
     public void windowClosed(WindowEvent evt) {
-        // forcefully shut down the application after 2 seconds
+        // forcefully shut down the application after 3 seconds
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
         } finally {
             System.exit(0);
