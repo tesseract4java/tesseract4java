@@ -3,7 +3,6 @@ package de.vorb.tesseract.gui.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Window;
@@ -12,10 +11,7 @@ import java.awt.geom.Line2D.Double;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -64,24 +60,6 @@ public class FeatureDebugger extends JDialog {
             final Dimension size = new Dimension(WIDTH, HEIGHT);
             lblCanvas.setPreferredSize(size);
             contentPanel.add(lblCanvas);
-        }
-        {
-            JPanel controlPanel = new JPanel();
-            FlowLayout flowLayout = (FlowLayout) controlPanel.getLayout();
-            flowLayout.setAlignment(FlowLayout.LEADING);
-            getContentPane().add(controlPanel, BorderLayout.NORTH);
-            {
-                JCheckBox chckbxPrototype = new JCheckBox(
-                        "Compare to Prototype");
-                chckbxPrototype.setSelected(true);
-                controlPanel.add(chckbxPrototype);
-            }
-            {
-                JComboBox<String> cbPrototype = new JComboBox<>();
-                cbPrototype.setModel(new DefaultComboBoxModel<String>(
-                        new String[] { "e", "f" }));
-                controlPanel.add(cbPrototype);
-            }
         }
 
         pack();
