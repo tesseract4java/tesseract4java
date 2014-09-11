@@ -8,7 +8,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
-import javax.swing.SwingConstants;
 
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
@@ -24,7 +23,6 @@ public class SymbolVariantListCellRenderer extends JLabel implements
         this.source = source;
         setOpaque(true);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        setVerticalAlignment(SwingConstants.TOP);
     }
 
     @Override
