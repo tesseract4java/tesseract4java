@@ -394,42 +394,25 @@ public class TesseractTrainer extends JFrame {
                                 StandardCopyOption.REPLACE_EXISTING);
                     }
 
-                    // shapeclustering
-                    final List<String> shapeClustering = new LinkedList<>();
-                    shapeClustering.add(cmdDir + "shapeclustering");
-                    shapeClustering.add("-F");
-                    shapeClustering.add(lang + "font_properties");
-                    shapeClustering.add("-U");
-                    shapeClustering.add("out.unicharset");
-                    shapeClustering.addAll(trFiles);
-
-                    pb = new ProcessBuilder(shapeClustering).directory(trainingDir.toFile());
-
-                    log.println("\nshapeclustering:\n");
-                    final Process shapes = pb.start();
-                    err = shapes.getErrorStream();
-
-                    while ((c = err.read()) != -1) {
-                        log.print((char) c);
-                    }
-
-                    if (shapes.waitFor() != 0) {
-                        throw new Exception("Unable to do shapeclustering.");
-                    }
-
                     // mftraining
-                    shapeClustering.set(0, cmdDir + "mftraining");
-                    pb = new ProcessBuilder(shapeClustering).directory(trainingDir.toFile());
+                    final List<String> mfTraining = new LinkedList<>();
+                    mfTraining.add(cmdDir + "mftraining");
+                    mfTraining.add("-F");
+                    mfTraining.add(lang + "font_properties");
+                    mfTraining.add("-U");
+                    mfTraining.add("out.unicharset");
+                    mfTraining.addAll(trFiles);
+                    pb = new ProcessBuilder(mfTraining).directory(trainingDir.toFile());
 
                     log.println("\nmftraining:\n");
-                    final Process mfTraining = pb.start();
-                    err = mfTraining.getErrorStream();
+                    final Process mfTrain = pb.start();
+                    err = mfTrain.getErrorStream();
 
                     while ((c = err.read()) != -1) {
                         log.print((char) c);
                     }
 
-                    if (mfTraining.waitFor() != 0) {
+                    if (mfTrain.waitFor() != 0) {
                         throw new Exception("Unable to do mftraining.");
                     }
 
