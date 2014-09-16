@@ -91,37 +91,53 @@ public class TesseractController extends WindowAdapter implements
             // being used.
         }
 
-        File leptonica = new File("liblept170.dll");
-        File tesseract = new File("libtesseract303.dll");
+        /*
+         * final String architecture = System.getProperty("os.arch"); final
+         * String os = System.getProperty("os.name").toLowerCase();
+         * 
+         * final File libTess; final File libLept;
+         * 
+         * if (architecture.equals("amd64")) { if (os.startsWith("windows")) {
+         * // win64 libTess = new File("lib/windows/amd64/libtesseract.dll");
+         * libLept = new File("lib/windows/amd64/liblept.dll"); } else if
+         * (os.startsWith("mac os x")) { // mac os x 64 bit libTess = new
+         * File("lib/macosx/amd64/libtesseract.dylib"); libLept = new
+         * File("lib/macosx/amd64/liblept.dylib"); } else { // linux amd64 or
+         * other unix libTess = new File("lib/linux/amd64/libtesseract.so");
+         * libLept = new File("lib/linux/amd64/liblept.so"); } } else if
+         * (architecture.equals("x86")) { if (os.startsWith("windows")) { //
+         * win32 libTess = new File("lib/windows/x86/libtesseract.dll"); libLept
+         * = new File("lib/windows/x86/liblept.dll"); } else if
+         * (os.startsWith("mac os x")) { // mac os x 64 bit libTess = new
+         * File("lib/macosx/x86/libtesseract.dylib"); libLept = new
+         * File("lib/macosx/x86/liblept.dylib"); } else { // linux x86 or other
+         * unix libTess = new File("lib/linux/x86/libtesseract.so"); libLept =
+         * new File("lib/linux/x86/liblept.so"); } } else {
+         * Dialogs.showError(null, "Wrong Architecture", "Your platform (" +
+         * architecture + ") is currently not supported.");
+         * 
+         * System.exit(1); return; }
+         * 
+         * // check if library exists if (!libTess.exists()) {
+         * Dialogs.showError(null, "Missing Library",
+         * String.format("The library \"%s\" is missing.", libTess));
+         * 
+         * System.exit(1); return; } else if (!libLept.exists()) {
+         * Dialogs.showError(null, "Missing Library",
+         * String.format("The library \"%s\" is missing.", libTess));
+         * 
+         * System.exit(1); }
+         */
 
         try {
-            // Windows?
-            if (leptonica.exists() && tesseract.exists()) {
-                BridJ.setNativeLibraryFile("leptonica", leptonica);
-                BridJ.setNativeLibraryFile("tesseract", tesseract);
-            } else { // Linux?
-                leptonica = new File("liblept.so");
-                tesseract = new File("libtesseract.so");
-
-                if (leptonica.exists() && tesseract.exists()) {
-                    BridJ.setNativeLibraryFile("leptonica", leptonica);
-                    BridJ.setNativeLibraryFile("tesseract", tesseract);
-                } else { // Mac?
-                    leptonica = new File("liblept.dylib");
-                    tesseract = new File("libtesseract.dylib");
-
-                    if (leptonica.exists() && tesseract.exists()) {
-                        BridJ.setNativeLibraryFile("leptonica", leptonica);
-                        BridJ.setNativeLibraryFile("tesseract", tesseract);
-                    }
-                }
-            }
-
             new TesseractController();
-        } catch (UnsatisfiedLinkError e) {
-            Dialogs.showError(null, "Fatal error",
-                    "The necessary libraries could not be loaded.");
-            System.exit(1);
+        } catch (Throwable e) {
+            Dialogs.showError(
+                    null, "Fatal error",
+                    "The necessary libraries could not be loaded. "
+                            + e.getMessage());
+
+            throw e;
         }
     }
 
@@ -188,6 +204,15 @@ public class TesseractController extends WindowAdapter implements
 
         handleActiveComponentChange();
 
+        final Path tessdataDir = TrainingFiles.getTessdataDir();
+        if (!Files.isReadable(tessdataDir)) {
+            Dialogs.showError(
+                    null,
+                    "Fatal Error",
+                    "The tessdata directory could not be read. "
+                            + tessdataDir.toAbsolutePath());
+        }
+
         pageRecognitionProducer = new PageRecognitionProducer(
                 this,
                 TrainingFiles.getTessdataDir(),
@@ -241,11 +266,11 @@ public class TesseractController extends WindowAdapter implements
             // menu
             view.getMenuItemExit().addActionListener(this);
             view.getMenuItemNewProject().addActionListener(this);
-            view.getMenuItemOpenProject().addActionListener(this);
+            // view.getMenuItemOpenProject().addActionListener(this);
             view.getMenuItemOpenBoxFile().addActionListener(this);
-            view.getMenuItemSaveProject().addActionListener(this);
+            // view.getMenuItemSaveProject().addActionListener(this);
             view.getMenuItemSaveBoxFile().addActionListener(this);
-            view.getMenuItemSavePage().addActionListener(this);
+            // view.getMenuItemSavePage().addActionListener(this);
             view.getMenuItemCloseProject().addActionListener(this);
             view.getMenuItemOpenProjectDirectory().addActionListener(this);
             view.getMenuItemImportTranscriptions().addActionListener(this);
@@ -253,6 +278,7 @@ public class TesseractController extends WindowAdapter implements
             view.getMenuItemPreferences().addActionListener(this);
             view.getMenuItemCharacterHistogram().addActionListener(this);
             view.getMenuItemInspectUnicharset().addActionListener(this);
+            view.getMenuItemTesseractTrainer().addActionListener(this);
         }
 
         view.getPages().getList().addListSelectionListener(this);
@@ -308,12 +334,12 @@ public class TesseractController extends WindowAdapter implements
             handleExit();
         } else if (source.equals(view.getMenuItemNewProject())) {
             handleNewProject();
-        } else if (source.equals(view.getMenuItemOpenProject())) {
-            handleOpenProject();
+            // } else if (source.equals(view.getMenuItemOpenProject())) {
+            // handleOpenProject();
         } else if (source.equals(view.getMenuItemOpenBoxFile())) {
             handleOpenBoxFile();
-        } else if (source.equals(view.getMenuItemSaveProject())) {
-            handleSaveProject();
+            // } else if (source.equals(view.getMenuItemSaveProject())) {
+            // handleSaveProject();
         } else if (source.equals(view.getMenuItemSaveBoxFile())) {
             handleSaveBoxFile();
         } else if (source.equals(view.getMenuItemCloseProject())) {
@@ -330,6 +356,8 @@ public class TesseractController extends WindowAdapter implements
             handleCharacterHistogram();
         } else if (source.equals(view.getMenuItemInspectUnicharset())) {
             handleInspectUnicharset();
+        } else if (source.equals(view.getMenuItemTesseractTrainer())) {
+            handleTesseractTrainer();
         } else if (preprocPane.getPreviewButton().equals(source)) {
             handlePreprocessorPreview();
         } else if (preprocPane.getApplyPageButton().equals(source)) {
@@ -906,7 +934,7 @@ public class TesseractController extends WindowAdapter implements
 
     private boolean handleCloseProject() {
         final boolean really = Dialogs.ask(view, "Confirmation",
-                "Do you really want to close this project? All unsaved changes will be lost.");
+                "Do you really want to close this project?");
 
         if (really) {
             setPageModel(Optional.<PageModel> absent());
@@ -1306,6 +1334,12 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
+    private void handleTesseractTrainer() {
+        final TesseractTrainer trainer = new TesseractTrainer();
+        trainer.setLocationRelativeTo(view);
+        trainer.setVisible(true);
+    }
+
     public void setPageModel(Optional<PageModel> model) {
         if (projectModel.isPresent() && model.isPresent()) {
             try {
@@ -1601,8 +1635,8 @@ public class TesseractController extends WindowAdapter implements
         }
 
         view.getMenuItemSaveBoxFile().setEnabled(boxFileEnabled);
-        view.getMenuItemSavePage().setEnabled(projectEnabled);
-        view.getMenuItemSaveProject().setEnabled(projectEnabled);
+        // view.getMenuItemSavePage().setEnabled(projectEnabled);
+        // view.getMenuItemSaveProject().setEnabled(projectEnabled);
         view.getMenuItemOpenProjectDirectory().setEnabled(projectEnabled);
         view.getMenuItemBatchExport().setEnabled(projectEnabled);
         view.getMenuItemImportTranscriptions().setEnabled(projectEnabled);

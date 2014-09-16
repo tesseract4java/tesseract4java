@@ -49,8 +49,6 @@ public class TesseractFrame extends JFrame {
     private final JMenuItem mnPreferences;
     private final JMenuItem mnBatchExport;
     private final JSeparator separator_1;
-    private final JMenuItem mnOpenProject;
-    private final JMenuItem mnSaveProject;
     private final JMenuItem mnOpenProjectDirectory;
     private final JMenuItem mnOpenBoxFile;
     private final JMenu mnEdit;
@@ -58,15 +56,16 @@ public class TesseractFrame extends JFrame {
     private final JSeparator separator_2;
     private final JMenuItem mnCloseProject;
     private final JMenuItem mnSaveBoxFile;
-    private final JMenuItem mnSavePage;
     private final JMenuItem mnImportTranscriptions;
 
     private final JMenu mnTools;
     private final JMenuItem mnCharacterHistogram;
     private final JMenuItem mnInspectUnicharset;
 
+    private final JMenuItem mnExit;
+    private final JMenuItem mnTesseractTrainer;
+
     private final Scale scale;
-    private JMenuItem mnExit;
 
     /**
      * Create the application.
@@ -183,11 +182,6 @@ public class TesseractFrame extends JFrame {
                 InputEvent.CTRL_MASK));
         mnFile.add(mnNewProject);
 
-        mnOpenProject = new JMenuItem("Open Project...");
-        mnOpenProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
-                InputEvent.CTRL_MASK));
-        mnFile.add(mnOpenProject);
-
         mnOpenBoxFile = new JMenuItem("Open Box File...");
         mnOpenBoxFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
                 InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
@@ -196,14 +190,6 @@ public class TesseractFrame extends JFrame {
         separator_2 = new JSeparator();
         mnFile.add(separator_2);
 
-        mnSaveProject = new JMenuItem("Save Project");
-        mnSaveProject.setEnabled(false);
-        mnSaveProject.setIcon(new ImageIcon(
-                TesseractFrame.class.getResource("/icons/disk.png")));
-        mnSaveProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-                InputEvent.CTRL_MASK));
-        mnFile.add(mnSaveProject);
-
         mnSaveBoxFile = new JMenuItem("Save Box File");
         mnSaveBoxFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
                 InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
@@ -211,12 +197,6 @@ public class TesseractFrame extends JFrame {
         mnSaveBoxFile.setIcon(new ImageIcon(
                 TesseractFrame.class.getResource("/icons/table_save.png")));
         mnFile.add(mnSaveBoxFile);
-
-        mnSavePage = new JMenuItem("Save Page...");
-        mnSavePage.setEnabled(false);
-        mnSavePage.setIcon(new ImageIcon(
-                TesseractFrame.class.getResource("/icons/page_save.png")));
-        mnFile.add(mnSavePage);
 
         mnOpenProjectDirectory = new JMenuItem("Open Project Directory");
         mnOpenProjectDirectory.setEnabled(false);
@@ -249,6 +229,8 @@ public class TesseractFrame extends JFrame {
         mnFile.add(separator);
 
         mnExit = new JMenuItem("Exit");
+        mnExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+                InputEvent.CTRL_MASK));
         mnFile.add(mnExit);
 
         mnEdit = new JMenu("Edit");
@@ -267,6 +249,11 @@ public class TesseractFrame extends JFrame {
 
         mnInspectUnicharset = new JMenuItem("Debug Unicharset...");
         mnTools.add(mnInspectUnicharset);
+
+        mnTesseractTrainer = new JMenuItem("Tesseract Trainer...");
+        mnTesseractTrainer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T,
+                InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+        mnTools.add(mnTesseractTrainer);
 
         final JMenu mnHelp = new JMenu(
                 Labels.getLabel(getLocale(), "menu_help"));
@@ -368,24 +355,12 @@ public class TesseractFrame extends JFrame {
         return mnNewProject;
     }
 
-    public JMenuItem getMenuItemOpenProject() {
-        return mnOpenProject;
-    }
-
     public JMenuItem getMenuItemOpenBoxFile() {
         return mnOpenBoxFile;
     }
 
-    public JMenuItem getMenuItemSaveProject() {
-        return mnSaveProject;
-    }
-
     public JMenuItem getMenuItemSaveBoxFile() {
         return mnSaveBoxFile;
-    }
-
-    public JMenuItem getMenuItemSavePage() {
-        return mnSavePage;
     }
 
     public JMenuItem getMenuItemCloseProject() {
@@ -418,6 +393,10 @@ public class TesseractFrame extends JFrame {
 
     public JMenuItem getMenuItemInspectUnicharset() {
         return mnInspectUnicharset;
+    }
+
+    public JMenuItem getMenuItemTesseractTrainer() {
+        return mnTesseractTrainer;
     }
 
     public FilteredList<PageThumbnail> getPages() {

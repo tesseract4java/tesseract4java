@@ -21,15 +21,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import de.vorb.tesseract.gui.model.GlobalPrefs;
@@ -38,7 +30,7 @@ import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.gui.view.dialogs.PreferencesDialog;
 import de.vorb.util.FileNames;
 
-public class TesseractTrainer extends JFrame {
+public class TesseractTrainer extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private static final String KEY_TRAINING_DIR = "training_dir";
@@ -86,6 +78,7 @@ public class TesseractTrainer extends JFrame {
 
         setTitle("Tesseract Trainer");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setModalityType(ModalityType.APPLICATION_MODAL);
 
         setBounds(100, 100, 450, 300);
         contentPane = new JPanel();
