@@ -151,21 +151,22 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         panel_3.add(chckbxTxt, gbc_chckbxText);
         chckbxTxt.setSelected(true);
 
-        chckbxHtml = new JCheckBox("HTML");
-        GridBagConstraints gbc_chckbxHtml = new GridBagConstraints();
-        gbc_chckbxHtml.anchor = GridBagConstraints.WEST;
-        gbc_chckbxHtml.insets = new Insets(0, 0, 5, 5);
-        gbc_chckbxHtml.gridx = 1;
-        gbc_chckbxHtml.gridy = 2;
-        panel_3.add(chckbxHtml, gbc_chckbxHtml);
-
         chckbxXml = new JCheckBox("XML");
         GridBagConstraints gbc_chckbxXml = new GridBagConstraints();
         gbc_chckbxXml.anchor = GridBagConstraints.WEST;
         gbc_chckbxXml.insets = new Insets(0, 0, 5, 5);
         gbc_chckbxXml.gridx = 1;
-        gbc_chckbxXml.gridy = 3;
+        gbc_chckbxXml.gridy = 2;
         panel_3.add(chckbxXml, gbc_chckbxXml);
+
+        chckbxHtml = new JCheckBox("HTML");
+        chckbxHtml.setVisible(false);
+        GridBagConstraints gbc_chckbxHtml = new GridBagConstraints();
+        gbc_chckbxHtml.anchor = GridBagConstraints.WEST;
+        gbc_chckbxHtml.insets = new Insets(0, 0, 5, 5);
+        gbc_chckbxHtml.gridx = 1;
+        gbc_chckbxHtml.gridy = 3;
+        panel_3.add(chckbxHtml, gbc_chckbxHtml);
 
         lblExport = new JLabel("Export");
         GridBagConstraints gbc_lblExport = new GridBagConstraints();
