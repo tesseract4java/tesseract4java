@@ -105,7 +105,7 @@ public class RecognitionRenderer implements PageRenderer {
         try {
             loaded = Font.createFont(
                     Font.TRUETYPE_FONT,
-                    RecognitionPane.class.getResourceAsStream("/fonts/NeueFraktur.ttf"));
+                    RecognitionPane.class.getResourceAsStream("/fonts/Normalfraktur.ttf"));
         } catch (FontFormatException | IOException e) {
             System.err.println("Could not load Fraktur font.");
         }
