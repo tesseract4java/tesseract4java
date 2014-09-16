@@ -20,7 +20,7 @@ public class BinaryImage {
      * @return number of black pixels in <code>img</code>.
      */
     public static int weight(BufferedImage img) {
-        requireBinary(img);
+        // requireBinary(img);
 
         final int w = img.getWidth(), h = img.getHeight();
 

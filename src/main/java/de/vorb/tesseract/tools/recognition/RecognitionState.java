@@ -1,12 +1,17 @@
 package de.vorb.tesseract.tools.recognition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bridj.Pointer;
 
 import de.vorb.leptonica.Pix;
 import de.vorb.tesseract.INT_FEATURE_STRUCT;
 import de.vorb.tesseract.LibTess;
+import de.vorb.tesseract.LibTess.TessChoiceIterator;
 import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.TBLOB;
+import de.vorb.tesseract.util.AlternativeChoice;
 import de.vorb.tesseract.util.Baseline;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.FontAttributes;
@@ -104,6 +109,23 @@ public class RecognitionState {
      */
     public float getConfidence(PageIteratorLevel level) {
         return LibTess.TessResultIteratorConfidence(resultIt, level);
+    }
+
+    public List<AlternativeChoice> getAlternatives() {
+        final List<AlternativeChoice> alternatives = new ArrayList<>();
+
+        final Pointer<TessChoiceIterator> choiceIt =
+                LibTess.TessResultIteratorGetChoiceIterator(resultIt);
+        // pull out all choices
+        do {
+            final Pointer<Byte> choice = LibTess.TessChoiceIteratorGetUTF8Text(
+                    choiceIt);
+            final float conf = LibTess.TessChoiceIteratorConfidence(choiceIt);
+
+            alternatives.add(new AlternativeChoice(choice.getCString(), conf));
+        } while (LibTess.TessChoiceIteratorNext(choiceIt) > 0);
+
+        return alternatives;
     }
 
     private void getSymbolFeatures(Pointer<Pix> image) {

@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;

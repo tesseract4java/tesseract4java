@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Unicharset {
@@ -64,14 +62,12 @@ public class Unicharset {
 
                 scanner.close();
             } else if (FIRST_LINE.matcher(line).matches()) {
-                charset.add(new Char(" ",
+                charset.add(new Char("NULL",
                         CharacterProperties.forByteCode((byte) 0), " ", 0));
             }
         }
 
-        for (Char c : charset) {
-            System.out.println(c);
-        }
+        in.close();
 
         return new Unicharset(charset);
     }

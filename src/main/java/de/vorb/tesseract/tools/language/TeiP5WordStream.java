@@ -44,7 +44,7 @@ public class TeiP5WordStream {
     private final List<TokenStreamHandler> handlers = new ArrayList<>(1);
     private final SAXParser parser;
 
-    private static final int MIN_FREQ = 10000;
+    private static final int MIN_FREQ = 20000;
     private static final int MIN_WORDS = 50;
 
     public TeiP5WordStream()
@@ -217,9 +217,11 @@ public class TeiP5WordStream {
         for (String word : dictionary.keySet()) {
             occurrences = dictionary.get(word);
 
-            if (occurrences >= MIN_FREQ) {
-                freqWriter.write(String.format("%s %d\n", word, occurrences));
-            } else if (occurrences >= MIN_WORDS) {
+            if (occurrences >= MIN_WORDS) {
+                if (occurrences >= MIN_FREQ) {
+                    freqWriter.write(String.format("%s %d\n", word, occurrences));
+                }
+
                 wordWriter.write(String.format("%s %d\n", word, occurrences));
             }
 

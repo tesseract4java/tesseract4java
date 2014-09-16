@@ -1,5 +1,8 @@
 package de.vorb.tesseract.util;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -16,6 +19,7 @@ public class Symbol {
     private String text;
     private Box bbox;
     private final float confidence;
+    private final List<AlternativeChoice> alternatives;
 
     /**
      * Creates a new Symbol.
@@ -31,6 +35,27 @@ public class Symbol {
         this.text = text;
         this.bbox = boundingBox;
         this.confidence = confidence;
+        this.alternatives = Collections.emptyList();
+    }
+
+    /**
+     * Creates a new Symbol.
+     * 
+     * @param text
+     *            recognized text
+     * @param boundingBox
+     *            bounding box
+     * @param confidence
+     *            recognition confidence
+     * @param alternatives
+     *            alternative choices
+     */
+    public Symbol(String text, Box boundingBox, float confidence,
+            List<AlternativeChoice> alternatives) {
+        this.text = text;
+        this.bbox = boundingBox;
+        this.confidence = confidence;
+        this.alternatives = alternatives;
     }
 
     /**
@@ -65,6 +90,13 @@ public class Symbol {
     @XmlJavaTypeAdapter(BoxAdapter.class)
     public Box getBoundingBox() {
         return bbox;
+    }
+
+    /**
+     * @return alternative choices
+     */
+    public List<AlternativeChoice> getAlternatives() {
+        return alternatives;
     }
 
     /*

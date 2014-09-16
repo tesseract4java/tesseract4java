@@ -81,6 +81,7 @@ public abstract class PageRecognitionConsumer extends
         final PageIteratorLevel level = PageIteratorLevel.SYMBOL;
         wordSymbols.add(new Symbol(getState().getText(level),
                 getState().getBoundingBox(level),
-                getState().getConfidence(level)));
+                getState().getConfidence(level),
+                getState().getAlternatives()));
     }
 }

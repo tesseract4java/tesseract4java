@@ -60,8 +60,14 @@ public class ConnectedComponentLabeler {
         return result;
     }
 
+    /**
+     * 
+     * @see Chang, Chen et al. 2004
+     * @return
+     */
     public List<ConnectedComponent> apply() {
-        final ArrayList<ConnectedComponent> connectedComponents = new ArrayList<>();
+        final ArrayList<ConnectedComponent> connectedComponents =
+                new ArrayList<>();
         int label = NON_LABEL + 1; // current label counter (C in the paper)
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
