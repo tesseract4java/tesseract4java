@@ -20,15 +20,7 @@ import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.Colors;
 import de.vorb.tesseract.gui.view.RecognitionPane;
 import de.vorb.tesseract.gui.view.RecognitionPane.FontSelection;
-import de.vorb.tesseract.util.Baseline;
-import de.vorb.tesseract.util.Block;
-import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.FontAttributes;
-import de.vorb.tesseract.util.Line;
-import de.vorb.tesseract.util.Page;
-import de.vorb.tesseract.util.Paragraph;
-import de.vorb.tesseract.util.Symbol;
-import de.vorb.tesseract.util.Word;
+import de.vorb.tesseract.util.*;
 
 public class RecognitionRenderer implements PageRenderer {
     // Fallback fonts

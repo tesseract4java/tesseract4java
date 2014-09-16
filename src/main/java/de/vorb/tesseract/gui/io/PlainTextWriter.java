@@ -12,6 +12,9 @@ import de.vorb.tesseract.util.Paragraph;
 import de.vorb.tesseract.util.Word;
 
 public class PlainTextWriter implements RecognitionWriter {
+    public PlainTextWriter(boolean replaceHighLetterSpacing) {
+    }
+
     @Override
     public void write(Page page, Writer writer) throws IOException {
         final Iterator<Block> blockIt = page.blockIterator();
@@ -23,13 +26,35 @@ public class PlainTextWriter implements RecognitionWriter {
                     final int wordsInLine = line.getWords().size();
                     int wordIndex = 0;
 
+                    StringBuilder wordBuilder = new StringBuilder();
+
                     for (final Word word : line.getWords()) {
-                        writer.write(word.getText());
+                        final String wordText = word.getText();
+
+                        if (wordText.length() > 1) {
+                            if (wordBuilder.length() > 0) {
+                                writer.write(wordBuilder.toString());
+
+                                wordBuilder = new StringBuilder();
+
+                                writer.write(' ');
+                            }
+
+                            writer.write(wordText);
+                        } else {
+                            wordBuilder.append(word.getText());
+                        }
 
                         // prevent space after last word in the line
-                        if (++wordIndex < wordsInLine) {
+                        if (++wordIndex < wordsInLine
+                                && wordBuilder.length() == 0) {
                             writer.write(' ');
+                        } else if (wordBuilder.length() > 0) {
+                            writer.write(wordBuilder.toString());
+
+                            wordBuilder = new StringBuilder();
                         }
+
                     }
 
                     writer.write("\n");

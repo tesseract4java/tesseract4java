@@ -20,6 +20,7 @@ import javax.swing.ProgressMonitor;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 
+import de.vorb.tesseract.gui.io.PlainTextWriter;
 import de.vorb.tesseract.gui.model.BatchExportModel;
 import de.vorb.tesseract.gui.model.ProjectModel;
 import de.vorb.tesseract.gui.util.DocumentWriter;
@@ -168,7 +169,7 @@ public class OCRTask implements Callable<Void> {
                     final Writer out = Files.newBufferedWriter(txtFile,
                             StandardCharsets.UTF_8);
 
-                    new PlainTextWriter().write(page, out);
+                    new PlainTextWriter(true).write(page, out);
 
                     out.close();
 

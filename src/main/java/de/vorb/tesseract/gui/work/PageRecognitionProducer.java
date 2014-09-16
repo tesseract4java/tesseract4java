@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
@@ -42,6 +43,18 @@ public class PageRecognitionProducer extends RecognitionProducer {
 
         this.controller = controller;
         this.tessdataDir = tessdataDir;
+
+        // save choices for choice iterator
+        variables.put("save_blob_choices", "T");
+
+        // heavy noise reduction
+        // variables.put("textord_heavy_nr", "T");
+
+        // language_model_penalty_non_dict_word
+        variables.put("language_model_penalty_non_dict_word", "0.3");
+
+        // blacklist doesn't work
+        // variables.put("tessedit_char_blacklist", "=§«°·»¼ÃÆØå¼½æàâèéøɔ$");
     }
 
     @Override
@@ -63,11 +76,11 @@ public class PageRecognitionProducer extends RecognitionProducer {
         LibTess.TessBaseAPISetPageSegMode(getHandle(), PageSegMode.AUTO);
 
         // set variables
-        // for (Entry<String, String> var : variables.entrySet()) {
-        // LibTess.TessBaseAPISetVariable(getHandle(),
-        // Pointer.pointerToCString(var.getKey()),
-        // Pointer.pointerToCString(var.getValue()));
-        // }
+        for (Entry<String, String> var : variables.entrySet()) {
+            LibTess.TessBaseAPISetVariable(getHandle(),
+                    Pointer.pointerToCString(var.getKey()),
+                    Pointer.pointerToCString(var.getValue()));
+        }
     }
 
     @Override

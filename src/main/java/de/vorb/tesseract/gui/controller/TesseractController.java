@@ -39,6 +39,7 @@ import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.io.BoxFileReader;
 import de.vorb.tesseract.gui.io.BoxFileWriter;
+import de.vorb.tesseract.gui.io.PlainTextWriter;
 import de.vorb.tesseract.gui.model.*;
 import de.vorb.tesseract.gui.util.DocumentWriter;
 import de.vorb.tesseract.gui.view.*;
@@ -53,7 +54,6 @@ import de.vorb.tesseract.gui.view.dialogs.UnicharsetDebugger;
 import de.vorb.tesseract.gui.work.BatchExecutor;
 import de.vorb.tesseract.gui.work.PageListWorker;
 import de.vorb.tesseract.gui.work.PageRecognitionProducer;
-import de.vorb.tesseract.gui.work.PlainTextWriter;
 import de.vorb.tesseract.gui.work.PreprocessingWorker;
 import de.vorb.tesseract.gui.work.RecognitionWorker;
 import de.vorb.tesseract.gui.work.ThumbnailWorker;
@@ -467,7 +467,7 @@ public class TesseractController extends WindowAdapter implements
         if (getPageModel().isPresent()) {
             final StringWriter ocrResult = new StringWriter();
             try {
-                new PlainTextWriter().write(getPageModel().get().getPage(),
+                new PlainTextWriter(true).write(getPageModel().get().getPage(),
                         ocrResult);
 
                 view.getEvaluationPane().getTextAreaTranscript().setText(
@@ -745,6 +745,8 @@ public class TesseractController extends WindowAdapter implements
             view.setTitle("Tesseract OCR GUI - " + model.get().getProjectName());
         } else {
             view.setTitle("Tesseract OCR GUI");
+
+            view.getPages().getListModel().removeAllElements();
         }
     }
 
@@ -908,8 +910,7 @@ public class TesseractController extends WindowAdapter implements
 
         if (really) {
             setPageModel(Optional.<PageModel> absent());
-            projectModel = Optional.absent();
-
+            setProjectModel(Optional.<ProjectModel> absent());
             setApplicationMode(ApplicationMode.NONE);
         }
 
@@ -1322,7 +1323,7 @@ public class TesseractController extends WindowAdapter implements
 
                 final Writer writer = Files.newBufferedWriter(plain,
                         StandardCharsets.UTF_8);
-                new PlainTextWriter().write(model.get().getPage(), writer);
+                new PlainTextWriter(true).write(model.get().getPage(), writer);
                 writer.close();
 
                 // read the transcription file
@@ -1358,10 +1359,6 @@ public class TesseractController extends WindowAdapter implements
     }
 
     public void setBoxFileModel(Optional<BoxFileModel> model) {
-        if (!model.isPresent()) {
-
-        }
-
         final MainComponent active = view.getActiveComponent();
         if (active instanceof BoxFileModelComponent) {
             ((BoxFileModelComponent) active).setBoxFileModel(model);

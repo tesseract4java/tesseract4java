@@ -10,21 +10,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.text.AttributeSet.FontAttribute;
 
 import com.google.common.base.Optional;
 
@@ -32,7 +30,14 @@ import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.view.renderer.RecognitionRenderer;
+import de.vorb.tesseract.util.AlternativeChoice;
+import de.vorb.tesseract.util.FontAttributes;
+import de.vorb.tesseract.util.Symbol;
+import de.vorb.tesseract.util.Word;
+
 import javax.swing.Box;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 
 public class RecognitionPane extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;
@@ -79,6 +84,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
     private JCheckBox cbParagraphs;
     private JLabel lblFont;
     private Component horizontalStrut;
+    private JPopupMenu popupMenu;
 
     /**
      * Create the panel.
@@ -119,6 +125,85 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         lblRecognition = new JLabel();
         lblRecognition.setVerticalAlignment(SwingConstants.TOP);
         spHOCR.setViewportView(lblRecognition);
+
+        final JPopupMenu popupMenu = new JPopupMenu();
+        final JMenuItem glyph = new JMenuItem("Show in Box Editor");
+        popupMenu.add(glyph);
+
+        final MouseInputAdapter adapter = new MouseInputAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                showPopup(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                showPopup(e);
+            }
+
+            private void showPopup(MouseEvent e) {
+                if (!e.isPopupTrigger()) {
+                    return;
+                }
+
+                if (cbSymbolBoxes.isSelected()) {
+                    final Optional<Symbol> symbol = findSymbolAt(e.getX(),
+                            e.getY());
+
+                    if (symbol.isPresent()) {
+                        final Symbol s = symbol.get();
+                        popupMenu.removeAll();
+                        popupMenu.add(String.format(
+                                "Alternative choices for symbol \"%s\" (confidence = %.2f%%):",
+                                s.getText(), s.getConfidence()));
+                        popupMenu.add(new JSeparator());
+
+                        for (AlternativeChoice alt : s.getAlternatives()) {
+                            popupMenu.add(String.format(
+                                    "- \"%s\" (confidence = %.2f%%)",
+                                    alt.getText(),
+                                    alt.getConfidence()));
+                        }
+
+                        popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                    }
+                } else if (cbWordBoxes.isSelected()) {
+                    final Optional<Word> word = findWordAt(e.getX(), e.getY());
+
+                    if (word.isPresent()) {
+                        final Word w = word.get();
+
+                        popupMenu.removeAll();
+                        popupMenu.add(String.format("Word confidence = %.2f%%",
+                                w.getConfidence()));
+                        popupMenu.add(new JSeparator());
+                        final FontAttributes fa = w.getFontAttributes();
+                        popupMenu.add(String.format("Font ID = %d",
+                                fa.getFontID()));
+                        popupMenu.add(String.format("Font size = %dpx",
+                                fa.getSize()));
+
+                        if (fa.isBold())
+                            popupMenu.add("Bold");
+                        if (fa.isItalic())
+                            popupMenu.add("Italic");
+                        if (fa.isSerif())
+                            popupMenu.add("Serif");
+                        if (fa.isMonospace())
+                            popupMenu.add("Monospace");
+                        if (fa.isSmallcaps())
+                            popupMenu.add("Small Caps");
+                        if (fa.isUnderlined())
+                            popupMenu.add("Underlined");
+
+                        popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            }
+        };
+
+        lblRecognition.addMouseListener(adapter);
+        lblOriginal.addMouseListener(adapter);
 
         lblRecognition_1 = new JLabel("Recognition Result");
         lblRecognition_1.setBorder(new EmptyBorder(0, 4, 0, 0));
@@ -329,6 +414,61 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
                         spHOCR.getVerticalScrollBar().getModel());
             }
         });
+    }
+
+    private Optional<Symbol> findSymbolAt(int x, int y) {
+        if (!model.isPresent()) {
+            return Optional.absent();
+        }
+
+        final Iterator<Symbol> symbolIt =
+                model.get().getPage().symbolIterator();
+        while (symbolIt.hasNext()) {
+            final Symbol symb = symbolIt.next();
+            final de.vorb.tesseract.util.Box bbox = symb.getBoundingBox();
+
+            final int scaledX0 = Scale.scaled(bbox.getX(), scale.current());
+            final int scaledY0 = Scale.scaled(bbox.getY(), scale.current());
+            final int scaledX1 = scaledX0
+                    + Scale.scaled(bbox.getWidth(), scale.current());
+            final int scaledY1 = scaledY0
+                    + Scale.scaled(bbox.getHeight(), scale.current());
+
+            if (x >= scaledX0 && x <= scaledX1 && y >= scaledY0
+                    && y <= scaledY1) {
+                return Optional.of(symb);
+            }
+        }
+
+        return Optional.absent();
+    }
+
+    private Optional<Word> findWordAt(int x, int y) {
+        if (!model.isPresent()) {
+            return Optional.absent();
+        }
+
+        final Iterator<Word> wordIt =
+                model.get().getPage().wordIterator();
+
+        while (wordIt.hasNext()) {
+            final Word word = wordIt.next();
+            final de.vorb.tesseract.util.Box bbox = word.getBoundingBox();
+
+            final int scaledX0 = Scale.scaled(bbox.getX(), scale.current());
+            final int scaledY0 = Scale.scaled(bbox.getY(), scale.current());
+            final int scaledX1 = scaledX0
+                    + Scale.scaled(bbox.getWidth(), scale.current());
+            final int scaledY1 = scaledY0
+                    + Scale.scaled(bbox.getHeight(), scale.current());
+
+            if (x >= scaledX0 && x <= scaledX1 && y >= scaledY0
+                    && y <= scaledY1) {
+                return Optional.of(word);
+            }
+        }
+
+        return Optional.absent();
     }
 
     public Optional<PageModel> getPageModel() {

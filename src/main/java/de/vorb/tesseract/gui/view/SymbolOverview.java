@@ -99,8 +99,12 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     public void setBoxFileModel(Optional<BoxFileModel> model) {
         this.model = model;
 
-        if (!model.isPresent())
+        if (!model.isPresent()) {
+            glyphSelectionPane.getList().setModel(
+                    new DefaultListModel<Map.Entry<String, List<Symbol>>>());
+            glyphListPane.getList().setModel(new DefaultListModel<Symbol>());
             return;
+        }
 
         final JList<Entry<String, List<Symbol>>> glyphList =
                 getSymbolGroupList().getList();
