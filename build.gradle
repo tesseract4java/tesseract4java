@@ -1,10 +1,13 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'application'
 
 group = 'de.vorb'
 
 version = '0.0.1'
 sourceCompatibility = 1.7
+
+mainClassName = 'de.vorb.tesseract.gui.controller.TesseractController'
 
 jar {
   manifest {
@@ -20,6 +23,8 @@ repositories {
 // include all JAR files in lib
 dependencies {
   compile 'com.google.guava:guava:17.0'
+
+  compile 'com.twelvemonkeys.imageio:imageio-tiff:3.0-rc5'
 
   compile fileTree(dir: 'lib', includes: ['*.jar'])
 
