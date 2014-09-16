@@ -10,9 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,7 +20,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.text.AttributeSet.FontAttribute;
 
 import com.google.common.base.Optional;
 
@@ -34,10 +31,6 @@ import de.vorb.tesseract.util.AlternativeChoice;
 import de.vorb.tesseract.util.FontAttributes;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
-
-import javax.swing.Box;
-import javax.swing.JPopupMenu;
-import javax.swing.JSeparator;
 
 public class RecognitionPane extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;
@@ -72,7 +65,6 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
     private final JCheckBox cbSymbolBoxes;
     private final JCheckBox cbLineNumbers;
     private final JCheckBox cbBaselines;
-    private final JCheckBox cbXLines;
     private final JComboBox<FontSelection> comboFont;
 
     private Optional<PageModel> model = Optional.absent();
@@ -228,11 +220,11 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         panel_1.setBackground(Color.WHITE);
         add(panel_1, BorderLayout.NORTH);
         GridBagLayout gbl_panel_1 = new GridBagLayout();
-        gbl_panel_1.columnWidths = new int[] { 83, 91, 89, 65, 55, 0, 0, 0, 0,
+        gbl_panel_1.columnWidths = new int[] { 83, 91, 89, 65, 0, 0, 0, 0,
                 28, 0, 0, 0,
                 0 };
         gbl_panel_1.rowHeights = new int[] { 23, 0 };
-        gbl_panel_1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
+        gbl_panel_1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0,
                 0.0, 0.0, 0.0, 0.0,
                 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
         gbl_panel_1.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
@@ -286,22 +278,11 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         cbBaselines.setSelected(false);
         cbBaselines.addItemListener(checkBoxListener);
 
-        cbXLines = new JCheckBox("x-Line");
-        cbXLines.setBackground(Color.WHITE);
-        GridBagConstraints gbc_cbXLines = new GridBagConstraints();
-        gbc_cbXLines.anchor = GridBagConstraints.NORTHWEST;
-        gbc_cbXLines.insets = new Insets(0, 0, 0, 5);
-        gbc_cbXLines.gridx = 4;
-        gbc_cbXLines.gridy = 0;
-        panel_1.add(cbXLines, gbc_cbXLines);
-        cbXLines.setSelected(false);
-        cbXLines.addItemListener(checkBoxListener);
-
         cbBlocks = new JCheckBox("Blocks");
         cbBlocks.setBackground(Color.WHITE);
         GridBagConstraints gbc_chckbxBlocks = new GridBagConstraints();
         gbc_chckbxBlocks.insets = new Insets(0, 0, 0, 5);
-        gbc_chckbxBlocks.gridx = 5;
+        gbc_chckbxBlocks.gridx = 4;
         gbc_chckbxBlocks.gridy = 0;
         panel_1.add(cbBlocks, gbc_chckbxBlocks);
         cbBlocks.addItemListener(checkBoxListener);
@@ -310,7 +291,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         cbParagraphs.setBackground(Color.WHITE);
         GridBagConstraints gbc_chckbxParagraphs = new GridBagConstraints();
         gbc_chckbxParagraphs.insets = new Insets(0, 0, 0, 5);
-        gbc_chckbxParagraphs.gridx = 6;
+        gbc_chckbxParagraphs.gridx = 5;
         gbc_chckbxParagraphs.gridy = 0;
         panel_1.add(cbParagraphs, gbc_chckbxParagraphs);
         cbParagraphs.addItemListener(checkBoxListener);
@@ -318,7 +299,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         horizontalStrut = Box.createHorizontalStrut(20);
         GridBagConstraints gbc_horizontalStrut = new GridBagConstraints();
         gbc_horizontalStrut.insets = new Insets(0, 0, 0, 5);
-        gbc_horizontalStrut.gridx = 7;
+        gbc_horizontalStrut.gridx = 6;
         gbc_horizontalStrut.gridy = 0;
         panel_1.add(horizontalStrut, gbc_horizontalStrut);
 
@@ -326,7 +307,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         GridBagConstraints gbc_lblFont = new GridBagConstraints();
         gbc_lblFont.insets = new Insets(0, 0, 0, 5);
         gbc_lblFont.anchor = GridBagConstraints.EAST;
-        gbc_lblFont.gridx = 8;
+        gbc_lblFont.gridx = 7;
         gbc_lblFont.gridy = 0;
         panel_1.add(lblFont, gbc_lblFont);
 
@@ -334,7 +315,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         GridBagConstraints gbc_comboFont = new GridBagConstraints();
         gbc_comboFont.insets = new Insets(0, 0, 0, 5);
         gbc_comboFont.anchor = GridBagConstraints.WEST;
-        gbc_comboFont.gridx = 9;
+        gbc_comboFont.gridx = 8;
         gbc_comboFont.gridy = 0;
         panel_1.add(comboFont, gbc_comboFont);
 
@@ -360,7 +341,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         btZoomOut.setBackground(Color.WHITE);
         GridBagConstraints gbc_btZoomOut = new GridBagConstraints();
         gbc_btZoomOut.insets = new Insets(0, 0, 0, 5);
-        gbc_btZoomOut.gridx = 11;
+        gbc_btZoomOut.gridx = 10;
         gbc_btZoomOut.gridy = 0;
         panel_1.add(btZoomOut, gbc_btZoomOut);
 
@@ -383,7 +364,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         btZoomIn.setToolTipText("Zoom in");
         btZoomIn.setBackground(Color.WHITE);
         GridBagConstraints gbc_btZoomIn = new GridBagConstraints();
-        gbc_btZoomIn.gridx = 12;
+        gbc_btZoomIn.gridx = 11;
         gbc_btZoomIn.gridy = 0;
         panel_1.add(btZoomIn, gbc_btZoomIn);
         // comboFont.setModel(new DefaultComboBoxModel<String>(new String[] {
@@ -538,10 +519,6 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
     public JCheckBox getBaselines() {
         return cbBaselines;
-    }
-
-    public JCheckBox getXLines() {
-        return cbXLines;
     }
 
     public JCheckBox getBlocks() {

@@ -208,7 +208,7 @@ public class RecognitionRenderer implements PageRenderer {
         final boolean showSymbolBoxes = rp.getSymbolBoxes().isSelected();
         final boolean showLineNumbers = rp.getLineNumbers().isSelected();
         final boolean showBaselines = rp.getBaselines().isSelected();
-        final boolean showXLines = rp.getXLines().isSelected();
+        // final boolean showXLines = rp.getXLines().isSelected();
         final boolean showBlocks = rp.getBlocks().isSelected();
         final boolean showParagraphs = rp.getParagraphs().isSelected();
 
