@@ -13,17 +13,25 @@ Texts”][thesis] by Paul Vorbach.
 ## Screenshots
 
 ![Preprocessing](https://raw.githubusercontent.com/tesseract4java/tesseract-gui/master/screenshots/gui-preprocessing.png)
+Preprocessing view
 
 ![Box Editor](https://raw.githubusercontent.com/tesseract4java/tesseract-gui/master/screenshots/gui-comparison.png)
+Box editor for training
 
 ![Glyph Overview](https://raw.githubusercontent.com/tesseract4java/tesseract-gui/master/screenshots/gui-glyph-overview.png)
+Glyph overview for easier detection of errors
 
 ![Comparison View](https://raw.githubusercontent.com/tesseract4java/tesseract-gui/master/screenshots/gui-comparison.png)
+Comparison view to compare the original document with the perceived result
 
-![Batch Export](https://raw.githubusercontent.com/tesseract4java/tesseract-gui/master/screenshots/gui-batch-export.png)
+![Transcription View](https://raw.githubusercontent.com/tesseract4java/tesseract-gui/master/screenshots/gui-evaluation.png)
+Evaluation view with a transcription field
 
 ![ocrevalUAtion](https://raw.githubusercontent.com/tesseract4java/tesseract-gui/master/screenshots/gui-evaluation.png)
+[ocrevalUAtion]
 
+![Batch Export](https://raw.githubusercontent.com/tesseract4java/tesseract-gui/master/screenshots/gui-batch-export.png)
+Batch export functionality to handle large projects
 
 ## Download & Usage
 
