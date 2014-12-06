@@ -27,14 +27,15 @@ Texts”][thesis] by Paul Vorbach.
 
 ## Download & Usage
 
-_to be written_
+You can download and build the source code using Gradle. I will soon publish
+more detailed information on how to do this as well as a binary release.
 
 
 ## Credits
 
   - This software uses the [Tesseract OCR engine][tesseract].
   - This software uses [ocrevalUAtion] by Rafael C. Carrasco for providing
-    accuracy measures of the OCR results
+    accuracy measures of the OCR results.
   - This software uses the [Silk icon set][silk] by Mark James
     ([famfamfam.com]).
 
