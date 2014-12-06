@@ -75,8 +75,12 @@ public class BatchExecutor {
 
         final List<Future<?>> futures = new ArrayList<>();
 
-        // ensure the destination directory exists
+        // ensure the destination directory and others exist
         Files.createDirectories(project.getPreprocessedDir());
+        Files.createDirectories(project.getEvaluationDir());
+        Files.createDirectories(project.getTranscriptionDir());
+        Files.createDirectories(project.getOCRDir());
+        Files.createDirectories(export.getDestinationDir());
 
         // holds progress count
         final AtomicInteger progress = new AtomicInteger(0);
