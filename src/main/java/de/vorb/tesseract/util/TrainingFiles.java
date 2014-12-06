@@ -1,6 +1,8 @@
 package de.vorb.tesseract.util;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -61,6 +63,21 @@ public class TrainingFiles {
 
     public static Path getTessdataDir() {
         final String tessdataPrefix = System.getenv("TESSDATA_PREFIX");
-        return Paths.get(tessdataPrefix).resolve("tessdata");
+        Path tessdataDir;
+        if (tessdataPrefix != null) {
+            tessdataDir = Paths.get(tessdataPrefix).resolve("tessdata");
+
+            if (Files.isDirectory(tessdataDir) && Files.isReadable(tessdataDir)) {
+                return tessdataDir;
+            }
+        }
+
+        tessdataDir = Paths.get("tessdata").toAbsolutePath();
+
+        if (Files.isDirectory(tessdataDir) && Files.isReadable(tessdataDir)) {
+            return tessdataDir;
+        } else {
+            return Paths.get("");
+        }
     }
 }

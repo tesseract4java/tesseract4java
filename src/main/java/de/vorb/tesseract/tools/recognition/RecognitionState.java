@@ -1,5 +1,6 @@
 package de.vorb.tesseract.tools.recognition;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,7 +68,8 @@ public class RecognitionState {
     public String getText(PageIteratorLevel level) {
         final Pointer<Byte> pText = LibTess.TessResultIteratorGetUTF8Text(
                 resultIt, level);
-        final String text = pText.getCString();
+        final String text = new String(pText.getCString().getBytes(),
+                StandardCharsets.UTF_8);
         LibTess.TessDeleteText(pText);
         return text;
     }
