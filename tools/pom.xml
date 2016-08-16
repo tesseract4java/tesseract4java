@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>de.vorb</groupId>
+        <artifactId>tesseract4java</artifactId>
+        <version>0.0.1</version>
+    </parent>
+
+    <artifactId>tools</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.vorb</groupId>
+            <artifactId>jtesseract</artifactId>
+            <version>0.0.5-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij</artifactId>
+            <version>1.48v</version>
+        </dependency>
+        <dependency>
+            <groupId>de.biomedical-imaging.ij</groupId>
+            <artifactId>ij_blob</artifactId>
+            <version>1.3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>imagej.public</id>
+            <url>http://maven.imagej.net/content/groups/public</url>
+        </repository>
+    </repositories>
+
+</project>
