@@ -1,11 +1,6 @@
 package de.vorb.tesseract.util;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import de.vorb.tesseract.util.xml.PathAdapter;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -15,10 +10,12 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.namespace.QName;
-
-import com.sun.xml.internal.txw2.IllegalAnnotationException;
-
-import de.vorb.tesseract.util.xml.PathAdapter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class Page implements Iterable<Symbol> {
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -66,7 +63,7 @@ public class Page implements Iterable<Symbol> {
         this.height = height;
 
         if (resolution < 1) {
-            throw new IllegalAnnotationException("resolution < 1");
+            throw new IllegalArgumentException("resolution < 1");
         }
 
         this.resolution = resolution;

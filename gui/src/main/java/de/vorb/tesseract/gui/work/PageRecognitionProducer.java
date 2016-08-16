@@ -1,10 +1,21 @@
 package de.vorb.tesseract.gui.work;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import de.vorb.tesseract.gui.controller.TesseractController;
+import de.vorb.tesseract.tools.recognition.RecognitionProducer;
+import de.vorb.tesseract.util.feat.Feature3D;
+
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.IntPointer;
+import org.bytedeco.javacpp.PointerPointer;
+import org.bytedeco.javacpp.lept;
+import org.bytedeco.javacpp.tesseract;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,27 +23,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-
-import javax.imageio.ImageIO;
-
-import org.bridj.Pointer;
-
-import com.google.common.base.Optional;
-
-import de.vorb.leptonica.LibLept;
-import de.vorb.leptonica.Pix;
-import de.vorb.tesseract.INT_FEATURE_STRUCT;
-import de.vorb.tesseract.LibTess;
-import de.vorb.tesseract.OCREngineMode;
-import de.vorb.tesseract.PageSegMode;
-import de.vorb.tesseract.TBLOB;
-import de.vorb.tesseract.gui.controller.TesseractController;
-import de.vorb.tesseract.tools.recognition.RecognitionProducer;
-import de.vorb.tesseract.util.feat.Feature3D;
+import java.util.Optional;
 
 public class PageRecognitionProducer extends RecognitionProducer {
     private final Path tessdataDir;
-    private Optional<Pointer<Pix>> lastPix = Optional.absent();
+    private Optional<lept.PIX> lastPix = Optional.empty();
 
     private final TesseractController controller;
     private final HashMap<String, String> variables = new HashMap<>();
@@ -59,7 +54,7 @@ public class PageRecognitionProducer extends RecognitionProducer {
 
     @Override
     public void init() throws IOException {
-        setHandle(LibTess.TessBaseAPICreate());
+        setHandle(tesseract.TessBaseAPICreate());
 
         reset();
     }
@@ -67,48 +62,44 @@ public class PageRecognitionProducer extends RecognitionProducer {
     @Override
     public void reset() throws IOException {
         // init LibTess with data path, language and OCR engine mode
-        LibTess.TessBaseAPIInit2(getHandle(),
-                Pointer.pointerToCString(tessdataDir.toString()),
-                Pointer.pointerToCString(getTrainingFile()),
-                OCREngineMode.DEFAULT);
+        tesseract.TessBaseAPIInit2(getHandle(),
+                tessdataDir.toString(),
+                getTrainingFile(),
+                tesseract.OEM_DEFAULT);
 
         // set page segmentation mode
-        LibTess.TessBaseAPISetPageSegMode(getHandle(), PageSegMode.AUTO);
+        tesseract.TessBaseAPISetPageSegMode(getHandle(), tesseract.PSM_AUTO);
 
         // set variables
         for (Entry<String, String> var : variables.entrySet()) {
-            LibTess.TessBaseAPISetVariable(getHandle(),
-                    Pointer.pointerToCString(var.getKey()),
-                    Pointer.pointerToCString(var.getValue()));
+            tesseract.TessBaseAPISetVariable(getHandle(), var.getKey(), var.getValue());
         }
     }
 
     @Override
     public void close() throws IOException {
-        LibTess.TessBaseAPIDelete(getHandle());
+        tesseract.TessBaseAPIDelete(getHandle());
     }
 
     public void loadImage(Path imageFile) {
         if (lastPix.isPresent()) {
             // destroy old pix
-            LibLept.pixDestroy(Pointer.pointerToPointer(lastPix.get()));
+            lept.pixDestroy(new PointerPointer(lastPix.get()));
         }
 
-        final Pointer<Pix> pix =
-                LibLept.pixRead(Pointer.pointerToCString(imageFile.toString()));
+        final lept.PIX pix = lept.pixRead(imageFile.toString());
 
-        LibTess.TessBaseAPISetImage2(getHandle(), pix);
+        tesseract.TessBaseAPISetImage2(getHandle(), pix);
 
         lastPix = Optional.of(pix);
     }
 
-    public Optional<Pointer<Pix>> getImage() {
+    public Optional<lept.PIX> getImage() {
         return lastPix;
     }
 
-    public Optional<Pointer<Pix>> getThresholdedImage() {
-        return Optional.fromNullable(LibTess.TessBaseAPIGetThresholdedImage(
-                getHandle()));
+    public Optional<lept.PIX> getThresholdedImage() {
+        return Optional.ofNullable(tesseract.TessBaseAPIGetThresholdedImage(getHandle()));
     }
 
     public List<Feature3D> getFeaturesForSymbol(BufferedImage symbol) {
@@ -142,36 +133,35 @@ public class PageRecognitionProducer extends RecognitionProducer {
             ImageIO.write(symbWithPadding, "PNG", new File(symbolFile));
         } catch (IOException e) {
             e.printStackTrace();
-            return new LinkedList<Feature3D>();
+            return new LinkedList<>();
         }
 
-        final Pointer<Pix> pixSymb =
-                LibLept.pixRead(Pointer.pointerToCString(symbolFile));
+        final lept.PIX pixSymb = lept.pixRead(symbolFile);
 
-        final Pointer<TBLOB> blob = LibTess.TessMakeTBLOB(pixSymb);
-        LibLept.pixDestroy(Pointer.pointerToPointer(pixSymb));
+        final tesseract.TBLOB blob = tesseract.TessMakeTBLOB(pixSymb);
+        lept.pixDestroy(new PointerPointer(pixSymb));
 
-        final Pointer<Integer> numFeatures = Pointer.allocateInt();
-        final Pointer<Integer> outlineIndexes = Pointer.allocateInts(512);
-        final Pointer<Byte> features = Pointer.allocateBytes(4 * 512);
-        final Pointer<INT_FEATURE_STRUCT> intFeatures =
-                features.as(INT_FEATURE_STRUCT.class);
-        LibTess.TessBaseAPIGetFeaturesForBlob(getHandle(), blob, intFeatures,
-                numFeatures, outlineIndexes);
+        final IntPointer numFeatures = new IntPointer();
+
+        final IntPointer outlineIndexes = new IntPointer().capacity(512);
+
+        final tesseract.INT_FEATURE_STRUCT intFeatures = new tesseract.INT_FEATURE_STRUCT().capacity(512);
+        tesseract.TessBaseAPIGetFeaturesForBlob(getHandle(), blob, intFeatures, numFeatures, outlineIndexes);
 
         // make a list of Features3D
-        final ArrayList<Feature3D> featureList = new ArrayList<>(
-                numFeatures.getInt());
+        final ArrayList<Feature3D> featureList = new ArrayList<>(numFeatures.get());
+
+        final ByteBuffer features = intFeatures.asByteBuffer();
 
         for (int i = 0; i < numFeatures.get(); i++) {
-            features.apply(i * 4);
-            final int x = features.apply(i * 4) & 0xFF;
-            final int y = features.apply(i * 4 + 1) & 0xFF;
-            final int theta = features.apply(i * 4 + 2) & 0xFF;
-            final byte cpMisses = features.apply(i * 4 + 3);
-            final int outlineIndex = outlineIndexes.getIntAtIndex(i);
-            final Feature3D feat = new Feature3D(x, y, theta, cpMisses,
-                    outlineIndex);
+            final int x = features.get(i * 4) & 0xFF;
+            final int y = features.get(i * 4 + 1) & 0xFF;
+            final int theta = features.get(i * 4 + 2) & 0xFF;
+            final byte cpMisses = features.get(i * 4 + 3);
+            final int outlineIndex = outlineIndexes.get(i);
+
+            final Feature3D feat = new Feature3D(x, y, theta, cpMisses, outlineIndex);
+
             featureList.add(feat);
         }
 

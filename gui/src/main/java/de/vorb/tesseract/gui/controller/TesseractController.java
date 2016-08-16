@@ -33,8 +33,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.transform.TransformerException;
 
-import org.bridj.BridJ;
-
 import com.google.common.base.Optional;
 
 import de.vorb.tesseract.gui.io.BoxFileReader;

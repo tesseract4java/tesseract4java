@@ -1,21 +1,14 @@
 package de.vorb.tesseract.tools.recognition;
 
+import org.bytedeco.javacpp.tesseract;
+
 import java.io.Closeable;
 import java.io.IOException;
-
-import org.bridj.Pointer;
-
-import de.vorb.tesseract.LibTess;
-import de.vorb.tesseract.LibTess.TessBaseAPI;
-import de.vorb.tesseract.LibTess.TessChoiceIterator;
-import de.vorb.tesseract.LibTess.TessPageIterator;
-import de.vorb.tesseract.LibTess.TessResultIterator;
-import de.vorb.tesseract.PageIteratorLevel;
 
 public abstract class RecognitionProducer implements Closeable {
     public static final String DEFAULT_TRAINING_FILE = "eng";
 
-    private Pointer<TessBaseAPI> handle;
+    private tesseract.TessBaseAPI handle;
     private String trainingFile = DEFAULT_TRAINING_FILE;
 
     public RecognitionProducer() {
@@ -25,7 +18,7 @@ public abstract class RecognitionProducer implements Closeable {
         setTrainingFile(trainingFile);
     }
 
-    public Pointer<TessBaseAPI> getHandle() {
+    public tesseract.TessBaseAPI getHandle() {
         return this.handle;
     }
 
@@ -37,7 +30,7 @@ public abstract class RecognitionProducer implements Closeable {
         this.trainingFile = trainingFile;
     }
 
-    protected void setHandle(Pointer<TessBaseAPI> handle) {
+    protected void setHandle(tesseract.TessBaseAPI handle) {
         this.handle = handle;
     }
 
@@ -50,18 +43,18 @@ public abstract class RecognitionProducer implements Closeable {
     @SuppressWarnings("unchecked")
     public void recognize(RecognitionConsumer consumer) {
         // text recognition
-        LibTess.TessBaseAPIRecognize(getHandle(), Pointer.NULL);
+        tesseract.TessBaseAPIRecognize(getHandle(), null);
 
         // get the result iterator
-        final Pointer<TessResultIterator> resultIt =
-                LibTess.TessBaseAPIGetIterator(getHandle());
+        final tesseract.ResultIterator resultIt =
+                tesseract.TessBaseAPIGetIterator(getHandle());
 
         // get the page iterator
-        final Pointer<TessPageIterator> pageIt =
-                LibTess.TessResultIteratorGetPageIterator(resultIt);
+        final tesseract.PageIterator pageIt =
+                tesseract.TessResultIteratorGetPageIterator(resultIt);
 
         // iterating over symbols
-        final PageIteratorLevel level = PageIteratorLevel.SYMBOL;
+        final int level = tesseract.RIL_SYMBOL;
 
         // set the recognition state
         consumer.setState(new RecognitionState(handle, resultIt, pageIt));
@@ -70,24 +63,19 @@ public abstract class RecognitionProducer implements Closeable {
 
         do {
             // beginning of a symbol
-            if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
-                    level) == LibTess.TRUE) {
+            if (tesseract.TessPageIteratorIsAtBeginningOf(pageIt, level)) {
 
                 // beginning of a word
-                if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
-                        PageIteratorLevel.WORD) == LibTess.TRUE) {
+                if (tesseract.TessPageIteratorIsAtBeginningOf(pageIt, tesseract.RIL_WORD)) {
 
                     // beginning of a text line
-                    if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
-                            PageIteratorLevel.TEXTLINE) == LibTess.TRUE) {
+                    if (tesseract.TessPageIteratorIsAtBeginningOf(pageIt, tesseract.RIL_TEXTLINE)) {
 
                         // beginning of a paragraph
-                        if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
-                                PageIteratorLevel.PARA) == LibTess.TRUE) {
+                        if (tesseract.TessPageIteratorIsAtBeginningOf(pageIt, tesseract.RIL_PARA)) {
 
                             // beginning of a block
-                            if (LibTess.TessPageIteratorIsAtBeginningOf(pageIt,
-                                    PageIteratorLevel.BLOCK) == LibTess.TRUE) {
+                            if (tesseract.TessPageIteratorIsAtBeginningOf(pageIt, tesseract.RIL_BLOCK)) {
                                 consumer.blockBegin();
 
                                 // handle cancellation
@@ -120,42 +108,34 @@ public abstract class RecognitionProducer implements Closeable {
             }
 
             // last symbol in word
-            if (LibTess.TessPageIteratorIsAtFinalElement(pageIt,
-                    PageIteratorLevel.WORD,
-                    PageIteratorLevel.SYMBOL) == LibTess.TRUE) {
+            if (tesseract.TessPageIteratorIsAtFinalElement(pageIt, tesseract.RIL_WORD, tesseract.RIL_SYMBOL)) {
 
                 consumer.wordEnd();
 
                 inWord = false;
 
                 // last word in line
-                if (LibTess.TessPageIteratorIsAtFinalElement(pageIt,
-                        PageIteratorLevel.TEXTLINE,
-                        PageIteratorLevel.WORD) == LibTess.TRUE) {
+                if (tesseract.TessPageIteratorIsAtFinalElement(pageIt, tesseract.RIL_TEXTLINE, tesseract.RIL_WORD)) {
 
                     consumer.lineEnd();
 
                     // last line in paragraph
-                    if (LibTess.TessPageIteratorIsAtFinalElement(pageIt,
-                            PageIteratorLevel.PARA,
-                            PageIteratorLevel.TEXTLINE) == LibTess.TRUE) {
+                    if (tesseract.TessPageIteratorIsAtFinalElement(pageIt, tesseract.RIL_PARA,
+                            tesseract.RIL_TEXTLINE)) {
 
                         consumer.paragraphEnd();
 
                         // last paragraph in a block
-                        if (LibTess.TessPageIteratorIsAtFinalElement(pageIt,
-                                PageIteratorLevel.BLOCK,
-                                PageIteratorLevel.PARA) == LibTess.TRUE) {
-
+                        if (tesseract.TessPageIteratorIsAtFinalElement(pageIt, tesseract.RIL_BLOCK,
+                                tesseract.RIL_PARA)) {
                             consumer.blockEnd();
-
                         }
                     }
                 }
             }
-        } while (LibTess.TessPageIteratorNext(pageIt, level) > 0); // next symb
+        } while (tesseract.TessPageIteratorNext(pageIt, level)); // next symb
 
-        // LibTess.TessResultIteratorDelete(resultIt);
-        // LibTess.TessPageIteratorDelete(pageIt);
+        // tesseract.TessResultIteratorDelete(resultIt);
+        // tesseract.TessPageIteratorDelete(pageIt);
     }
 }

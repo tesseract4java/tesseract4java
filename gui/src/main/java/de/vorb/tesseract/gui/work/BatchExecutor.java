@@ -232,8 +232,7 @@ public class BatchExecutor {
                                 .resolve("project.report.html");
 
                         // write report html
-                        DocumentWriter.writeToFile(report.document(),
-                                projectReport);
+                        DocumentWriter.writeToFile(report.document(), projectReport);
 
                         // write report csv
                         final BufferedWriter csv = Files.newBufferedWriter(

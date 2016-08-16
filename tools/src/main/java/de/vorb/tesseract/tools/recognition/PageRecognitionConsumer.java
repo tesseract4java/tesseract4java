@@ -3,13 +3,14 @@ package de.vorb.tesseract.tools.recognition;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.vorb.tesseract.PageIteratorLevel;
 import de.vorb.tesseract.util.Block;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Line;
 import de.vorb.tesseract.util.Paragraph;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
+
+import org.bytedeco.javacpp.tesseract;
 
 public abstract class PageRecognitionConsumer extends
         DefaultRecognitionConsumer {
@@ -31,7 +32,7 @@ public abstract class PageRecognitionConsumer extends
 
     @Override
     public void blockEnd() {
-        final PageIteratorLevel level = PageIteratorLevel.BLOCK;
+        final int level = tesseract.RIL_BLOCK;
         blocks.add(new Block(getState().getBoundingBox(level),
                 blockParagraphs));
     }
@@ -43,7 +44,7 @@ public abstract class PageRecognitionConsumer extends
 
     @Override
     public void paragraphEnd() {
-        final PageIteratorLevel level = PageIteratorLevel.PARA;
+        final int level = tesseract.RIL_PARA;
         blockParagraphs.add(new Paragraph(getState().getBoundingBox(level),
                 paragraphLines));
     }
@@ -55,7 +56,7 @@ public abstract class PageRecognitionConsumer extends
 
     @Override
     public void lineEnd() {
-        final PageIteratorLevel level = PageIteratorLevel.TEXTLINE;
+        final int level = tesseract.RIL_TEXTLINE;
         paragraphLines.add(new Line(getState().getBoundingBox(level),
                 lineWords, getState().getBaseline(level)));
     }
@@ -68,18 +69,19 @@ public abstract class PageRecognitionConsumer extends
     @Override
     public void wordEnd() {
         final RecognitionState state = getState();
-        final PageIteratorLevel level = PageIteratorLevel.WORD;
+        final int level = tesseract.RIL_WORD;
         final Box bbox = state.getBoundingBox(level);
         lineWords.add(new Word(wordSymbols, bbox,
                 state.getConfidence(level),
-                state.getBaseline(PageIteratorLevel.WORD),
+                state.getBaseline(tesseract.RIL_WORD),
                 state.getWordFontAttributes()));
     }
 
     @Override
     public void symbol() {
-        final PageIteratorLevel level = PageIteratorLevel.SYMBOL;
-        wordSymbols.add(new Symbol(getState().getText(level),
+        final int level = tesseract.RIL_SYMBOL;
+        wordSymbols.add(new Symbol(
+                getState().getText(level),
                 getState().getBoundingBox(level),
                 getState().getConfidence(level),
                 getState().getAlternatives()));
