@@ -41,12 +41,14 @@ more detailed information on how to do this as well as a binary release.
 
 ## Credits
 
-  - This software uses the [Tesseract OCR engine][tesseract].
+  - This software uses the [Tesseract OCR engine][tesseract] ([APLv2.0]).
   - This software uses [ocrevalUAtion] by Rafael C. Carrasco for providing
-    accuracy measures of the OCR results.
+    accuracy measures of the OCR results ([GPLv3]).
   - This software uses the [Silk icon set][silk] by Mark James
-    ([famfamfam.com]).
+    ([famfamfam.com]) ([CC-BY-3.0]).
 
+[APLv2.0]: http://www.apache.org/licenses/LICENSE-2.0
+[GPLv3]: https://www.gnu.org/licenses/gpl-3.0.html
 [ocrevalUAtion]: https://github.com/impactcentre/ocrevalUAtion
 [silk]: http://www.famfamfam.com/lab/icons/silk/
 [famfamfam.com]: http://www.famfamfam.com/
