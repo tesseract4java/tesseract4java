@@ -1,16 +1,14 @@
 package de.vorb.tesseract.gui.work;
 
-import java.awt.image.BufferedImage;
-import java.nio.file.Path;
-import java.util.List;
-
-import javax.swing.DefaultListModel;
-import javax.swing.SwingWorker;
+import de.vorb.tesseract.gui.model.PageThumbnail;
+import de.vorb.tesseract.gui.model.ProjectModel;
 
 import com.google.common.base.Optional;
 
-import de.vorb.tesseract.gui.model.PageThumbnail;
-import de.vorb.tesseract.gui.model.ProjectModel;
+import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.nio.file.Path;
+import java.util.List;
 
 public class PageListWorker extends SwingWorker<Void, PageThumbnail> {
     private final ProjectModel projectModel;

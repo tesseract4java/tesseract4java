@@ -1,34 +1,21 @@
 package de.vorb.tesseract.gui.view.dialogs;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.gui.view.renderer.UnicharListRenderer;
 import de.vorb.tesseract.tools.training.Char;
 import de.vorb.tesseract.tools.training.CharacterDimensions;
 import de.vorb.tesseract.tools.training.Unicharset;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.util.LinkedList;
+import java.util.List;
 
 public class UnicharsetDebugger extends JFrame {
     private static final long serialVersionUID = 1L;

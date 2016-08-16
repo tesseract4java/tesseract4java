@@ -1,21 +1,19 @@
 package de.vorb.tesseract.gui.work;
 
-import java.awt.Graphics2D;
+import de.vorb.tesseract.gui.model.PageThumbnail;
+import de.vorb.tesseract.gui.model.ProjectModel;
+
+import com.google.common.base.Optional;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import javax.imageio.ImageIO;
-import javax.swing.DefaultListModel;
-import javax.swing.SwingWorker;
-
-import com.google.common.base.Optional;
-
-import de.vorb.tesseract.gui.model.PageThumbnail;
-import de.vorb.tesseract.gui.model.ProjectModel;
 
 public class ThumbnailWorker extends
         SwingWorker<Void, ThumbnailWorker.Task> {

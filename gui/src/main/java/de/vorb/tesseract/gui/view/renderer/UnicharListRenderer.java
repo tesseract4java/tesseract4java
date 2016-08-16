@@ -1,11 +1,9 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import java.awt.Component;
-
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JList;
-
 import de.vorb.tesseract.tools.training.Char;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class UnicharListRenderer extends DefaultListCellRenderer {
     private static final long serialVersionUID = 1L;

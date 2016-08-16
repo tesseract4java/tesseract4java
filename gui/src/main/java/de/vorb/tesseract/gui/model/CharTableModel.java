@@ -1,8 +1,7 @@
 package de.vorb.tesseract.gui.model;
 
-import java.util.ArrayList;
-
 import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
 
 public class CharTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;

@@ -1,46 +1,30 @@
 package de.vorb.tesseract.gui.controller;
 
-import java.awt.Desktop;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.Timer;
-import java.util.prefs.Preferences;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileFilter;
-import javax.xml.transform.TransformerException;
-
-import com.google.common.base.Optional;
-
 import de.vorb.tesseract.gui.io.BoxFileReader;
 import de.vorb.tesseract.gui.io.BoxFileWriter;
 import de.vorb.tesseract.gui.io.PlainTextWriter;
-import de.vorb.tesseract.gui.model.*;
+import de.vorb.tesseract.gui.model.ApplicationMode;
+import de.vorb.tesseract.gui.model.BatchExportModel;
+import de.vorb.tesseract.gui.model.BoxFileModel;
+import de.vorb.tesseract.gui.model.FilteredListModel;
+import de.vorb.tesseract.gui.model.GlobalPrefs;
+import de.vorb.tesseract.gui.model.ImageModel;
+import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.PageThumbnail;
+import de.vorb.tesseract.gui.model.ProjectModel;
+import de.vorb.tesseract.gui.model.SymbolListModel;
+import de.vorb.tesseract.gui.model.SymbolOrder;
 import de.vorb.tesseract.gui.util.DocumentWriter;
-import de.vorb.tesseract.gui.view.*;
+import de.vorb.tesseract.gui.view.BoxFileModelComponent;
+import de.vorb.tesseract.gui.view.EvaluationPane;
+import de.vorb.tesseract.gui.view.FeatureDebugger;
+import de.vorb.tesseract.gui.view.FilteredTable;
+import de.vorb.tesseract.gui.view.ImageModelComponent;
+import de.vorb.tesseract.gui.view.MainComponent;
+import de.vorb.tesseract.gui.view.PageModelComponent;
+import de.vorb.tesseract.gui.view.PreprocessingPane;
+import de.vorb.tesseract.gui.view.SymbolOverview;
+import de.vorb.tesseract.gui.view.TesseractFrame;
 import de.vorb.tesseract.gui.view.dialogs.BatchExportDialog;
 import de.vorb.tesseract.gui.view.dialogs.CharacterHistogram;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
@@ -66,10 +50,52 @@ import de.vorb.tesseract.util.TrainingFiles;
 import de.vorb.tesseract.util.feat.Feature3D;
 import de.vorb.util.FileNames;
 
+import com.google.common.base.Optional;
 import eu.digitisation.input.Batch;
 import eu.digitisation.input.Parameters;
 import eu.digitisation.input.WarningException;
 import eu.digitisation.output.Report;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
+import javax.xml.transform.TransformerException;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.TreeMap;
+import java.util.prefs.Preferences;
 
 public class TesseractController extends WindowAdapter implements
         ActionListener, ListSelectionListener, Observer, ChangeListener {
@@ -390,7 +416,7 @@ public class TesseractController extends WindowAdapter implements
             return ((PageModelComponent) active).getPageModel();
         }
 
-        return Optional.<PageModel> absent();
+        return Optional.<PageModel>absent();
     }
 
     public PageRecognitionProducer getPageRecognitionProducer() {
@@ -454,10 +480,10 @@ public class TesseractController extends WindowAdapter implements
                     if (pm.isPresent()) {
                         setImageModel(Optional.of(pm.get().getImageModel()));
                     } else {
-                        setImageModel(Optional.<ImageModel> absent());
+                        setImageModel(Optional.<ImageModel>absent());
                     }
                 } else {
-                    setImageModel(Optional.<ImageModel> absent());
+                    setImageModel(Optional.<ImageModel>absent());
                 }
             } else if (active instanceof PageModelComponent) {
                 if (activeComponent instanceof PageModelComponent) {
@@ -469,7 +495,7 @@ public class TesseractController extends WindowAdapter implements
                     setImageModel(((ImageModelComponent) activeComponent)
                             .getImageModel());
                 } else {
-                    setPageModel(Optional.<PageModel> absent());
+                    setPageModel(Optional.<PageModel>absent());
                 }
             }
         }
@@ -806,11 +832,11 @@ public class TesseractController extends WindowAdapter implements
                 final String fname = f.getName();
                 return f.canRead()
                         && (f.isDirectory() || f.isFile()
-                                && (fname.endsWith(".png")
-                                        || fname.endsWith(".tif")
-                                        || fname.endsWith(".tiff")
-                                        || fname.endsWith(".jpg")
-                                        || fname.endsWith(".jpeg")));
+                        && (fname.endsWith(".png")
+                        || fname.endsWith(".tif")
+                        || fname.endsWith(".tiff")
+                        || fname.endsWith(".jpg")
+                        || fname.endsWith(".jpeg")));
             }
         });
         final int result = fc.showOpenDialog(view);
@@ -935,8 +961,8 @@ public class TesseractController extends WindowAdapter implements
                 "Do you really want to close this project?");
 
         if (really) {
-            setPageModel(Optional.<PageModel> absent());
-            setProjectModel(Optional.<ProjectModel> absent());
+            setPageModel(Optional.<PageModel>absent());
+            setProjectModel(Optional.<ProjectModel>absent());
             setApplicationMode(ApplicationMode.NONE);
         }
 
@@ -948,7 +974,7 @@ public class TesseractController extends WindowAdapter implements
                 "Do you really want to close this box file? All unsaved changes will be lost.");
 
         if (really) {
-            setBoxFileModel(Optional.<BoxFileModel> absent());
+            setBoxFileModel(Optional.<BoxFileModel>absent());
 
             setApplicationMode(ApplicationMode.NONE);
         }
@@ -1208,7 +1234,7 @@ public class TesseractController extends WindowAdapter implements
 
         if (allPages
                 && Dialogs.ask(view, "Confirmation",
-                        "Do you really want to apply the current preprocessing methods to all pages?")) {
+                "Do you really want to apply the current preprocessing methods to all pages?")) {
             defaultPreprocessor = preprocessor;
             preprocessors.clear();
 
@@ -1230,7 +1256,8 @@ public class TesseractController extends WindowAdapter implements
             try {
                 final Path execDir = Paths.get(prefDialog.getTfExecutablesDir().getText());
                 if (Files.isDirectory(execDir)
-                        && (Files.isExecutable(execDir.resolve("tesseract")) || Files.isExecutable(execDir.resolve("tesseract.exe")))) {
+                        && (Files.isExecutable(execDir.resolve("tesseract")) || Files.isExecutable(
+                        execDir.resolve("tesseract.exe")))) {
                     globalPrefs.put(PreferencesDialog.KEY_EXEC_DIR,
                             execDir.toString());
                 }
@@ -1385,7 +1412,7 @@ public class TesseractController extends WindowAdapter implements
                         model.get().toBoxFileModel()));
             } else {
                 ((BoxFileModelComponent) active).setBoxFileModel(
-                        Optional.<BoxFileModel> absent());
+                        Optional.<BoxFileModel>absent());
             }
         }
     }
@@ -1406,7 +1433,7 @@ public class TesseractController extends WindowAdapter implements
 
         if (active instanceof PageModelComponent) {
             ((PageModelComponent) active).setPageModel(
-                    Optional.<PageModel> absent());
+                    Optional.<PageModel>absent());
 
             if (recognitionWorker.isPresent()) {
                 recognitionWorker.get().cancel(false);
@@ -1445,7 +1472,7 @@ public class TesseractController extends WindowAdapter implements
         if (!selectedPage.isPresent()
                 || !sourceFile.equals(selectedPage.get())) {
             ((ImageModelComponent) active).setImageModel(
-                    Optional.<ImageModel> absent());
+                    Optional.<ImageModel>absent());
             return;
         }
 

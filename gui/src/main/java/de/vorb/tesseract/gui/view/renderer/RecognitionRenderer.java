@@ -1,26 +1,28 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import static de.vorb.tesseract.gui.model.Scale.scaled;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Iterator;
-
-import javax.swing.ImageIcon;
-import javax.swing.SwingWorker;
-
-import com.google.common.base.Optional;
-
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.Colors;
 import de.vorb.tesseract.gui.view.RecognitionPane;
 import de.vorb.tesseract.gui.view.RecognitionPane.FontSelection;
-import de.vorb.tesseract.util.*;
+import de.vorb.tesseract.util.Baseline;
+import de.vorb.tesseract.util.Block;
+import de.vorb.tesseract.util.Box;
+import de.vorb.tesseract.util.FontAttributes;
+import de.vorb.tesseract.util.Line;
+import de.vorb.tesseract.util.Page;
+import de.vorb.tesseract.util.Paragraph;
+import de.vorb.tesseract.util.Symbol;
+import de.vorb.tesseract.util.Word;
+
+import com.google.common.base.Optional;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Iterator;
+
+import static de.vorb.tesseract.gui.model.Scale.scaled;
 
 public class RecognitionRenderer implements PageRenderer {
     // Fallback fonts

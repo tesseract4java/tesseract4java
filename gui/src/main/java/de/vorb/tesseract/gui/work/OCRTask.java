@@ -1,25 +1,5 @@
 package de.vorb.tesseract.gui.work;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.imageio.ImageIO;
-import javax.swing.ProgressMonitor;
-import javax.xml.bind.JAXBException;
-import javax.xml.transform.TransformerException;
-
 import de.vorb.tesseract.gui.io.PlainTextWriter;
 import de.vorb.tesseract.gui.model.BatchExportModel;
 import de.vorb.tesseract.gui.model.ProjectModel;
@@ -34,6 +14,25 @@ import eu.digitisation.input.Batch;
 import eu.digitisation.input.Parameters;
 import eu.digitisation.input.WarningException;
 import eu.digitisation.output.Report;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.xml.bind.JAXBException;
+import javax.xml.transform.TransformerException;
+import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class OCRTask implements Callable<Void> {
     private final Path sourceFile;

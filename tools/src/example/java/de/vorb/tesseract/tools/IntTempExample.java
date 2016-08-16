@@ -1,8 +1,14 @@
 package de.vorb.tesseract.tools;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import de.vorb.tesseract.tools.training.InputBuffer;
+import de.vorb.tesseract.tools.training.IntClass;
+import de.vorb.tesseract.tools.training.IntTemplates;
+import de.vorb.tesseract.tools.training.ShapeTable;
+import de.vorb.tesseract.tools.training.Unicharset;
+import de.vorb.tesseract.tools.visualization.PrototypeRenderer;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
@@ -10,22 +16,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Random;
-
-import javax.imageio.ImageIO;
-
-import de.vorb.tesseract.tools.training.InputBuffer;
-import de.vorb.tesseract.tools.training.IntClass;
-import de.vorb.tesseract.tools.training.IntTemplates;
-import de.vorb.tesseract.tools.training.ShapeTable;
-import de.vorb.tesseract.tools.training.Unicharset;
-import de.vorb.tesseract.tools.visualization.PrototypeRenderer;
 
 public class IntTempExample {
 

@@ -1,28 +1,19 @@
 package de.vorb.tesseract.gui.view;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Window;
-import java.awt.geom.Line2D;
-import java.awt.geom.Line2D.Double;
-import java.awt.image.BufferedImage;
-import java.util.List;
-
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
-import com.google.common.base.Optional;
-
 import de.vorb.tesseract.tools.training.IntClass;
 import de.vorb.tesseract.tools.training.IntTemplates;
 import de.vorb.tesseract.util.feat.Feature3D;
 import de.vorb.tesseract.util.feat.Feature4D;
+
+import com.google.common.base.Optional;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Line2D.Double;
+import java.awt.image.BufferedImage;
+import java.util.List;
 
 public class FeatureDebugger extends JDialog {
     private static final long serialVersionUID = 1L;

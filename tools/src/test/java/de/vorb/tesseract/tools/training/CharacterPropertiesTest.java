@@ -1,8 +1,9 @@
 package de.vorb.tesseract.tools.training;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class CharacterPropertiesTest {
   final CharacterProperties semicolon = new CharacterProperties(false, false,

@@ -1,19 +1,12 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
+import de.vorb.tesseract.gui.model.PageThumbnail;
 
 import com.google.common.base.Optional;
 
-import de.vorb.tesseract.gui.model.PageThumbnail;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class PageListCellRenderer extends JLabel implements
         ListCellRenderer<PageThumbnail> {

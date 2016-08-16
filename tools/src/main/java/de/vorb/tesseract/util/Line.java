@@ -1,13 +1,12 @@
 package de.vorb.tesseract.util;
 
-import java.util.Collections;
-import java.util.List;
+import de.vorb.tesseract.util.xml.BoxAdapter;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import de.vorb.tesseract.util.xml.BoxAdapter;
+import java.util.Collections;
+import java.util.List;
 
 public class Line {
     @XmlJavaTypeAdapter(BoxAdapter.class)

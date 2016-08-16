@@ -1,13 +1,13 @@
 package de.vorb.tesseract.gui.io;
 
+import de.vorb.tesseract.gui.model.BoxFileModel;
+import de.vorb.tesseract.util.Box;
+import de.vorb.tesseract.util.Symbol;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-
-import de.vorb.tesseract.gui.model.BoxFileModel;
-import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.Symbol;
 
 public class BoxFileWriter {
     public static void writeBoxFile(BoxFileModel model) throws IOException {

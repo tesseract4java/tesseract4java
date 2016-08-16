@@ -1,28 +1,12 @@
 package de.vorb.tesseract.gui.view;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-
+import de.vorb.tesseract.gui.model.SymbolOrder;
 import de.vorb.tesseract.util.Symbol;
 
-import java.awt.Component;
-
-import javax.swing.Box;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-
-import de.vorb.tesseract.gui.model.SymbolOrder;
-
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class SymbolVariantList extends JPanel {
     private static final long serialVersionUID = 1L;

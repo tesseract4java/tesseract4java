@@ -1,15 +1,5 @@
 package de.vorb.tesseract.gui.work;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-
-import com.google.common.base.Optional;
-
 import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.gui.model.ImageModel;
 import de.vorb.tesseract.gui.model.PageModel;
@@ -17,6 +7,14 @@ import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.tools.recognition.PageRecognitionConsumer;
 import de.vorb.tesseract.util.Block;
 import de.vorb.tesseract.util.Page;
+
+import com.google.common.base.Optional;
+
+import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class RecognitionWorker extends SwingWorker<PageModel, Void> {
     private final TesseractController controller;

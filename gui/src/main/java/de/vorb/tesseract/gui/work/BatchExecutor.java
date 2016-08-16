@@ -1,6 +1,21 @@
 package de.vorb.tesseract.gui.work;
 
-import java.awt.Desktop;
+import de.vorb.tesseract.gui.controller.TesseractController;
+import de.vorb.tesseract.gui.model.BatchExportModel;
+import de.vorb.tesseract.gui.model.ProjectModel;
+import de.vorb.tesseract.gui.util.DocumentWriter;
+import de.vorb.tesseract.gui.view.dialogs.Dialogs;
+import de.vorb.tesseract.tools.preprocessing.Preprocessor;
+import de.vorb.tesseract.util.TrainingFiles;
+
+import eu.digitisation.input.Batch;
+import eu.digitisation.input.Parameters;
+import eu.digitisation.input.WarningException;
+import eu.digitisation.output.Report;
+
+import javax.swing.*;
+import javax.xml.transform.TransformerException;
+import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -19,26 +34,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.swing.ProgressMonitor;
-import javax.swing.SwingUtilities;
-import javax.xml.transform.TransformerException;
-
-import com.google.common.util.concurrent.Futures;
-
-import de.vorb.tesseract.gui.controller.TesseractController;
-import de.vorb.tesseract.gui.model.BatchExportModel;
-import de.vorb.tesseract.gui.model.ProjectModel;
-import de.vorb.tesseract.gui.util.DocumentWriter;
-import de.vorb.tesseract.gui.view.dialogs.Dialogs;
-import de.vorb.tesseract.tools.preprocessing.Preprocessor;
-import de.vorb.tesseract.util.TrainingFiles;
-import de.vorb.util.FileNames;
-
-import eu.digitisation.input.Batch;
-import eu.digitisation.input.Parameters;
-import eu.digitisation.input.WarningException;
-import eu.digitisation.output.Report;
 
 public class BatchExecutor {
     private final TesseractController controller;

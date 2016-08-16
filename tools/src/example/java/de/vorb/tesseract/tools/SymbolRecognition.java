@@ -1,19 +1,18 @@
 package de.vorb.tesseract.tools;
 
+import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
+import de.vorb.tesseract.tools.recognition.RecognitionProducer;
+
+import org.bytedeco.javacpp.lept;
+import org.bytedeco.javacpp.tesseract;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
-import javax.imageio.ImageIO;
-
-import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
-import de.vorb.tesseract.tools.recognition.RecognitionProducer;
-
-import org.bytedeco.javacpp.lept;
-import org.bytedeco.javacpp.tesseract;
 
 public class SymbolRecognition extends RecognitionProducer {
     public SymbolRecognition(String language) throws IOException {

@@ -1,20 +1,12 @@
 package de.vorb.tesseract.gui.view;
 
-import java.awt.BorderLayout;
-import java.awt.SystemColor;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.ListModel;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.util.FilterProvider;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
 
 public class FilteredList<T> extends JPanel {
     private static final long serialVersionUID = 1L;

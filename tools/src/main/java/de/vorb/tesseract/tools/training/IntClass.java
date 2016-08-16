@@ -1,14 +1,14 @@
 package de.vorb.tesseract.tools.training;
 
-import static de.vorb.tesseract.tools.training.IntTemplates.PROTOS_PER_PROTO_SET;
-import static de.vorb.tesseract.tools.training.IntTemplates.WERDS_PER_CONFIG_VEC;
+import de.vorb.tesseract.util.feat.Feature4D;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.vorb.tesseract.util.feat.Feature4D;
+import static de.vorb.tesseract.tools.training.IntTemplates.PROTOS_PER_PROTO_SET;
+import static de.vorb.tesseract.tools.training.IntTemplates.WERDS_PER_CONFIG_VEC;
 
 public class IntClass {
     private final int numProtos;

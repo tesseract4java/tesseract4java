@@ -1,8 +1,8 @@
 package de.vorb.tesseract.gui.model;
 
-import javax.swing.DefaultListModel;
-
 import de.vorb.tesseract.util.Symbol;
+
+import javax.swing.*;
 
 public class SymbolTableModel extends FilteredTableModel<Symbol> {
     private static final long serialVersionUID = 1L;

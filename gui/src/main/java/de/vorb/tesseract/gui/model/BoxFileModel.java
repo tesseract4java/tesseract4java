@@ -1,11 +1,11 @@
 package de.vorb.tesseract.gui.model;
 
+import de.vorb.tesseract.util.Symbol;
+
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-
-import de.vorb.tesseract.util.Symbol;
 
 public class BoxFileModel {
     private final Path file;

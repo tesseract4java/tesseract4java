@@ -1,16 +1,11 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import java.awt.Component;
-import java.awt.image.BufferedImage;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class SymbolVariantListCellRenderer extends JLabel implements
         ListCellRenderer<Symbol> {

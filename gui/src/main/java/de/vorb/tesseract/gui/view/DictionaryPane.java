@@ -1,14 +1,8 @@
 package de.vorb.tesseract.gui.view;
 
-import javax.swing.JPanel;
-
-import java.awt.BorderLayout;
-
-import javax.swing.JList;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JButton;
-
-import java.awt.FlowLayout;
+import java.awt.*;
 
 public class DictionaryPane extends JPanel {
     private static final long serialVersionUID = 1L;

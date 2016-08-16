@@ -1,26 +1,14 @@
 package de.vorb.tesseract.gui.view.dialogs;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import de.vorb.tesseract.gui.model.GlobalPrefs;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.prefs.Preferences;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
-
-import de.vorb.tesseract.gui.model.GlobalPrefs;
-import java.awt.Toolkit;
 
 public class PreferencesDialog extends JDialog {
     private static final long serialVersionUID = 1L;

@@ -1,15 +1,13 @@
 package de.vorb.tesseract.gui.model;
 
-import java.util.ArrayList;
-
-import javax.swing.AbstractListModel;
-import javax.swing.ListModel;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
+import de.vorb.tesseract.gui.util.Filter;
 
 import com.google.common.base.Optional;
 
-import de.vorb.tesseract.gui.util.Filter;
+import javax.swing.*;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
+import java.util.ArrayList;
 
 public class FilteredListModel<T> extends AbstractListModel<T> {
     private static final long serialVersionUID = 1L;

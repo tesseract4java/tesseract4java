@@ -1,13 +1,15 @@
 package de.vorb.tesseract.gui.view.dialogs;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import de.vorb.tesseract.gui.controller.TesseractController;
+import de.vorb.tesseract.gui.model.BatchExportModel;
+
+import com.google.common.base.Optional;
+
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -15,16 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-
-import com.google.common.base.Optional;
-
-import de.vorb.tesseract.gui.controller.TesseractController;
-import de.vorb.tesseract.gui.model.BatchExportModel;
 
 public class BatchExportDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = 1L;

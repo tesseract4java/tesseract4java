@@ -1,8 +1,8 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import com.google.common.base.Optional;
-
 import de.vorb.tesseract.gui.model.PageModel;
+
+import com.google.common.base.Optional;
 
 /**
  * Page renderer.

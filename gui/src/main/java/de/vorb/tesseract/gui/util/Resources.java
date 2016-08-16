@@ -1,7 +1,6 @@
 package de.vorb.tesseract.gui.util;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
+import javax.swing.*;
 
 public class Resources {
     public static final Icon getIcon(String name) {

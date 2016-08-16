@@ -1,25 +1,21 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import static de.vorb.tesseract.gui.model.Scale.scaled;
-
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.ListModel;
-import javax.swing.SwingWorker;
-
-import com.google.common.base.Optional;
-
 import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.view.BoxEditor;
 import de.vorb.tesseract.gui.view.Colors;
 import de.vorb.tesseract.gui.view.Strokes;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
+
+import com.google.common.base.Optional;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+
+import static de.vorb.tesseract.gui.model.Scale.scaled;
 
 public class BoxFileRenderer {
     private final BoxEditor boxEditor;

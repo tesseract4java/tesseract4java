@@ -1,16 +1,14 @@
 package de.vorb.tesseract.gui.view;
 
-import static de.vorb.tesseract.gui.model.Scale.scaled;
-
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-
-import javax.swing.ListModel;
+import de.vorb.tesseract.util.Box;
+import de.vorb.tesseract.util.Symbol;
 
 import com.google.common.base.Optional;
 
-import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.Symbol;
+import javax.swing.*;
+import java.awt.*;
+
+import static de.vorb.tesseract.gui.model.Scale.scaled;
 
 public class BoxFileCanvas extends Canvas {
     private static final long serialVersionUID = 1L;

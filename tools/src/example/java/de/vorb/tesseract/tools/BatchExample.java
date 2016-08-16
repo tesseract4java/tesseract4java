@@ -1,15 +1,14 @@
 package de.vorb.tesseract.tools;
 
+import de.vorb.tesseract.tools.preprocessing.Batch;
+import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
+
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
-
-import javax.imageio.ImageIO;
-
-import de.vorb.tesseract.tools.preprocessing.Batch;
-import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
 
 public class BatchExample {
     public static void main(String[] args) throws InterruptedException,

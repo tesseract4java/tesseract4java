@@ -2,7 +2,7 @@ package de.vorb.tesseract.tools.preprocessing.conncomp;
 
 import ij.process.ColorProcessor;
 
-import java.awt.Polygon;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;

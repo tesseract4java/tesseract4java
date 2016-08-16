@@ -5,17 +5,13 @@
 
 package de.vorb.tesseract.gui.view;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.nio.file.Path;
+import sun.swing.DefaultLookup;
 
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.Icon;
-import javax.swing.JList;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-
-import sun.swing.DefaultLookup;
+import java.awt.*;
+import java.nio.file.Path;
 
 /**
  * @deprecated

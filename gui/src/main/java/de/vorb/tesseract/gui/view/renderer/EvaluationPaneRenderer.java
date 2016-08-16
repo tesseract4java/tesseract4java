@@ -1,15 +1,14 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-
-import javax.swing.ImageIcon;
-
-import com.google.common.base.Optional;
-
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.view.EvaluationPane;
+
+import com.google.common.base.Optional;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class EvaluationPaneRenderer implements PageRenderer {
     private final EvaluationPane evaluationPane;

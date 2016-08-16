@@ -1,13 +1,13 @@
 package de.vorb.tesseract.gui.model;
 
+import de.vorb.tesseract.util.Page;
+import de.vorb.tesseract.util.Symbol;
+import de.vorb.util.FileNames;
+
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import de.vorb.tesseract.util.Page;
-import de.vorb.tesseract.util.Symbol;
-import de.vorb.util.FileNames;
 
 public class PageModel {
     private final ImageModel imageModel;

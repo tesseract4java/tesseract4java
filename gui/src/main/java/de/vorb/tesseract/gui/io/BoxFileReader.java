@@ -1,5 +1,8 @@
 package de.vorb.tesseract.gui.io;
 
+import de.vorb.tesseract.util.Box;
+import de.vorb.tesseract.util.Symbol;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -7,9 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
-
-import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.Symbol;
 
 public class BoxFileReader {
 

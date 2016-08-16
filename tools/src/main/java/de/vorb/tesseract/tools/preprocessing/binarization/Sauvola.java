@@ -3,12 +3,11 @@ package de.vorb.tesseract.tools.preprocessing.binarization;
 import ij.plugin.filter.RankFilters;
 import ij.process.FloatProcessor;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 /**
  * Sauvola's method.

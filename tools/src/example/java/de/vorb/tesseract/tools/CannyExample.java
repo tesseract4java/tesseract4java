@@ -1,13 +1,9 @@
 package de.vorb.tesseract.tools;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.BitSet;
-
-import javax.imageio.ImageIO;
-
-import de.vorb.tesseract.tools.preprocessing.CannyEdgeDetector;
 
 public class CannyExample {
     public static enum ColorComponent {

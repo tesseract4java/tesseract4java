@@ -1,11 +1,11 @@
 package de.vorb.tesseract.tools.training;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 public class EmptyInputBufferTest {
     private InputBuffer empty;

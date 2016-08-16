@@ -1,12 +1,12 @@
 package de.vorb.tesseract.tools.preprocessing;
 
-import java.awt.image.BufferedImage;
-import java.util.Collections;
-import java.util.List;
-
 import de.vorb.tesseract.tools.preprocessing.binarization.Binarization;
 import de.vorb.tesseract.tools.preprocessing.binarization.Otsu;
 import de.vorb.tesseract.tools.preprocessing.filter.ImageFilter;
+
+import java.awt.image.BufferedImage;
+import java.util.Collections;
+import java.util.List;
 
 public class DefaultPreprocessor implements Preprocessor {
     private final Binarization binarization;
