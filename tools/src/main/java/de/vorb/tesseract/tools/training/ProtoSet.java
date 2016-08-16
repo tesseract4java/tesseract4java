@@ -1,10 +1,10 @@
 package de.vorb.tesseract.tools.training;
 
+import de.vorb.tesseract.util.feat.Feature4D;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import de.vorb.tesseract.util.feat.Feature4D;
 
 public class ProtoSet {
     private final int[][][] pruner;

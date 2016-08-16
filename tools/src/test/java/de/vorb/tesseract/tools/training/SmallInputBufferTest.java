@@ -1,10 +1,10 @@
 package de.vorb.tesseract.tools.training;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 public class SmallInputBufferTest {
     private static final byte[] bytes = new byte[256];

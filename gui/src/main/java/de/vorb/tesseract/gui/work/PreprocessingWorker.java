@@ -1,20 +1,19 @@
 package de.vorb.tesseract.gui.work;
 
+import de.vorb.tesseract.gui.controller.TesseractController;
+import de.vorb.tesseract.gui.model.ImageModel;
+import de.vorb.tesseract.tools.preprocessing.Preprocessor;
+import de.vorb.util.FileNames;
+
+import com.google.common.base.Optional;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-
-import javax.imageio.ImageIO;
-import javax.swing.SwingWorker;
-
-import com.google.common.base.Optional;
-
-import de.vorb.tesseract.gui.controller.TesseractController;
-import de.vorb.tesseract.gui.model.ImageModel;
-import de.vorb.tesseract.tools.preprocessing.Preprocessor;
-import de.vorb.util.FileNames;
 
 public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
     private final TesseractController controller;

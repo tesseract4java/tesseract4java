@@ -1,15 +1,11 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import java.awt.Component;
+import de.vorb.tesseract.util.Symbol;
+
+import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 import java.util.Map.Entry;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-
-import de.vorb.tesseract.util.Symbol;
 
 public class SymbolGroupListCellRenderer extends JLabel implements
         ListCellRenderer<Entry<String, List<Symbol>>> {

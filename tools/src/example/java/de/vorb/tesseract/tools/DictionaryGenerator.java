@@ -1,5 +1,7 @@
 package de.vorb.tesseract.tools;
 
+import de.vorb.tesseract.tools.eval.LevenshteinWordDistance;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -11,8 +13,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map.Entry;
-
-import de.vorb.tesseract.tools.eval.LevenshteinWordDistance;
 
 public class DictionaryGenerator {
 

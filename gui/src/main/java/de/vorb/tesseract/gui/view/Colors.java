@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.view;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class Colors {
     private Colors() {

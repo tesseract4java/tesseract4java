@@ -1,8 +1,6 @@
 package de.vorb.tesseract.tools.preprocessing.conncomp;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Polygon;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;

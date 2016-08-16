@@ -1,12 +1,16 @@
 package de.vorb.tesseract.tools;
 
-import java.awt.Color;
-import java.awt.Graphics;
+import de.vorb.tesseract.tools.training.InputBuffer;
+import de.vorb.tesseract.tools.training.IntClass;
+import de.vorb.tesseract.tools.training.IntTemplates;
+import de.vorb.tesseract.tools.training.TessdataManager;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteOrder;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -14,14 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-
-import javax.imageio.ImageIO;
-
-import de.vorb.tesseract.tools.training.InputBuffer;
-import de.vorb.tesseract.tools.training.IntClass;
-import de.vorb.tesseract.tools.training.IntTemplates;
-import de.vorb.tesseract.tools.training.TessdataManager;
-import de.vorb.tesseract.tools.visualization.PrototypeRenderer;
 
 public class TraineddataExample {
     public static void main(String[] args) throws IOException {

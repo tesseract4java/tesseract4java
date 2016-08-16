@@ -1,5 +1,13 @@
 package de.vorb.tesseract.tools.training;
 
+import de.vorb.tesseract.util.Block;
+import de.vorb.tesseract.util.Box;
+import de.vorb.tesseract.util.Line;
+import de.vorb.tesseract.util.Page;
+import de.vorb.tesseract.util.Paragraph;
+import de.vorb.tesseract.util.Symbol;
+import de.vorb.tesseract.util.Word;
+
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,14 +16,6 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.List;
-
-import de.vorb.tesseract.util.Block;
-import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.Line;
-import de.vorb.tesseract.util.Page;
-import de.vorb.tesseract.util.Paragraph;
-import de.vorb.tesseract.util.Symbol;
-import de.vorb.tesseract.util.Word;
 
 /**
  * Methods for creating box files.

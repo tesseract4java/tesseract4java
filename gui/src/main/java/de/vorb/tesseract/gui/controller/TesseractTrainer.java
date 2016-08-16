@@ -1,12 +1,14 @@
 package de.vorb.tesseract.gui.controller;
 
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import de.vorb.tesseract.gui.model.GlobalPrefs;
+import de.vorb.tesseract.gui.view.TesseractFrame;
+import de.vorb.tesseract.gui.view.dialogs.Dialogs;
+import de.vorb.tesseract.gui.view.dialogs.PreferencesDialog;
+import de.vorb.util.FileNames;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -20,15 +22,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-
-import de.vorb.tesseract.gui.model.GlobalPrefs;
-import de.vorb.tesseract.gui.view.TesseractFrame;
-import de.vorb.tesseract.gui.view.dialogs.Dialogs;
-import de.vorb.tesseract.gui.view.dialogs.PreferencesDialog;
-import de.vorb.util.FileNames;
 
 public class TesseractTrainer extends JDialog {
     private static final long serialVersionUID = 1L;

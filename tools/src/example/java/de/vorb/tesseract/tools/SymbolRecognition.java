@@ -1,25 +1,18 @@
 package de.vorb.tesseract.tools;
 
+import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
+import de.vorb.tesseract.tools.recognition.RecognitionProducer;
+
+import org.bytedeco.javacpp.lept;
+import org.bytedeco.javacpp.tesseract;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
-import javax.imageio.ImageIO;
-
-import org.bridj.BridJ;
-import org.bridj.Pointer;
-
-import de.vorb.tesseract.LibTess;
-import de.vorb.tesseract.OCREngineMode;
-import de.vorb.tesseract.PageIteratorLevel;
-import de.vorb.tesseract.PageSegMode;
-import de.vorb.tesseract.tools.recognition.DefaultRecognitionConsumer;
-import de.vorb.tesseract.tools.recognition.RecognitionProducer;
-import de.vorb.leptonica.Pix;
-import de.vorb.leptonica.util.PixConversions;
 
 public class SymbolRecognition extends RecognitionProducer {
     public SymbolRecognition(String language) throws IOException {
@@ -28,21 +21,20 @@ public class SymbolRecognition extends RecognitionProducer {
 
     @Override
     public void init() throws IOException {
-        setHandle(LibTess.TessBaseAPICreate());
+        setHandle(tesseract.TessBaseAPICreate());
     }
 
     @Override
     public void reset() throws IOException {
         // init LibTess with data path, language and OCR engine mode
-        LibTess.TessBaseAPIInit2(
+        tesseract.TessBaseAPIInit2(
                 getHandle(),
-                Pointer.pointerToCString("E:\\Masterarbeit\\Ressourcen\\tessdata"),
-                Pointer.pointerToCString(getTrainingFile()),
-                OCREngineMode.DEFAULT);
+                "E:\\Masterarbeit\\Ressourcen\\tessdata",
+                getTrainingFile(),
+                tesseract.OEM_DEFAULT);
 
         // set page segmentation mode
-        LibTess.TessBaseAPISetPageSegMode(getHandle(),
-                PageSegMode.AUTO);
+        tesseract.TessBaseAPISetPageSegMode(getHandle(), tesseract.PSM_AUTO);
 
         // read the image into memory
         final BufferedImage inputImage = ImageIO.read(new File("input4.png"));
@@ -59,41 +51,39 @@ public class SymbolRecognition extends RecognitionProducer {
         final int bytesPerLine = (width * bitsPerPixel + 7) / 8;
 
         // set the image
-        LibTess.TessBaseAPISetImage(getHandle(),
-                Pointer.pointerToBytes(ByteBuffer.wrap(imageData)), width,
-                height,
+        tesseract.TessBaseAPISetImage(getHandle(),
+                ByteBuffer.wrap(imageData), width, height,
                 bytesPerPixel, bytesPerLine);
 
-        final Pointer<Pix> bin = LibTess.TessBaseAPIGetThresholdedImage(getHandle());
-        ImageIO.write(PixConversions.pix2img(bin), "PNG", new File(
-                "fine.png"));
+        final lept.PIX bin = tesseract.TessBaseAPIGetThresholdedImage(getHandle());
+        try {
+            lept.pixWrite("fine.png", bin, lept.IFF_PNG);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
     public void close() throws IOException {
-        LibTess.TessBaseAPIDelete(getHandle());
+        tesseract.TessBaseAPIDelete(getHandle());
     }
 
     public static void main(String[] args) throws IOException {
-        BridJ.setNativeLibraryFile("tesseract", new File("libtesseract303.dll"));
-
-        final PageIteratorLevel level = PageIteratorLevel.SYMBOL;
+        final int level = tesseract.RIL_SYMBOL;
 
         long start = System.currentTimeMillis();
         new SymbolRecognition("deu-frak").recognize(new DefaultRecognitionConsumer() {
             @Override
             public void wordBegin() {
-                System.out.println(getState().getBaseline(
-                        PageIteratorLevel.WORD) + ", attrs: "
-                        + getState().getWordFontAttributes());
+                System.out.println(
+                        getState().getBaseline(tesseract.RIL_WORD) + ", attrs: " + getState().getWordFontAttributes());
                 System.out.println();
             }
 
             @Override
             public void symbol() {
-                System.out.println(getState().getText(level) + ": " +
-                        getState().getBoundingBox(level) + ", conf: " +
-                        getState().getConfidence(level));
+                System.out.println(getState().getText(level) + ": " + getState()
+                        .getBoundingBox(level) + ", conf: " + getState().getConfidence(level));
             }
 
             @Override
@@ -107,7 +97,6 @@ public class SymbolRecognition extends RecognitionProducer {
             }
         });
 
-        System.out.println("time: " + (System.currentTimeMillis() - start)
-                + "ms");
+        System.out.println(String.format("time: %d ms", System.currentTimeMillis() - start));
     }
 }

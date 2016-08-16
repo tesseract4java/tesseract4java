@@ -1,18 +1,17 @@
 package de.vorb.tesseract.gui.model;
 
+import de.vorb.tesseract.img.BinaryImage;
+import de.vorb.tesseract.util.Box;
+import de.vorb.tesseract.util.Symbol;
+
+import javax.swing.*;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Vector;
-
-import javax.swing.ListModel;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
-
-import de.vorb.tesseract.img.BinaryImage;
-import de.vorb.tesseract.util.Box;
-import de.vorb.tesseract.util.Symbol;
 
 public class SymbolListModel implements ListModel<Symbol> {
     private final Vector<Symbol> data = new Vector<>();

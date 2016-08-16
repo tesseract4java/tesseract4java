@@ -1,15 +1,15 @@
 package de.vorb.tesseract.gui.io;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Iterator;
-
 import de.vorb.tesseract.gui.work.RecognitionWriter;
 import de.vorb.tesseract.util.Block;
 import de.vorb.tesseract.util.Line;
 import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Paragraph;
 import de.vorb.tesseract.util.Word;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Iterator;
 
 public class PlainTextWriter implements RecognitionWriter {
     public PlainTextWriter(boolean replaceHighLetterSpacing) {

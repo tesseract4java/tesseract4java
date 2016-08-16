@@ -1,7 +1,15 @@
 package de.vorb.tesseract.gui.view;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
+import de.vorb.tesseract.gui.event.SymbolLinkListener;
+import de.vorb.tesseract.gui.model.BoxFileModel;
+import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.view.renderer.SymbolVariantListCellRenderer;
+import de.vorb.tesseract.util.Symbol;
+
+import com.google.common.base.Optional;
+
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -10,19 +18,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-
-import com.google.common.base.Optional;
-
-import de.vorb.tesseract.gui.event.SymbolLinkListener;
-import de.vorb.tesseract.gui.model.BoxFileModel;
-import de.vorb.tesseract.gui.model.PageModel;
-import de.vorb.tesseract.gui.view.renderer.SymbolVariantListCellRenderer;
-import de.vorb.tesseract.util.Symbol;
 
 public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     private static final long serialVersionUID = 1L;

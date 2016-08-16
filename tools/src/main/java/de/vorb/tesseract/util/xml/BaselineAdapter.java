@@ -1,8 +1,8 @@
 package de.vorb.tesseract.util.xml;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import de.vorb.tesseract.util.Baseline;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class BaselineAdapter extends XmlAdapter<String, Baseline> {
 

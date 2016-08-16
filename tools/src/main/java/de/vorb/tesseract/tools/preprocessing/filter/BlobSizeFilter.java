@@ -1,7 +1,12 @@
 package de.vorb.tesseract.tools.preprocessing.filter;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import de.vorb.tesseract.tools.preprocessing.binarization.Binarization;
+import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
+import de.vorb.tesseract.tools.preprocessing.conncomp.ConnectedComponent;
+import de.vorb.tesseract.tools.preprocessing.conncomp.ConnectedComponentLabeler;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -9,13 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
-import javax.imageio.ImageIO;
-
-import de.vorb.tesseract.tools.preprocessing.binarization.Binarization;
-import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
-import de.vorb.tesseract.tools.preprocessing.conncomp.ConnectedComponent;
-import de.vorb.tesseract.tools.preprocessing.conncomp.ConnectedComponentLabeler;
 
 public class BlobSizeFilter implements ImageFilter {
     private final int minArea;

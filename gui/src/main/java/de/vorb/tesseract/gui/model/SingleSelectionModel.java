@@ -1,9 +1,9 @@
 package de.vorb.tesseract.gui.model;
 
+import de.vorb.tesseract.gui.event.SelectionListener;
+
 import java.util.LinkedList;
 import java.util.List;
-
-import de.vorb.tesseract.gui.event.SelectionListener;
 
 public class SingleSelectionModel {
     private int index = -1;

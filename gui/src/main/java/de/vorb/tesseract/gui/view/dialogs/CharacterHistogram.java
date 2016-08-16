@@ -1,23 +1,16 @@
 package de.vorb.tesseract.gui.view.dialogs;
 
-import java.awt.BorderLayout;
-import java.awt.Image;
-import java.awt.Toolkit;
+import de.vorb.tesseract.gui.view.TesseractFrame;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
-import de.vorb.tesseract.gui.view.TesseractFrame;
-
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 
 public class CharacterHistogram extends JFrame {
     private static final long serialVersionUID = 1L;

@@ -1,19 +1,13 @@
 package de.vorb.tesseract.gui.view;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.util.List;
-import java.util.Map.Entry;
-
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.border.EmptyBorder;
-
 import de.vorb.tesseract.gui.view.renderer.SymbolGroupListCellRenderer;
 import de.vorb.tesseract.util.Symbol;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.List;
+import java.util.Map.Entry;
 
 public class SymbolGroupList extends JPanel {
     private static final long serialVersionUID = 1L;

@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.view;
 
-import java.awt.Component;
+import java.awt.*;
 
 public interface MainComponent {
     Component asComponent();

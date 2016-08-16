@@ -1,17 +1,17 @@
 package de.vorb.tesseract.tools.visualization;
 
+import de.vorb.tesseract.tools.training.IntClass;
+import de.vorb.tesseract.tools.training.ProtoSet;
+import de.vorb.tesseract.util.feat.Feature4D;
+
+import java.awt.geom.Line2D;
+
 import static de.vorb.tesseract.tools.training.IntTemplates.BITS_PER_WERD;
 import static de.vorb.tesseract.tools.training.IntTemplates.INT_CHAR_NORM_RANGE;
 import static de.vorb.tesseract.tools.training.IntTemplates.NUM_PP_BUCKETS;
 import static de.vorb.tesseract.tools.training.IntTemplates.PICO_FEATURE_LENGTH;
 import static de.vorb.tesseract.tools.training.IntTemplates.PROTOS_PER_PROTO_SET;
 import static de.vorb.tesseract.tools.training.IntTemplates.PROTO_PRUNER_SCALE;
-
-import java.awt.geom.Line2D;
-
-import de.vorb.tesseract.tools.training.IntClass;
-import de.vorb.tesseract.tools.training.ProtoSet;
-import de.vorb.tesseract.util.feat.Feature4D;
 
 public class PrototypeRenderer {
     public static void updateLine(Line2D l2d, IntClass ic, int id) {

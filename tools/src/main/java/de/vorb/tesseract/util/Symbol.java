@@ -1,13 +1,12 @@
 package de.vorb.tesseract.util;
 
-import java.util.Collections;
-import java.util.List;
+import de.vorb.tesseract.util.xml.BoxAdapter;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import de.vorb.tesseract.util.xml.BoxAdapter;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Recognized Symbol. Can either be a single character or a ligature or
