@@ -4,7 +4,6 @@ import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 import de.vorb.tesseract.util.feat.Feature3D;
 
-import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.IntPointer;
 import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.javacpp.lept;
@@ -104,11 +103,11 @@ public class PageRecognitionProducer extends RecognitionProducer {
 
     public List<Feature3D> getFeaturesForSymbol(BufferedImage symbol) {
         if (!lastPix.isPresent()) {
-            return new LinkedList<Feature3D>();
+            return new LinkedList<>();
         }
 
         final int padding = 5;
-        // draw a 5px white padding arround the symbol
+        // draw a 5px white padding around the symbol
         final BufferedImage symbWithPadding = new BufferedImage(
                 symbol.getWidth() + padding + padding,
                 symbol.getHeight() + padding + padding,
