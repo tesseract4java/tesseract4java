@@ -4,7 +4,6 @@ import javax.swing.*;
 
 public class Resources {
     public static final Icon getIcon(String name) {
-        return new ImageIcon(Resources.class.getResource("/icons/" + name
-                + ".png"));
+        return new ImageIcon(Resources.class.getResource(String.format("/icons/%s.png", name)));
     }
 }
