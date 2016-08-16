@@ -1,4 +1,0 @@
-Tesseract Tools
-===============
-
-for Java.
