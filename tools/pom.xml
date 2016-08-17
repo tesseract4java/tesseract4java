@@ -12,11 +12,15 @@
 
     <artifactId>tools</artifactId>
 
+    <properties>
+        <tesseract.version>3.04.01-1.2</tesseract.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
             <artifactId>tesseract</artifactId>
-            <version>3.04.01-1.2</version>
+            <version>${tesseract.version}</version>
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
@@ -43,7 +47,11 @@
 
     <repositories>
         <repository>
-            <id>imagej.public</id>
+            <id>central</id>
+            <url>http://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+            <id>imagej</id>
             <url>http://maven.imagej.net/content/groups/public</url>
         </repository>
     </repositories>
