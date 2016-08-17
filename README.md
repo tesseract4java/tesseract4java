@@ -40,10 +40,14 @@ follow these steps:
  1. Obtain a copy either by cloning the repository or downloading the current [zip file][zip].
  2. Also obtain a copy of a [patched version of ocrevalUAtion][ocrevalUAtion patched] ([zip file][ocrevalUAtion zip]).
  3. Open a command line in the ocrevalUAtion directory and run `mvn clean install`.
- 4. Change directories to the tesseract4java directory and run `mvn clean install`.
- 5. Change to the "gui" sub-directory and run `mvn exec:java`.
+ 4. `cd` to the tesseract4java directory and run `mvn clean package -Pstandalone`. This will include the
+    Tesseract binaries for your platform. You can manually define the platform by providing the option
+    `-Djavacpp.platform=[PLATFORM]` (available platforms are `windows-x86_64`, `windows-x86`, `linux-x86_64`, `linux-x86`,
+    and `macosx-x86_64`).
 
-These steps are required as long as I'm working on a distribution package that includes all dependencies.
+After you've run through all steps, the directory "tesseract4java/gui/target" will contain the file
+"tesseract4java-[VERSION]-[PLATFORM].jar", which you can run by double-clicking or executing
+`java -jar tesseract4java-[VERSION]-[PLATFORM].jar`.
 
 [Apache Maven]: https://maven.apache.org/
 [zip]: https://github.com/tesseract4java/tesseract4java/archive/develop.zip
