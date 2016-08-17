@@ -1,12 +1,11 @@
 # Tesseract GUI
 
 
-A graphical user interface for the [Tesseract OCR engine][tesseract]. The
-program has been introduced in the [Master’s thesis “Analyses and Heuristics for
-the Improvement of Optical Character Recognition Results for Fraktur
-Texts”][thesis] by Paul Vorbach.
+A graphical user interface for the [Tesseract OCR engine][tesseract]. The program has been introduced in the [Master’s
+thesis “Analyses and Heuristics for the Improvement of Optical Character Recognition Results for Fraktur Texts”][thesis]
+by Paul Vorbach.
 
-[tesseract]: https://code.google.com/p/tesseract-ocr/
+[tesseract]: https://github.com/tesseract-ocr/tesseract
 [thesis]: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:20-opus-106527
 
 
@@ -33,11 +32,23 @@ Evaluation view with a transcription field
 ![Batch Export](https://raw.githubusercontent.com/tesseract4java/tesseract-gui/master/screenshots/gui-batch-export.png)
 Batch export functionality to handle large projects
 
-## Download & Usage
+## Building and running the software
 
-You can download and build the source code using Gradle. I will soon publish
-more detailed information on how to do this as well as a binary release.
+This software is written in Java and can be built using [Apache Maven]. In order to build the software you have to
+follow these steps:
 
+ 1. Obtain a copy either by cloning the repository or downloading the current [zip file][zip].
+ 2. Also obtain a copy of a [patched version of ocrevalUAtion][ocrevalUAtion patched] ([zip file][ocrevalUAtion zip]).
+ 3. Open a command line in the ocrevalUAtion directory and run `mvn clean install`.
+ 4. Change directories to the tesseract4java directory and run `mvn clean install`.
+ 5. Change to the "gui" sub-directory and run `mvn exec:java`.
+
+These steps are required as long as I'm working on a distribution package that includes all dependencies.
+
+[Apache Maven]: https://maven.apache.org/
+[zip]: https://github.com/tesseract4java/tesseract4java/archive/develop.zip
+[ocrevalUAtion patched]: https://github.com/tesseract4java/ocrevalUAtion
+[ocrevalUAtion zip]: https://github.com/tesseract4java/ocrevalUAtion/archive/master.zip
 
 ## Credits
 
