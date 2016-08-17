@@ -1,4 +1,4 @@
-# Tesseract GUI
+# tesseract4java: Tesseract GUI
 
 
 A graphical user interface for the [Tesseract OCR engine][tesseract]. The program has been introduced in the [Master’s
@@ -75,8 +75,8 @@ After you've run through all steps, the directory "tesseract4java/gui/target" wi
 GPLv3
 
 ~~~
-Tesseract GUI - a graphical user interface for the Tesseract OCR engine
-Copyright (C) 2014  Paul Vorbach
+tesseract4java - a graphical user interface for the Tesseract OCR engine
+Copyright (C) 2014-2016 Paul Vorbach
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
