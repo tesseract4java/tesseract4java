@@ -26,17 +26,12 @@ import static de.vorb.tesseract.gui.model.Scale.scaled;
 
 public class RecognitionRenderer implements PageRenderer {
     // Fallback fonts
-    private static final Font FONT_FALLBACK_NORMAL = new Font("SansSerif",
-            Font.PLAIN, 12);
-    private static final Font FONT_FALLBACK_ITALIC = new Font("SansSerif",
-            Font.ITALIC, 12);
-    private static final Font FONT_FALLBACK_BOLD = new Font("SansSerif",
-            Font.BOLD, 12);
-    private static final Font FONT_FALLBACK_BOLD_ITALIC = new Font("SansSerif",
-            Font.BOLD | Font.ITALIC, 12);
+    private static final Font FONT_FALLBACK_NORMAL = new Font("SansSerif", Font.PLAIN, 12);
+    private static final Font FONT_FALLBACK_ITALIC = new Font("SansSerif", Font.ITALIC, 12);
+    private static final Font FONT_FALLBACK_BOLD = new Font("SansSerif", Font.BOLD, 12);
+    private static final Font FONT_FALLBACK_BOLD_ITALIC = new Font("SansSerif", Font.BOLD | Font.ITALIC, 12);
 
-    private final static Font FONT_LINE_NUMBERS = new Font("Dialog",
-            Font.PLAIN, 12);
+    private final static Font FONT_LINE_NUMBERS = new Font("Dialog", Font.PLAIN, 12);
 
     private static final Font FONT_ANTIQUA_NORMAL;
     private static final Font FONT_ANTIQUA_ITALIC;
@@ -321,9 +316,7 @@ public class RecognitionRenderer implements PageRenderer {
                             recogGfx.setPaint(Colors.TEXT);
 
                             recogGfx.drawString(stext, ssbX,
-                                    scaled(box.getY() + box.getHeight()
-                                            - word.getBaseline().getYOffset(),
-                                            scale));
+                                    scaled(box.getY() + box.getHeight() - word.getBaseline().getYOffset(), scale));
                         }
                     }
                 }
