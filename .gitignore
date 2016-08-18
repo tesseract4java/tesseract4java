@@ -1,6 +1,4 @@
-.classpath
-.gradle
-.project
-.settings
-bin
-build
+.idea/
+*.iml
+target/
+/gui/hs_err_pid*.log
