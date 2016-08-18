@@ -36,10 +36,10 @@ public class RecognitionState {
      */
     public Box getBoundingBox(int level) {
         // pointers to the bounding box coordinates
-        final IntPointer left = new IntPointer();
-        final IntPointer top = new IntPointer();
-        final IntPointer right = new IntPointer();
-        final IntPointer bottom = new IntPointer();
+        final IntPointer left = new IntPointer(1);
+        final IntPointer top = new IntPointer(1);
+        final IntPointer right = new IntPointer(1);
+        final IntPointer bottom = new IntPointer(1);
 
         // get bounding box
         tesseract.TessPageIteratorBoundingBox(pageIt, level, left, top, right, bottom);
@@ -73,10 +73,10 @@ public class RecognitionState {
      */
     public Baseline getBaseline(int level) {
         // pointers to the baseline coordinates
-        final IntPointer x1 = new IntPointer();
-        final IntPointer y1 = new IntPointer();
-        final IntPointer x2 = new IntPointer();
-        final IntPointer y2 = new IntPointer();
+        final IntPointer x1 = new IntPointer(1);
+        final IntPointer y1 = new IntPointer(1);
+        final IntPointer x2 = new IntPointer(1);
+        final IntPointer y2 = new IntPointer(1);
 
         tesseract.TessPageIteratorBaseline(pageIt, level, x1, y1, x2, y2);
 
@@ -117,14 +117,14 @@ public class RecognitionState {
     }
 
     private void getSymbolFeatures(lept.PIX image) {
-        final IntPointer left = new IntPointer();
-        final IntPointer top = new IntPointer();
+        final IntPointer left = new IntPointer(1);
+        final IntPointer top = new IntPointer(1);
 
         final lept.PIX pix = tesseract.TessPageIteratorGetImage(pageIt, tesseract.RIL_SYMBOL, 1, image, left, top);
         final tesseract.TBLOB blob = tesseract.TessMakeTBLOB(pix);
 
-        final IntPointer numFeatures = new IntPointer();
-        final IntPointer featOutlineIndex = new IntPointer();
+        final IntPointer numFeatures = new IntPointer(1);
+        final IntPointer featOutlineIndex = new IntPointer(1);
 
         final tesseract.INT_FEATURE_STRUCT intFeatures = new tesseract.INT_FEATURE_STRUCT().capacity(512);
 
@@ -136,21 +136,21 @@ public class RecognitionState {
      */
     public FontAttributes getWordFontAttributes() {
         // pointers to integers for every attribute
-        final BoolPointer isBold = new BoolPointer();
-        final BoolPointer isItalic = new BoolPointer();
-        final BoolPointer isUnderlined = new BoolPointer();
-        final BoolPointer isMonospace = new BoolPointer();
-        final BoolPointer isSerif = new BoolPointer();
-        final BoolPointer isSmallCaps = new BoolPointer();
-        final IntPointer fontSize = new IntPointer();
-        final IntPointer fontID = new IntPointer();
+        final BoolPointer isBold = new BoolPointer(1);
+        final BoolPointer isItalic = new BoolPointer(1);
+        final BoolPointer isUnderlined = new BoolPointer(1);
+        final BoolPointer isMonospace = new BoolPointer(1);
+        final BoolPointer isSerif = new BoolPointer(1);
+        final BoolPointer isSmallCaps = new BoolPointer(1);
+        final IntPointer fontSize = new IntPointer(1);
+        final IntPointer fontID = new IntPointer(1);
 
         // set values
         tesseract.TessResultIteratorWordFontAttributes(resultIt, isBold, isItalic, isUnderlined, isMonospace, isSerif,
                 isSmallCaps, fontSize, fontID);
 
         // build and return FontAttributes
-        final FontAttributes fa = new FontAttributes.Builder()
+        final FontAttributes fontAttributes = new FontAttributes.Builder()
                 .bold(isBold.get())
                 .italic(isItalic.get())
                 .underlined(isUnderlined.get())
@@ -161,7 +161,7 @@ public class RecognitionState {
                 .fontID(fontID.get())
                 .build();
 
-        return fa;
+        return fontAttributes;
     }
 
     /**
