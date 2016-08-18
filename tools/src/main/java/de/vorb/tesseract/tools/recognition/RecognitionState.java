@@ -35,21 +35,20 @@ public class RecognitionState {
      * @return requested box
      */
     public Box getBoundingBox(int level) {
-        // pointers to the bounding box coordinates
-        final IntPointer left = new IntPointer(1);
-        final IntPointer top = new IntPointer(1);
-        final IntPointer right = new IntPointer(1);
-        final IntPointer bottom = new IntPointer(1);
+        try (final IntPointer left = new IntPointer(1);
+             final IntPointer top = new IntPointer(1);
+             final IntPointer right = new IntPointer(1);
+             final IntPointer bottom = new IntPointer(1)) {
 
-        // get bounding box
-        tesseract.TessPageIteratorBoundingBox(pageIt, level, left, top, right, bottom);
+            tesseract.TessPageIteratorBoundingBox(pageIt, level, left, top, right, bottom);
 
-        final int x = left.get();
-        final int y = top.get();
-        final int width = right.get() - x;
-        final int height = bottom.get() - y;
+            final int x = left.get();
+            final int y = top.get();
+            final int width = right.get() - x;
+            final int height = bottom.get() - y;
 
-        return new Box(x, y, width, height);
+            return new Box(x, y, width, height);
+        }
     }
 
     /**
@@ -72,22 +71,22 @@ public class RecognitionState {
      * @return baseline
      */
     public Baseline getBaseline(int level) {
-        // pointers to the baseline coordinates
-        final IntPointer x1 = new IntPointer(1);
-        final IntPointer y1 = new IntPointer(1);
-        final IntPointer x2 = new IntPointer(1);
-        final IntPointer y2 = new IntPointer(1);
+        try (final IntPointer x1 = new IntPointer(1);
+             final IntPointer y1 = new IntPointer(1);
+             final IntPointer x2 = new IntPointer(1);
+             final IntPointer y2 = new IntPointer(1)) {
 
-        tesseract.TessPageIteratorBaseline(pageIt, level, x1, y1, x2, y2);
+            tesseract.TessPageIteratorBaseline(pageIt, level, x1, y1, x2, y2);
 
-        final int width = x2.get() - x1.get();
-        final float height = y2.get() - y1.get();
-        final float slope = height / width;
+            final int width = x2.get() - x1.get();
+            final float height = y2.get() - y1.get();
+            final float slope = height / width;
 
-        final Box bbox = getBoundingBox(tesseract.RIL_WORD);
-        final int yOffset = bbox.getY() + bbox.getHeight() - y1.get();
+            final Box bbox = getBoundingBox(tesseract.RIL_WORD);
+            final int yOffset = bbox.getY() + bbox.getHeight() - y1.get();
 
-        return new Baseline(yOffset, slope);
+            return new Baseline(yOffset, slope);
+        }
     }
 
     /**
@@ -117,51 +116,54 @@ public class RecognitionState {
     }
 
     private void getSymbolFeatures(lept.PIX image) {
-        final IntPointer left = new IntPointer(1);
-        final IntPointer top = new IntPointer(1);
 
-        final lept.PIX pix = tesseract.TessPageIteratorGetImage(pageIt, tesseract.RIL_SYMBOL, 1, image, left, top);
-        final tesseract.TBLOB blob = tesseract.TessMakeTBLOB(pix);
+        try (final IntPointer left = new IntPointer(1);
+             final IntPointer top = new IntPointer(1);
+             final IntPointer numFeatures = new IntPointer(1);
+             final IntPointer featOutlineIndex = new IntPointer(1);
+             final tesseract.INT_FEATURE_STRUCT intFeatures = new tesseract.INT_FEATURE_STRUCT(
+                     new BytePointer(4 * 512))) {
 
-        final IntPointer numFeatures = new IntPointer(1);
-        final IntPointer featOutlineIndex = new IntPointer(1);
+            final lept.PIX pix = tesseract.TessPageIteratorGetImage(pageIt, tesseract.RIL_SYMBOL, 1, image, left, top);
+            final tesseract.TBLOB blob = tesseract.TessMakeTBLOB(pix);
 
-        final tesseract.INT_FEATURE_STRUCT intFeatures = new tesseract.INT_FEATURE_STRUCT().capacity(512);
-
-        tesseract.TessBaseAPIGetFeaturesForBlob(apiHandle, blob, intFeatures, numFeatures, featOutlineIndex);
+            tesseract.TessBaseAPIGetFeaturesForBlob(apiHandle, blob, intFeatures, numFeatures, featOutlineIndex);
+        }
     }
 
     /**
      * @return font attributes for the current word.
      */
     public FontAttributes getWordFontAttributes() {
-        // pointers to integers for every attribute
-        final BoolPointer isBold = new BoolPointer(1);
-        final BoolPointer isItalic = new BoolPointer(1);
-        final BoolPointer isUnderlined = new BoolPointer(1);
-        final BoolPointer isMonospace = new BoolPointer(1);
-        final BoolPointer isSerif = new BoolPointer(1);
-        final BoolPointer isSmallCaps = new BoolPointer(1);
-        final IntPointer fontSize = new IntPointer(1);
-        final IntPointer fontID = new IntPointer(1);
 
-        // set values
-        tesseract.TessResultIteratorWordFontAttributes(resultIt, isBold, isItalic, isUnderlined, isMonospace, isSerif,
-                isSmallCaps, fontSize, fontID);
+        try (final BoolPointer isBold = new BoolPointer(1);
+             final BoolPointer isItalic = new BoolPointer(1);
+             final BoolPointer isUnderlined = new BoolPointer(1);
+             final BoolPointer isMonospace = new BoolPointer(1);
+             final BoolPointer isSerif = new BoolPointer(1);
+             final BoolPointer isSmallCaps = new BoolPointer(1);
+             final IntPointer fontSize = new IntPointer(1);
+             final IntPointer fontID = new IntPointer(1)) {
 
-        // build and return FontAttributes
-        final FontAttributes fontAttributes = new FontAttributes.Builder()
-                .bold(isBold.get())
-                .italic(isItalic.get())
-                .underlined(isUnderlined.get())
-                .monospace(isMonospace.get())
-                .serif(isSerif.get())
-                .smallcaps(isSmallCaps.get())
-                .size(fontSize.get())
-                .fontID(fontID.get())
-                .build();
+            // set values
+            tesseract.TessResultIteratorWordFontAttributes(resultIt, isBold, isItalic, isUnderlined, isMonospace,
+                    isSerif,
+                    isSmallCaps, fontSize, fontID);
 
-        return fontAttributes;
+            // build and return FontAttributes
+            final FontAttributes fontAttributes = new FontAttributes.Builder()
+                    .bold(isBold.get())
+                    .italic(isItalic.get())
+                    .underlined(isUnderlined.get())
+                    .monospace(isMonospace.get())
+                    .serif(isSerif.get())
+                    .smallcaps(isSmallCaps.get())
+                    .size(fontSize.get())
+                    .fontID(fontID.get())
+                    .build();
+
+            return fontAttributes;
+        }
     }
 
     /**
