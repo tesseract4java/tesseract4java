@@ -140,9 +140,9 @@ public class PageRecognitionProducer extends RecognitionProducer {
         final tesseract.TBLOB blob = tesseract.TessMakeTBLOB(pixSymb);
         lept.pixDestroy(new PointerPointer(pixSymb));
 
-        final IntPointer numFeatures = new IntPointer();
+        final IntPointer numFeatures = new IntPointer(1);
 
-        final IntPointer outlineIndexes = new IntPointer().capacity(512);
+        final IntPointer outlineIndexes = new IntPointer(512);
 
         final tesseract.INT_FEATURE_STRUCT intFeatures = new tesseract.INT_FEATURE_STRUCT().capacity(512);
         tesseract.TessBaseAPIGetFeaturesForBlob(getHandle(), blob, intFeatures, numFeatures, outlineIndexes);
