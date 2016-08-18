@@ -4,8 +4,8 @@ import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 import de.vorb.tesseract.util.feat.Feature3D;
 
+import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.IntPointer;
-import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.javacpp.lept;
 import org.bytedeco.javacpp.tesseract;
 
@@ -83,7 +83,7 @@ public class PageRecognitionProducer extends RecognitionProducer {
     public void loadImage(Path imageFile) {
         if (lastPix.isPresent()) {
             // destroy old pix
-            lept.pixDestroy(new PointerPointer(lastPix.get()));
+            lept.pixDestroy(lastPix.get());
         }
 
         final lept.PIX pix = lept.pixRead(imageFile.toString());
@@ -135,36 +135,35 @@ public class PageRecognitionProducer extends RecognitionProducer {
             return new LinkedList<>();
         }
 
-        final lept.PIX pixSymb = lept.pixRead(symbolFile);
+        try (final lept.PIX pixSymb = lept.pixRead(symbolFile);
+             final IntPointer numFeatures = new IntPointer(1);
+             final IntPointer outlineIndexes = new IntPointer(512);
+             final BytePointer features = new BytePointer(4 * 512);
+             final tesseract.INT_FEATURE_STRUCT intFeatures = new tesseract.INT_FEATURE_STRUCT(features)) {
 
-        final tesseract.TBLOB blob = tesseract.TessMakeTBLOB(pixSymb);
-        lept.pixDestroy(new PointerPointer(pixSymb));
+            final tesseract.TBLOB blob = tesseract.TessMakeTBLOB(pixSymb);
 
-        final IntPointer numFeatures = new IntPointer(1);
+            lept.pixDestroy(pixSymb);
 
-        final IntPointer outlineIndexes = new IntPointer(512);
+            tesseract.TessBaseAPIGetFeaturesForBlob(getHandle(), blob, intFeatures, numFeatures, outlineIndexes);
 
-        final tesseract.INT_FEATURE_STRUCT intFeatures = new tesseract.INT_FEATURE_STRUCT().capacity(512);
-        tesseract.TessBaseAPIGetFeaturesForBlob(getHandle(), blob, intFeatures, numFeatures, outlineIndexes);
+            // make a list of Features3D
+            final ArrayList<Feature3D> featureList = new ArrayList<>(numFeatures.get());
 
-        // make a list of Features3D
-        final ArrayList<Feature3D> featureList = new ArrayList<>(numFeatures.get());
+            for (int i = 0; i < numFeatures.get(); i++) {
+                final int x = features.get(i * 4) & 0xFF;
+                final int y = features.get(i * 4 + 1) & 0xFF;
+                final int theta = features.get(i * 4 + 2) & 0xFF;
+                final byte cpMisses = features.get(i * 4 + 3);
+                final int outlineIndex = outlineIndexes.get(i);
 
-        final ByteBuffer features = intFeatures.asByteBuffer();
+                final Feature3D feat = new Feature3D(x, y, theta, cpMisses, outlineIndex);
 
-        for (int i = 0; i < numFeatures.get(); i++) {
-            final int x = features.get(i * 4) & 0xFF;
-            final int y = features.get(i * 4 + 1) & 0xFF;
-            final int theta = features.get(i * 4 + 2) & 0xFF;
-            final byte cpMisses = features.get(i * 4 + 3);
-            final int outlineIndex = outlineIndexes.get(i);
+                featureList.add(feat);
+            }
 
-            final Feature3D feat = new Feature3D(x, y, theta, cpMisses, outlineIndex);
-
-            featureList.add(feat);
+            return featureList;
         }
-
-        return featureList;
     }
 
     public void setVariable(String key, String value) {
