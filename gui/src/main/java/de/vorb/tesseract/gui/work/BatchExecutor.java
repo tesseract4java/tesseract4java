@@ -13,9 +13,10 @@ import eu.digitisation.input.Parameters;
 import eu.digitisation.input.WarningException;
 import eu.digitisation.output.Report;
 
-import javax.swing.*;
+import javax.swing.ProgressMonitor;
+import javax.swing.SwingUtilities;
 import javax.xml.transform.TransformerException;
-import java.awt.*;
+import java.awt.Desktop;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;

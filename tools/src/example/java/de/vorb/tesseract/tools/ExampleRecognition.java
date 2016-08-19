@@ -6,7 +6,7 @@ import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 import org.bytedeco.javacpp.lept;
 import org.bytedeco.javacpp.tesseract;
 
-import javax.swing.*;
+import javax.swing.SwingWorker;
 import java.io.IOException;
 
 import static org.bytedeco.javacpp.tesseract.RIL_WORD;

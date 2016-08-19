@@ -16,7 +16,7 @@ import eu.digitisation.input.WarningException;
 import eu.digitisation.output.Report;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.ProgressMonitor;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 import java.awt.image.BufferedImage;

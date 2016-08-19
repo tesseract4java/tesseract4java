@@ -3,8 +3,10 @@ package de.vorb.tesseract.tools;
 import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;

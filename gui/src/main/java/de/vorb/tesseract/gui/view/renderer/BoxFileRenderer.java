@@ -7,8 +7,11 @@ import de.vorb.tesseract.gui.view.Strokes;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.ListModel;
+import javax.swing.SwingWorker;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;

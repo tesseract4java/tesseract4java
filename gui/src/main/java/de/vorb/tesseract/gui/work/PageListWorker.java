@@ -3,7 +3,8 @@ package de.vorb.tesseract.gui.work;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.model.ProjectModel;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.SwingWorker;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.List;

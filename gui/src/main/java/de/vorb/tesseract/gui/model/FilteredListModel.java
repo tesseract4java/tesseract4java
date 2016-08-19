@@ -2,7 +2,8 @@ package de.vorb.tesseract.gui.model;
 
 import de.vorb.tesseract.gui.util.Filter;
 
-import javax.swing.*;
+import javax.swing.AbstractListModel;
+import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.util.ArrayList;

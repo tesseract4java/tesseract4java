@@ -1,7 +1,11 @@
 package de.vorb.tesseract.gui.view;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
 import java.util.Optional;
 
 public class Canvas extends JComponent {

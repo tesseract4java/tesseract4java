@@ -4,8 +4,9 @@ import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.model.ProjectModel;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListModel;
+import javax.swing.SwingWorker;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;

@@ -8,7 +8,8 @@ import de.vorb.tesseract.tools.recognition.PageRecognitionConsumer;
 import de.vorb.tesseract.util.Block;
 import de.vorb.tesseract.util.Page;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;

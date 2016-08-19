@@ -1,7 +1,7 @@
 package de.vorb.tesseract.gui.view.dialogs;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JOptionPane;
+import java.awt.Component;
 
 public class Dialogs {
     public static void showInfo(Component parent, String title,

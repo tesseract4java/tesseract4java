@@ -3,8 +3,9 @@ package de.vorb.tesseract.gui.view;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ListModel;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.Optional;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;

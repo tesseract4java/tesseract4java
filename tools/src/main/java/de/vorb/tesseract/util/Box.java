@@ -1,6 +1,6 @@
 package de.vorb.tesseract.util;
 
-import java.awt.*;
+import java.awt.Rectangle;
 
 public class Box {
     private int x;

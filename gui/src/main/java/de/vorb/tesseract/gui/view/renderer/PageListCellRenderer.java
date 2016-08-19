@@ -2,8 +2,14 @@ package de.vorb.tesseract.gui.view.renderer;
 
 import de.vorb.tesseract.gui.model.PageThumbnail;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Optional;
 

@@ -6,7 +6,8 @@ import de.vorb.tesseract.tools.preprocessing.conncomp.ConnectedComponent;
 import de.vorb.tesseract.tools.preprocessing.conncomp.ConnectedComponentLabeler;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;

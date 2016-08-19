@@ -1,6 +1,7 @@
 package de.vorb.tesseract.gui.view;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Stroke;
 
 public class Strokes {
     private Strokes() {

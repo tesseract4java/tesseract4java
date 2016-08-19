@@ -8,7 +8,9 @@ import de.vorb.tesseract.tools.training.Unicharset;
 import de.vorb.tesseract.tools.visualization.PrototypeRenderer;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;

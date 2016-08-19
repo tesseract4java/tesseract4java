@@ -6,7 +6,7 @@ import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.util.FileNames;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.SwingWorker;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
