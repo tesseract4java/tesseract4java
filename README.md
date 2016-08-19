@@ -9,6 +9,9 @@ by Paul Vorbach (German).
 [thesis]: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:20-opus-106527
 
 
+[![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LF8T2JP2YUUUE)
+
+
 ## Download
 
 Binary distributions and release notes are available in the [releases section].
