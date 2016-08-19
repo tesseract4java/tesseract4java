@@ -1,19 +1,11 @@
 package de.vorb.tesseract.tools.preprocessing.filter;
 
-import de.vorb.tesseract.tools.preprocessing.binarization.Binarization;
-import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
 import de.vorb.tesseract.tools.preprocessing.conncomp.ConnectedComponent;
 import de.vorb.tesseract.tools.preprocessing.conncomp.ConnectedComponentLabeler;
 
-import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 public class BlobSizeFilter implements ImageFilter {
@@ -62,30 +54,5 @@ public class BlobSizeFilter implements ImageFilter {
         }
 
         g2d.dispose();
-    }
-
-    public static void main(String[] args) throws IOException {
-        final Path dir =
-                Paths.get("E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1");
-        final DirectoryStream<Path> ds = Files.newDirectoryStream(dir,
-                path -> path.getFileName().toString().endsWith(".png"));
-
-        final Path outDir = dir.resolve("sauvola/filtered");
-        Files.createDirectories(outDir);
-
-        final Binarization binarization = new Sauvola(15);
-        final BlobSizeFilter filter = new BlobSizeFilter(25,
-                Integer.MAX_VALUE);
-
-        int i = 0;
-        for (final Path file : ds) {
-            System.out.println(file.getFileName());
-            final BufferedImage image = ImageIO.read(file.toFile());
-            final BufferedImage binary = binarization.binarize(image);
-            filter.filter(binary);
-            ImageIO.write(binary, "PNG",
-                    outDir.resolve(file.getFileName()).toFile());
-            i++;
-        }
     }
 }

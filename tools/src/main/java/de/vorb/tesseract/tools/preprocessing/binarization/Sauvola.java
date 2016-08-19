@@ -3,11 +3,8 @@ package de.vorb.tesseract.tools.preprocessing.binarization;
 import ij.plugin.filter.RankFilters;
 import ij.process.FloatProcessor;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Sauvola's method.
@@ -96,12 +93,5 @@ public class Sauvola implements Binarization {
         }
 
         return result;
-    }
-
-    public static void main(String[] args) throws IOException {
-        final BufferedImage color = ImageIO.read(new File(
-                "C:/Users/Paul/Desktop/78v.png"));
-        ImageIO.write(new Sauvola().binarize(color), "PNG", new File(
-                "C:/Users/Paul/Desktop/78v_bin.png"));
     }
 }

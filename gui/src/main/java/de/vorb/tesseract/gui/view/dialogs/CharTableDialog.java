@@ -61,9 +61,4 @@ public class CharTableDialog extends JDialog {
         table.getColumnModel().getColumn(1).setPreferredWidth(300);
         scrollPane.setViewportView(table);
     }
-
-    public static void main(String[] args) {
-        final JDialog d = new CharTableDialog();
-        d.setVisible(true);
-    }
 }

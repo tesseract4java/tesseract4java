@@ -14,8 +14,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -30,19 +28,6 @@ public class ImportTranscriptionDialog extends JDialog {
     private JTextField tfPageSeparator;
 
     private boolean approved = false;
-
-    /**
-     * Launch the application.
-     */
-    public static void main(String[] args) {
-        try {
-            ImportTranscriptionDialog dialog = new ImportTranscriptionDialog();
-            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            dialog.setVisible(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Create the dialog.
