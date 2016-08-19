@@ -35,23 +35,14 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
             new LinkedList<SymbolLinkListener>();
 
     public static final Comparator<Entry<String, List<Symbol>>> SYMBOL_GROUP_COMP =
-            new Comparator<Entry<String, List<Symbol>>>() {
-                @Override
-                public int compare(Entry<String, List<Symbol>> o1,
-                        Entry<String, List<Symbol>> o2) {
-                    return o2.getValue().size() - o1.getValue().size();
-                }
-            };
+            (o1, o2) -> o2.getValue().size() - o1.getValue().size();
 
     public static final Comparator<Symbol> SYMBOL_COMP =
-            new Comparator<Symbol>() {
-                @Override
-                public int compare(Symbol o1, Symbol o2) {
-                    if (o2.getConfidence() >= o1.getConfidence())
-                        return 1;
+            (o1, o2) -> {
+                if (o2.getConfidence() >= o1.getConfidence())
+                    return 1;
 
-                    return -1;
-                }
+                return -1;
             };
 
     /**

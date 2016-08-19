@@ -262,32 +262,29 @@ public class BatchExecutor {
                 errorLog.close();
 
                 // show errors or success dialog
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (errors.get() == 0) {
-                            Dialogs.showInfo(controller.getView(),
-                                    "Export completed",
-                                    "The batch export finished without any errors.");
-                        } else {
-                            final boolean investigate = Dialogs.ask(
-                                    controller.getView(),
-                                    "Errors during export",
-                                    String.format(
-                                            "The batch export finished, but there have been %d errors. Do you want to"
-                                                    + " investigate the error log?",
-                                            errors.get()));
+                SwingUtilities.invokeLater(() -> {
+                    if (errors.get() == 0) {
+                        Dialogs.showInfo(controller.getView(),
+                                "Export completed",
+                                "The batch export finished without any errors.");
+                    } else {
+                        final boolean investigate = Dialogs.ask(
+                                controller.getView(),
+                                "Errors during export",
+                                String.format(
+                                        "The batch export finished, but there have been %d errors. Do you want to"
+                                                + " investigate the error log?",
+                                        errors.get()));
 
-                            if (investigate) {
-                                try {
-                                    Desktop.getDesktop().open(
-                                            export.getDestinationDir().resolve(
-                                                    "errors.log").toFile());
-                                } catch (IOException e) {
-                                    Dialogs.showError(controller.getView(),
-                                            "Error",
-                                            "Could not open the error log.");
-                                }
+                        if (investigate) {
+                            try {
+                                Desktop.getDesktop().open(
+                                        export.getDestinationDir().resolve(
+                                                "errors.log").toFile());
+                            } catch (IOException e) {
+                                Dialogs.showError(controller.getView(),
+                                        "Error",
+                                        "Could not open the error log.");
                             }
                         }
                     }

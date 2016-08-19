@@ -11,8 +11,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class BatchExportProgressDialog extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -83,12 +81,7 @@ public class BatchExportProgressDialog extends JDialog {
             contentPanel.add(btnCancel, gbc_btnNewButton);
 
             // dispose of dialog on cancel
-            btnCancel.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    BatchExportProgressDialog.this.dispose();
-                }
-            });
+            btnCancel.addActionListener(e -> BatchExportProgressDialog.this.dispose());
         }
     }
 

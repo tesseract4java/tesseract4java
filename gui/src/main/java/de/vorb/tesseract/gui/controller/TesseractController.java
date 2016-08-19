@@ -1151,26 +1151,23 @@ public class TesseractController extends WindowAdapter implements
         thumbnailLoadTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        final JList<PageThumbnail> list =
-                                view.getPages().getList();
-                        final ListModel<PageThumbnail> model = list.getModel();
+                SwingUtilities.invokeLater(() -> {
+                    final JList<PageThumbnail> list =
+                            view.getPages().getList();
+                    final ListModel<PageThumbnail> model = list.getModel();
 
-                        final int first = list.getFirstVisibleIndex();
-                        final int last = list.getLastVisibleIndex();
+                    final int first = list.getFirstVisibleIndex();
+                    final int last = list.getLastVisibleIndex();
 
-                        for (int i = first; i <= last; i++) {
-                            final PageThumbnail pt = model.getElementAt(i);
+                    for (int i = first; i <= last; i++) {
+                        final PageThumbnail pt = model.getElementAt(i);
 
-                            if (pt == null || pt.getThumbnail().isPresent())
-                                continue;
+                        if (pt == null || pt.getThumbnail().isPresent())
+                            continue;
 
-                            final Task t = new Task(i, pt);
-                            tasks.add(t);
-                            thumbnailLoader.submitTask(t);
-                        }
+                        final Task t = new Task(i, pt);
+                        tasks.add(t);
+                        thumbnailLoader.submitTask(t);
                     }
                 });
             }

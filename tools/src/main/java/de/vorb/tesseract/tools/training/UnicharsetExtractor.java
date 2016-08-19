@@ -39,14 +39,8 @@ public class UnicharsetExtractor {
         final DirectoryStream<Path> dir =
                 Files.newDirectoryStream(
                         Paths.get("E:/Masterarbeit/Ressourcen/tessdata/experiment04-complete-training"),
-                        new DirectoryStream.Filter<Path>() {
-                            @Override
-                            public boolean accept(Path entry)
-                                    throws IOException {
-                                return entry.getFileName().toString().endsWith(
-                                        ".box");
-                            }
-                        });
+                        entry -> entry.getFileName().toString().endsWith(
+                                ".box"));
 
         final Set<String> charset = extractCharacterSet(dir);
 

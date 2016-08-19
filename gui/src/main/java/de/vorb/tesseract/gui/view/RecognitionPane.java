@@ -333,18 +333,16 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
         btZoomOut = new JButton(new ImageIcon(
                 RecognitionPane.class.getResource("/icons/zoom_out.png")));
-        btZoomOut.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ev) {
-                if (scale.hasPrevious()) {
-                    renderer.render(getPageModel(), scale.previous());
-                }
-
-                if (!scale.hasPrevious()) {
-                    btZoomOut.setEnabled(false);
-                }
-
-                btZoomIn.setEnabled(true);
+        btZoomOut.addActionListener(ev -> {
+            if (scale.hasPrevious()) {
+                renderer.render(getPageModel(), scale.previous());
             }
+
+            if (!scale.hasPrevious()) {
+                btZoomOut.setEnabled(false);
+            }
+
+            btZoomIn.setEnabled(true);
         });
         btZoomOut.setMargin(btnMargin);
         btZoomOut.setToolTipText("Zoom out");
@@ -357,18 +355,16 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
         btZoomIn = new JButton(new ImageIcon(
                 RecognitionPane.class.getResource("/icons/zoom_in.png")));
-        btZoomIn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ev) {
-                if (scale.hasNext()) {
-                    renderer.render(getPageModel(), scale.next());
-                }
-
-                if (!scale.hasPrevious()) {
-                    btZoomIn.setEnabled(false);
-                }
-
-                btZoomOut.setEnabled(true);
+        btZoomIn.addActionListener(ev -> {
+            if (scale.hasNext()) {
+                renderer.render(getPageModel(), scale.next());
             }
+
+            if (!scale.hasPrevious()) {
+                btZoomIn.setEnabled(false);
+            }
+
+            btZoomOut.setEnabled(true);
         });
         btZoomIn.setMargin(btnMargin);
         btZoomIn.setToolTipText("Zoom in");
@@ -379,31 +375,20 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         panel_1.add(btZoomIn, gbc_btZoomIn);
         // comboFont.setModel(new DefaultComboBoxModel<String>(new String[] {
         // "Antiqua", "Fraktur" }));
-        comboFont.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ev) {
-                render();
-            }
+        comboFont.addActionListener(ev -> render());
+
+        spOriginal.getViewport().addChangeListener(e -> {
+            spHOCR.getHorizontalScrollBar().setModel(
+                    spOriginal.getHorizontalScrollBar().getModel());
+            spHOCR.getVerticalScrollBar().setModel(
+                    spOriginal.getVerticalScrollBar().getModel());
         });
 
-        spOriginal.getViewport().addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                spHOCR.getHorizontalScrollBar().setModel(
-                        spOriginal.getHorizontalScrollBar().getModel());
-                spHOCR.getVerticalScrollBar().setModel(
-                        spOriginal.getVerticalScrollBar().getModel());
-            }
-        });
-
-        spHOCR.getViewport().addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                spOriginal.getHorizontalScrollBar().setModel(
-                        spHOCR.getHorizontalScrollBar().getModel());
-                spOriginal.getVerticalScrollBar().setModel(
-                        spHOCR.getVerticalScrollBar().getModel());
-            }
+        spHOCR.getViewport().addChangeListener(e -> {
+            spOriginal.getHorizontalScrollBar().setModel(
+                    spHOCR.getHorizontalScrollBar().getModel());
+            spOriginal.getVerticalScrollBar().setModel(
+                    spHOCR.getVerticalScrollBar().getModel());
         });
     }
 

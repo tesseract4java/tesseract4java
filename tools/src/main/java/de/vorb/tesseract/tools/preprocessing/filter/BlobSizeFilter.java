@@ -68,12 +68,7 @@ public class BlobSizeFilter implements ImageFilter {
         final Path dir =
                 Paths.get("E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1");
         final DirectoryStream<Path> ds = Files.newDirectoryStream(dir,
-                new DirectoryStream.Filter<Path>() {
-                    @Override
-                    public boolean accept(Path path) throws IOException {
-                        return path.getFileName().toString().endsWith(".png");
-                    }
-                });
+                path -> path.getFileName().toString().endsWith(".png"));
 
         final Path outDir = dir.resolve("sauvola/filtered");
         Files.createDirectories(outDir);

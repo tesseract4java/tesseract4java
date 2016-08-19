@@ -58,25 +58,22 @@ public class WordFrequencyList {
             if (!f.isFile())
                 continue;
 
-            exec.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try (Scanner scanner = new Scanner(f, "UTF-8")) {
-                        scanner.useDelimiter(delim);
+            exec.execute(() -> {
+                try (Scanner scanner = new Scanner(f, "UTF-8")) {
+                    scanner.useDelimiter(delim);
 
-                        while (scanner.hasNext()) {
-                            final String word = scanner.next();
+                    while (scanner.hasNext()) {
+                        final String word = scanner.next();
 
-                            // Ignore single character words
-                            if (word.length() == 1)
-                                continue;
+                        // Ignore single character words
+                        if (word.length() == 1)
+                            continue;
 
-                            frequencyList.putIfAbsent(word, new AtomicInteger(0));
-                            frequencyList.get(word).incrementAndGet();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        frequencyList.putIfAbsent(word, new AtomicInteger(0));
+                        frequencyList.get(word).incrementAndGet();
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             });
         }
@@ -89,17 +86,13 @@ public class WordFrequencyList {
         }
 
         final SortedSet<Entry<String, AtomicInteger>> sorted = new TreeSet<Entry<String, AtomicInteger>>(
-                new Comparator<Entry<String, AtomicInteger>>() {
-                    @Override
-                    public int compare(Entry<String, AtomicInteger> a,
-                            Entry<String, AtomicInteger> b) {
-                        if (a.getValue().get() < b.getValue().get())
-                            return 1;
-                        else if (a.getValue().get() > b.getValue().get())
-                            return -1;
-                        else
-                            return a.getKey().compareTo(b.getKey());
-                    }
+                (a, b) -> {
+                    if (a.getValue().get() < b.getValue().get())
+                        return 1;
+                    else if (a.getValue().get() > b.getValue().get())
+                        return -1;
+                    else
+                        return a.getKey().compareTo(b.getKey());
                 });
         sorted.addAll(frequencyList.entrySet());
 

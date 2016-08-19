@@ -8,13 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectedComponentLabeler {
-    private static final ConnectedComponentFilter ACCEPT_ALL =
-            new ConnectedComponentFilter() {
-                @Override
-                public boolean filter(ConnectedComponent connComp) {
-                    return true;
-                }
-            };
+    private static final ConnectedComponentFilter ACCEPT_ALL = connComp -> true;
 
     private static final int MARK = -2;
     private static final int NON_LABEL = -1;

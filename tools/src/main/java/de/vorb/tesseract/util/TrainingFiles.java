@@ -13,14 +13,9 @@ public class TrainingFiles {
     }
 
     private static final DirectoryStream.Filter<Path> traineddataFilter =
-            new DirectoryStream.Filter<Path>() {
-                @Override
-                public boolean accept(Path f) throws IOException {
-                    return Files.isRegularFile(f)
-                            && f.getFileName().toString().endsWith(
-                            ".traineddata");
-                }
-            };
+            f -> Files.isRegularFile(f)
+                    && f.getFileName().toString().endsWith(
+                    ".traineddata");
 
     /**
      * Lists all available training files in the given directory.

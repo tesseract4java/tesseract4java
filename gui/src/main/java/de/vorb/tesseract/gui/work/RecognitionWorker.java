@@ -33,12 +33,9 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
     @Override
     protected PageModel doInBackground() throws Exception {
         // set the progress bar state to indeterminate
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                controller.setPageModel(Optional.empty());
-                controller.getView().getProgressBar().setIndeterminate(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            controller.setPageModel(Optional.empty());
+            controller.getView().getProgressBar().setIndeterminate(true);
         });
 
         if (trainingFile != null) {

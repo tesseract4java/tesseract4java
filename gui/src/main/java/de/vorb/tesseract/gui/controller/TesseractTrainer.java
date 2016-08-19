@@ -121,18 +121,16 @@ public class TesseractTrainer extends JDialog {
         tfExecutablesDir.setColumns(10);
 
         JButton btnSelectExecutablesDir = new JButton("Select...");
-        btnSelectExecutablesDir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                final JFileChooser fc = new JFileChooser();
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                fc.setCurrentDirectory(new File(tfExecutablesDir.getText()));
-                final int result = fc.showOpenDialog(TesseractTrainer.this);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    final File dir = fc.getSelectedFile();
-                    tfExecutablesDir.setText(dir.getAbsolutePath());
-                    GlobalPrefs.getPrefs().put(PreferencesDialog.KEY_EXEC_DIR,
-                            dir.getAbsolutePath());
-                }
+        btnSelectExecutablesDir.addActionListener(evt -> {
+            final JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fc.setCurrentDirectory(new File(tfExecutablesDir.getText()));
+            final int result = fc.showOpenDialog(TesseractTrainer.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                final File dir = fc.getSelectedFile();
+                tfExecutablesDir.setText(dir.getAbsolutePath());
+                GlobalPrefs.getPrefs().put(PreferencesDialog.KEY_EXEC_DIR,
+                        dir.getAbsolutePath());
             }
         });
         GridBagConstraints gbc_btnSelectExecutablesDir = new GridBagConstraints();
@@ -161,18 +159,16 @@ public class TesseractTrainer extends JDialog {
         tfTrainingDir.setColumns(30);
 
         JButton btnSelectTrainingDir = new JButton("Select...");
-        btnSelectTrainingDir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                final JFileChooser fc = new JFileChooser();
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                fc.setCurrentDirectory(new File(tfTrainingDir.getText()));
-                final int result = fc.showOpenDialog(TesseractTrainer.this);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    final File dir = fc.getSelectedFile();
-                    tfTrainingDir.setText(dir.getAbsolutePath());
-                    GlobalPrefs.getPrefs().put(KEY_TRAINING_DIR,
-                            dir.getAbsolutePath());
-                }
+        btnSelectTrainingDir.addActionListener(evt -> {
+            final JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fc.setCurrentDirectory(new File(tfTrainingDir.getText()));
+            final int result = fc.showOpenDialog(TesseractTrainer.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                final File dir = fc.getSelectedFile();
+                tfTrainingDir.setText(dir.getAbsolutePath());
+                GlobalPrefs.getPrefs().put(KEY_TRAINING_DIR,
+                        dir.getAbsolutePath());
             }
         });
         GridBagConstraints gbc_btnSelectTrainingDir = new GridBagConstraints();
@@ -211,19 +207,17 @@ public class TesseractTrainer extends JDialog {
         tfLangdataDir.setColumns(30);
 
         final JButton btnSelectLangdataDir = new JButton("Select...");
-        btnSelectLangdataDir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                final JFileChooser fc = new JFileChooser();
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                fc.setCurrentDirectory(new File(tfLangdataDir.getText()));
-                final int result = fc.showOpenDialog(TesseractTrainer.this);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    final File dir = fc.getSelectedFile();
-                    tfLangdataDir.setText(dir.getAbsolutePath());
-                    GlobalPrefs.getPrefs().put(
-                            PreferencesDialog.KEY_LANGDATA_DIR,
-                            dir.getAbsolutePath());
-                }
+        btnSelectLangdataDir.addActionListener(evt -> {
+            final JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fc.setCurrentDirectory(new File(tfLangdataDir.getText()));
+            final int result = fc.showOpenDialog(TesseractTrainer.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                final File dir = fc.getSelectedFile();
+                tfLangdataDir.setText(dir.getAbsolutePath());
+                GlobalPrefs.getPrefs().put(
+                        PreferencesDialog.KEY_LANGDATA_DIR,
+                        dir.getAbsolutePath());
             }
         });
         btnSelectLangdataDir.setEnabled(false);
@@ -234,11 +228,9 @@ public class TesseractTrainer extends JDialog {
         gbc_btnSelectLangdataDir.gridy = 3;
 
         contentPane.add(btnSelectLangdataDir, gbc_btnSelectLangdataDir);
-        checkUseLangdata.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                tfLangdataDir.setEnabled(checkUseLangdata.isSelected());
-                btnSelectLangdataDir.setEnabled(checkUseLangdata.isSelected());
-            }
+        checkUseLangdata.addActionListener(evt -> {
+            tfLangdataDir.setEnabled(checkUseLangdata.isSelected());
+            btnSelectLangdataDir.setEnabled(checkUseLangdata.isSelected());
         });
 
         JButton btnTrain = new JButton("Train");

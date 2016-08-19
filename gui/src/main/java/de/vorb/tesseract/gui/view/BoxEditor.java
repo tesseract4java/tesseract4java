@@ -1,13 +1,11 @@
 package de.vorb.tesseract.gui.view;
 
-import de.vorb.tesseract.gui.event.SelectionListener;
 import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.model.SingleSelectionModel;
 import de.vorb.tesseract.gui.model.SymbolTableModel;
 import de.vorb.tesseract.gui.util.Filter;
-import de.vorb.tesseract.gui.util.FilterProvider;
 import de.vorb.tesseract.gui.view.renderer.BoxFileRenderer;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Point;
@@ -45,8 +43,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -146,37 +142,33 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
 
         // create table first, so it can be used by the property change listener
         tabSymbols = new FilteredTable<Symbol>(new SymbolTableModel(),
-                new FilterProvider<Symbol>() {
-                    @Override
-                    public Optional<Filter<Symbol>> getFilterFor(
-                            String filterText) {
-                        final Filter<Symbol> filter;
+                filterText -> {
+                    final Filter<Symbol> filter;
 
-                        if (filterText.isEmpty()) {
-                            filter = null;
-                        } else {
-                            // split filter text into terms
-                            final String[] terms =
-                                    filterText.toLowerCase().split("\\s+");
+                    if (filterText.isEmpty()) {
+                        filter = null;
+                    } else {
+                        // split filter text into terms
+                        final String[] terms =
+                                filterText.toLowerCase().split("\\s+");
 
-                            filter = new Filter<Symbol>() {
-                                @Override
-                                public boolean accept(Symbol item) {
-                                    // accept if at least one term is contained
-                                    final String symbolText =
-                                            item.getText().toLowerCase();
+                        filter = new Filter<Symbol>() {
+                            @Override
+                            public boolean accept(Symbol item) {
+                                // accept if at least one term is contained
+                                final String symbolText =
+                                        item.getText().toLowerCase();
 
-                                    for (String term : terms) {
-                                        if (symbolText.contains(term))
-                                            return true;
-                                    }
-                                    return false;
+                                for (String term : terms) {
+                                    if (symbolText.contains(term))
+                                        return true;
                                 }
-                            };
-                        }
-
-                        return Optional.ofNullable(filter);
+                                return false;
+                            }
+                        };
                     }
+
+                    return Optional.ofNullable(filter);
                 });
 
         tabSymbols.getListModel().addListDataListener(new ListDataListener() {
@@ -284,24 +276,20 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         toolbar.add(lblSymbol, gbc_lblSymbol);
 
         tfSymbol = new JTextField();
-        tfSymbol.addActionListener(new ActionListener() {
+        tfSymbol.addActionListener(e -> {
+            final Optional<Symbol> symbol = getSelectedSymbol();
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final Optional<Symbol> symbol = getSelectedSymbol();
+            if (!symbol.isPresent())
+                return;
 
-                if (!symbol.isPresent())
-                    return;
+            symbol.get().setText(tfSymbol.getText());
+            table.tableChanged(new TableModelEvent(table.getModel(),
+                    table.getSelectedRow()));
 
-                symbol.get().setText(tfSymbol.getText());
-                table.tableChanged(new TableModelEvent(table.getModel(),
-                        table.getSelectedRow()));
-
-                int newSel = table.getSelectedRow() + 1;
-                if (newSel < table.getModel().getRowCount())
-                    table.getSelectionModel().setSelectionInterval(newSel,
-                            newSel);
-            }
+            int newSel = table.getSelectedRow() + 1;
+            if (newSel < table.getModel().getRowCount())
+                table.getSelectionModel().setSelectionInterval(newSel,
+                        newSel);
         });
 
         GridBagConstraints gbc_tfSymbol = new GridBagConstraints();
@@ -415,32 +403,28 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         gbc_btnZoomIn.gridy = 0;
         toolbar.add(btnZoomIn, gbc_btnZoomIn);
 
-        btnZoomOut.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                if (scale.hasPrevious()) {
-                    renderer.render(getBoxFileModel(), scale.previous());
-                }
-
-                if (!scale.hasPrevious()) {
-                    btnZoomOut.setEnabled(false);
-                }
-
-                btnZoomIn.setEnabled(true);
+        btnZoomOut.addActionListener(evt -> {
+            if (scale.hasPrevious()) {
+                renderer.render(getBoxFileModel(), scale.previous());
             }
+
+            if (!scale.hasPrevious()) {
+                btnZoomOut.setEnabled(false);
+            }
+
+            btnZoomIn.setEnabled(true);
         });
 
-        btnZoomIn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                if (scale.hasNext()) {
-                    renderer.render(getBoxFileModel(), scale.next());
-                }
-
-                if (!scale.hasNext()) {
-                    btnZoomIn.setEnabled(false);
-                }
-
-                btnZoomOut.setEnabled(true);
+        btnZoomIn.addActionListener(evt -> {
+            if (scale.hasNext()) {
+                renderer.render(getBoxFileModel(), scale.next());
             }
+
+            if (!scale.hasNext()) {
+                btnZoomIn.setEnabled(false);
+            }
+
+            btnZoomOut.setEnabled(true);
         });
 
         Dimension tabSize = new Dimension(260, 0);
@@ -508,36 +492,33 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
             }
         });
 
-        selectionModel.addSelectionListener(new SelectionListener() {
-            @Override
-            public void selectionChanged(int index) {
-                if (index < 0) {
-                    return;
-                }
-
-                final SymbolTableModel tabModel =
-                        (SymbolTableModel) tabSymbols.getTable().getModel();
-                final Symbol symbol = tabModel.getSymbol(index);
-
-                final String symbolText = symbol.getText();
-                tfSymbol.setText(symbolText);
-
-                // tooltip with codepoints
-                final StringBuilder tooltip = new StringBuilder("[ ");
-                for (int i = 0; i < symbolText.length(); i++) {
-                    tooltip.append(Integer.toHexString(symbolText.codePointAt(
-                            i))).append(' ');
-                }
-                tfSymbol.setToolTipText(tooltip.append(']').toString());
-
-                final Box bbox = symbol.getBoundingBox();
-                spinnerX.setValue(bbox.getX());
-                spinnerY.setValue(bbox.getY());
-                spinnerWidth.setValue(bbox.getWidth());
-                spinnerHeight.setValue(bbox.getHeight());
-
-                lblCanvas.scrollRectToVisible(bbox.toRectangle());
+        selectionModel.addSelectionListener(index -> {
+            if (index < 0) {
+                return;
             }
+
+            final SymbolTableModel tabModel =
+                    (SymbolTableModel) tabSymbols.getTable().getModel();
+            final Symbol symbol = tabModel.getSymbol(index);
+
+            final String symbolText = symbol.getText();
+            tfSymbol.setText(symbolText);
+
+            // tooltip with codepoints
+            final StringBuilder tooltip = new StringBuilder("[ ");
+            for (int i = 0; i < symbolText.length(); i++) {
+                tooltip.append(Integer.toHexString(symbolText.codePointAt(
+                        i))).append(' ');
+            }
+            tfSymbol.setToolTipText(tooltip.append(']').toString());
+
+            final Box bbox = symbol.getBoundingBox();
+            spinnerX.setValue(bbox.getX());
+            spinnerY.setValue(bbox.getY());
+            spinnerWidth.setValue(bbox.getWidth());
+            spinnerHeight.setValue(bbox.getHeight());
+
+            lblCanvas.scrollRectToVisible(bbox.toRectangle());
         });
 
         spinnerX.addPropertyChangeListener(spinnerListener);

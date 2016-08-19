@@ -96,42 +96,39 @@ public class UnicharsetDebugger extends JFrame {
         }
         list.setModel(listModel);
 
-        list.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent evt) {
-                if (evt.getValueIsAdjusting()) {
-                    return;
-                }
-
-                g2d.clearRect(0, 0, WIDTH, HEIGHT);
-
-                final int index = list.getSelectedIndex();
-                final Char unichar = unicharset.getCharacters().get(index);
-                final CharacterDimensions dims = unichar.getDimensions();
-
-                final int minBottom = dims.getMinBottom();
-                final int maxBottom = dims.getMaxBottom();
-
-                final int minTop = dims.getMinTop();
-                final int maxTop = dims.getMaxTop();
-
-                final int minWidth = dims.getMinWidth();
-                final int maxWidth = dims.getMaxWidth();
-
-                g2d.setPaint(colorBottom);
-                g2d.fillRect(0, TOP - maxBottom, WIDTH, maxBottom - minBottom);
-
-                g2d.setPaint(colorTop);
-                g2d.fillRect(0, TOP - maxTop, WIDTH, maxTop - minTop);
-
-                g2d.setPaint(colorWidth);
-                g2d.fillRect(minWidth, 0, maxWidth, HEIGHT);
-
-                // TODO show bearing etc
-
-                icon.setImage(canvas);
-                label.repaint();
+        list.addListSelectionListener(evt -> {
+            if (evt.getValueIsAdjusting()) {
+                return;
             }
+
+            g2d.clearRect(0, 0, WIDTH, HEIGHT);
+
+            final int index = list.getSelectedIndex();
+            final Char unichar = unicharset.getCharacters().get(index);
+            final CharacterDimensions dims = unichar.getDimensions();
+
+            final int minBottom = dims.getMinBottom();
+            final int maxBottom = dims.getMaxBottom();
+
+            final int minTop = dims.getMinTop();
+            final int maxTop = dims.getMaxTop();
+
+            final int minWidth = dims.getMinWidth();
+            final int maxWidth = dims.getMaxWidth();
+
+            g2d.setPaint(colorBottom);
+            g2d.fillRect(0, TOP - maxBottom, WIDTH, maxBottom - minBottom);
+
+            g2d.setPaint(colorTop);
+            g2d.fillRect(0, TOP - maxTop, WIDTH, maxTop - minTop);
+
+            g2d.setPaint(colorWidth);
+            g2d.fillRect(minWidth, 0, maxWidth, HEIGHT);
+
+            // TODO show bearing etc
+
+            icon.setImage(canvas);
+            label.repaint();
         });
 
         scrollPane.setViewportView(list);

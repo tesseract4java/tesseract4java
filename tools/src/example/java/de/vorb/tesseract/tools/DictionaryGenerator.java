@@ -36,17 +36,12 @@ public class DictionaryGenerator {
             }
         }
 
-        final ArrayList<Entry<String, Integer>> sortedDict = new ArrayList<>(
-                dict.entrySet());
-        Collections.sort(sortedDict, new Comparator<Entry<String, Integer>>() {
-            @Override
-            public int compare(Entry<String, Integer> o1,
-                    Entry<String, Integer> o2) {
-                final int v1 = o1.getValue();
-                final int v2 = o2.getValue();
-                return v1 < v2 ? 1 : v1 > v2 ? -1 : o1.getKey().compareTo(
-                        o2.getKey());
-            }
+        final ArrayList<Entry<String, Integer>> sortedDict = new ArrayList<>(dict.entrySet());
+
+        Collections.sort(sortedDict, (o1, o2) -> {
+            final int v1 = o1.getValue();
+            final int v2 = o2.getValue();
+            return v1 < v2 ? 1 : v1 > v2 ? -1 : o1.getKey().compareTo(o2.getKey());
         });
 
         final BufferedWriter dictFile = Files.newBufferedWriter(
@@ -72,14 +67,9 @@ public class DictionaryGenerator {
             dictFile.write(entry.getKey() + " " + entry.getValue() + "\n");
         }
 
-        Collections.sort(sortedDict, new Comparator<Entry<String, Integer>>() {
-            @Override
-            public int compare(Entry<String, Integer> o1,
-                    Entry<String, Integer> o2) {
-                return o1.getKey().toLowerCase().compareTo(
-                        o2.getKey().toLowerCase());
-            }
-        });
+        Collections.sort(sortedDict,
+                (o1, o2) ->
+                        o1.getKey().toLowerCase().compareTo(o2.getKey().toLowerCase()));
 
         for (final Entry<String, Integer> entry : sortedDict) {
             userWordList.write(entry.getKey() + "\n");

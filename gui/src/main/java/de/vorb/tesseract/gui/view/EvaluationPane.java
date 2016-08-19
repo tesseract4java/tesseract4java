@@ -193,18 +193,16 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         gbc_btnUseOcrResult.gridy = 0;
         panel_2.add(btnUseOcrResult, gbc_btnUseOcrResult);
 
-        btnZoomIn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                if (scale.hasNext()) {
-                    renderer.render(getPageModel(), scale.next());
-                }
-
-                if (!scale.hasNext()) {
-                    btnZoomIn.setEnabled(false);
-                }
-
-                btnZoomOut.setEnabled(true);
+        btnZoomIn.addActionListener(evt -> {
+            if (scale.hasNext()) {
+                renderer.render(getPageModel(), scale.next());
             }
+
+            if (!scale.hasNext()) {
+                btnZoomIn.setEnabled(false);
+            }
+
+            btnZoomOut.setEnabled(true);
         });
     }
 

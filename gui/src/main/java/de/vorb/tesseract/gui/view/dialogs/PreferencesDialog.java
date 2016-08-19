@@ -80,24 +80,22 @@ public class PreferencesDialog extends JDialog {
         }
         {
             JButton btnSelect = new JButton("Select...");
-            btnSelect.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent evt) {
-                    final JFileChooser fc = new JFileChooser();
-                    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            btnSelect.addActionListener(evt -> {
+                final JFileChooser fc = new JFileChooser();
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-                    try {
-                        final File currentDir = new File(
-                                tfExecutablesDir.getText());
-                        if (currentDir.isDirectory()) {
-                            fc.setCurrentDirectory(currentDir);
-                        }
-                    } catch (Exception e) {
+                try {
+                    final File currentDir = new File(
+                            tfExecutablesDir.getText());
+                    if (currentDir.isDirectory()) {
+                        fc.setCurrentDirectory(currentDir);
                     }
+                } catch (Exception e) {
+                }
 
-                    final int result = fc.showOpenDialog(PreferencesDialog.this);
-                    if (result == JFileChooser.APPROVE_OPTION) {
-                        tfExecutablesDir.setText(fc.getSelectedFile().getAbsolutePath());
-                    }
+                final int result = fc.showOpenDialog(PreferencesDialog.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    tfExecutablesDir.setText(fc.getSelectedFile().getAbsolutePath());
                 }
             });
             GridBagConstraints gbc_btnSelect = new GridBagConstraints();
@@ -128,24 +126,22 @@ public class PreferencesDialog extends JDialog {
         }
         {
             JButton btnSelect_1 = new JButton("Select...");
-            btnSelect_1.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent evt) {
-                    final JFileChooser fc = new JFileChooser();
-                    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            btnSelect_1.addActionListener(evt -> {
+                final JFileChooser fc = new JFileChooser();
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-                    try {
-                        final File currentDir = new File(
-                                tfLangdataDir.getText());
-                        if (currentDir.isDirectory()) {
-                            fc.setCurrentDirectory(currentDir);
-                        }
-                    } catch (Exception e) {
+                try {
+                    final File currentDir = new File(
+                            tfLangdataDir.getText());
+                    if (currentDir.isDirectory()) {
+                        fc.setCurrentDirectory(currentDir);
                     }
+                } catch (Exception e) {
+                }
 
-                    final int result = fc.showOpenDialog(PreferencesDialog.this);
-                    if (result == JFileChooser.APPROVE_OPTION) {
-                        tfLangdataDir.setText(fc.getSelectedFile().getAbsolutePath());
-                    }
+                final int result = fc.showOpenDialog(PreferencesDialog.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    tfLangdataDir.setText(fc.getSelectedFile().getAbsolutePath());
                 }
             });
             GridBagConstraints gbc_btnSelect_1 = new GridBagConstraints();
@@ -160,11 +156,9 @@ public class PreferencesDialog extends JDialog {
             getContentPane().add(buttonPane, BorderLayout.SOUTH);
             {
                 JButton okButton = new JButton("Save");
-                okButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) {
-                        PreferencesDialog.this.setState(ResultState.APPROVE);
-                        PreferencesDialog.this.dispose();
-                    }
+                okButton.addActionListener(evt -> {
+                    PreferencesDialog.this.setState(ResultState.APPROVE);
+                    PreferencesDialog.this.dispose();
                 });
                 okButton.setActionCommand("OK");
                 buttonPane.add(okButton);
@@ -172,11 +166,9 @@ public class PreferencesDialog extends JDialog {
             }
             {
                 JButton cancelButton = new JButton("Cancel");
-                cancelButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) {
-                        PreferencesDialog.this.setState(ResultState.CANCEL);
-                        PreferencesDialog.this.dispose();
-                    }
+                cancelButton.addActionListener(evt -> {
+                    PreferencesDialog.this.setState(ResultState.CANCEL);
+                    PreferencesDialog.this.dispose();
                 });
                 cancelButton.setActionCommand("Cancel");
                 buttonPane.add(cancelButton);

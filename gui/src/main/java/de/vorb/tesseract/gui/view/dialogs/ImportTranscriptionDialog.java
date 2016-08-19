@@ -85,28 +85,26 @@ public class ImportTranscriptionDialog extends JDialog {
         }
         {
             JButton btnSelect = new JButton("Select...");
-            btnSelect.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent evt) {
-                    final JFileChooser fc = new JFileChooser();
-                    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                    fc.setFileFilter(new FileFilter() {
-                        @Override
-                        public String getDescription() {
-                            return "Plain text (*.txt)";
-                        }
-
-                        @Override
-                        public boolean accept(File f) {
-                            return f.canRead() && (f.isDirectory() ||
-                                    f.getName().endsWith(".txt"));
-                        }
-                    });
-
-                    final int result = fc.showOpenDialog(
-                            ImportTranscriptionDialog.this);
-                    if (result == JFileChooser.APPROVE_OPTION) {
-                        tfFile.setText(fc.getSelectedFile().toString());
+            btnSelect.addActionListener(evt -> {
+                final JFileChooser fc = new JFileChooser();
+                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                fc.setFileFilter(new FileFilter() {
+                    @Override
+                    public String getDescription() {
+                        return "Plain text (*.txt)";
                     }
+
+                    @Override
+                    public boolean accept(File f) {
+                        return f.canRead() && (f.isDirectory() ||
+                                f.getName().endsWith(".txt"));
+                    }
+                });
+
+                final int result = fc.showOpenDialog(
+                        ImportTranscriptionDialog.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    tfFile.setText(fc.getSelectedFile().toString());
                 }
             });
             GridBagConstraints gbc_btnSelect = new GridBagConstraints();
@@ -161,25 +159,23 @@ public class ImportTranscriptionDialog extends JDialog {
             getContentPane().add(buttonPane, BorderLayout.SOUTH);
             {
                 JButton okButton = new JButton("Import");
-                okButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) {
-                        if (getTranscriptionFile() != null) {
-                            if (getPageSeparator().isEmpty()) {
-                                Dialogs.showWarning(
-                                        ImportTranscriptionDialog.this,
-                                        "Empty Separator",
-                                        "The separator must not be empty.");
-                                return;
-                            }
-
-                            approved = true;
-
-                            ImportTranscriptionDialog.this.dispose();
-                        } else {
-                            Dialogs.showWarning(ImportTranscriptionDialog.this,
-                                    "Invalid File",
-                                    "The given transcription file is invalid.");
+                okButton.addActionListener(evt -> {
+                    if (getTranscriptionFile() != null) {
+                        if (getPageSeparator().isEmpty()) {
+                            Dialogs.showWarning(
+                                    ImportTranscriptionDialog.this,
+                                    "Empty Separator",
+                                    "The separator must not be empty.");
+                            return;
                         }
+
+                        approved = true;
+
+                        ImportTranscriptionDialog.this.dispose();
+                    } else {
+                        Dialogs.showWarning(ImportTranscriptionDialog.this,
+                                "Invalid File",
+                                "The given transcription file is invalid.");
                     }
                 });
 
@@ -188,12 +184,10 @@ public class ImportTranscriptionDialog extends JDialog {
             }
             {
                 JButton cancelButton = new JButton("Cancel");
-                cancelButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) {
-                        approved = false;
+                cancelButton.addActionListener(evt -> {
+                    approved = false;
 
-                        ImportTranscriptionDialog.this.dispose();
-                    }
+                    ImportTranscriptionDialog.this.dispose();
                 });
                 buttonPane.add(cancelButton);
             }
