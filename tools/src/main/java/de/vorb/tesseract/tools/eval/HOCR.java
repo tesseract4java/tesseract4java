@@ -32,7 +32,8 @@ public class HOCR {
     public static void main(String[] args) throws ParserConfigurationException,
             SAXException, IOException {
         final File src = new File(
-                "C:/Users/Paul/Studium/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/hocr/DE-20__32_AM_49000_L869_G927-1__0014__R0010.html");
+                "C:/Users/Paul/Studium/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/hocr/DE"
+                        + "-20__32_AM_49000_L869_G927-1__0014__R0010.html");
 
         parseFile(src);
     }
