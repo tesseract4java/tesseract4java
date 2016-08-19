@@ -3,10 +3,17 @@
 
 A graphical user interface for the [Tesseract OCR engine][tesseract]. The program has been introduced in the [Master’s
 thesis “Analyses and Heuristics for the Improvement of Optical Character Recognition Results for Fraktur Texts”][thesis]
-by Paul Vorbach.
+by Paul Vorbach (German).
 
 [tesseract]: https://github.com/tesseract-ocr/tesseract
 [thesis]: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:20-opus-106527
+
+
+## Download
+
+Binary distributions and release notes are available in the [releases section].
+
+[Releases section]: https://github.com/tesseract4java/tesseract4java/releases
 
 
 ## Screenshots
@@ -23,8 +30,6 @@ Box editor for training
 
 Glyph overview for easier detection of errors
 
----
-
 ![Comparison View](https://raw.githubusercontent.com/tesseract4java/tesseract-gui/master/screenshots/gui-comparison.png)
 
 Comparison view to compare the original document with the perceived result
@@ -40,6 +45,7 @@ Evaluation view with a transcription field
 ![Batch Export](https://raw.githubusercontent.com/tesseract4java/tesseract-gui/master/screenshots/gui-batch-export.png)
 
 Batch export functionality to handle large projects
+
 
 ## Building and running the software
 
@@ -62,6 +68,7 @@ After you've run through all steps, the directory "tesseract4java/gui/target" wi
 [zip]: https://github.com/tesseract4java/tesseract4java/archive/develop.zip
 [ocrevalUAtion patched]: https://github.com/tesseract4java/ocrevalUAtion
 [ocrevalUAtion zip]: https://github.com/tesseract4java/ocrevalUAtion/archive/master.zip
+
 
 ## Credits
 
