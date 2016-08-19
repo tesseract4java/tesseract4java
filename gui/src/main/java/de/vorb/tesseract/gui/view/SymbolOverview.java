@@ -32,7 +32,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     private Optional<PageModel> pageModel = Optional.empty();
 
     private final LinkedList<SymbolLinkListener> listeners =
-            new LinkedList<SymbolLinkListener>();
+            new LinkedList<>();
 
     public static final Comparator<Entry<String, List<Symbol>>> SYMBOL_GROUP_COMP =
             (o1, o2) -> o2.getValue().size() - o1.getValue().size();
@@ -90,8 +90,8 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
 
         if (!model.isPresent()) {
             glyphSelectionPane.getList().setModel(
-                    new DefaultListModel<Map.Entry<String, List<Symbol>>>());
-            glyphListPane.getList().setModel(new DefaultListModel<Symbol>());
+                    new DefaultListModel<>());
+            glyphListPane.getList().setModel(new DefaultListModel<>());
             return;
         }
 
@@ -103,7 +103,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
         final BoxFileModel boxFile = model.get();
 
         getSymbolVariantList().getList().setModel(
-                new DefaultListModel<Symbol>());
+                new DefaultListModel<>());
 
         // set a new renderer that has a reference to the thresholded image
         getSymbolVariantList().getList().setCellRenderer(
@@ -114,7 +114,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
             final String text = symbol.getText();
 
             if (!glyphs.containsKey(text)) {
-                glyphs.put(text, new ArrayList<Symbol>());
+                glyphs.put(text, new ArrayList<>());
             }
 
             glyphs.get(text).add(symbol);
@@ -154,8 +154,8 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     @Override
     public void freeResources() {
         getSymbolGroupList().getList().setModel(
-                new DefaultListModel<Map.Entry<String, List<Symbol>>>());
+                new DefaultListModel<>());
         getSymbolVariantList().getList().setModel(
-                new DefaultListModel<Symbol>());
+                new DefaultListModel<>());
     }
 }

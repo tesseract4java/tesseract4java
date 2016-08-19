@@ -141,7 +141,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         this.scale = scale;
 
         // create table first, so it can be used by the property change listener
-        tabSymbols = new FilteredTable<Symbol>(new SymbolTableModel(),
+        tabSymbols = new FilteredTable<>(new SymbolTableModel(),
                 filterText -> {
                     final Filter<Symbol> filter;
 

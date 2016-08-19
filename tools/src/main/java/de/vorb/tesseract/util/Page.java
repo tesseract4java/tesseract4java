@@ -91,7 +91,7 @@ public class Page implements Iterable<Symbol> {
         final JAXBContext jc = JAXBContext.newInstance(Page.class);
         final Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        final JAXBElement<Page> jaxbElement = new JAXBElement<Page>(new QName(
+        final JAXBElement<Page> jaxbElement = new JAXBElement<>(new QName(
                 "page"), Page.class, this);
 
         marshaller.marshal(jaxbElement, w);

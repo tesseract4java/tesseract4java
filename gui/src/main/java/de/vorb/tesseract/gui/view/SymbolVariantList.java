@@ -49,14 +49,14 @@ public class SymbolVariantList extends JPanel {
 
         cbOrdering = new JComboBox<>();
         cbOrdering.setBackground(Color.WHITE);
-        cbOrdering.setModel(new DefaultComboBoxModel<SymbolOrder>(
+        cbOrdering.setModel(new DefaultComboBoxModel<>(
                 SymbolOrder.values()));
         panel.add(cbOrdering);
 
         JScrollPane scrollPane = new JScrollPane();
         add(scrollPane, BorderLayout.CENTER);
 
-        glyphList = new JList<Symbol>();
+        glyphList = new JList<>();
         glyphList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         glyphList.setVisibleRowCount(-1);
         scrollPane.setViewportView(glyphList);

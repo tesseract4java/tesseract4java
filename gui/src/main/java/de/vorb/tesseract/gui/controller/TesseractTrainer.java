@@ -75,7 +75,7 @@ public class TesseractTrainer extends JDialog {
         final Toolkit t = Toolkit.getDefaultToolkit();
 
         // load and set multiple icon sizes
-        final List<Image> appIcons = new LinkedList<Image>();
+        final List<Image> appIcons = new LinkedList<>();
         appIcons.add(t.getImage(
                 TesseractFrame.class.getResource("/logos/logo_16.png")));
         appIcons.add(t.getImage(

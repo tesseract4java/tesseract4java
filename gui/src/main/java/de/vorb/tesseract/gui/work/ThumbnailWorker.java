@@ -20,7 +20,7 @@ public class ThumbnailWorker extends
     private final ProjectModel projectModel;
     private final DefaultListModel<PageThumbnail> pages;
 
-    private final Queue<Task> tasks = new ConcurrentLinkedQueue<Task>();
+    private final Queue<Task> tasks = new ConcurrentLinkedQueue<>();
 
     public static class Task {
         public final int index;

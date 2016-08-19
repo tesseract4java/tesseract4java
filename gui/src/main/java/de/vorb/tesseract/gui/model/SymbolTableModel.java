@@ -8,7 +8,7 @@ public class SymbolTableModel extends FilteredTableModel<Symbol> {
     private static final long serialVersionUID = 1L;
 
     public SymbolTableModel() {
-        super(new FilteredListModel<Symbol>(new DefaultListModel<Symbol>()));
+        super(new FilteredListModel<>(new DefaultListModel<>()));
     }
 
     @Override

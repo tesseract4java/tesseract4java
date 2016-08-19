@@ -262,7 +262,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         cbSymbolBoxes.setSelected(false);
         cbSymbolBoxes.addItemListener(checkBoxListener);
 
-        comboFont = new JComboBox<FontSelection>();
+        comboFont = new JComboBox<>();
         comboFont.addItem(FontSelection.ANTIQUA);
         comboFont.addItem(FontSelection.FRAKTUR);
 

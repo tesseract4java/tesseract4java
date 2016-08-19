@@ -87,7 +87,7 @@ public class TesseractFrame extends JFrame {
         final Toolkit t = Toolkit.getDefaultToolkit();
 
         // load and set multiple icon sizes
-        final List<Image> appIcons = new LinkedList<Image>();
+        final List<Image> appIcons = new LinkedList<>();
         appIcons.add(t.getImage(
                 TesseractFrame.class.getResource("/logos/logo_16.png")));
         appIcons.add(t.getImage(
@@ -112,7 +112,7 @@ public class TesseractFrame extends JFrame {
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 
-        listPages = new FilteredList<PageThumbnail>(
+        listPages = new FilteredList<>(
                 query -> {
                     final String[] terms =
                             query.toLowerCase().split("\\s+");
@@ -144,7 +144,7 @@ public class TesseractFrame extends JFrame {
 
         // filtered string list
         listTrainingFiles =
-                new FilteredList<String>(query -> {
+                new FilteredList<>(query -> {
                     final String[] terms =
                             query.toLowerCase().split("\\s+");
 

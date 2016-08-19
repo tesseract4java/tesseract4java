@@ -30,7 +30,7 @@ public class CharacterHistogram extends JFrame {
      */
     public CharacterHistogram(Map<Character, Integer> histogram) {
         final Toolkit t = Toolkit.getDefaultToolkit();
-        final List<Image> appIcons = new LinkedList<Image>();
+        final List<Image> appIcons = new LinkedList<>();
         appIcons.add(t.getImage(
                 TesseractFrame.class.getResource("/logos/logo_16.png")));
         appIcons.add(t.getImage(

@@ -44,7 +44,7 @@ public class WordFrequencyList {
 
     public static void generateList(Collection<File> in, File out,
             ExecutorService exec) throws IOException {
-        final ConcurrentHashMap<String, AtomicInteger> frequencyList = new ConcurrentHashMap<String, AtomicInteger>();
+        final ConcurrentHashMap<String, AtomicInteger> frequencyList = new ConcurrentHashMap<>();
 
         // delimiter that matches all non-word characters and
         final Pattern delim = Pattern.compile("[^\\p{L}\\p{M}\\p{Digit}]+");
@@ -85,7 +85,7 @@ public class WordFrequencyList {
             System.err.println("timeout");
         }
 
-        final SortedSet<Entry<String, AtomicInteger>> sorted = new TreeSet<Entry<String, AtomicInteger>>(
+        final SortedSet<Entry<String, AtomicInteger>> sorted = new TreeSet<>(
                 (a, b) -> {
                     if (a.getValue().get() < b.getValue().get())
                         return 1;
@@ -107,7 +107,7 @@ public class WordFrequencyList {
     }
 
     public static void main(String[] args) throws IOException {
-        final List<File> in = new LinkedList<File>();
+        final List<File> in = new LinkedList<>();
 
         for (File f : new File(
                 "E:/Masterarbeit/Ressourcen/DE-20__53_Rp_5_367-1/ocr").listFiles())

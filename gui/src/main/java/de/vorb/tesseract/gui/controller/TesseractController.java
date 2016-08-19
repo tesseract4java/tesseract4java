@@ -209,7 +209,7 @@ public class TesseractController extends WindowAdapter implements
 
     private Optional<TimerTask> lastThumbnailLoadTask = Optional.empty();
 
-    private final List<Task> tasks = new LinkedList<Task>();
+    private final List<Task> tasks = new LinkedList<>();
 
     /*
      * models
@@ -271,7 +271,7 @@ public class TesseractController extends WindowAdapter implements
             trainingFilesList.setSelectionMode(
                     ListSelectionModel.SINGLE_SELECTION);
             trainingFilesList.setModel(
-                    new FilteredListModel<String>(trainingFilesModel));
+                    new FilteredListModel<>(trainingFilesModel));
 
             lastTrainingFile = GlobalPrefs.getPrefs().get(
                     KEY_TRAINING_FILE,
@@ -1305,7 +1305,7 @@ public class TesseractController extends WindowAdapter implements
                         textFile, StandardCharsets.UTF_8);
 
                 final Map<Character, Integer> histogram =
-                        new TreeMap<Character, Integer>();
+                        new TreeMap<>();
 
                 // build up a histogram
                 int c = -1;

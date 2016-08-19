@@ -46,7 +46,7 @@ public class DictionaryPane extends JPanel {
         add(panel_3, BorderLayout.CENTER);
         panel_3.setLayout(new BorderLayout(0, 0));
 
-        list = new JList<String>();
+        list = new JList<>();
         panel_3.add(list);
     }
 
