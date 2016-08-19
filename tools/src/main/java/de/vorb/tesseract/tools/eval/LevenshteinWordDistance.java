@@ -125,7 +125,8 @@ public class LevenshteinWordDistance {
     }
 
     public static void main(String[] args) throws IOException {
-        final Path tess = Paths.get("E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed/tess_otsu_nodawg");
+        final Path tess = Paths.get(
+                "E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed/tess_otsu_nodawg");
         final Path hand = Paths.get("E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed/hand");
 
         final DirectoryStream<Path> handFiles = Files.newDirectoryStream(hand);
@@ -142,7 +143,8 @@ public class LevenshteinWordDistance {
         final BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(
                         new FileOutputStream(
-                                "E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed/word_comparison_otsu_nodawg.txt"),
+                                "E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed"
+                                        + "/word_comparison_otsu_nodawg.txt"),
                         Charset.forName("UTF-8").newEncoder()));
 
         for (Path handFile : handFiles) {

@@ -108,13 +108,13 @@ public class BatchExportDialog extends JDialog implements ActionListener {
                 new Color(0, 0, 0)), new EmptyBorder(4, 4, 4, 4)));
         panel_1.add(panel_3);
         GridBagLayout gbl_panel_3 = new GridBagLayout();
-        gbl_panel_3.columnWidths = new int[] { 0, 0, 0, 0 };
-        gbl_panel_3.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
-        gbl_panel_3.columnWeights = new double[] { 0.0, 1.0, 0.0,
-                Double.MIN_VALUE };
-        gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
+        gbl_panel_3.columnWidths = new int[]{0, 0, 0, 0};
+        gbl_panel_3.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0};
+        gbl_panel_3.columnWeights = new double[]{0.0, 1.0, 0.0,
+                Double.MIN_VALUE};
+        gbl_panel_3.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0,
                 0.0,
-                Double.MIN_VALUE };
+                Double.MIN_VALUE};
         panel_3.setLayout(gbl_panel_3);
 
         lblDestinationDir = new JLabel("Destination Directory");
@@ -208,10 +208,10 @@ public class BatchExportDialog extends JDialog implements ActionListener {
                 null, new Color(0, 0, 0)), new EmptyBorder(4, 4, 4, 4)));
         panel_1.add(panel_2);
         GridBagLayout gbl_panel_2 = new GridBagLayout();
-        gbl_panel_2.columnWidths = new int[] { 67, 44, 0 };
-        gbl_panel_2.rowHeights = new int[] { 20, 0 };
-        gbl_panel_2.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-        gbl_panel_2.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        gbl_panel_2.columnWidths = new int[]{67, 44, 0};
+        gbl_panel_2.rowHeights = new int[]{20, 0};
+        gbl_panel_2.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+        gbl_panel_2.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         panel_2.setLayout(gbl_panel_2);
 
         JLabel lblWorkerThreads = new JLabel("Number of Worker Threads");

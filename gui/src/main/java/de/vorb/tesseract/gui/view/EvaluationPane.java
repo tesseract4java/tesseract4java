@@ -66,7 +66,7 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
 
     /**
      * Create the panel.
-     * 
+     *
      * @param scale
      */
     public EvaluationPane(final Scale scale) {
@@ -122,11 +122,11 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         add(panel_2, BorderLayout.NORTH);
         panel_2.setBackground(Color.WHITE);
         GridBagLayout gbl_panel_2 = new GridBagLayout();
-        gbl_panel_2.columnWidths = new int[] { 67, 29, 0, 0, 0, 0 };
-        gbl_panel_2.rowHeights = new int[] { 25, 0 };
-        gbl_panel_2.columnWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 1.0,
-                Double.MIN_VALUE };
-        gbl_panel_2.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        gbl_panel_2.columnWidths = new int[]{67, 29, 0, 0, 0, 0};
+        gbl_panel_2.rowHeights = new int[]{25, 0};
+        gbl_panel_2.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 1.0,
+                Double.MIN_VALUE};
+        gbl_panel_2.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         panel_2.setLayout(gbl_panel_2);
 
         JLabel lblOcrevaluation = new JLabel("ocrevalUAtion");

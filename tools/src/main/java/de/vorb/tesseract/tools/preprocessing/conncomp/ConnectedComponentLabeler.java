@@ -61,9 +61,8 @@ public class ConnectedComponentLabeler {
     }
 
     /**
-     * 
-     * @see Chang, Chen et al. 2004
      * @return
+     * @see Chang, Chen et al. 2004
      */
     public List<ConnectedComponent> apply() {
         final ArrayList<ConnectedComponent> connectedComponents =
@@ -120,7 +119,7 @@ public class ConnectedComponentLabeler {
         final Polygon contour = new Polygon();
         contour.addPoint(startX, startY);
 
-        final int[] point = new int[] { startX, startY };
+        final int[] point = new int[]{startX, startY};
 
         int pos;
         if (isOuter) {
@@ -188,41 +187,41 @@ public class ConnectedComponentLabeler {
         //
 
         switch (position) {
-        case 0: // right
-            nextPoint[0] = point[0] + 1;
-            nextPoint[1] = point[1];
-            break;
-        case 1: // bottom right
-            nextPoint[0] = point[0] + 1;
-            nextPoint[1] = point[1] + 1;
-            break;
-        case 2: // bottom
-            nextPoint[0] = point[0];
-            nextPoint[1] = point[1] + 1;
-            break;
-        case 3:
-            nextPoint[0] = point[0] - 1;
-            nextPoint[1] = point[1] + 1;
-            break;
-        case 4:
-            nextPoint[0] = point[0] - 1;
-            nextPoint[1] = point[1];
-            break;
-        case 5:
-            nextPoint[0] = point[0] - 1;
-            nextPoint[1] = point[1] - 1;
-            break;
-        case 6:
-            nextPoint[0] = point[0];
-            nextPoint[1] = point[1] - 1;
-            break;
-        case 7:
-            nextPoint[0] = point[0] + 1;
-            nextPoint[1] = point[1] - 1;
-            break;
-        default:
-            throw new IllegalArgumentException("invalid position "
-                    + position);
+            case 0: // right
+                nextPoint[0] = point[0] + 1;
+                nextPoint[1] = point[1];
+                break;
+            case 1: // bottom right
+                nextPoint[0] = point[0] + 1;
+                nextPoint[1] = point[1] + 1;
+                break;
+            case 2: // bottom
+                nextPoint[0] = point[0];
+                nextPoint[1] = point[1] + 1;
+                break;
+            case 3:
+                nextPoint[0] = point[0] - 1;
+                nextPoint[1] = point[1] + 1;
+                break;
+            case 4:
+                nextPoint[0] = point[0] - 1;
+                nextPoint[1] = point[1];
+                break;
+            case 5:
+                nextPoint[0] = point[0] - 1;
+                nextPoint[1] = point[1] - 1;
+                break;
+            case 6:
+                nextPoint[0] = point[0];
+                nextPoint[1] = point[1] - 1;
+                break;
+            case 7:
+                nextPoint[0] = point[0] + 1;
+                nextPoint[1] = point[1] - 1;
+                break;
+            default:
+                throw new IllegalArgumentException("invalid position "
+                        + position);
         }
     }
 

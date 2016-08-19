@@ -25,7 +25,7 @@ public class CharacterHistogram extends JFrame {
 
     /**
      * Create the frame.
-     * 
+     *
      * @param histogram
      */
     public CharacterHistogram(Map<Character, Integer> histogram) {
@@ -65,10 +65,10 @@ public class CharacterHistogram extends JFrame {
 
         tabHistogram.setModel(new DefaultTableModel(
                 tableData,
-                new String[] {
+                new String[]{
                         "Character", "Count"
                 }
-                ));
+        ));
         scrollPane.setViewportView(tabHistogram);
 
         setMinimumSize(getSize());

@@ -33,11 +33,11 @@ public class TeiP5WordStream {
     private static final Pattern NON_PUNC_PATTERN = Pattern.compile("[0-9\\p{IsL}\\p{IsDigit}]+");
     private static final Pattern NUMBER_PATTERN = Pattern.compile("^((\\d+)[\"'.,:;+\\-*/%?!„“”()\\[\\]<>=]*)+$");
 
-    private static final String[][] REPLACEMENTS = new String[][] {
-            new String[] { "¬", "-" },
-            new String[] { "aͤ", "ä" },
-            new String[] { "oͤ", "ö" },
-            new String[] { "uͤ", "ü" },
+    private static final String[][] REPLACEMENTS = new String[][]{
+            new String[]{"¬", "-"},
+            new String[]{"aͤ", "ä"},
+            new String[]{"oͤ", "ö"},
+            new String[]{"uͤ", "ü"},
     };
 
     private final List<TokenStreamHandler> handlers = new ArrayList<>(1);

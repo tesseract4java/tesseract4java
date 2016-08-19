@@ -40,7 +40,7 @@ public class FeatureDebugger extends JDialog {
 
     /**
      * Create the dialog.
-     * 
+     *
      * @param parent
      */
     public FeatureDebugger(Window parent) {

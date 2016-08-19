@@ -274,7 +274,8 @@ public class BatchExecutor {
                                     controller.getView(),
                                     "Errors during export",
                                     String.format(
-                                            "The batch export finished, but there have been %d errors. Do you want to investigate the error log?",
+                                            "The batch export finished, but there have been %d errors. Do you want to"
+                                                    + " investigate the error log?",
                                             errors.get()));
 
                             if (investigate) {
@@ -295,5 +296,7 @@ public class BatchExecutor {
 
             return null;
         }
-    };
+    }
+
+    ;
 }

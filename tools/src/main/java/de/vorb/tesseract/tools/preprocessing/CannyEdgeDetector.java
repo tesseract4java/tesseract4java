@@ -9,18 +9,18 @@ import java.util.Arrays;
  * <strong>Please read the notes in this source file for additional information.
  * </strong></em>
  * </p>
- * 
+ * <p>
  * <p>
  * This class provides a configurable implementation of the Canny edge detection
  * algorithm. This classic algorithm has a number of shortcomings, but remains
  * an effective tool in many scenarios. <em>This class is designed
  * for single threaded use only.</em>
  * </p>
- * 
+ * <p>
  * <p>
  * Sample usage:
  * </p>
- * 
+ * <p>
  * <pre>
  * <code>
  * //create the detector
@@ -34,14 +34,13 @@ import java.util.Arrays;
  * BufferedImage edges = detector.getEdgesImage();
  * </code>
  * </pre>
- * 
+ * <p>
  * <p>
  * For a more complete understanding of this edge detector's parameters consult
  * an explanation of the algorithm.
  * </p>
- * 
- * @author Tom Gibara
  *
+ * @author Tom Gibara
  */
 
 public class CannyEdgeDetector {
@@ -93,7 +92,7 @@ public class CannyEdgeDetector {
     /**
      * The image that provides the luminance data used by this detector to
      * generate edges.
-     * 
+     *
      * @return the source image, or null
      */
 
@@ -105,9 +104,8 @@ public class CannyEdgeDetector {
      * Specifies the image that will provide the luminance data in which edges
      * will be detected. A source image must be set before the process method is
      * called.
-     * 
-     * @param image
-     *            a source of luminance data
+     *
+     * @param image a source of luminance data
      */
 
     public void setSourceImage(BufferedImage image) {
@@ -119,9 +117,9 @@ public class CannyEdgeDetector {
      * the process method. The buffered image is an opaque image of type
      * BufferedImage.TYPE_INT_ARGB in which edge pixels are white and all other
      * pixels are black.
-     * 
+     *
      * @return an image containing the detected edges, or null if the process
-     *         method has not yet been called.
+     * method has not yet been called.
      */
 
     public BufferedImage getEdgesImage() {
@@ -132,9 +130,8 @@ public class CannyEdgeDetector {
      * Sets the edges image. Calling this method will not change the operation
      * of the edge detector in any way. It is intended to provide a means by
      * which the memory referenced by the detector object may be reduced.
-     * 
-     * @param edgesImage
-     *            expected (though not required) to be null
+     *
+     * @param edgesImage expected (though not required) to be null
      */
 
     public void setEdgesImage(BufferedImage edgesImage) {
@@ -143,7 +140,7 @@ public class CannyEdgeDetector {
 
     /**
      * The low threshold for hysteresis. The default value is 2.5.
-     * 
+     *
      * @return the low hysteresis threshold
      */
 
@@ -156,9 +153,8 @@ public class CannyEdgeDetector {
      * must be determined experimentally for each application. It is nonsensical
      * (though not prohibited) for this value to exceed the high threshold
      * value.
-     * 
-     * @param threshold
-     *            a low hysteresis threshold
+     *
+     * @param threshold a low hysteresis threshold
      */
 
     public void setLowThreshold(float threshold) {
@@ -169,7 +165,7 @@ public class CannyEdgeDetector {
 
     /**
      * The high threshold for hysteresis. The default value is 7.5.
-     * 
+     *
      * @return the high hysteresis threshold
      */
 
@@ -182,9 +178,8 @@ public class CannyEdgeDetector {
      * parameter must be determined experimentally for each application. It is
      * nonsensical (though not prohibited) for this value to be less than the
      * low threshold value.
-     * 
-     * @param threshold
-     *            a high hysteresis threshold
+     *
+     * @param threshold a high hysteresis threshold
      */
 
     public void setHighThreshold(float threshold) {
@@ -196,7 +191,7 @@ public class CannyEdgeDetector {
     /**
      * The number of pixels across which the Gaussian kernel is applied. The
      * default value is 16.
-     * 
+     *
      * @return the radius of the convolution operation in pixels
      */
 
@@ -208,9 +203,8 @@ public class CannyEdgeDetector {
      * The number of pixels across which the Gaussian kernel is applied. This
      * implementation will reduce the radius if the contribution of pixel values
      * is deemed negligable, so this is actually a maximum radius.
-     * 
-     * @param gaussianKernelWidth
-     *            a radius for the convolution operation in pixels, at least 2.
+     *
+     * @param gaussianKernelWidth a radius for the convolution operation in pixels, at least 2.
      */
 
     public void setGaussianKernelWidth(int gaussianKernelWidth) {
@@ -222,7 +216,7 @@ public class CannyEdgeDetector {
     /**
      * The radius of the Gaussian convolution kernel used to smooth the source
      * image prior to gradient calculation. The default value is 16.
-     * 
+     *
      * @return the Gaussian kernel radius in pixels
      */
 
@@ -233,7 +227,7 @@ public class CannyEdgeDetector {
     /**
      * Sets the radius of the Gaussian convolution kernel used to smooth the
      * source image prior to gradient calculation.
-     * 
+     *
      * @return a Gaussian kernel radius in pixels, must exceed 0.1f.
      */
 
@@ -247,7 +241,7 @@ public class CannyEdgeDetector {
      * Whether the luminance data extracted from the source image is normalized
      * by linearizing its histogram prior to edge extraction. The default value
      * is false.
-     * 
+     *
      * @return whether the contrast is normalized
      */
 
@@ -257,9 +251,8 @@ public class CannyEdgeDetector {
 
     /**
      * Sets whether the contrast is normalized
-     * 
-     * @param contrastNormalized
-     *            true if the contrast should be normalized, false otherwise
+     *
+     * @param contrastNormalized true if the contrast should be normalized, false otherwise
      */
 
     public void setContrastNormalized(boolean contrastNormalized) {
@@ -340,7 +333,7 @@ public class CannyEdgeDetector {
                 float sumY = sumX;
                 int xOffset = 1;
                 int yOffset = width;
-                for (; xOffset < kwidth;) {
+                for (; xOffset < kwidth; ) {
                     sumY += kernel[xOffset]
                             * (data[index - yOffset] + data[index + yOffset]);
                     sumX += kernel[xOffset]
@@ -443,24 +436,24 @@ public class CannyEdgeDetector {
                  */
                 if (xGrad * yGrad <= (float) 0 /* (1) */
                         ? Math.abs(xGrad) >= Math.abs(yGrad) /* (2) */
-                                ? (tmp = Math.abs(xGrad * gradMag)) >= Math.abs(yGrad
-                                        * neMag - (xGrad + yGrad) * eMag) /* (3) */
-                                        && tmp > Math.abs(yGrad * swMag
-                                                - (xGrad + yGrad) * wMag) /* (4) */
-                                : (tmp = Math.abs(yGrad * gradMag)) >= Math.abs(xGrad
-                                        * neMag - (yGrad + xGrad) * nMag) /* (3) */
-                                        && tmp > Math.abs(xGrad * swMag
-                                                - (yGrad + xGrad) * sMag) /* (4) */
+                        ? (tmp = Math.abs(xGrad * gradMag)) >= Math.abs(yGrad
+                        * neMag - (xGrad + yGrad) * eMag) /* (3) */
+                        && tmp > Math.abs(yGrad * swMag
+                        - (xGrad + yGrad) * wMag) /* (4) */
+                        : (tmp = Math.abs(yGrad * gradMag)) >= Math.abs(xGrad
+                        * neMag - (yGrad + xGrad) * nMag) /* (3) */
+                        && tmp > Math.abs(xGrad * swMag
+                        - (yGrad + xGrad) * sMag) /* (4) */
                         : Math.abs(xGrad) >= Math.abs(yGrad) /* (2) */
-                                ? (tmp = Math.abs(xGrad * gradMag)) >= Math.abs(yGrad
-                                        * seMag + (xGrad - yGrad) * eMag) /* (3) */
-                                        && tmp > Math.abs(yGrad * nwMag
-                                                + (xGrad - yGrad) * wMag) /* (4) */
-                                : (tmp = Math.abs(yGrad * gradMag)) >= Math.abs(xGrad
-                                        * seMag + (yGrad - xGrad) * sMag) /* (3) */
-                                        && tmp > Math.abs(xGrad * nwMag
-                                                + (yGrad - xGrad) * nMag) /* (4) */
-                ) {
+                        ? (tmp = Math.abs(xGrad * gradMag)) >= Math.abs(yGrad
+                        * seMag + (xGrad - yGrad) * eMag) /* (3) */
+                        && tmp > Math.abs(yGrad * nwMag
+                        + (xGrad - yGrad) * wMag) /* (4) */
+                        : (tmp = Math.abs(yGrad * gradMag)) >= Math.abs(xGrad
+                        * seMag + (yGrad - xGrad) * sMag) /* (3) */
+                        && tmp > Math.abs(xGrad * nwMag
+                        + (yGrad - xGrad) * nMag) /* (4) */
+                        ) {
                     magnitude[index] = gradMag >= MAGNITUDE_LIMIT ? MAGNITUDE_MAX
                             : (int) (MAGNITUDE_SCALE * gradMag);
                     // NOTE: The orientation of the edge is not employed by this

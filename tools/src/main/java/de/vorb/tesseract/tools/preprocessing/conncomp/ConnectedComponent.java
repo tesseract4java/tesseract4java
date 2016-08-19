@@ -51,7 +51,7 @@ public class ConnectedComponent {
 
     /**
      * Count the number of pixels that are part of a contour
-     * 
+     *
      * @param contour
      * @return area of contour
      */

@@ -53,13 +53,19 @@ public class DictionaryGenerator {
                 Paths.get("E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed/dict.txt"),
                 Charset.forName("UTF-8"));
         final BufferedWriter wordList = Files.newBufferedWriter(
-                Paths.get("E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed/deu-frak-dict-adapt.word-list"),
+                Paths.get(
+                        "E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed/deu-frak-dict-adapt"
+                                + ".word-list"),
                 Charset.forName("UTF-8"));
         final BufferedWriter freqWordList = Files.newBufferedWriter(
-                Paths.get("E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed/deu-frak-dict-adapt.freq-list"),
+                Paths.get(
+                        "E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed/deu-frak-dict-adapt"
+                                + ".freq-list"),
                 Charset.forName("UTF-8"));
         final BufferedWriter userWordList = Files.newBufferedWriter(
-                Paths.get("E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed/deu-frak-dict-adapt.user-words"),
+                Paths.get(
+                        "E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/reviewed/deu-frak-dict-adapt"
+                                + ".user-words"),
                 Charset.forName("UTF-8"));
 
         for (final Entry<String, Integer> entry : sortedDict) {

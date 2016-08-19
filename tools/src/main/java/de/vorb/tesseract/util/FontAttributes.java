@@ -4,18 +4,19 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 /**
  * Font attributes of a recognized word.
- * 
+ *
  * @author Paul Vorbach
  */
+
 /**
  * @author Paul Vorbach
- * 
+ *
  */
 public class FontAttributes {
 
     /**
      * FontAttributes builder.
-     * 
+     *
      * @author Paul Vorbach
      */
     public static class Builder {
@@ -73,7 +74,7 @@ public class FontAttributes {
 
         /**
          * Finalize the FontAttributes object.
-         * 
+         *
          * @return FontAttributes object
          */
         public FontAttributes build() {
@@ -108,7 +109,7 @@ public class FontAttributes {
 
     /**
      * Create a FontAttributes object.
-     * 
+     *
      * @param bold
      * @param italic
      * @param underlined
@@ -195,14 +196,15 @@ public class FontAttributes {
     @Override
     public String toString() {
         return String.format(
-                "size: %dpx, bold: %b, italic: %b, underlined: %b, monospace: %b, serif: %b, small caps: %b, font ID: %d",
+                "size: %dpx, bold: %b, italic: %b, underlined: %b, monospace: %b, serif: %b, small caps: %b, font ID:"
+                        + " %d",
                 size, bold, italic, underlined, monospace, serif, smallcaps,
                 fontID);
     }
 
     /**
      * Optionally return given String.
-     * 
+     *
      * @param cond
      *            condition
      * @param str

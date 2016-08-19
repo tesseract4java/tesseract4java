@@ -25,58 +25,58 @@ public class SymbolTableModel extends FilteredTableModel<Symbol> {
         final Symbol symbol = getSource().getElementAt(rowIndex);
 
         switch (colIndex) {
-        case 1:
-            return symbol.getText();
-        case 2:
-            return symbol.getBoundingBox().getX();
-        case 3:
-            return symbol.getBoundingBox().getY();
-        case 4:
-            return symbol.getBoundingBox().getWidth();
-        case 5:
-            return symbol.getBoundingBox().getHeight();
-        default:
-            throw new IndexOutOfBoundsException("undefined row or column");
+            case 1:
+                return symbol.getText();
+            case 2:
+                return symbol.getBoundingBox().getX();
+            case 3:
+                return symbol.getBoundingBox().getY();
+            case 4:
+                return symbol.getBoundingBox().getWidth();
+            case 5:
+                return symbol.getBoundingBox().getHeight();
+            default:
+                throw new IndexOutOfBoundsException("undefined row or column");
         }
     }
 
     @Override
     public String getColumnName(int colIndex) {
         switch (colIndex) {
-        case 0:
-            return "#";
-        case 1:
-            return "Symbol";
-        case 2:
-            return "X";
-        case 3:
-            return "Y";
-        case 4:
-            return "Width";
-        case 5:
-            return "Height";
-        default:
-            throw new IndexOutOfBoundsException("undefined column");
+            case 0:
+                return "#";
+            case 1:
+                return "Symbol";
+            case 2:
+                return "X";
+            case 3:
+                return "Y";
+            case 4:
+                return "Width";
+            case 5:
+                return "Height";
+            default:
+                throw new IndexOutOfBoundsException("undefined column");
         }
     }
 
     @Override
     public Class<?> getColumnClass(int colIndex) {
         switch (colIndex) {
-        case 0:
-            return Integer.class;
-        case 1:
-            return String.class;
-        case 2:
-            return Integer.class;
-        case 3:
-            return Integer.class;
-        case 4:
-            return Integer.class;
-        case 5:
-            return Integer.class;
-        default:
-            throw new IndexOutOfBoundsException("undefined column");
+            case 0:
+                return Integer.class;
+            case 1:
+                return String.class;
+            case 2:
+                return Integer.class;
+            case 3:
+                return Integer.class;
+            case 4:
+                return Integer.class;
+            case 5:
+                return Integer.class;
+            default:
+                throw new IndexOutOfBoundsException("undefined column");
         }
     }
 

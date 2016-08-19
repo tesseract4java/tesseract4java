@@ -53,21 +53,21 @@ public class EditTable implements Iterable<EditOperation> {
         final boolean low;
 
         switch (op) {
-        case KEEP:
-            high = false;
-            low = false;
-            break;
-        case SUBSTITUTE:
-            high = false;
-            low = true;
-            break;
-        case INSERT:
-            high = true;
-            low = false;
-            break;
-        default:
-            high = true;
-            low = true;
+            case KEEP:
+                high = false;
+                low = false;
+                break;
+            case SUBSTITUTE:
+                high = false;
+                low = true;
+                break;
+            case INSERT:
+                high = true;
+                low = false;
+                break;
+            default:
+                high = true;
+                low = true;
         }
 
         final int addr = 2 * (x + y * width);
@@ -96,17 +96,17 @@ public class EditTable implements Iterable<EditOperation> {
 
         for (final EditOperation op : this) {
             switch (op) {
-            case KEEP:
-                result.append('K');
-                break;
-            case SUBSTITUTE:
-                result.append('S');
-                break;
-            case INSERT:
-                result.append('I');
-                break;
-            case DELETE:
-                result.append('D');
+                case KEEP:
+                    result.append('K');
+                    break;
+                case SUBSTITUTE:
+                    result.append('S');
+                    break;
+                case INSERT:
+                    result.append('I');
+                    break;
+                case DELETE:
+                    result.append('D');
             }
         }
 
@@ -146,5 +146,7 @@ public class EditTable implements Iterable<EditOperation> {
         public void remove() throws UnsupportedOperationException {
             throw new UnsupportedOperationException();
         }
-    };
+    }
+
+    ;
 }

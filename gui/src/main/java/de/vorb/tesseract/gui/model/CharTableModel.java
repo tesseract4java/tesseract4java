@@ -29,12 +29,12 @@ public class CharTableModel extends AbstractTableModel {
     @Override
     public String getColumnName(int colIndex) {
         switch (colIndex) {
-        case 0:
-            return "Character";
-        case 1:
-            return "Description";
-        case 2:
-            return "Codepoint";
+            case 0:
+                return "Character";
+            case 1:
+                return "Description";
+            case 2:
+                return "Codepoint";
         }
 
         return "";
@@ -43,12 +43,12 @@ public class CharTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int colIndex) {
         switch (colIndex) {
-        case 0:
-            return chars.get(rowIndex);
-        case 1:
-            return Character.getName(chars.get(rowIndex));
-        case 2:
-            return hexPad(chars.get(rowIndex), 4);
+            case 0:
+                return chars.get(rowIndex);
+            case 1:
+                return Character.getName(chars.get(rowIndex));
+            case 2:
+                return hexPad(chars.get(rowIndex), 4);
         }
 
         return "";

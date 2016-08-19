@@ -66,14 +66,14 @@ public class SymbolListModel implements ListModel<Symbol> {
         final Comparator<Symbol> comparator;
 
         switch (order) {
-        case CONFIDENCE:
-            comparator = confidenceComp;
-            break;
-        case SIZE:
-            comparator = sizeComp;
-            break;
-        default:
-            comparator = weightComp;
+            case CONFIDENCE:
+                comparator = confidenceComp;
+                break;
+            case SIZE:
+                comparator = sizeComp;
+                break;
+            default:
+                comparator = weightComp;
         }
 
         Collections.sort(data, comparator);

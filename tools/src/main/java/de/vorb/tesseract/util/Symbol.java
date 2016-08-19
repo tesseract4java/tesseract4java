@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Recognized Symbol. Can either be a single character or a ligature or
  * otherwise combined glyph.
- * 
+ *
  * @author Paul Vorbach
  */
 public class Symbol {
@@ -22,13 +22,10 @@ public class Symbol {
 
     /**
      * Creates a new Symbol.
-     * 
-     * @param text
-     *            recognized text
-     * @param boundingBox
-     *            bounding box
-     * @param confidence
-     *            recognition confidence
+     *
+     * @param text        recognized text
+     * @param boundingBox bounding box
+     * @param confidence  recognition confidence
      */
     public Symbol(String text, Box boundingBox, float confidence) {
         this.text = text;
@@ -39,15 +36,11 @@ public class Symbol {
 
     /**
      * Creates a new Symbol.
-     * 
-     * @param text
-     *            recognized text
-     * @param boundingBox
-     *            bounding box
-     * @param confidence
-     *            recognition confidence
-     * @param alternatives
-     *            alternative choices
+     *
+     * @param text         recognized text
+     * @param boundingBox  bounding box
+     * @param confidence   recognition confidence
+     * @param alternatives alternative choices
      */
     public Symbol(String text, Box boundingBox, float confidence,
             List<AlternativeChoice> alternatives) {
@@ -67,7 +60,7 @@ public class Symbol {
 
     /**
      * Sets text.
-     * 
+     *
      * @param text
      */
     public void setText(String text) {

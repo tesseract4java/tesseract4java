@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 
 /**
  * Implementation of the Levenshtein distance with the Hirshberg algorithm.
- * 
+ *
  * @author Paul Vorbach
  */
 public class LevenshteinDistance extends EditDistance {
@@ -62,8 +62,12 @@ public class LevenshteinDistance extends EditDistance {
         final LevenshteinDistance levenshtein = new LevenshteinDistance();
 
         long start = System.currentTimeMillis();
-        Path tess = Paths.get("E:\\Masterarbeit\\Ressourcen\\DE-20__32_AM_49000_L869_G927-1\\reviewed\\tess_sauvola\\DE-20__32_AM_49000_L869_G927-1__0068__0041.txt");
-        Path fine = Paths.get("E:\\Masterarbeit\\Ressourcen\\DE-20__32_AM_49000_L869_G927-1\\reviewed\\hand\\DE-20__32_AM_49000_L869_G927-1__0068__0041.txt");
+        Path tess = Paths.get(
+                "E:\\Masterarbeit\\Ressourcen\\DE-20__32_AM_49000_L869_G927-1\\reviewed\\tess_sauvola\\DE"
+                        + "-20__32_AM_49000_L869_G927-1__0068__0041.txt");
+        Path fine = Paths.get(
+                "E:\\Masterarbeit\\Ressourcen\\DE-20__32_AM_49000_L869_G927-1\\reviewed\\hand\\DE"
+                        + "-20__32_AM_49000_L869_G927-1__0068__0041.txt");
 
         System.out.println(levenshtein.distance(
                 Files.newBufferedReader(tess, StandardCharsets.UTF_8),

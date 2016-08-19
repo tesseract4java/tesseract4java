@@ -18,17 +18,15 @@ public class TrainingFiles {
                 public boolean accept(Path f) throws IOException {
                     return Files.isRegularFile(f)
                             && f.getFileName().toString().endsWith(
-                                    ".traineddata");
+                            ".traineddata");
                 }
             };
 
     /**
      * Lists all available training files in the given directory.
-     * 
+     *
      * @return List of available traineddata files.
-     * 
-     * @throws IOException
-     *             if the directory does not exist or cannot be read
+     * @throws IOException if the directory does not exist or cannot be read
      */
     public static List<String> getAvailable(Path tessdataDir)
             throws IOException {
@@ -49,11 +47,9 @@ public class TrainingFiles {
     /**
      * Lists all available training files in the directory
      * {@code $TESSDATA_PREFIX/tessdata}.
-     * 
+     *
      * @return List of available traineddata files.
-     * 
-     * @throws IOException
-     *             if the directory does not exist or cannot be read
+     * @throws IOException if the directory does not exist or cannot be read
      */
     public static List<String> getAvailable() throws IOException {
         return getAvailable(getTessdataDir());

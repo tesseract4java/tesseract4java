@@ -57,7 +57,7 @@ public class NewProjectDialog extends JDialog implements ActionListener,
 
     /**
      * Create the dialog.
-     * 
+     *
      * @param owner
      */
     private NewProjectDialog(final Window owner) {
@@ -110,11 +110,11 @@ public class NewProjectDialog extends JDialog implements ActionListener,
         directory.setBorder(new EmptyBorder(0, 0, 16, 0));
         main.add(directory, BorderLayout.NORTH);
         GridBagLayout gbl_directory = new GridBagLayout();
-        gbl_directory.columnWidths = new int[] { 0, 0, 0, 0 };
-        gbl_directory.rowHeights = new int[] { 23, 0 };
-        gbl_directory.columnWeights = new double[] { 0.0, 1.0, 0.0,
-                Double.MIN_VALUE };
-        gbl_directory.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        gbl_directory.columnWidths = new int[]{0, 0, 0, 0};
+        gbl_directory.rowHeights = new int[]{23, 0};
+        gbl_directory.columnWeights = new double[]{0.0, 1.0, 0.0,
+                Double.MIN_VALUE};
+        gbl_directory.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         directory.setLayout(gbl_directory);
 
         JLabel lblDDirectory = new JLabel("Directory:");
@@ -150,10 +150,10 @@ public class NewProjectDialog extends JDialog implements ActionListener,
                 new Color(0, 0, 0)), new EmptyBorder(10, 10, 10, 10)));
         main.add(options);
         GridBagLayout gbl_options = new GridBagLayout();
-        gbl_options.columnWidths = new int[] { 50, 47, 0 };
-        gbl_options.rowHeights = new int[] { 23, 0, 0, 0 };
-        gbl_options.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-        gbl_options.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+        gbl_options.columnWidths = new int[]{50, 47, 0};
+        gbl_options.rowHeights = new int[]{23, 0, 0, 0};
+        gbl_options.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+        gbl_options.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
         options.setLayout(gbl_options);
 
         JLabel lblFileFilter = new JLabel("File types:");

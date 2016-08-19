@@ -51,10 +51,10 @@ public class PrototypeRenderer {
 
         final float dx = (length / 2.0f)
                 * (float) Math.cos((proto.getAngle() / 256.0) * 2.0 * Math.PI
-                        - Math.PI);
+                - Math.PI);
         final float dy = (length / 2.0f)
                 * (float) Math.sin((proto.getAngle() / 256.0) * 2.0 * Math.PI
-                        - Math.PI);
+                - Math.PI);
 
         l2d.setLine(x - dx, 256 - y + dy, x + dx, 256 - y - dy);
     }

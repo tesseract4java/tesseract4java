@@ -11,7 +11,7 @@ import java.io.IOException;
 
 /**
  * Sauvola's method.
- * 
+ *
  * @author Paul Vorbach
  */
 public class Sauvola implements Binarization {
@@ -25,14 +25,13 @@ public class Sauvola implements Binarization {
     /**
      * Creates a new binarization configuration for binarizing image's with
      * Sauvola's method.
-     * 
+     *
      * @param radius
      * @param k
      * @param R
-     * 
      * @see <a
-     *      href="http://www.ee.oulu.fi/research/mvmp/mvg/files/pdf/pdf_24.pdf">Sauvola
-     *      et al. 2000 - Adaptive document image binarization</a>
+     * href="http://www.ee.oulu.fi/research/mvmp/mvg/files/pdf/pdf_24.pdf">Sauvola
+     * et al. 2000 - Adaptive document image binarization</a>
      */
     public Sauvola(int radius, float k, float R) {
         this.radius = radius;

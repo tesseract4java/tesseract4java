@@ -2,13 +2,12 @@ package de.vorb.tesseract.tools.recognition;
 
 /**
  * Consumes the OCR results of Tesseract.
- * 
+ *
  * @author Paul Vorbach
  */
 public interface RecognitionConsumer {
     /**
-     * @param state
-     *            state of the recognition process
+     * @param state state of the recognition process
      */
     public void setState(RecognitionState state);
 
@@ -64,9 +63,9 @@ public interface RecognitionConsumer {
 
     /**
      * Provides cancellation information for the recognition provider.
-     * 
+     *
      * @return {@code true} if the task shall be cancelled, {@code false}
-     *         otherwise.
+     * otherwise.
      */
     public boolean isCancelled();
 }

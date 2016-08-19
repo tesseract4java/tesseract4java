@@ -14,10 +14,10 @@ public class Aligner {
             distances[0][y] = distances[0][y - 1] + 1;
             table.set(0, y, EditOperation.INSERT);
         }
-        
+
         // other rows
         for (int x = 1; x <= len1; ++x) {
-            final char c1 = str1.charAt(len1-x);
+            final char c1 = str1.charAt(len1 - x);
             // distances[x%2][0] = distances[]
         }
 

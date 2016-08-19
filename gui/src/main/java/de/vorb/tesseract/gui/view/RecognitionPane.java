@@ -90,7 +90,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
     /**
      * Create the panel.
-     * 
+     *
      * @param scale
      */
     public RecognitionPane(final Scale scale) {
@@ -230,14 +230,14 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         panel_1.setBackground(Color.WHITE);
         add(panel_1, BorderLayout.NORTH);
         GridBagLayout gbl_panel_1 = new GridBagLayout();
-        gbl_panel_1.columnWidths = new int[] { 83, 91, 89, 65, 0, 0, 0, 0,
+        gbl_panel_1.columnWidths = new int[]{83, 91, 89, 65, 0, 0, 0, 0,
                 28, 0, 0, 0,
-                0 };
-        gbl_panel_1.rowHeights = new int[] { 23, 0 };
-        gbl_panel_1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0,
+                0};
+        gbl_panel_1.rowHeights = new int[]{23, 0};
+        gbl_panel_1.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0,
                 0.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
-        gbl_panel_1.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+                0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
+        gbl_panel_1.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         panel_1.setLayout(gbl_panel_1);
 
         cbWordBoxes = new JCheckBox("Word boxes");

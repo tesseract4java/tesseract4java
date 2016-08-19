@@ -19,11 +19,11 @@ public class DefaultPreprocessor implements Preprocessor {
     }
 
     public DefaultPreprocessor() {
-        this(new Otsu(), Collections.<ImageFilter> emptyList());
+        this(new Otsu(), Collections.<ImageFilter>emptyList());
     }
 
     public DefaultPreprocessor(Binarization binarization) {
-        this(binarization, Collections.<ImageFilter> emptyList());
+        this(binarization, Collections.<ImageFilter>emptyList());
     }
 
     @Override

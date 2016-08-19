@@ -22,8 +22,7 @@ public enum TessdataType {
     private static TessdataType[] values = TessdataType.values();
 
     /**
-     * @param ord
-     *            ordinal value
+     * @param ord ordinal value
      * @return corresponding type.
      */
     public static TessdataType forOrdinal(int ord) {
@@ -38,23 +37,22 @@ public enum TessdataType {
     }
 
     /**
-     * @param type
-     *            Tessdata type.
+     * @param type Tessdata type.
      * @return <code>true</code> if the type has got a binary encoding. For
-     *         UTF-8 encoded types, it returns <code>false</code>.
+     * UTF-8 encoded types, it returns <code>false</code>.
      */
     public static boolean isBinary(TessdataType type) {
         switch (type) {
-        case LANG_CONFIG:
-        case UNICHARSET:
-        case AMBIGS:
-        case PFFMTABLE:
-        case NORMPROTO:
-        case CUBE_UNICHARSET:
-        case PARAMS_MODEL:
-            return false;
-        default:
-            return true;
+            case LANG_CONFIG:
+            case UNICHARSET:
+            case AMBIGS:
+            case PFFMTABLE:
+            case NORMPROTO:
+            case CUBE_UNICHARSET:
+            case PARAMS_MODEL:
+                return false;
+            default:
+                return true;
         }
     }
 }

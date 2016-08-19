@@ -82,14 +82,14 @@ public class CannyExample {
             ColorComponent comp) {
         final int shift;
         switch (comp) {
-        case RED:
-            shift = 16;
-            break;
-        case GREEN:
-            shift = 8;
-            break;
-        default:
-            shift = 0;
+            case RED:
+                shift = 16;
+                break;
+            case GREEN:
+                shift = 8;
+                break;
+            default:
+                shift = 0;
         }
 
         final int width = src.getWidth();

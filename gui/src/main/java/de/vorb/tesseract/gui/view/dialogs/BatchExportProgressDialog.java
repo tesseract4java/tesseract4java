@@ -27,7 +27,8 @@ public class BatchExportProgressDialog extends JDialog {
      * Create the dialog.
      */
     public BatchExportProgressDialog() {
-        setIconImage(Toolkit.getDefaultToolkit().getImage(BatchExportProgressDialog.class.getResource("/icons/book_next.png")));
+        setIconImage(Toolkit.getDefaultToolkit().getImage(
+                BatchExportProgressDialog.class.getResource("/icons/book_next.png")));
         setModalityType(ModalityType.APPLICATION_MODAL);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -37,12 +38,12 @@ public class BatchExportProgressDialog extends JDialog {
         contentPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         GridBagLayout gbl_contentPanel = new GridBagLayout();
-        gbl_contentPanel.columnWidths = new int[] { 0, 0, 0 };
-        gbl_contentPanel.rowHeights = new int[] { 0, 20, 0, 0 };
-        gbl_contentPanel.columnWeights = new double[] { 0.0, 1.0,
-                Double.MIN_VALUE };
-        gbl_contentPanel.rowWeights = new double[] { 0.0, 0.0, 0.0,
-                Double.MIN_VALUE };
+        gbl_contentPanel.columnWidths = new int[]{0, 0, 0};
+        gbl_contentPanel.rowHeights = new int[]{0, 20, 0, 0};
+        gbl_contentPanel.columnWeights = new double[]{0.0, 1.0,
+                Double.MIN_VALUE};
+        gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0,
+                Double.MIN_VALUE};
         contentPanel.setLayout(gbl_contentPanel);
         {
             JLabel lblProcessing = new JLabel("Processing");

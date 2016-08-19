@@ -11,7 +11,9 @@ import java.util.List;
 
 public class LevenshteinDiff {
     public static void main(String[] args) throws IOException {
-        final Path f = Paths.get("E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/deu-frak/plain/DE-20__32_AM_49000_L869_G927-1__0094__0067.txt");
+        final Path f = Paths.get(
+                "E:/Masterarbeit/Ressourcen/DE-20__32_AM_49000_L869_G927-1/deu-frak/plain/DE"
+                        + "-20__32_AM_49000_L869_G927-1__0094__0067.txt");
 
         final BufferedReader r = Files.newBufferedReader(f,
                 Charset.forName("UTF-8"));

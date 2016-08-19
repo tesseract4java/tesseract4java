@@ -51,7 +51,8 @@ public class UnicharsetExtractor {
         final Set<String> charset = extractCharacterSet(dir);
 
         final BufferedWriter out = Files.newBufferedWriter(
-                Paths.get("E:/Masterarbeit/Ressourcen/tessdata/experiment04-complete-training/deu-frak-fries.unicharset"),
+                Paths.get(
+                        "E:/Masterarbeit/Ressourcen/tessdata/experiment04-complete-training/deu-frak-fries.unicharset"),
                 Charset.forName("UTF-8"));
 
         int id = 0;
