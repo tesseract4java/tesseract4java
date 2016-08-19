@@ -2,7 +2,10 @@ package de.vorb.tesseract.img;
 
 import java.awt.image.BufferedImage;
 
-public class BinaryImage {
+public final class BinaryImage {
+
+    private BinaryImage() {}
+
     /**
      * Require <code>img</code> to be a binary (monochrome) image.
      *

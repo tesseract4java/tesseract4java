@@ -5,6 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class TessdataManager {
+
+    private TessdataManager() {}
+
     private static final String COMMAND = "combine_tessdata";
 
     public static void extract(Path tessdataFile, Path pathPrefix)

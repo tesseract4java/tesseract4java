@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
-public class TrainingFiles {
+public final class TrainingFiles {
     private TrainingFiles() {
     }
 

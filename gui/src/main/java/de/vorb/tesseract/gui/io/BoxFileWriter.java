@@ -9,7 +9,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-public class BoxFileWriter {
+public final class BoxFileWriter {
+
+    private BoxFileWriter() {}
+
     public static void writeBoxFile(BoxFileModel model) throws IOException {
         final BufferedWriter boxFileWriter = Files.newBufferedWriter(
                 model.getFile(), StandardCharsets.UTF_8);

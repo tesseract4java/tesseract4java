@@ -3,7 +3,10 @@ package de.vorb.tesseract.gui.view.dialogs;
 import javax.swing.JOptionPane;
 import java.awt.Component;
 
-public class Dialogs {
+public final class Dialogs {
+
+    private Dialogs() {}
+
     public static void showInfo(Component parent, String title,
             String message) {
         JOptionPane.showMessageDialog(parent, message, title,

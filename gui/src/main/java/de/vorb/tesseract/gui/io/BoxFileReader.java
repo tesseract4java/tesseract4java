@@ -11,7 +11,9 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BoxFileReader {
+public final class BoxFileReader {
+
+    private BoxFileReader() {}
 
     public static List<Symbol> readBoxFile(Path boxFile, int pageHeight)
             throws IOException {

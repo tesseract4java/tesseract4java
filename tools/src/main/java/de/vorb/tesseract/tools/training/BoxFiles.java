@@ -22,9 +22,9 @@ import java.util.List;
  *
  * @author Paul Vorbach
  */
-public class BoxFiles {
-    private BoxFiles() {
-    }
+public final class BoxFiles {
+
+    private BoxFiles() {}
 
     /**
      * Writes a single page to the given Writer in the box file format.

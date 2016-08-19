@@ -3,7 +3,10 @@ package de.vorb.util;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class FileNames {
+public final class FileNames {
+
+    private FileNames() {}
+
     public static Path replaceExtension(Path file, String newExtension) {
         final String fname = file.getFileName().toString();
         final int lastDot = fname.lastIndexOf('.');
