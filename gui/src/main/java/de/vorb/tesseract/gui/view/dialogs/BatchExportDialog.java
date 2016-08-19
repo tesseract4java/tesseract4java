@@ -3,8 +3,6 @@ package de.vorb.tesseract.gui.view.dialogs;
 import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.gui.model.BatchExportModel;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -17,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 public class BatchExportDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = 1L;
@@ -248,7 +247,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         final BatchExportDialog dialog = new BatchExportDialog(controller);
         dialog.setVisible(true);
 
-        return Optional.fromNullable(dialog.exportModel);
+        return Optional.ofNullable(dialog.exportModel);
     }
 
     @Override

@@ -14,13 +14,12 @@ import de.vorb.tesseract.util.Paragraph;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Optional;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;
 

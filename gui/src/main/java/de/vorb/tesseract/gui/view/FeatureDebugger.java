@@ -5,8 +5,6 @@ import de.vorb.tesseract.tools.training.IntTemplates;
 import de.vorb.tesseract.util.feat.Feature3D;
 import de.vorb.tesseract.util.feat.Feature4D;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -14,6 +12,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Line2D.Double;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Optional;
 
 public class FeatureDebugger extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -29,7 +28,7 @@ public class FeatureDebugger extends JDialog {
     private final JLabel lblCanvas;
 
     private List<Feature3D> features;
-    private Optional<IntTemplates> prototypes = Optional.absent();
+    private Optional<IntTemplates> prototypes = Optional.empty();
 
     /**
      * Create the dialog.

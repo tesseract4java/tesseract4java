@@ -13,8 +13,6 @@ import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Point;
 import de.vorb.tesseract.util.Symbol;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -35,6 +33,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;
 import static de.vorb.tesseract.gui.model.Scale.unscaled;
@@ -51,8 +50,8 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
     private final Scale scale;
     private boolean changed = false;
 
-    private Optional<BoxFileModel> model = Optional.absent();
-    private Optional<PageModel> pageModel = Optional.absent();
+    private Optional<BoxFileModel> model = Optional.empty();
+    private Optional<PageModel> pageModel = Optional.empty();
 
     private final SingleSelectionModel selectionModel =
             new SingleSelectionModel();
@@ -155,7 +154,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
                             };
                         }
 
-                        return Optional.fromNullable(filter);
+                        return Optional.ofNullable(filter);
                     }
                 });
 
@@ -247,12 +246,12 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         JSplitPane splitMain = new JSplitPane();
         add(splitMain, BorderLayout.CENTER);
         GridBagLayout gbl_toolbar = new GridBagLayout();
-        gbl_toolbar.columnWidths = new int[] { 0, 56, 15, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 36, 0, 0 };
-        gbl_toolbar.rowHeights = new int[] { 0, 0 };
-        gbl_toolbar.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
-        gbl_toolbar.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        gbl_toolbar.columnWidths = new int[]{0, 56, 15, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 36, 0, 0};
+        gbl_toolbar.rowHeights = new int[]{0, 0};
+        gbl_toolbar.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
+        gbl_toolbar.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         toolbar.setLayout(gbl_toolbar);
 
         JLabel lblSymbol = new JLabel("Symbol");
@@ -556,7 +555,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
             setBoxFileModel(Optional.of(model.get().toBoxFileModel()));
             pageModel = model;
         } else {
-            setBoxFileModel(Optional.<BoxFileModel> absent());
+            setBoxFileModel(Optional.empty());
             pageModel = model;
         }
     }
@@ -588,7 +587,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         final int index = tabSymbols.getTable().getSelectedRow();
 
         if (index < 0) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         return Optional.of(((SymbolTableModel) tabSymbols.getTable().getModel())

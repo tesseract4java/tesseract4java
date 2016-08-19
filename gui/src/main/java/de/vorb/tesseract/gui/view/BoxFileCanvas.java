@@ -3,10 +3,9 @@ package de.vorb.tesseract.gui.view;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import java.awt.*;
+import java.util.Optional;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;
 
@@ -15,7 +14,7 @@ public class BoxFileCanvas extends Canvas {
 
     private float scale;
     private Optional<ListModel<Symbol>> symbols =
-            Optional.<ListModel<Symbol>> absent();
+            Optional.empty();
     private int selectedIndex = -1;
 
     public BoxFileCanvas() {

@@ -4,11 +4,10 @@ import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.view.EvaluationPane;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Optional;
 
 public class EvaluationPaneRenderer implements PageRenderer {
     private final EvaluationPane evaluationPane;

@@ -1,16 +1,15 @@
 package de.vorb.tesseract.gui.view;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import java.awt.*;
+import java.util.Optional;
 
 public class Canvas extends JComponent {
     private static final long serialVersionUID = 1L;
 
     private static final Dimension DIM_EMPTY = new Dimension(0, 0);
 
-    private Optional<Image> image = Optional.<Image> absent();
+    private Optional<Image> image = Optional.empty();
 
     public Canvas() {
     }

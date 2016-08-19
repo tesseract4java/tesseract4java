@@ -2,7 +2,7 @@ package de.vorb.tesseract.gui.view.renderer;
 
 import de.vorb.tesseract.gui.model.PageModel;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Page renderer.

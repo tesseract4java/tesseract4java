@@ -5,14 +5,13 @@ import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.view.renderer.EvaluationPaneRenderer;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Optional;
 
 public class EvaluationPane extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;
@@ -241,7 +240,7 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         if (model.isPresent()) {
             return Optional.of(model.get().toBoxFileModel());
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 }

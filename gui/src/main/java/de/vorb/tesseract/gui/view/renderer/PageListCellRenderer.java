@@ -2,11 +2,10 @@ package de.vorb.tesseract.gui.view.renderer;
 
 import de.vorb.tesseract.gui.model.PageThumbnail;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Optional;
 
 public class PageListCellRenderer extends JLabel implements
         ListCellRenderer<PageThumbnail> {

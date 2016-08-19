@@ -8,8 +8,6 @@ import de.vorb.tesseract.gui.util.Resources;
 import de.vorb.tesseract.gui.view.i18n.Labels;
 import de.vorb.tesseract.gui.view.renderer.PageListCellRenderer;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -19,6 +17,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Swing component that allows to compare the results of Tesseract.
@@ -118,7 +117,7 @@ public class TesseractFrame extends JFrame {
                                 }
                             };
                         }
-                        return Optional.fromNullable(filter);
+                        return Optional.ofNullable(filter);
                     }
                 });
         listPages.getList().setCellRenderer(new PageListCellRenderer());
@@ -152,7 +151,7 @@ public class TesseractFrame extends JFrame {
                                 }
                             };
                         }
-                        return Optional.fromNullable(filter);
+                        return Optional.ofNullable(filter);
                     }
                 });
 
@@ -272,12 +271,12 @@ public class TesseractFrame extends JFrame {
         panel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(panel, BorderLayout.SOUTH);
         final GridBagLayout gbl_panel = new GridBagLayout();
-        gbl_panel.columnWidths = new int[] { 0, 50, 417,
-                0, 0 };
-        gbl_panel.rowHeights = new int[] { 14, 0 };
-        gbl_panel.columnWeights = new double[] { 0.0, 0.0, 1.0, 0.0,
-                Double.MIN_VALUE };
-        gbl_panel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        gbl_panel.columnWidths = new int[]{0, 50, 417,
+                0, 0};
+        gbl_panel.rowHeights = new int[]{14, 0};
+        gbl_panel.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0,
+                Double.MIN_VALUE};
+        gbl_panel.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         panel.setLayout(gbl_panel);
 
         JLabel lblScale = new JLabel("Scale:");

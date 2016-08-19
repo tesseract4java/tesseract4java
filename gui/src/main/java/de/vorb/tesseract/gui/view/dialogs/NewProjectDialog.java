@@ -2,8 +2,6 @@ package de.vorb.tesseract.gui.view.dialogs;
 
 import de.vorb.tesseract.gui.model.ProjectModel;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -18,6 +16,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.prefs.Preferences;
 
 public class NewProjectDialog extends JDialog implements ActionListener,
@@ -36,7 +35,7 @@ public class NewProjectDialog extends JDialog implements ActionListener,
     private final JButton btnCreate;
     private final JButton btnCancel;
 
-    private Optional<ProjectModel> result = Optional.absent();
+    private Optional<ProjectModel> result = Optional.empty();
 
     /**
      * Create the dialog.

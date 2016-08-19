@@ -9,8 +9,6 @@ import de.vorb.tesseract.util.FontAttributes;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -23,6 +21,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -61,7 +60,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
     private final JCheckBox cbBaselines;
     private final JComboBox<FontSelection> comboFont;
 
-    private Optional<PageModel> model = Optional.absent();
+    private Optional<PageModel> model = Optional.empty();
 
     private final Timer delayer = new Timer(true);
     private JButton btZoomOut;
@@ -393,7 +392,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
     private Optional<Symbol> findSymbolAt(int x, int y) {
         if (!model.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         final Iterator<Symbol> symbolIt =
@@ -415,12 +414,12 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<Word> findWordAt(int x, int y) {
         if (!model.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         final Iterator<Word> wordIt =
@@ -443,7 +442,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public Optional<PageModel> getPageModel() {
@@ -483,7 +482,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         if (model.isPresent()) {
             return Optional.of(model.get().toBoxFileModel());
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

@@ -8,12 +8,11 @@ import de.vorb.tesseract.tools.recognition.PageRecognitionConsumer;
 import de.vorb.tesseract.util.Block;
 import de.vorb.tesseract.util.Page;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class RecognitionWorker extends SwingWorker<PageModel, Void> {
@@ -36,7 +35,7 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                controller.setPageModel(Optional.<PageModel> absent());
+                controller.setPageModel(Optional.empty());
                 controller.getView().getProgressBar().setIndeterminate(true);
             }
         });
@@ -76,7 +75,7 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
 
             final String message = "The page could not be recognized";
 
-            controller.setPageModel(Optional.<PageModel> absent());
+            controller.setPageModel(Optional.empty());
 
             Dialogs.showError(controller.getView(), "Error during recognition",
                     message);

@@ -2,12 +2,11 @@ package de.vorb.tesseract.gui.model;
 
 import de.vorb.tesseract.gui.util.Filter;
 
-import com.google.common.base.Optional;
-
 import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class FilteredListModel<T> extends AbstractListModel<T> {
     private static final long serialVersionUID = 1L;
@@ -16,7 +15,7 @@ public class FilteredListModel<T> extends AbstractListModel<T> {
     private final ArrayList<T> filtered = new ArrayList<>();
 
     // if filter is absent, all items are shown
-    private Optional<Filter<T>> filter = Optional.absent();
+    private Optional<Filter<T>> filter = Optional.empty();
 
     public FilteredListModel(ListModel<T> source) {
         if (source == null) {
