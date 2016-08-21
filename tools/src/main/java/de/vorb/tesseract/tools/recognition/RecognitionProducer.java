@@ -53,9 +53,6 @@ public abstract class RecognitionProducer implements Closeable {
         final tesseract.PageIterator pageIt =
                 tesseract.TessResultIteratorGetPageIterator(resultIt);
 
-        // iterating over symbols
-        final int level = tesseract.RIL_SYMBOL;
-
         // set the recognition state
         consumer.setState(new RecognitionState(handle, resultIt, pageIt));
 
@@ -63,7 +60,7 @@ public abstract class RecognitionProducer implements Closeable {
 
         do {
             // beginning of a symbol
-            if (tesseract.TessPageIteratorIsAtBeginningOf(pageIt, level)) {
+            if (tesseract.TessPageIteratorIsAtBeginningOf(pageIt, tesseract.RIL_SYMBOL)) {
 
                 // beginning of a word
                 if (tesseract.TessPageIteratorIsAtBeginningOf(pageIt, tesseract.RIL_WORD)) {
@@ -133,7 +130,7 @@ public abstract class RecognitionProducer implements Closeable {
                     }
                 }
             }
-        } while (tesseract.TessPageIteratorNext(pageIt, level)); // next symb
+        } while (tesseract.TessPageIteratorNext(pageIt, tesseract.RIL_SYMBOL)); // next symbol
 
         // tesseract.TessResultIteratorDelete(resultIt);
         // tesseract.TessPageIteratorDelete(pageIt);

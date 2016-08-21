@@ -3,8 +3,12 @@ package de.vorb.tesseract.gui.view.renderer;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+import java.awt.Component;
 import java.awt.image.BufferedImage;
 
 public class SymbolVariantListCellRenderer extends JLabel implements
@@ -31,9 +35,9 @@ public class SymbolVariantListCellRenderer extends JLabel implements
             setForeground(list.getForeground());
         }
 
-        final Box bbox = value.getBoundingBox();
-        final BufferedImage subImage = source.getSubimage(bbox.getX(),
-                bbox.getY(), bbox.getWidth(), bbox.getHeight());
+        final Box boundingBox = value.getBoundingBox();
+        final BufferedImage subImage = source.getSubimage(boundingBox.getX(),
+                boundingBox.getY(), boundingBox.getWidth(), boundingBox.getHeight());
 
         setIcon(new ImageIcon(subImage));
         setToolTipText(String.format("confidence = %.2f%%",

@@ -10,11 +10,11 @@ import org.bytedeco.javacpp.lept;
 import org.bytedeco.javacpp.tesseract;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,16 +108,16 @@ public class PageRecognitionProducer extends RecognitionProducer {
 
         final int padding = 5;
         // draw a 5px white padding around the symbol
-        final BufferedImage symbWithPadding = new BufferedImage(
+        final BufferedImage symbolWithPadding = new BufferedImage(
                 symbol.getWidth() + padding + padding,
                 symbol.getHeight() + padding + padding,
                 BufferedImage.TYPE_BYTE_BINARY);
 
         // draw the symbol on the new image
-        final Graphics2D g2d = symbWithPadding.createGraphics();
+        final Graphics2D g2d = symbolWithPadding.createGraphics();
         g2d.setBackground(Color.WHITE);
-        g2d.clearRect(0, 0, symbWithPadding.getWidth(),
-                symbWithPadding.getHeight());
+        g2d.clearRect(0, 0, symbolWithPadding.getWidth(),
+                symbolWithPadding.getHeight());
         g2d.drawImage(symbol, padding, padding, null);
         g2d.dispose();
 
@@ -129,21 +129,21 @@ public class PageRecognitionProducer extends RecognitionProducer {
         final String symbolFile = controller.getProjectModel().get().getProjectDir().resolve(
                 "symbol.png").toString();
         try {
-            ImageIO.write(symbWithPadding, "PNG", new File(symbolFile));
+            ImageIO.write(symbolWithPadding, "PNG", new File(symbolFile));
         } catch (IOException e) {
             e.printStackTrace();
             return new LinkedList<>();
         }
 
-        try (final lept.PIX pixSymb = lept.pixRead(symbolFile);
+        try (final lept.PIX pixSymbol = lept.pixRead(symbolFile);
              final IntPointer numFeatures = new IntPointer(1);
              final IntPointer outlineIndexes = new IntPointer(512);
              final BytePointer features = new BytePointer(4 * 512);
              final tesseract.INT_FEATURE_STRUCT intFeatures = new tesseract.INT_FEATURE_STRUCT(features)) {
 
-            final tesseract.TBLOB blob = tesseract.TessMakeTBLOB(pixSymb);
+            final tesseract.TBLOB blob = tesseract.TessMakeTBLOB(pixSymbol);
 
-            lept.pixDestroy(pixSymb);
+            lept.pixDestroy(pixSymbol);
 
             tesseract.TessBaseAPIGetFeaturesForBlob(getHandle(), blob, intFeatures, numFeatures, outlineIndexes);
 

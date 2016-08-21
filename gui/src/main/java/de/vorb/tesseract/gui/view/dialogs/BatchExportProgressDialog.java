@@ -1,10 +1,16 @@
 package de.vorb.tesseract.gui.view.dialogs;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
 
 public class BatchExportProgressDialog extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -19,7 +25,8 @@ public class BatchExportProgressDialog extends JDialog {
      * Create the dialog.
      */
     public BatchExportProgressDialog() {
-        setIconImage(Toolkit.getDefaultToolkit().getImage(BatchExportProgressDialog.class.getResource("/icons/book_next.png")));
+        setIconImage(Toolkit.getDefaultToolkit().getImage(
+                BatchExportProgressDialog.class.getResource("/icons/book_next.png")));
         setModalityType(ModalityType.APPLICATION_MODAL);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -29,12 +36,12 @@ public class BatchExportProgressDialog extends JDialog {
         contentPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         GridBagLayout gbl_contentPanel = new GridBagLayout();
-        gbl_contentPanel.columnWidths = new int[] { 0, 0, 0 };
-        gbl_contentPanel.rowHeights = new int[] { 0, 20, 0, 0 };
-        gbl_contentPanel.columnWeights = new double[] { 0.0, 1.0,
-                Double.MIN_VALUE };
-        gbl_contentPanel.rowWeights = new double[] { 0.0, 0.0, 0.0,
-                Double.MIN_VALUE };
+        gbl_contentPanel.columnWidths = new int[]{0, 0, 0};
+        gbl_contentPanel.rowHeights = new int[]{0, 20, 0, 0};
+        gbl_contentPanel.columnWeights = new double[]{0.0, 1.0,
+                Double.MIN_VALUE};
+        gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0,
+                Double.MIN_VALUE};
         contentPanel.setLayout(gbl_contentPanel);
         {
             JLabel lblProcessing = new JLabel("Processing");
@@ -74,12 +81,7 @@ public class BatchExportProgressDialog extends JDialog {
             contentPanel.add(btnCancel, gbc_btnNewButton);
 
             // dispose of dialog on cancel
-            btnCancel.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    BatchExportProgressDialog.this.dispose();
-                }
-            });
+            btnCancel.addActionListener(e -> BatchExportProgressDialog.this.dispose());
         }
     }
 

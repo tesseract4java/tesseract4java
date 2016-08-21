@@ -17,7 +17,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class DocumentWriter {
+public final class DocumentWriter {
+
+    private DocumentWriter() {}
+
     private static Transformer transformer;
 
     static {

@@ -11,48 +11,41 @@ import java.util.List;
 /**
  * Recognized Symbol. Can either be a single character or a ligature or
  * otherwise combined glyph.
- * 
+ *
  * @author Paul Vorbach
  */
 public class Symbol {
     private String text;
-    private Box bbox;
+    private Box boundingBox;
     private final float confidence;
     private final List<AlternativeChoice> alternatives;
 
     /**
      * Creates a new Symbol.
-     * 
-     * @param text
-     *            recognized text
-     * @param boundingBox
-     *            bounding box
-     * @param confidence
-     *            recognition confidence
+     *
+     * @param text        recognized text
+     * @param boundingBox bounding box
+     * @param confidence  recognition confidence
      */
     public Symbol(String text, Box boundingBox, float confidence) {
         this.text = text;
-        this.bbox = boundingBox;
+        this.boundingBox = boundingBox;
         this.confidence = confidence;
         this.alternatives = Collections.emptyList();
     }
 
     /**
      * Creates a new Symbol.
-     * 
-     * @param text
-     *            recognized text
-     * @param boundingBox
-     *            bounding box
-     * @param confidence
-     *            recognition confidence
-     * @param alternatives
-     *            alternative choices
+     *
+     * @param text         recognized text
+     * @param boundingBox  bounding box
+     * @param confidence   recognition confidence
+     * @param alternatives alternative choices
      */
     public Symbol(String text, Box boundingBox, float confidence,
             List<AlternativeChoice> alternatives) {
         this.text = text;
-        this.bbox = boundingBox;
+        this.boundingBox = boundingBox;
         this.confidence = confidence;
         this.alternatives = alternatives;
     }
@@ -67,7 +60,7 @@ public class Symbol {
 
     /**
      * Sets text.
-     * 
+     *
      * @param text
      */
     public void setText(String text) {
@@ -88,7 +81,7 @@ public class Symbol {
     @XmlAttribute(name = "bounding-box")
     @XmlJavaTypeAdapter(BoxAdapter.class)
     public Box getBoundingBox() {
-        return bbox;
+        return boundingBox;
     }
 
     /**
@@ -105,7 +98,7 @@ public class Symbol {
      */
     @Override
     public String toString() {
-        return "Symbol(" + text + ", bounds = " + bbox + ", conf = "
+        return "Symbol(" + text + ", bounds = " + boundingBox + ", conf = "
                 + confidence + ")";
     }
 }

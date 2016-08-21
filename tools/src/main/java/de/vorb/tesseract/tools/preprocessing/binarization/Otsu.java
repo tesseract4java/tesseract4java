@@ -64,7 +64,7 @@ public class Otsu implements Binarization {
 
         float sumB = 0;
         int wB = 0;
-        int wF = 0;
+        int wF;
 
         float varMax = 0;
         int threshold = 0;

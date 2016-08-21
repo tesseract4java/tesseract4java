@@ -14,7 +14,7 @@ public class Word {
 
     @XmlJavaTypeAdapter(BoxAdapter.class)
     @XmlAttribute(name = "bounding-box")
-    private final Box bbox;
+    private final Box boundingBox;
 
     private final float conf;
 
@@ -27,10 +27,10 @@ public class Word {
 
     private boolean correct = true;
 
-    public Word(List<Symbol> symbols, Box bbox, float conf, Baseline baseline,
+    public Word(List<Symbol> symbols, Box boundingBox, float conf, Baseline baseline,
             FontAttributes fontAttrs) {
         this.symbols = symbols;
-        this.bbox = bbox;
+        this.boundingBox = boundingBox;
         this.conf = conf;
         this.baseline = baseline;
         this.fontAttrs = fontAttrs;
@@ -41,7 +41,7 @@ public class Word {
     }
 
     public Box getBoundingBox() {
-        return bbox;
+        return boundingBox;
     }
 
     @XmlAttribute(name = "confidence")

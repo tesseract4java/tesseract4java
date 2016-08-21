@@ -2,11 +2,16 @@ package de.vorb.tesseract.gui.view.renderer;
 
 import de.vorb.tesseract.gui.model.PageThumbnail;
 
-import com.google.common.base.Optional;
-
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.Optional;
 
 public class PageListCellRenderer extends JLabel implements
         ListCellRenderer<PageThumbnail> {
@@ -33,13 +38,13 @@ public class PageListCellRenderer extends JLabel implements
     public Component getListCellRendererComponent(
             JList<? extends PageThumbnail> list, PageThumbnail value,
             int index, boolean isSelected, boolean cellHasFocus) {
-        String fname = value.getFile().getFileName().toString();
-        if (fname.length() > 32) {
-            fname = fname.substring(0, 10) + "..."
-                    + fname.substring(fname.length() - 16);
+        String filename = value.getFile().getFileName().toString();
+        if (filename.length() > 32) {
+            filename = filename.substring(0, 10) + "..."
+                    + filename.substring(filename.length() - 16);
         }
 
-        setText(fname);
+        setText(filename);
 
         if (isSelected) {
             setBackground(COLOR_SELECT);

@@ -1,6 +1,8 @@
 package de.vorb.tesseract.tools.preprocessing.conncomp;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -49,7 +51,7 @@ public class ConnectedComponent {
 
     /**
      * Count the number of pixels that are part of a contour
-     * 
+     *
      * @param contour
      * @return area of contour
      */

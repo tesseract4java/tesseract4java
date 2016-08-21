@@ -3,15 +3,15 @@ package de.vorb.tesseract.gui.work;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.model.ProjectModel;
 
-import com.google.common.base.Optional;
-
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListModel;
+import javax.swing.SwingWorker;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -20,7 +20,7 @@ public class ThumbnailWorker extends
     private final ProjectModel projectModel;
     private final DefaultListModel<PageThumbnail> pages;
 
-    private final Queue<Task> tasks = new ConcurrentLinkedQueue<Task>();
+    private final Queue<Task> tasks = new ConcurrentLinkedQueue<>();
 
     public static class Task {
         public final int index;

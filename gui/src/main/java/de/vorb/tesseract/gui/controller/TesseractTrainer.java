@@ -6,9 +6,24 @@ import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.gui.view.dialogs.PreferencesDialog;
 import de.vorb.util.FileNames;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -60,7 +75,7 @@ public class TesseractTrainer extends JDialog {
         final Toolkit t = Toolkit.getDefaultToolkit();
 
         // load and set multiple icon sizes
-        final List<Image> appIcons = new LinkedList<Image>();
+        final List<Image> appIcons = new LinkedList<>();
         appIcons.add(t.getImage(
                 TesseractFrame.class.getResource("/logos/logo_16.png")));
         appIcons.add(t.getImage(
@@ -78,13 +93,13 @@ public class TesseractTrainer extends JDialog {
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
         GridBagLayout gbl_contentPane = new GridBagLayout();
-        gbl_contentPane.columnWidths = new int[] { 0, 0, 0, 0 };
-        gbl_contentPane.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-        gbl_contentPane.columnWeights = new double[] { 0.0, 1.0, 0.0,
-                Double.MIN_VALUE };
-        gbl_contentPane.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
+        gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0};
+        gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
+        gbl_contentPane.columnWeights = new double[]{0.0, 1.0, 0.0,
+                Double.MIN_VALUE};
+        gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0,
                 1.0, 0.0,
-                Double.MIN_VALUE };
+                Double.MIN_VALUE};
         contentPane.setLayout(gbl_contentPane);
 
         JLabel lblExecutablesDirectory = new JLabel("Executables Directory:");
@@ -106,18 +121,16 @@ public class TesseractTrainer extends JDialog {
         tfExecutablesDir.setColumns(10);
 
         JButton btnSelectExecutablesDir = new JButton("Select...");
-        btnSelectExecutablesDir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                final JFileChooser fc = new JFileChooser();
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                fc.setCurrentDirectory(new File(tfExecutablesDir.getText()));
-                final int result = fc.showOpenDialog(TesseractTrainer.this);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    final File dir = fc.getSelectedFile();
-                    tfExecutablesDir.setText(dir.getAbsolutePath());
-                    GlobalPrefs.getPrefs().put(PreferencesDialog.KEY_EXEC_DIR,
-                            dir.getAbsolutePath());
-                }
+        btnSelectExecutablesDir.addActionListener(evt -> {
+            final JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fc.setCurrentDirectory(new File(tfExecutablesDir.getText()));
+            final int result = fc.showOpenDialog(TesseractTrainer.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                final File dir = fc.getSelectedFile();
+                tfExecutablesDir.setText(dir.getAbsolutePath());
+                GlobalPrefs.getPrefs().put(PreferencesDialog.KEY_EXEC_DIR,
+                        dir.getAbsolutePath());
             }
         });
         GridBagConstraints gbc_btnSelectExecutablesDir = new GridBagConstraints();
@@ -146,18 +159,16 @@ public class TesseractTrainer extends JDialog {
         tfTrainingDir.setColumns(30);
 
         JButton btnSelectTrainingDir = new JButton("Select...");
-        btnSelectTrainingDir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                final JFileChooser fc = new JFileChooser();
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                fc.setCurrentDirectory(new File(tfTrainingDir.getText()));
-                final int result = fc.showOpenDialog(TesseractTrainer.this);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    final File dir = fc.getSelectedFile();
-                    tfTrainingDir.setText(dir.getAbsolutePath());
-                    GlobalPrefs.getPrefs().put(KEY_TRAINING_DIR,
-                            dir.getAbsolutePath());
-                }
+        btnSelectTrainingDir.addActionListener(evt -> {
+            final JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fc.setCurrentDirectory(new File(tfTrainingDir.getText()));
+            final int result = fc.showOpenDialog(TesseractTrainer.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                final File dir = fc.getSelectedFile();
+                tfTrainingDir.setText(dir.getAbsolutePath());
+                GlobalPrefs.getPrefs().put(KEY_TRAINING_DIR,
+                        dir.getAbsolutePath());
             }
         });
         GridBagConstraints gbc_btnSelectTrainingDir = new GridBagConstraints();
@@ -196,19 +207,17 @@ public class TesseractTrainer extends JDialog {
         tfLangdataDir.setColumns(30);
 
         final JButton btnSelectLangdataDir = new JButton("Select...");
-        btnSelectLangdataDir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                final JFileChooser fc = new JFileChooser();
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                fc.setCurrentDirectory(new File(tfLangdataDir.getText()));
-                final int result = fc.showOpenDialog(TesseractTrainer.this);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    final File dir = fc.getSelectedFile();
-                    tfLangdataDir.setText(dir.getAbsolutePath());
-                    GlobalPrefs.getPrefs().put(
-                            PreferencesDialog.KEY_LANGDATA_DIR,
-                            dir.getAbsolutePath());
-                }
+        btnSelectLangdataDir.addActionListener(evt -> {
+            final JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fc.setCurrentDirectory(new File(tfLangdataDir.getText()));
+            final int result = fc.showOpenDialog(TesseractTrainer.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                final File dir = fc.getSelectedFile();
+                tfLangdataDir.setText(dir.getAbsolutePath());
+                GlobalPrefs.getPrefs().put(
+                        PreferencesDialog.KEY_LANGDATA_DIR,
+                        dir.getAbsolutePath());
             }
         });
         btnSelectLangdataDir.setEnabled(false);
@@ -219,11 +228,9 @@ public class TesseractTrainer extends JDialog {
         gbc_btnSelectLangdataDir.gridy = 3;
 
         contentPane.add(btnSelectLangdataDir, gbc_btnSelectLangdataDir);
-        checkUseLangdata.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                tfLangdataDir.setEnabled(checkUseLangdata.isSelected());
-                btnSelectLangdataDir.setEnabled(checkUseLangdata.isSelected());
-            }
+        checkUseLangdata.addActionListener(evt -> {
+            tfLangdataDir.setEnabled(checkUseLangdata.isSelected());
+            btnSelectLangdataDir.setEnabled(checkUseLangdata.isSelected());
         });
 
         JButton btnTrain = new JButton("Train");
@@ -275,15 +282,12 @@ public class TesseractTrainer extends JDialog {
                 Files.deleteIfExists(trainingDir.resolve("training.log"));
 
                 // create log stream
-                final PrintStream log = new PrintStream(
-                        Files.newOutputStream(trainingDir.resolve("training.log")),
-                        true, "UTF-8");
 
-                try {
+                try (final PrintStream log = new PrintStream(Files.newOutputStream(
+                        trainingDir.resolve("training.log")), true, "UTF-8")) {
 
                     final DirectoryStream<Path> ds =
-                            Files.newDirectoryStream(trainingDir,
-                                    new TrainingFileFilter());
+                            Files.newDirectoryStream(trainingDir, new TrainingFileFilter());
 
                     ProcessBuilder pb;
                     InputStream err;
@@ -336,11 +340,11 @@ public class TesseractTrainer extends JDialog {
                     Files.deleteIfExists(trainingDir.resolve("unicharset"));
 
                     // extract unicharset
-                    final List<String> uniExtr = new LinkedList<>();
-                    uniExtr.add(cmdDir + "unicharset_extractor");
-                    uniExtr.addAll(boxFiles);
+                    final List<String> uniExtractor = new LinkedList<>();
+                    uniExtractor.add(cmdDir + "unicharset_extractor");
+                    uniExtractor.addAll(boxFiles);
 
-                    pb = new ProcessBuilder(uniExtr).directory(trainingDir.toFile());
+                    pb = new ProcessBuilder(uniExtractor).directory(trainingDir.toFile());
 
                     log.println("\nunicharset_extractor:\n");
                     final Process unicharset = pb.start();
@@ -461,8 +465,6 @@ public class TesseractTrainer extends JDialog {
                     Dialogs.showError(TesseractTrainer.this, "Error",
                             "Training failed. " + e.getMessage());
                 } finally {
-                    log.close();
-
                     TesseractTrainer.this.setCursor(Cursor.getDefaultCursor());
 
                     try {
@@ -485,12 +487,12 @@ public class TesseractTrainer extends JDialog {
         @Override
         public boolean accept(Path entry)
                 throws IOException {
-            final String fname = entry.getFileName().toString();
-            final boolean isImage = fname.endsWith(".png")
-                    || fname.endsWith(".tif")
-                    || fname.endsWith(".tiff")
-                    || fname.endsWith(".jpg")
-                    || fname.endsWith(".jpeg");
+            final String filename = entry.getFileName().toString();
+            final boolean isImage = filename.endsWith(".png")
+                    || filename.endsWith(".tif")
+                    || filename.endsWith(".tiff")
+                    || filename.endsWith(".jpg")
+                    || filename.endsWith(".jpeg");
             if (!isImage) {
                 return false;
             }

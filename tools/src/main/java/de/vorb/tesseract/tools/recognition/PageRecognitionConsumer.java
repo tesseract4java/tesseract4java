@@ -70,8 +70,8 @@ public abstract class PageRecognitionConsumer extends
     public void wordEnd() {
         final RecognitionState state = getState();
         final int level = tesseract.RIL_WORD;
-        final Box bbox = state.getBoundingBox(level);
-        lineWords.add(new Word(wordSymbols, bbox,
+        final Box boundingBox = state.getBoundingBox(level);
+        lineWords.add(new Word(wordSymbols, boundingBox,
                 state.getConfidence(level),
                 state.getBaseline(tesseract.RIL_WORD),
                 state.getWordFontAttributes()));

@@ -5,13 +5,12 @@ import de.vorb.tesseract.gui.model.ImageModel;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.util.FileNames;
 
-import com.google.common.base.Optional;
-
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.SwingWorker;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 

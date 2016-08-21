@@ -13,9 +13,9 @@ public class BaselineAdapter extends XmlAdapter<String, Baseline> {
 
     @Override
     public Baseline unmarshal(String baseline) throws Exception {
-        final String[] coeffs = baseline.trim().split("\\s+");
-        return new Baseline(Integer.parseInt(coeffs[0]),
-                Float.parseFloat(coeffs[1]));
+        final String[] coefficients = baseline.trim().split("\\s+");
+        return new Baseline(Integer.parseInt(coefficients[0]),
+                Float.parseFloat(coefficients[1]));
     }
 
 }

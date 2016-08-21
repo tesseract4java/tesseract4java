@@ -2,22 +2,39 @@ package de.vorb.tesseract.gui.view.dialogs;
 
 import de.vorb.tesseract.gui.model.ProjectModel;
 
-import com.google.common.base.Optional;
-
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.SystemColor;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.prefs.Preferences;
 
 public class NewProjectDialog extends JDialog implements ActionListener,
@@ -36,11 +53,11 @@ public class NewProjectDialog extends JDialog implements ActionListener,
     private final JButton btnCreate;
     private final JButton btnCancel;
 
-    private Optional<ProjectModel> result = Optional.absent();
+    private Optional<ProjectModel> result = Optional.empty();
 
     /**
      * Create the dialog.
-     * 
+     *
      * @param owner
      */
     private NewProjectDialog(final Window owner) {
@@ -83,9 +100,10 @@ public class NewProjectDialog extends JDialog implements ActionListener,
         btnCancel.addActionListener(this);
 
         JPanel main = new JPanel();
-        main.setBorder(new CompoundBorder(new MatteBorder(1, 0, 1, 0,
-                (Color) new Color(180, 180, 180)), new EmptyBorder(16, 16, 16,
-                16)));
+        main.setBorder(new CompoundBorder(
+                new MatteBorder(1, 0, 1, 0, new Color(180, 180, 180)),
+                new EmptyBorder(16, 16, 16, 16)
+        ));
         panel.add(main, BorderLayout.CENTER);
         main.setLayout(new BorderLayout(0, 0));
 
@@ -93,11 +111,11 @@ public class NewProjectDialog extends JDialog implements ActionListener,
         directory.setBorder(new EmptyBorder(0, 0, 16, 0));
         main.add(directory, BorderLayout.NORTH);
         GridBagLayout gbl_directory = new GridBagLayout();
-        gbl_directory.columnWidths = new int[] { 0, 0, 0, 0 };
-        gbl_directory.rowHeights = new int[] { 23, 0 };
-        gbl_directory.columnWeights = new double[] { 0.0, 1.0, 0.0,
-                Double.MIN_VALUE };
-        gbl_directory.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        gbl_directory.columnWidths = new int[]{0, 0, 0, 0};
+        gbl_directory.rowHeights = new int[]{23, 0};
+        gbl_directory.columnWeights = new double[]{0.0, 1.0, 0.0,
+                Double.MIN_VALUE};
+        gbl_directory.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         directory.setLayout(gbl_directory);
 
         JLabel lblDDirectory = new JLabel("Directory:");
@@ -133,10 +151,10 @@ public class NewProjectDialog extends JDialog implements ActionListener,
                 new Color(0, 0, 0)), new EmptyBorder(10, 10, 10, 10)));
         main.add(options);
         GridBagLayout gbl_options = new GridBagLayout();
-        gbl_options.columnWidths = new int[] { 50, 47, 0 };
-        gbl_options.rowHeights = new int[] { 23, 0, 0, 0 };
-        gbl_options.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-        gbl_options.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+        gbl_options.columnWidths = new int[]{50, 47, 0};
+        gbl_options.rowHeights = new int[]{23, 0, 0, 0};
+        gbl_options.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+        gbl_options.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
         options.setLayout(gbl_options);
 
         JLabel lblFileFilter = new JLabel("File types:");
@@ -225,8 +243,9 @@ public class NewProjectDialog extends JDialog implements ActionListener,
 
     private boolean isStateValid() {
         // validate the dialog
-        if (tfPath.getText().isEmpty())
+        if (tfPath.getText().isEmpty()) {
             return false;
+        }
 
         final Path directory = Paths.get(tfPath.getText());
 

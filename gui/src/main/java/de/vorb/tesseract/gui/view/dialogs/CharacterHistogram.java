@@ -2,10 +2,15 @@ package de.vorb.tesseract.gui.view.dialogs;
 
 import de.vorb.tesseract.gui.view.TesseractFrame;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,12 +25,12 @@ public class CharacterHistogram extends JFrame {
 
     /**
      * Create the frame.
-     * 
+     *
      * @param histogram
      */
     public CharacterHistogram(Map<Character, Integer> histogram) {
         final Toolkit t = Toolkit.getDefaultToolkit();
-        final List<Image> appIcons = new LinkedList<Image>();
+        final List<Image> appIcons = new LinkedList<>();
         appIcons.add(t.getImage(
                 TesseractFrame.class.getResource("/logos/logo_16.png")));
         appIcons.add(t.getImage(
@@ -60,10 +65,10 @@ public class CharacterHistogram extends JFrame {
 
         tabHistogram.setModel(new DefaultTableModel(
                 tableData,
-                new String[] {
+                new String[]{
                         "Character", "Count"
                 }
-                ));
+        ));
         scrollPane.setViewportView(tabHistogram);
 
         setMinimumSize(getSize());

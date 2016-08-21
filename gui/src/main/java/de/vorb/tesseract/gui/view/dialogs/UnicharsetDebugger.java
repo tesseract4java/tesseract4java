@@ -6,11 +6,20 @@ import de.vorb.tesseract.tools.training.Char;
 import de.vorb.tesseract.tools.training.CharacterDimensions;
 import de.vorb.tesseract.tools.training.Unicharset;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -32,7 +41,7 @@ public class UnicharsetDebugger extends JFrame {
      */
     public UnicharsetDebugger(final Unicharset unicharset) {
         final Toolkit t = Toolkit.getDefaultToolkit();
-        final List<Image> appIcons = new LinkedList<Image>();
+        final List<Image> appIcons = new LinkedList<>();
         appIcons.add(t.getImage(
                 TesseractFrame.class.getResource("/logos/logo_16.png")));
         appIcons.add(t.getImage(
@@ -80,47 +89,42 @@ public class UnicharsetDebugger extends JFrame {
         label.setIcon(icon);
 
         DefaultListModel<Char> listModel = new DefaultListModel<>();
-        for (Char unichar : unicharset.getCharacters()) {
-            listModel.addElement(unichar);
-        }
+        unicharset.getCharacters().forEach(listModel::addElement);
         list.setModel(listModel);
 
-        list.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent evt) {
-                if (evt.getValueIsAdjusting()) {
-                    return;
-                }
-
-                g2d.clearRect(0, 0, WIDTH, HEIGHT);
-
-                final int index = list.getSelectedIndex();
-                final Char unichar = unicharset.getCharacters().get(index);
-                final CharacterDimensions dims = unichar.getDimensions();
-
-                final int minBottom = dims.getMinBottom();
-                final int maxBottom = dims.getMaxBottom();
-
-                final int minTop = dims.getMinTop();
-                final int maxTop = dims.getMaxTop();
-
-                final int minWidth = dims.getMinWidth();
-                final int maxWidth = dims.getMaxWidth();
-
-                g2d.setPaint(colorBottom);
-                g2d.fillRect(0, TOP - maxBottom, WIDTH, maxBottom - minBottom);
-
-                g2d.setPaint(colorTop);
-                g2d.fillRect(0, TOP - maxTop, WIDTH, maxTop - minTop);
-
-                g2d.setPaint(colorWidth);
-                g2d.fillRect(minWidth, 0, maxWidth, HEIGHT);
-
-                // TODO show bearing etc
-
-                icon.setImage(canvas);
-                label.repaint();
+        list.addListSelectionListener(evt -> {
+            if (evt.getValueIsAdjusting()) {
+                return;
             }
+
+            g2d.clearRect(0, 0, WIDTH, HEIGHT);
+
+            final int index = list.getSelectedIndex();
+            final Char unichar = unicharset.getCharacters().get(index);
+            final CharacterDimensions dims = unichar.getDimensions();
+
+            final int minBottom = dims.getMinBottom();
+            final int maxBottom = dims.getMaxBottom();
+
+            final int minTop = dims.getMinTop();
+            final int maxTop = dims.getMaxTop();
+
+            final int minWidth = dims.getMinWidth();
+            final int maxWidth = dims.getMaxWidth();
+
+            g2d.setPaint(colorBottom);
+            g2d.fillRect(0, TOP - maxBottom, WIDTH, maxBottom - minBottom);
+
+            g2d.setPaint(colorTop);
+            g2d.fillRect(0, TOP - maxTop, WIDTH, maxTop - minTop);
+
+            g2d.setPaint(colorWidth);
+            g2d.fillRect(minWidth, 0, maxWidth, HEIGHT);
+
+            // TODO show bearing etc
+
+            icon.setImage(canvas);
+            label.repaint();
         });
 
         scrollPane.setViewportView(list);

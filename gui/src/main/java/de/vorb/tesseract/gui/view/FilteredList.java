@@ -3,10 +3,17 @@ package de.vorb.tesseract.gui.view;
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.util.FilterProvider;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.SystemColor;
 
 public class FilteredList<T> extends JPanel {
     private static final long serialVersionUID = 1L;
@@ -26,8 +33,8 @@ public class FilteredList<T> extends JPanel {
 
         add(scrollPane, BorderLayout.CENTER);
 
-        list = new JList<T>(
-                new FilteredListModel<T>(new DefaultListModel<T>()));
+        list = new JList<>(
+                new FilteredListModel<>(new DefaultListModel<>()));
         scrollPane.setViewportView(list);
 
         filterField = new SearchField();

@@ -2,7 +2,7 @@ package de.vorb.tesseract.gui.view;
 
 import de.vorb.tesseract.gui.model.ImageModel;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public interface ImageModelComponent extends MainComponent {
     void setImageModel(Optional<ImageModel> model);

@@ -6,18 +6,20 @@ import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.renderer.SymbolVariantListCellRenderer;
 import de.vorb.tesseract.util.Symbol;
 
-import com.google.common.base.Optional;
-
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     private static final long serialVersionUID = 1L;
@@ -25,31 +27,21 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     private final SymbolGroupList glyphSelectionPane;
     private final SymbolVariantList glyphListPane;
 
-    private Optional<BoxFileModel> model = Optional.absent();
-    private Optional<PageModel> pageModel = Optional.absent();
+    private Optional<BoxFileModel> model = Optional.empty();
+    private Optional<PageModel> pageModel = Optional.empty();
 
-    private final LinkedList<SymbolLinkListener> listeners =
-            new LinkedList<SymbolLinkListener>();
+    private final LinkedList<SymbolLinkListener> listeners = new LinkedList<>();
 
     public static final Comparator<Entry<String, List<Symbol>>> SYMBOL_GROUP_COMP =
-            new Comparator<Entry<String, List<Symbol>>>() {
-                @Override
-                public int compare(Entry<String, List<Symbol>> o1,
-                        Entry<String, List<Symbol>> o2) {
-                    return o2.getValue().size() - o1.getValue().size();
-                }
-            };
+            (o1, o2) -> o2.getValue().size() - o1.getValue().size();
 
-    public static final Comparator<Symbol> SYMBOL_COMP =
-            new Comparator<Symbol>() {
-                @Override
-                public int compare(Symbol o1, Symbol o2) {
-                    if (o2.getConfidence() >= o1.getConfidence())
-                        return 1;
+    public static final Comparator<Symbol> SYMBOL_COMP = (o1, o2) -> {
+        if (o2.getConfidence() >= o1.getConfidence()) {
+            return 1;
+        }
 
-                    return -1;
-                }
-            };
+        return -1;
+    };
 
     /**
      * Create the panel.
@@ -96,8 +88,8 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
 
         if (!model.isPresent()) {
             glyphSelectionPane.getList().setModel(
-                    new DefaultListModel<Map.Entry<String, List<Symbol>>>());
-            glyphListPane.getList().setModel(new DefaultListModel<Symbol>());
+                    new DefaultListModel<>());
+            glyphListPane.getList().setModel(new DefaultListModel<>());
             return;
         }
 
@@ -109,7 +101,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
         final BoxFileModel boxFile = model.get();
 
         getSymbolVariantList().getList().setModel(
-                new DefaultListModel<Symbol>());
+                new DefaultListModel<>());
 
         // set a new renderer that has a reference to the thresholded image
         getSymbolVariantList().getList().setCellRenderer(
@@ -120,7 +112,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
             final String text = symbol.getText();
 
             if (!glyphs.containsKey(text)) {
-                glyphs.put(text, new ArrayList<Symbol>());
+                glyphs.put(text, new ArrayList<>());
             }
 
             glyphs.get(text).add(symbol);
@@ -134,9 +126,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
         final DefaultListModel<Entry<String, List<Symbol>>> listModel =
                 new DefaultListModel<>();
 
-        for (final Entry<String, List<Symbol>> entry : entries) {
-            listModel.addElement(entry);
-        }
+        entries.forEach(listModel::addElement);
 
         glyphList.setModel(listModel);
     }
@@ -147,7 +137,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
             setBoxFileModel(Optional.of(model.get().toBoxFileModel()));
             pageModel = model;
         } else {
-            setBoxFileModel(Optional.<BoxFileModel> absent());
+            setBoxFileModel(Optional.empty());
             pageModel = model;
         }
     }
@@ -160,8 +150,8 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     @Override
     public void freeResources() {
         getSymbolGroupList().getList().setModel(
-                new DefaultListModel<Map.Entry<String, List<Symbol>>>());
+                new DefaultListModel<>());
         getSymbolVariantList().getList().setModel(
-                new DefaultListModel<Symbol>());
+                new DefaultListModel<>());
     }
 }

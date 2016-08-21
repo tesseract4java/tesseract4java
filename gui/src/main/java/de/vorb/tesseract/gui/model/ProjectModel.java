@@ -2,7 +2,6 @@ package de.vorb.tesseract.gui.model;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
-import java.nio.file.DirectoryStream.Filter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -22,24 +21,19 @@ public class ProjectModel {
     private final boolean pngFiles;
     private final boolean jpegFiles;
 
-    private final DirectoryStream.Filter<Path> filter = new Filter<Path>() {
-        @Override
-        public boolean accept(Path entry) throws IOException {
-            final String e = entry.getFileName().toString();
+    private final DirectoryStream.Filter<Path> filter = entry -> {
+        final String e = entry.getFileName().toString();
 
-            if (png() && e.endsWith(".png"))
-                return true;
-            else if (tiff() && (e.endsWith(".tif") || e.endsWith(".tiff")))
-                return true;
-            else if (jpeg() && (e.endsWith(".jpg") || e.endsWith(".jpeg")))
-                return true;
-            else
-                return false;
+        if (png() && e.endsWith(".png")) {
+            return true;
+        } else if (tiff() && (e.endsWith(".tif") || e.endsWith(".tiff"))) {
+            return true;
+        } else {
+            return jpeg() && (e.endsWith(".jpg") || e.endsWith(".jpeg"));
         }
     };
 
-    public ProjectModel(Path projectDir, boolean tiffFiles, boolean pngFiles,
-            boolean jpegFiles) {
+    public ProjectModel(Path projectDir, boolean tiffFiles, boolean pngFiles, boolean jpegFiles) {
         projectName = projectDir.getFileName().toString();
 
         this.imageDir = projectDir;

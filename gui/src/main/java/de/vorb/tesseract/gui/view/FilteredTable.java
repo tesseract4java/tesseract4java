@@ -3,11 +3,17 @@ package de.vorb.tesseract.gui.view;
 import de.vorb.tesseract.gui.model.FilteredTableModel;
 import de.vorb.tesseract.gui.util.FilterProvider;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.SystemColor;
 
 public class FilteredTable<T> extends JPanel {
     private static final long serialVersionUID = 1L;

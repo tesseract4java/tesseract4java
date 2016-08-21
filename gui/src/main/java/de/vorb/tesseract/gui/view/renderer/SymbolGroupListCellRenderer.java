@@ -2,8 +2,11 @@ package de.vorb.tesseract.gui.view.renderer;
 
 import de.vorb.tesseract.util.Symbol;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+import java.awt.Component;
 import java.util.List;
 import java.util.Map.Entry;
 
