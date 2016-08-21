@@ -303,12 +303,10 @@ public class BatchExportDialog extends JDialog implements ActionListener {
                 final boolean openDestination = chckbxOpenDestination.isSelected();
                 final int numThreads = (Integer) spinnerWorkerThreads.getValue();
 
-                final BatchExportModel export = new BatchExportModel(
+                exportModel = new BatchExportModel(
                         destinationDir, exportTXT, exportHTML, exportXML,
                         exportImages, exportReports, numThreads,
                         openDestination);
-
-                exportModel = export;
 
                 this.setVisible(false);
             } catch (InvalidPathException e) {

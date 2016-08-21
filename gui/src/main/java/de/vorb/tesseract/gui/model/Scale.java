@@ -90,8 +90,8 @@ public class Scale extends Observable {
         return result;
     }
 
-    public static int scaled(int coord, float scale) {
-        return Math.round(coord * scale);
+    public static int scaled(int coordinate, float scale) {
+        return Math.round(coordinate * scale);
     }
 
     public static int unscaled(int coord, float scale) {

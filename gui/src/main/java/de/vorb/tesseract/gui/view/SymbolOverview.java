@@ -18,7 +18,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
@@ -31,19 +30,18 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     private Optional<BoxFileModel> model = Optional.empty();
     private Optional<PageModel> pageModel = Optional.empty();
 
-    private final LinkedList<SymbolLinkListener> listeners =
-            new LinkedList<>();
+    private final LinkedList<SymbolLinkListener> listeners = new LinkedList<>();
 
     public static final Comparator<Entry<String, List<Symbol>>> SYMBOL_GROUP_COMP =
             (o1, o2) -> o2.getValue().size() - o1.getValue().size();
 
-    public static final Comparator<Symbol> SYMBOL_COMP =
-            (o1, o2) -> {
-                if (o2.getConfidence() >= o1.getConfidence())
-                    return 1;
+    public static final Comparator<Symbol> SYMBOL_COMP = (o1, o2) -> {
+        if (o2.getConfidence() >= o1.getConfidence()) {
+            return 1;
+        }
 
-                return -1;
-            };
+        return -1;
+    };
 
     /**
      * Create the panel.
@@ -128,9 +126,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
         final DefaultListModel<Entry<String, List<Symbol>>> listModel =
                 new DefaultListModel<>();
 
-        for (final Entry<String, List<Symbol>> entry : entries) {
-            listModel.addElement(entry);
-        }
+        entries.forEach(listModel::addElement);
 
         glyphList.setModel(listModel);
     }

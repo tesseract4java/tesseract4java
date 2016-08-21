@@ -35,9 +35,9 @@ public class SymbolVariantListCellRenderer extends JLabel implements
             setForeground(list.getForeground());
         }
 
-        final Box bbox = value.getBoundingBox();
-        final BufferedImage subImage = source.getSubimage(bbox.getX(),
-                bbox.getY(), bbox.getWidth(), bbox.getHeight());
+        final Box boundingBox = value.getBoundingBox();
+        final BufferedImage subImage = source.getSubimage(boundingBox.getX(),
+                boundingBox.getY(), boundingBox.getWidth(), boundingBox.getHeight());
 
         setIcon(new ImageIcon(subImage));
         setToolTipText(String.format("confidence = %.2f%%",

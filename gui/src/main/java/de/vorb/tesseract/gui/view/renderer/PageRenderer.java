@@ -17,5 +17,5 @@ public interface PageRenderer {
      * @param pageModel page model to render
      * @param scale     scaling factor
      */
-    public void render(final Optional<PageModel> pageModel, final float scale);
+    void render(final Optional<PageModel> pageModel, final float scale);
 }

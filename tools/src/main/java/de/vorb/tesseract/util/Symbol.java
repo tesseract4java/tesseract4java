@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class Symbol {
     private String text;
-    private Box bbox;
+    private Box boundingBox;
     private final float confidence;
     private final List<AlternativeChoice> alternatives;
 
@@ -29,7 +29,7 @@ public class Symbol {
      */
     public Symbol(String text, Box boundingBox, float confidence) {
         this.text = text;
-        this.bbox = boundingBox;
+        this.boundingBox = boundingBox;
         this.confidence = confidence;
         this.alternatives = Collections.emptyList();
     }
@@ -45,7 +45,7 @@ public class Symbol {
     public Symbol(String text, Box boundingBox, float confidence,
             List<AlternativeChoice> alternatives) {
         this.text = text;
-        this.bbox = boundingBox;
+        this.boundingBox = boundingBox;
         this.confidence = confidence;
         this.alternatives = alternatives;
     }
@@ -81,7 +81,7 @@ public class Symbol {
     @XmlAttribute(name = "bounding-box")
     @XmlJavaTypeAdapter(BoxAdapter.class)
     public Box getBoundingBox() {
-        return bbox;
+        return boundingBox;
     }
 
     /**
@@ -98,7 +98,7 @@ public class Symbol {
      */
     @Override
     public String toString() {
-        return "Symbol(" + text + ", bounds = " + bbox + ", conf = "
+        return "Symbol(" + text + ", bounds = " + boundingBox + ", conf = "
                 + confidence + ")";
     }
 }

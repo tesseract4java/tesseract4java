@@ -21,11 +21,11 @@ public final class BoxFileWriter {
 
         for (Symbol symbol : model.getBoxes()) {
 
-            final Box bbox = symbol.getBoundingBox();
-            final int x0 = bbox.getX();
-            final int y0 = pageHeight - bbox.getY() - bbox.getHeight();
-            final int x1 = x0 + bbox.getWidth();
-            final int y1 = y0 + bbox.getHeight();
+            final Box boundingBox = symbol.getBoundingBox();
+            final int x0 = boundingBox.getX();
+            final int y0 = pageHeight - boundingBox.getY() - boundingBox.getHeight();
+            final int x1 = x0 + boundingBox.getWidth();
+            final int y1 = y0 + boundingBox.getHeight();
 
             boxFileWriter.write(String.format("%s %d %d %d %d 0\n",
                     symbol.getText(), x0, y0, x1, y1));

@@ -6,6 +6,7 @@ import java.awt.Polygon;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConnectedComponentLabeler {
     private static final ConnectedComponentFilter ACCEPT_ALL = connComp -> true;
@@ -21,8 +22,7 @@ public class ConnectedComponentLabeler {
 
     private final int foreground;
 
-    public ConnectedComponentLabeler(BufferedImage image,
-            boolean blackOnWhite) {
+    public ConnectedComponentLabeler(BufferedImage image, boolean blackOnWhite) {
         if (image.getType() != BufferedImage.TYPE_BYTE_BINARY) {
             throw new IllegalArgumentException("not a binary image");
         }
@@ -44,23 +44,17 @@ public class ConnectedComponentLabeler {
 
     public List<ConnectedComponent> apply(ConnectedComponentFilter filter) {
         final List<ConnectedComponent> connectedComponents = apply();
-        final List<ConnectedComponent> result = new ArrayList<>();
 
-        for (final ConnectedComponent connComp : connectedComponents) {
-            if (filter.filter(connComp))
-                result.add(connComp);
-        }
-
-        return result;
+        return connectedComponents.stream()
+                .filter(filter::filter)
+                .collect(Collectors.toList());
     }
 
     /**
-     * @return
-     * @see Chang, Chen et al. 2004
+     * For more info, see Chang, Chen et al. 2004.
      */
     public List<ConnectedComponent> apply() {
-        final ArrayList<ConnectedComponent> connectedComponents =
-                new ArrayList<>();
+        final ArrayList<ConnectedComponent> connectedComponents = new ArrayList<>();
         int label = NON_LABEL + 1; // current label counter (C in the paper)
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
@@ -92,8 +86,7 @@ public class ConnectedComponentLabeler {
                         if (local >= 0) {
                             final Polygon contour = trace(x, y, local, false);
 
-                            connectedComponents.get(local).addInnerContour(
-                                    contour);
+                            connectedComponents.get(local).addInnerContour(contour);
                         }
                     }
 
@@ -131,7 +124,7 @@ public class ConnectedComponentLabeler {
 
         final int nextX = point[0], nextY = point[1];
 
-        boolean equalsStartPoint = false;
+        boolean equalsStartPoint;
         do {
             contour.addPoint(point[0], point[1]);
             setLabel(point[0], point[1], label);
@@ -224,8 +217,9 @@ public class ConnectedComponentLabeler {
     }
 
     private boolean isForeground(int x, int y) {
-        if (x < 0 || x >= width || y < 0 || y >= height)
+        if (x < 0 || x >= width || y < 0 || y >= height) {
             return false;
+        }
 
         return getPixel(x, y) == foreground;
     }

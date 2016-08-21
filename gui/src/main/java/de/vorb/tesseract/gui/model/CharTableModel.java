@@ -34,7 +34,7 @@ public class CharTableModel extends AbstractTableModel {
             case 1:
                 return "Description";
             case 2:
-                return "Codepoint";
+                return "Code point";
         }
 
         return "";

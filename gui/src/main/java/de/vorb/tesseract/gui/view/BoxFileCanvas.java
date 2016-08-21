@@ -49,7 +49,7 @@ public class BoxFileCanvas extends Canvas {
 
     private void drawSymbolBox(final Graphics2D g, final Symbol symbol,
             final float scale, final boolean isSelected) {
-        final Box bbox = symbol.getBoundingBox();
+        final Box boundingBox = symbol.getBoundingBox();
 
         // set selected colors
         if (isSelected) {
@@ -58,8 +58,8 @@ public class BoxFileCanvas extends Canvas {
         }
 
         // draw the box
-        g.drawRect(scaled(bbox.getX(), scale), scaled(bbox.getY(), scale),
-                scaled(bbox.getWidth(), scale), scaled(bbox.getHeight(), scale));
+        g.drawRect(scaled(boundingBox.getX(), scale), scaled(boundingBox.getY(), scale),
+                scaled(boundingBox.getWidth(), scale), scaled(boundingBox.getHeight(), scale));
 
         // unset selected colors
         if (isSelected) {

@@ -99,6 +99,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
@@ -210,9 +211,7 @@ public class TesseractController extends WindowAdapter implements
             final DefaultListModel<String> trainingFilesModel =
                     new DefaultListModel<>();
 
-            for (String trainingFile : trainingFiles) {
-                trainingFilesModel.addElement(trainingFile);
-            }
+            trainingFiles.forEach(trainingFilesModel::addElement);
 
             final JList<String> trainingFilesList =
                     view.getTrainingFiles().getList();
@@ -311,7 +310,7 @@ public class TesseractController extends WindowAdapter implements
     public void actionPerformed(ActionEvent evt) {
         final Object source = evt.getSource();
         final SymbolOverview symbolOverview = view.getSymbolOverview();
-        final PreprocessingPane preprocPane = view.getPreprocessingPane();
+        final PreprocessingPane preprocessingPane = view.getPreprocessingPane();
         final EvaluationPane evalPane = view.getEvaluationPane();
 
         if (source.equals(view.getMenuItemExit())) {
@@ -342,11 +341,11 @@ public class TesseractController extends WindowAdapter implements
             handleInspectUnicharset();
         } else if (source.equals(view.getMenuItemTesseractTrainer())) {
             handleTesseractTrainer();
-        } else if (preprocPane.getPreviewButton().equals(source)) {
+        } else if (preprocessingPane.getPreviewButton().equals(source)) {
             handlePreprocessorPreview();
-        } else if (preprocPane.getApplyPageButton().equals(source)) {
+        } else if (preprocessingPane.getApplyPageButton().equals(source)) {
             handlePreprocessorChange(false);
-        } else if (preprocPane.getApplyAllPagesButton().equals(source)) {
+        } else if (preprocessingPane.getApplyAllPagesButton().equals(source)) {
             handlePreprocessorChange(true);
         } else if (source.equals(symbolOverview.getSymbolVariantList().getCompareToPrototype())) {
             handleCompareSymbolToPrototype();
@@ -493,15 +492,15 @@ public class TesseractController extends WindowAdapter implements
 
                     // for every file
                     for (final Path imgFile : projectModel.get().getImageFiles()) {
-                        final Path fname = FileNames.replaceExtension(imgFile, "txt").getFileName();
-                        final Path transcription = projectModel.get().getTranscriptionDir().resolve(fname);
+                        final Path filename = FileNames.replaceExtension(imgFile, "txt").getFileName();
+                        final Path transcription = projectModel.get().getTranscriptionDir().resolve(filename);
 
                         final BufferedWriter writer = Files.newBufferedWriter(transcription, StandardCharsets.UTF_8);
 
                         int lines = 0;
 
                         // read file line by line
-                        String line = null;
+                        String line;
                         while ((line = reader.readLine()) != null) {
                             // if the line equals the separator, create the next
                             // file
@@ -910,7 +909,7 @@ public class TesseractController extends WindowAdapter implements
             view.getSymbolOverview().freeResources();
         }
 
-        pageThumbnail = Optional.ofNullable(pt);
+        pageThumbnail = Optional.of(pt);
 
         // cancel the last page loading task if it is present
         if (lastPageSelectionTask.isPresent()) {
@@ -926,7 +925,7 @@ public class TesseractController extends WindowAdapter implements
                     preprocessingWorker.get().cancel(false);
                 }
 
-                // create swingworker to preprocess page
+                // create SwingWorker to preprocess page
                 final PreprocessingWorker pw = new PreprocessingWorker(
                         TesseractController.this,
                         getPreprocessor(pt.getFile()), pt.getFile(),
@@ -1069,7 +1068,7 @@ public class TesseractController extends WindowAdapter implements
 
             // if the training file has changed, ask to reload the page
             if (!view.getPages().getList().isSelectionEmpty()
-                    && trainingFile != lastTrainingFile) {
+                    && !Objects.equals(trainingFile, lastTrainingFile)) {
                 handlePageSelection();
             }
 
@@ -1247,24 +1246,24 @@ public class TesseractController extends WindowAdapter implements
         if (projectModel.isPresent() && model.isPresent()) {
             try {
                 // plain text file name
-                final Path fname =
+                final Path filename =
                         FileNames.replaceExtension(model.get().getImageModel().getSourceFile().getFileName(), "txt");
 
                 // create ocr directory
                 Files.createDirectories(projectModel.get().getOCRDir());
 
                 // write the plain text ocr file
-                final Path plain = projectModel.get().getOCRDir().resolve(fname);
+                final Path plain = projectModel.get().getOCRDir().resolve(filename);
 
                 final Writer writer = Files.newBufferedWriter(plain, StandardCharsets.UTF_8);
                 new PlainTextWriter(true).write(model.get().getPage(), writer);
                 writer.close();
 
                 // read the transcription file
-                final Path transcr = projectModel.get().getTranscriptionDir().resolve(fname);
+                final Path transcriptionFile = projectModel.get().getTranscriptionDir().resolve(filename);
 
-                if (Files.isRegularFile(transcr)) {
-                    final byte[] bytes = Files.readAllBytes(transcr);
+                if (Files.isRegularFile(transcriptionFile)) {
+                    final byte[] bytes = Files.readAllBytes(transcriptionFile);
                     final String transcription = new String(bytes, StandardCharsets.UTF_8);
 
                     model = Optional.of(model.get().withTranscription(transcription));

@@ -100,9 +100,10 @@ public class NewProjectDialog extends JDialog implements ActionListener,
         btnCancel.addActionListener(this);
 
         JPanel main = new JPanel();
-        main.setBorder(new CompoundBorder(new MatteBorder(1, 0, 1, 0,
-                (Color) new Color(180, 180, 180)), new EmptyBorder(16, 16, 16,
-                16)));
+        main.setBorder(new CompoundBorder(
+                new MatteBorder(1, 0, 1, 0, new Color(180, 180, 180)),
+                new EmptyBorder(16, 16, 16, 16)
+        ));
         panel.add(main, BorderLayout.CENTER);
         main.setLayout(new BorderLayout(0, 0));
 
@@ -242,8 +243,9 @@ public class NewProjectDialog extends JDialog implements ActionListener,
 
     private boolean isStateValid() {
         // validate the dialog
-        if (tfPath.getText().isEmpty())
+        if (tfPath.getText().isEmpty()) {
             return false;
+        }
 
         final Path directory = Paths.get(tfPath.getText());
 

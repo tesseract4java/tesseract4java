@@ -37,7 +37,7 @@ public class CharTableDialog extends JDialog {
         JPanel panel_1 = new JPanel();
         panel.add(panel_1, BorderLayout.WEST);
 
-        JLabel label = new JLabel("Codepoint");
+        JLabel label = new JLabel("Code point");
         panel_1.add(label);
 
         textField = new JFormattedTextField();

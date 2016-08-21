@@ -11,7 +11,7 @@ import java.util.List;
 public class Line {
     @XmlJavaTypeAdapter(BoxAdapter.class)
     @XmlAttribute(name = "bounding-box")
-    private final Box bbox;
+    private final Box boundingBox;
 
     // @XmlAttribute(name = "baseline")
     private final Baseline baseline;
@@ -19,8 +19,8 @@ public class Line {
     @XmlElement(name = "word")
     private final List<Word> words;
 
-    public Line(Box bbox, List<Word> words, Baseline baseline) {
-        this.bbox = bbox;
+    public Line(Box boundingBox, List<Word> words, Baseline baseline) {
+        this.boundingBox = boundingBox;
         this.words = words;
         this.baseline = baseline;
     }
@@ -30,7 +30,7 @@ public class Line {
     }
 
     public Box getBoundingBox() {
-        return bbox;
+        return boundingBox;
     }
 
     public Baseline getBaseline() {
@@ -44,7 +44,7 @@ public class Line {
      */
     @Override
     public String toString() {
-        return String.format("Line(bbox = %s, words = [%d], baseline = %s)",
-                bbox, words.size(), baseline);
+        return String.format("Line(boundingBox = %s, words = [%d], baseline = %s)",
+                boundingBox, words.size(), baseline);
     }
 }

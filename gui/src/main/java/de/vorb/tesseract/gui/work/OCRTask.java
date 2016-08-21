@@ -12,13 +12,10 @@ import de.vorb.util.FileNames;
 
 import eu.digitisation.input.Batch;
 import eu.digitisation.input.Parameters;
-import eu.digitisation.input.WarningException;
 import eu.digitisation.output.Report;
 
 import javax.imageio.ImageIO;
 import javax.swing.ProgressMonitor;
-import javax.xml.bind.JAXBException;
-import javax.xml.transform.TransformerException;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -93,12 +90,11 @@ public class OCRTask implements Callable<Void> {
                 height = sourceImg.getHeight();
 
                 final BufferedImage binaryImg;
-                if (!hasPreprocessorChanged
-                        && Files.exists(imgDestFile)) {
+                if (!hasPreprocessorChanged && Files.exists(imgDestFile)) {
                     // read existing preprocessed image
                     binaryImg = ImageIO.read(imgDestFile.toFile());
                 } else {
-                    // preprocess source image
+                    // pre-process source image
                     binaryImg = preprocessor.process(sourceImg);
 
                     ImageIO.write(binaryImg, "PNG", imgDestFile.toFile());
@@ -145,15 +141,8 @@ public class OCRTask implements Callable<Void> {
                     final Path xmlFile = export.getDestinationDir().resolve(
                             FileNames.replaceExtension(sourceFile, "xml").getFileName());
 
-                    final BufferedOutputStream out = new BufferedOutputStream(
-                            Files.newOutputStream(xmlFile));
-
-                    try {
+                    try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(xmlFile))) {
                         page.writeTo(out);
-                    } catch (JAXBException jbe) {
-                        throw jbe;
-                    } finally {
-                        out.close();
                     }
                 }
 
@@ -194,33 +183,26 @@ public class OCRTask implements Callable<Void> {
                         final Parameters pars = new Parameters();
                         pars.eqfile.setValue(equivalencesFile.toFile());
                         Report rep;
-                        try {
-                            rep = new Report(reportBatch, pars);
+                        rep = new Report(reportBatch, pars);
 
-                            // write to file
-                            DocumentWriter.writeToFile(
-                                    rep.document(),
-                                    export.getDestinationDir().resolve(
-                                            FileNames.replaceExtension(
-                                                    sourceFile, "report.html").getFileName()));
+                        // write to file
+                        DocumentWriter.writeToFile(
+                                rep.document(),
+                                export.getDestinationDir().resolve(
+                                        FileNames.replaceExtension(
+                                                sourceFile, "report.html").getFileName()));
 
-                            // write csv file
-                            final BufferedWriter csv = Files.newBufferedWriter(
-                                    export.getDestinationDir().resolve(
-                                            FileNames.replaceExtension(
-                                                    sourceFile, "report.csv").getFileName()),
-                                    StandardCharsets.UTF_8);
+                        // write csv file
+                        final BufferedWriter csv = Files.newBufferedWriter(
+                                export.getDestinationDir().resolve(
+                                        FileNames.replaceExtension(
+                                                sourceFile, "report.csv").getFileName()),
+                                StandardCharsets.UTF_8);
 
-                            csv.write(rep.getStats().asCSV("\n", ",").toString());
-                            csv.close();
-                        } catch (TransformerException | WarningException e) {
-                            throw e;
-                        }
+                        csv.write(rep.getStats().asCSV("\n", ",").toString());
+                        csv.close();
                     }
                 }
-            } catch (IOException | JAXBException e) {
-                // rethrow exception
-                throw e;
             } finally {
                 recognizers.put(recognizer);
 

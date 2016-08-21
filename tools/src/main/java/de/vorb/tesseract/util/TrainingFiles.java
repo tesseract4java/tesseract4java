@@ -28,15 +28,13 @@ public final class TrainingFiles {
         final DirectoryStream<Path> dir = Files.newDirectoryStream(tessdataDir,
                 traineddataFilter);
 
-        final LinkedList<String> langs = new LinkedList<>();
-        for (final Path langFile : dir) {
-            final String lang = langFile.getFileName().toString().replaceFirst(
-                    "\\.traineddata$",
-                    "");
-            langs.add(lang);
+        final LinkedList<String> languages = new LinkedList<>();
+        for (final Path languageFile : dir) {
+            final String language = languageFile.getFileName().toString().replaceFirst("\\.traineddata$", "");
+            languages.add(language);
         }
 
-        return langs;
+        return languages;
     }
 
     /**

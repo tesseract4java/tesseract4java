@@ -16,8 +16,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.prefs.Preferences;
 
@@ -33,8 +31,8 @@ public class PreferencesDialog extends JDialog {
 
     private ResultState resultState = ResultState.CANCEL;
 
-    public static enum ResultState {
-        APPROVE, CANCEL;
+    public enum ResultState {
+        APPROVE, CANCEL
     }
 
     /**

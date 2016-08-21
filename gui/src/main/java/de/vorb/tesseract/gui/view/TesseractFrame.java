@@ -3,7 +3,6 @@ package de.vorb.tesseract.gui.view;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.util.Filter;
-import de.vorb.tesseract.gui.util.FilterProvider;
 import de.vorb.tesseract.gui.util.Resources;
 import de.vorb.tesseract.gui.view.i18n.Labels;
 import de.vorb.tesseract.gui.view.renderer.PageListCellRenderer;
@@ -32,8 +31,6 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
@@ -123,10 +120,10 @@ public class TesseractFrame extends JFrame {
                     } else {
                         // item must contain all terms in query
                         filter = item -> {
-                            String fname =
+                            String filename =
                                     item.getFile().getFileName().toString().toLowerCase();
                             for (String term : terms) {
-                                if (!fname.contains(term)) {
+                                if (!filename.contains(term)) {
                                     return false;
                                 }
                             }

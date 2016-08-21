@@ -82,8 +82,8 @@ public class RecognitionState {
             final float height = y2.get() - y1.get();
             final float slope = height / width;
 
-            final Box bbox = getBoundingBox(tesseract.RIL_WORD);
-            final int yOffset = bbox.getY() + bbox.getHeight() - y1.get();
+            final Box boundingBox = getBoundingBox(tesseract.RIL_WORD);
+            final int yOffset = boundingBox.getY() + boundingBox.getHeight() - y1.get();
 
             return new Baseline(yOffset, slope);
         }
@@ -151,18 +151,17 @@ public class RecognitionState {
                     isSmallCaps, fontSize, fontID);
 
             // build and return FontAttributes
-            final FontAttributes fontAttributes = new FontAttributes.Builder()
+
+            return new FontAttributes.Builder()
                     .bold(isBold.get())
                     .italic(isItalic.get())
                     .underlined(isUnderlined.get())
                     .monospace(isMonospace.get())
                     .serif(isSerif.get())
-                    .smallcaps(isSmallCaps.get())
+                    .smallCaps(isSmallCaps.get())
                     .size(fontSize.get())
                     .fontID(fontID.get())
                     .build();
-
-            return fontAttributes;
         }
     }
 
@@ -181,9 +180,9 @@ public class RecognitionState {
     }
 
     /**
-     * @return true if current symbol is a dropcap
+     * @return true if current symbol is a drop cap
      */
-    public boolean isSymbolDropcap() {
+    public boolean isSymbolDropCap() {
         return tesseract.TessResultIteratorSymbolIsDropcap(resultIt);
     }
 

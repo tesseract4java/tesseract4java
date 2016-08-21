@@ -38,13 +38,13 @@ public class PageListCellRenderer extends JLabel implements
     public Component getListCellRendererComponent(
             JList<? extends PageThumbnail> list, PageThumbnail value,
             int index, boolean isSelected, boolean cellHasFocus) {
-        String fname = value.getFile().getFileName().toString();
-        if (fname.length() > 32) {
-            fname = fname.substring(0, 10) + "..."
-                    + fname.substring(fname.length() - 16);
+        String filename = value.getFile().getFileName().toString();
+        if (filename.length() > 32) {
+            filename = filename.substring(0, 10) + "..."
+                    + filename.substring(filename.length() - 16);
         }
 
-        setText(fname);
+        setText(filename);
 
         if (isSelected) {
             setBackground(COLOR_SELECT);

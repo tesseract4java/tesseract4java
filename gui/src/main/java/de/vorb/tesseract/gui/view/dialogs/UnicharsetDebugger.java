@@ -15,8 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -91,9 +89,7 @@ public class UnicharsetDebugger extends JFrame {
         label.setIcon(icon);
 
         DefaultListModel<Char> listModel = new DefaultListModel<>();
-        for (Char unichar : unicharset.getCharacters()) {
-            listModel.addElement(unichar);
-        }
+        unicharset.getCharacters().forEach(listModel::addElement);
         list.setModel(listModel);
 
         list.addListSelectionListener(evt -> {

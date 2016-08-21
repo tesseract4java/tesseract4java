@@ -1,5 +1,5 @@
 /**
- * Preprocessing tools.
+ * Pre-processing tools.
  *
  * @author Paul Vorbach
  */

@@ -11,13 +11,13 @@ import java.util.List;
 public class Block {
     @XmlJavaTypeAdapter(BoxAdapter.class)
     @XmlAttribute(name = "bounding-box")
-    private final Box bbox;
+    private final Box boundingBox;
 
     @XmlElement(name = "paragraph")
     private final List<Paragraph> paragraphs;
 
-    public Block(Box bbox, List<Paragraph> paragraphs) {
-        this.bbox = bbox;
+    public Block(Box boundingBox, List<Paragraph> paragraphs) {
+        this.boundingBox = boundingBox;
         this.paragraphs = paragraphs;
     }
 
@@ -26,12 +26,12 @@ public class Block {
     }
 
     public Box getBoundingBox() {
-        return bbox;
+        return boundingBox;
     }
 
     @Override
     public String toString() {
-        return String.format("Block(bbox = %s, paragraphs = [%d])", bbox,
+        return String.format("Block(boundingBox = %s, paragraphs = [%d])", boundingBox,
                 paragraphs.size());
     }
 }

@@ -23,8 +23,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -32,8 +30,6 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
@@ -45,13 +41,13 @@ import java.util.TimerTask;
 public class RecognitionPane extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;
 
-    public static enum FontSelection {
+    public enum FontSelection {
         ANTIQUA("Antiqua"),
         FRAKTUR("Fraktur");
 
         private final String sel;
 
-        private FontSelection(String sel) {
+        FontSelection(String sel) {
             this.sel = sel;
         }
 
@@ -193,7 +189,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
                             popupMenu.add("Serif");
                         if (fa.isMonospace())
                             popupMenu.add("Monospace");
-                        if (fa.isSmallcaps())
+                        if (fa.isSmallCaps())
                             popupMenu.add("Small Caps");
                         if (fa.isUnderlined())
                             popupMenu.add("Underlined");

@@ -282,15 +282,12 @@ public class TesseractTrainer extends JDialog {
                 Files.deleteIfExists(trainingDir.resolve("training.log"));
 
                 // create log stream
-                final PrintStream log = new PrintStream(
-                        Files.newOutputStream(trainingDir.resolve("training.log")),
-                        true, "UTF-8");
 
-                try {
+                try (final PrintStream log = new PrintStream(Files.newOutputStream(
+                        trainingDir.resolve("training.log")), true, "UTF-8")) {
 
                     final DirectoryStream<Path> ds =
-                            Files.newDirectoryStream(trainingDir,
-                                    new TrainingFileFilter());
+                            Files.newDirectoryStream(trainingDir, new TrainingFileFilter());
 
                     ProcessBuilder pb;
                     InputStream err;
@@ -343,11 +340,11 @@ public class TesseractTrainer extends JDialog {
                     Files.deleteIfExists(trainingDir.resolve("unicharset"));
 
                     // extract unicharset
-                    final List<String> uniExtr = new LinkedList<>();
-                    uniExtr.add(cmdDir + "unicharset_extractor");
-                    uniExtr.addAll(boxFiles);
+                    final List<String> uniExtractor = new LinkedList<>();
+                    uniExtractor.add(cmdDir + "unicharset_extractor");
+                    uniExtractor.addAll(boxFiles);
 
-                    pb = new ProcessBuilder(uniExtr).directory(trainingDir.toFile());
+                    pb = new ProcessBuilder(uniExtractor).directory(trainingDir.toFile());
 
                     log.println("\nunicharset_extractor:\n");
                     final Process unicharset = pb.start();
@@ -468,8 +465,6 @@ public class TesseractTrainer extends JDialog {
                     Dialogs.showError(TesseractTrainer.this, "Error",
                             "Training failed. " + e.getMessage());
                 } finally {
-                    log.close();
-
                     TesseractTrainer.this.setCursor(Cursor.getDefaultCursor());
 
                     try {
@@ -492,12 +487,12 @@ public class TesseractTrainer extends JDialog {
         @Override
         public boolean accept(Path entry)
                 throws IOException {
-            final String fname = entry.getFileName().toString();
-            final boolean isImage = fname.endsWith(".png")
-                    || fname.endsWith(".tif")
-                    || fname.endsWith(".tiff")
-                    || fname.endsWith(".jpg")
-                    || fname.endsWith(".jpeg");
+            final String filename = entry.getFileName().toString();
+            final boolean isImage = filename.endsWith(".png")
+                    || filename.endsWith(".tif")
+                    || filename.endsWith(".tiff")
+                    || filename.endsWith(".jpg")
+                    || filename.endsWith(".jpeg");
             if (!isImage) {
                 return false;
             }

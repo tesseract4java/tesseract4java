@@ -20,8 +20,9 @@ public class Box {
     }
 
     public void setX(int x) {
-        if (x < 0)
+        if (x < 0) {
             throw new IllegalArgumentException("negative coordinate x");
+        }
 
         this.x = x;
     }
@@ -31,8 +32,9 @@ public class Box {
     }
 
     public void setY(int y) {
-        if (y < 0)
+        if (y < 0) {
             throw new IllegalArgumentException("negative coordinate y");
+        }
 
         this.y = y;
     }
@@ -42,8 +44,9 @@ public class Box {
     }
 
     public void setWidth(int width) {
-        if (width < 0)
+        if (width < 0) {
             throw new IllegalArgumentException("negative width");
+        }
 
         this.width = width;
     }
@@ -53,8 +56,9 @@ public class Box {
     }
 
     public void setHeight(int height) {
-        if (height < 0)
+        if (height < 0) {
             throw new IllegalArgumentException("negative height");
+        }
 
         this.height = height;
     }
@@ -85,22 +89,22 @@ public class Box {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        } else if (obj == null) {
             return false;
-        if (!(obj instanceof Box))
+        } else if (!(obj instanceof Box)) {
             return false;
+        }
         Box other = (Box) obj;
-        if (height != other.height)
+        if (height != other.height) {
             return false;
-        if (width != other.width)
+        } else if (width != other.width) {
             return false;
-        if (x != other.x)
+        } else if (x != other.x) {
             return false;
-        if (y != other.y)
-            return false;
-        return true;
+        }
+        return y == other.y;
     }
 
     /*
@@ -110,8 +114,6 @@ public class Box {
      */
     @Override
     public String toString() {
-        return "Box(x = " + x + ", y = " + y + ", width = " + width
-                + ", height = "
-                + height + ")";
+        return String.format("Box(x = %d, y = %d, width = %d, height = %d)", x, y, width, height);
     }
 }

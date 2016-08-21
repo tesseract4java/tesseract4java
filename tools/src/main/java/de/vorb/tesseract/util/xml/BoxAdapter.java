@@ -13,10 +13,10 @@ public class BoxAdapter extends XmlAdapter<String, Box> {
 
     @Override
     public Box unmarshal(String box) throws Exception {
-        final String[] coords = box.trim().split(" ");
-        return new Box(Integer.parseInt(coords[0]),
-                Integer.parseInt(coords[1]),
-                Integer.parseInt(coords[2]),
-                Integer.parseInt(coords[3]));
+        final String[] coordinates = box.trim().split(" ");
+        return new Box(Integer.parseInt(coordinates[0]),
+                Integer.parseInt(coordinates[1]),
+                Integer.parseInt(coordinates[2]),
+                Integer.parseInt(coordinates[3]));
     }
 }

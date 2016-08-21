@@ -9,57 +9,57 @@ public interface RecognitionConsumer {
     /**
      * @param state state of the recognition process
      */
-    public void setState(RecognitionState state);
+    void setState(RecognitionState state);
 
     /**
      * @return current state of the recognition process
      */
-    public RecognitionState getState();
+    RecognitionState getState();
 
     /**
      * Beginning of a block.
      */
-    public void blockBegin();
+    void blockBegin();
 
     /**
      * End of a block.
      */
-    public void blockEnd();
+    void blockEnd();
 
     /**
      * Beginning of a paragraph.
      */
-    public void paragraphBegin();
+    void paragraphBegin();
 
     /**
      * End of a paragraph.
      */
-    public void paragraphEnd();
+    void paragraphEnd();
 
     /**
      * Beginning of a text line.
      */
-    public void lineBegin();
+    void lineBegin();
 
     /**
      * End of a text line.
      */
-    public void lineEnd();
+    void lineEnd();
 
     /**
      * Beginning of a word.
      */
-    public void wordBegin();
+    void wordBegin();
 
     /**
      * End of a word.
      */
-    public void wordEnd();
+    void wordEnd();
 
     /**
      * Symbol within a word.
      */
-    public void symbol();
+    void symbol();
 
     /**
      * Provides cancellation information for the recognition provider.
@@ -67,5 +67,5 @@ public interface RecognitionConsumer {
      * @return {@code true} if the task shall be cancelled, {@code false}
      * otherwise.
      */
-    public boolean isCancelled();
+    boolean isCancelled();
 }

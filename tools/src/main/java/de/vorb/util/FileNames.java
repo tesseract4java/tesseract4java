@@ -8,13 +8,13 @@ public final class FileNames {
     private FileNames() {}
 
     public static Path replaceExtension(Path file, String newExtension) {
-        final String fname = file.getFileName().toString();
-        final int lastDot = fname.lastIndexOf('.');
+        final String filename = file.getFileName().toString();
+        final int lastDot = filename.lastIndexOf('.');
         if (file.getParent() == null) {
-            return Paths.get(fname.substring(0, lastDot + 1) + newExtension);
+            return Paths.get(filename.substring(0, lastDot + 1) + newExtension);
         } else {
             return file.getParent().resolve(
-                    fname.substring(0, lastDot + 1) + newExtension);
+                    filename.substring(0, lastDot + 1) + newExtension);
         }
     }
 }

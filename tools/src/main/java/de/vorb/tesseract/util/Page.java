@@ -32,17 +32,7 @@ public class Page implements Iterable<Symbol> {
     @XmlElement(name = "block")
     private final List<Block> blocks;
 
-    /**
-     * Creates a new Page.
-     *
-     * @param file       original image file
-     * @param width      width of the image in pixels
-     * @param height     height of the image in pixels
-     * @param resolution resolution of the image in dpi
-     * @param blocks     list of lines
-     */
-    public Page(Path file, int width, int height, int resolution,
-            List<Block> blocks) {
+    public Page(Path file, int width, int height, int resolution, List<Block> blocks) {
         this.file = file;
 
         if (width < 1) {

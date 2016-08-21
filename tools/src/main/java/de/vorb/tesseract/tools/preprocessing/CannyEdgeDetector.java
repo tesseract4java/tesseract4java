@@ -56,7 +56,7 @@ public class CannyEdgeDetector {
 
     private int height;
     private int width;
-    private int picsize;
+    private int pictureSize;
     private int[] data;
     private int[] magnitude;
     private BufferedImage sourceImage;
@@ -202,7 +202,7 @@ public class CannyEdgeDetector {
     /**
      * The number of pixels across which the Gaussian kernel is applied. This
      * implementation will reduce the radius if the contribution of pixel values
-     * is deemed negligable, so this is actually a maximum radius.
+     * is deemed negligible, so this is actually a maximum radius.
      *
      * @param gaussianKernelWidth a radius for the convolution operation in pixels, at least 2.
      */
@@ -264,7 +264,7 @@ public class CannyEdgeDetector {
     public void process() {
         width = sourceImage.getWidth();
         height = sourceImage.getHeight();
-        picsize = width * height;
+        pictureSize = width * height;
         initArrays();
         readLuminance();
         if (contrastNormalized)
@@ -280,14 +280,14 @@ public class CannyEdgeDetector {
     // private utility methods
 
     private void initArrays() {
-        if (data == null || picsize != data.length) {
-            data = new int[picsize];
-            magnitude = new int[picsize];
+        if (data == null || pictureSize != data.length) {
+            data = new int[pictureSize];
+            magnitude = new int[pictureSize];
 
-            xConv = new float[picsize];
-            yConv = new float[picsize];
-            xGradient = new float[picsize];
-            yGradient = new float[picsize];
+            xConv = new float[pictureSize];
+            yConv = new float[pictureSize];
+            xGradient = new float[pictureSize];
+            yGradient = new float[pictureSize];
         }
     }
 
@@ -397,7 +397,7 @@ public class CannyEdgeDetector {
                 float yGrad = yGradient[index];
                 float gradMag = hypot(xGrad, yGrad);
 
-                // perform non-maximal supression
+                // perform non-maximal suppression
                 float nMag = hypot(xGradient[indexN], yGradient[indexN]);
                 float sMag = hypot(xGradient[indexS], yGradient[indexS]);
                 float wMag = hypot(xGradient[indexW], yGradient[indexW]);
@@ -410,7 +410,7 @@ public class CannyEdgeDetector {
                 /*
                  * An explanation of what's happening here, for those who want
                  * to understand the source: This performs the "non-maximal
-                 * supression" phase of the Canny edge detection in which we
+                 * suppression" phase of the Canny edge detection in which we
                  * need to compare the gradient magnitude to that in the
                  * direction of the gradient; only if the value is a local
                  * maximum do we consider the point as an edge candidate.
@@ -426,7 +426,7 @@ public class CannyEdgeDetector {
                  * points with 'identical support'; what this means is that the
                  * geometry required to accurately interpolate the magnitude of
                  * gradient function at those points has an identical geometry
-                 * (upto right-angled-rotation/reflection).
+                 * (up to right-angled-rotation/reflection).
                  * 
                  * When comparing the central gradient to the two interpolated
                  * values, we avoid performing any divisions by multiplying both
@@ -518,7 +518,7 @@ public class CannyEdgeDetector {
     }
 
     private void thresholdEdges() {
-        for (int i = 0; i < picsize; i++) {
+        for (int i = 0; i < pictureSize; i++) {
             data[i] = data[i] > 0 ? -1 : 0xff000000;
         }
     }
@@ -533,7 +533,7 @@ public class CannyEdgeDetector {
                 || type == BufferedImage.TYPE_INT_ARGB) {
             int[] pixels = (int[]) sourceImage.getData().getDataElements(0, 0,
                     width, height, null);
-            for (int i = 0; i < picsize; i++) {
+            for (int i = 0; i < pictureSize; i++) {
                 int p = pixels[i];
                 int r = (p & 0xff0000) >> 16;
                 int g = (p & 0xff00) >> 8;
@@ -543,20 +543,20 @@ public class CannyEdgeDetector {
         } else if (type == BufferedImage.TYPE_BYTE_GRAY) {
             byte[] pixels = (byte[]) sourceImage.getData().getDataElements(0,
                     0, width, height, null);
-            for (int i = 0; i < picsize; i++) {
+            for (int i = 0; i < pictureSize; i++) {
                 data[i] = (pixels[i] & 0xff);
             }
         } else if (type == BufferedImage.TYPE_USHORT_GRAY) {
             short[] pixels = (short[]) sourceImage.getData().getDataElements(0,
                     0, width, height, null);
-            for (int i = 0; i < picsize; i++) {
+            for (int i = 0; i < pictureSize; i++) {
                 data[i] = (pixels[i] & 0xffff) / 256;
             }
         } else if (type == BufferedImage.TYPE_3BYTE_BGR) {
             byte[] pixels = (byte[]) sourceImage.getData().getDataElements(0,
                     0, width, height, null);
             int offset = 0;
-            for (int i = 0; i < picsize; i++) {
+            for (int i = 0; i < pictureSize; i++) {
                 int b = pixels[offset++] & 0xff;
                 int g = pixels[offset++] & 0xff;
                 int r = pixels[offset++] & 0xff;
@@ -570,15 +570,15 @@ public class CannyEdgeDetector {
 
     private void normalizeContrast() {
         int[] histogram = new int[256];
-        for (int i = 0; i < data.length; i++) {
-            histogram[data[i]]++;
+        for (int item : data) {
+            histogram[item]++;
         }
         int[] remap = new int[256];
         int sum = 0;
         int j = 0;
         for (int i = 0; i < histogram.length; i++) {
             sum += histogram[i];
-            int target = sum * 255 / picsize;
+            int target = sum * 255 / pictureSize;
             for (int k = j + 1; k <= target; k++) {
                 remap[k] = i;
             }

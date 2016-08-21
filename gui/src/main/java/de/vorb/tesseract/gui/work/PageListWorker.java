@@ -37,9 +37,6 @@ public class PageListWorker extends SwingWorker<Void, PageThumbnail> {
 
     @Override
     protected void process(List<PageThumbnail> chunks) {
-        // add thumbnail to the list model
-        for (final PageThumbnail chunk : chunks) {
-            pages.addElement(chunk);
-        }
+        chunks.forEach(pages::addElement);
     }
 }

@@ -294,17 +294,15 @@ public class RecognitionRenderer implements PageRenderer {
                         recogGfx.drawRect(scX, scY, scW, scH);
                     } else if (showSymbolBoxes) {
                         for (final Symbol sym : word.getSymbols()) {
-                            // symbol bounding box
-                            final Box sbox = sym.getBoundingBox();
 
-                            // symbol text
-                            final String stext = sym.getText();
+                            final Box symbolBoundingBox = sym.getBoundingBox();
+                            final String symbolText = sym.getText();
 
                             // coordinates
-                            final int sbX = sbox.getX();
-                            final int sbY = sbox.getY();
-                            final int sbW = sbox.getWidth();
-                            final int sbH = sbox.getHeight();
+                            final int sbX = symbolBoundingBox.getX();
+                            final int sbY = symbolBoundingBox.getY();
+                            final int sbW = symbolBoundingBox.getWidth();
+                            final int sbH = symbolBoundingBox.getHeight();
 
                             // scaled coordinates
                             final int ssbX = scaled(sbX, scale);
@@ -319,7 +317,7 @@ public class RecognitionRenderer implements PageRenderer {
 
                             recogGfx.setPaint(Colors.TEXT);
 
-                            recogGfx.drawString(stext, ssbX,
+                            recogGfx.drawString(symbolText, ssbX,
                                     scaled(box.getY() + box.getHeight() - word.getBaseline().getYOffset(), scale));
                         }
                     }
@@ -369,15 +367,15 @@ public class RecognitionRenderer implements PageRenderer {
                     final Iterator<Block> blocks = page.blockIterator();
                     while (blocks.hasNext()) {
                         final Block block = blocks.next();
-                        final Box bbox = block.getBoundingBox();
-                        origGfx.drawRect(scaled(bbox.getX(), scale),
-                                scaled(bbox.getY(), scale),
-                                scaled(bbox.getWidth(), scale),
-                                scaled(bbox.getHeight(), scale));
-                        recogGfx.drawRect(scaled(bbox.getX(), scale),
-                                scaled(bbox.getY(), scale),
-                                scaled(bbox.getWidth(), scale),
-                                scaled(bbox.getHeight(), scale));
+                        final Box boundingBox = block.getBoundingBox();
+                        origGfx.drawRect(scaled(boundingBox.getX(), scale),
+                                scaled(boundingBox.getY(), scale),
+                                scaled(boundingBox.getWidth(), scale),
+                                scaled(boundingBox.getHeight(), scale));
+                        recogGfx.drawRect(scaled(boundingBox.getX(), scale),
+                                scaled(boundingBox.getY(), scale),
+                                scaled(boundingBox.getWidth(), scale),
+                                scaled(boundingBox.getHeight(), scale));
                     }
                 }
 
@@ -387,15 +385,15 @@ public class RecognitionRenderer implements PageRenderer {
                     final Iterator<Paragraph> paragraphs = page.paragraphIterator();
                     while (paragraphs.hasNext()) {
                         final Paragraph paragraph = paragraphs.next();
-                        final Box bbox = paragraph.getBoundingBox();
-                        origGfx.drawRect(scaled(bbox.getX(), scale),
-                                scaled(bbox.getY(), scale),
-                                scaled(bbox.getWidth(), scale),
-                                scaled(bbox.getHeight(), scale));
-                        recogGfx.drawRect(scaled(bbox.getX(), scale),
-                                scaled(bbox.getY(), scale),
-                                scaled(bbox.getWidth(), scale),
-                                scaled(bbox.getHeight(), scale));
+                        final Box boundingBox = paragraph.getBoundingBox();
+                        origGfx.drawRect(scaled(boundingBox.getX(), scale),
+                                scaled(boundingBox.getY(), scale),
+                                scaled(boundingBox.getWidth(), scale),
+                                scaled(boundingBox.getHeight(), scale));
+                        recogGfx.drawRect(scaled(boundingBox.getX(), scale),
+                                scaled(boundingBox.getY(), scale),
+                                scaled(boundingBox.getWidth(), scale),
+                                scaled(boundingBox.getHeight(), scale));
                     }
                 }
 
