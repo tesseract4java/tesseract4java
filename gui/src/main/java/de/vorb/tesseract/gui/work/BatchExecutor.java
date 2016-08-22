@@ -6,7 +6,7 @@ import de.vorb.tesseract.gui.model.ProjectModel;
 import de.vorb.tesseract.gui.util.DocumentWriter;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
-import de.vorb.tesseract.util.TrainingFiles;
+import de.vorb.tesseract.util.TraineddataFiles;
 
 import eu.digitisation.input.Batch;
 import eu.digitisation.input.Parameters;
@@ -63,7 +63,7 @@ public class BatchExecutor {
         for (int i = 0; i < numThreads; i++) {
             final PageRecognitionProducer recognizer =
                     new PageRecognitionProducer(controller,
-                            TrainingFiles.getTessdataDir(),
+                            TraineddataFiles.getTessdataDir(),
                             trainingFile);
             recognizer.init();
             recognizers.put(recognizer);

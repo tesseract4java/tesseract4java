@@ -8,8 +8,8 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
-public final class TrainingFiles {
-    private TrainingFiles() {
+public final class TraineddataFiles {
+    private TraineddataFiles() {
     }
 
     private static final DirectoryStream.Filter<Path> traineddataFilter =
@@ -18,7 +18,7 @@ public final class TrainingFiles {
                     ".traineddata");
 
     /**
-     * Lists all available training files in the given directory.
+     * Lists all available traineddata files in the given directory.
      *
      * @return List of available traineddata files.
      * @throws IOException if the directory does not exist or cannot be read
@@ -38,7 +38,7 @@ public final class TrainingFiles {
     }
 
     /**
-     * Lists all available training files in the directory
+     * Lists all available traineddata files in the directory
      * {@code $TESSDATA_PREFIX/tessdata}.
      *
      * @return List of available traineddata files.

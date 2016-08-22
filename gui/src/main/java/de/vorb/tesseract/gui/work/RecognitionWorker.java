@@ -71,7 +71,7 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
         } catch (ExecutionException e) {
             e.printStackTrace();
 
-            final String message = "The page could not be recognized";
+            final String message = "The image could not be recognized";
 
             controller.setPageModel(Optional.empty());
 

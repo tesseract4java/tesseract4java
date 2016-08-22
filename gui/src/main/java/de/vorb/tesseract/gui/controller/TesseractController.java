@@ -46,7 +46,7 @@ import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 import de.vorb.tesseract.tools.training.Unicharset;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
-import de.vorb.tesseract.util.TrainingFiles;
+import de.vorb.tesseract.util.TraineddataFiles;
 import de.vorb.tesseract.util.feat.Feature3D;
 import de.vorb.util.FileNames;
 
@@ -173,7 +173,7 @@ public class TesseractController extends WindowAdapter implements
     private Optional<ProjectModel> projectModel = Optional.empty();
     private Optional<PageThumbnail> pageThumbnail = Optional.empty();
 
-    private String lastTrainingFile;
+    private String lastTraineddataFile;
 
     // preprocessing
     private Preprocessor defaultPreprocessor = new DefaultPreprocessor();
@@ -192,7 +192,7 @@ public class TesseractController extends WindowAdapter implements
 
         handleActiveComponentChange();
 
-        final Path tessdataDir = TrainingFiles.getTessdataDir();
+        final Path tessdataDir = TraineddataFiles.getTessdataDir();
         if (!Files.isReadable(tessdataDir)) {
             Dialogs.showError(null, "Fatal Error",
                     String.format("The tessdata directory could not be read: '%s'", tessdataDir.toAbsolutePath()));
@@ -200,39 +200,33 @@ public class TesseractController extends WindowAdapter implements
 
         pageRecognitionProducer = new PageRecognitionProducer(
                 this,
-                TrainingFiles.getTessdataDir(),
+                TraineddataFiles.getTessdataDir(),
                 RecognitionProducer.DEFAULT_TRAINING_FILE);
 
-        // init training files
+        // init traineddata files
         try {
-            final List<String> trainingFiles = TrainingFiles.getAvailable();
+            final List<String> traineddataFiles = TraineddataFiles.getAvailable();
 
-            // prepare training file list model
-            final DefaultListModel<String> trainingFilesModel =
-                    new DefaultListModel<>();
+            // prepare traineddata file list model
+            final DefaultListModel<String> traineddataFilesModel = new DefaultListModel<>();
 
-            trainingFiles.forEach(trainingFilesModel::addElement);
+            traineddataFiles.forEach(traineddataFilesModel::addElement);
 
-            final JList<String> trainingFilesList =
-                    view.getTrainingFiles().getList();
+            final JList<String> traineddataFilesList = view.getTraineddataFiles().getList();
 
             // wrap it in a filtered model
-            trainingFilesList.setSelectionMode(
-                    ListSelectionModel.SINGLE_SELECTION);
-            trainingFilesList.setModel(
-                    new FilteredListModel<>(trainingFilesModel));
+            traineddataFilesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            traineddataFilesList.setModel(new FilteredListModel<>(traineddataFilesModel));
 
-            lastTrainingFile = PreferencesUtil.getPreferences().get(
-                    KEY_TRAINING_FILE,
-                    RecognitionProducer.DEFAULT_TRAINING_FILE);
+            lastTraineddataFile = PreferencesUtil.getPreferences()
+                    .get(KEY_TRAINING_FILE, RecognitionProducer.DEFAULT_TRAINING_FILE);
 
-            trainingFilesList.setSelectedValue(lastTrainingFile, true);
+            traineddataFilesList.setSelectedValue(lastTraineddataFile, true);
 
-            // handle the new training file selection
-            handleTrainingFileSelection();
+            // handle the new traineddata file selection
+            handleTraineddataFileSelection();
         } catch (IOException e) {
-            Dialogs.showError(view, "Error",
-                    "Training files could not be found.");
+            Dialogs.showError(view, "Error", "Traineddata files could not be found.");
         }
 
         try {
@@ -268,7 +262,7 @@ public class TesseractController extends WindowAdapter implements
         final JViewport pagesViewport =
                 (JViewport) view.getPages().getList().getParent();
         pagesViewport.addChangeListener(this);
-        view.getTrainingFiles().getList().addListSelectionListener(this);
+        view.getTraineddataFiles().getList().addListSelectionListener(this);
         view.getScale().addObserver(this);
 
         {
@@ -393,7 +387,7 @@ public class TesseractController extends WindowAdapter implements
     }
 
     public Optional<String> getTrainingFile() {
-        return Optional.ofNullable(view.getTrainingFiles().getList().getSelectedValue());
+        return Optional.ofNullable(view.getTraineddataFiles().getList().getSelectedValue());
     }
 
     public TesseractFrame getView() {
@@ -1050,14 +1044,14 @@ public class TesseractController extends WindowAdapter implements
         }, 500); // 500ms delay
     }
 
-    private void handleTrainingFileSelection() {
+    private void handleTraineddataFileSelection() {
 
-        final String trainingFile = view.getTrainingFiles().getList().getSelectedValue();
+        final String traineddataFile = view.getTraineddataFiles().getList().getSelectedValue();
 
-        if (trainingFile != null) {
-            PreferencesUtil.getPreferences().put(KEY_TRAINING_FILE, trainingFile);
+        if (traineddataFile != null) {
+            PreferencesUtil.getPreferences().put(KEY_TRAINING_FILE, traineddataFile);
 
-            pageRecognitionProducer.setTrainingFile(trainingFile);
+            pageRecognitionProducer.setTrainingFile(traineddataFile);
 
             // try {
             // final Optional<IntTemplates> prototypes = loadPrototypes();
@@ -1066,13 +1060,13 @@ public class TesseractController extends WindowAdapter implements
             // e.printStackTrace();
             // }
 
-            // if the training file has changed, ask to reload the page
+            // if the traineddata file has changed, ask to reload the page
             if (!view.getPages().getList().isSelectionEmpty()
-                    && !Objects.equals(trainingFile, lastTrainingFile)) {
+                    && !Objects.equals(traineddataFile, lastTraineddataFile)) {
                 handlePageSelection();
             }
 
-            lastTrainingFile = trainingFile;
+            lastTraineddataFile = traineddataFile;
         }
     }
 
@@ -1309,8 +1303,7 @@ public class TesseractController extends WindowAdapter implements
             final Optional<String> trainingFile = getTrainingFile();
 
             if (!trainingFile.isPresent()) {
-                Dialogs.showWarning(view, "Warning",
-                        "Please select a training file.");
+                Dialogs.showWarning(view, "Warning", "Please select a traineddata file.");
                 return;
             } else if (!model.isPresent()) {
                 return;
@@ -1346,11 +1339,11 @@ public class TesseractController extends WindowAdapter implements
 
     // TODO prototype loading?
     // private Optional<IntTemplates> loadPrototypes() throws IOException {
-    // final Path tessdir = TrainingFiles.getTessdataDir();
+    // final Path tessdir = TraineddataFiles.getTessdataDir();
     // final Path base = tmpDir.resolve(TMP_TRAINING_FILE_BASE);
     //
     // TessdataManager.extract(
-    // tessdir.resolve(lastTrainingFile + ".traineddata"), base);
+    // tessdir.resolve(lastTraineddataFile + ".traineddata"), base);
     //
     // final Path prototypeFile =
     // tmpDir.resolve(tmpDir.resolve(TMP_TRAINING_FILE_BASE
@@ -1398,8 +1391,8 @@ public class TesseractController extends WindowAdapter implements
         final Object source = evt.getSource();
         if (source.equals(view.getPages().getList())) {
             handlePageSelection();
-        } else if (source.equals(view.getTrainingFiles().getList())) {
-            handleTrainingFileSelection();
+        } else if (source.equals(view.getTraineddataFiles().getList())) {
+            handleTraineddataFileSelection();
         } else if (source.equals(view.getSymbolOverview().getSymbolGroupList().getList())) {
             handleSymbolGroupSelection();
         }

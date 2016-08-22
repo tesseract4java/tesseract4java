@@ -135,9 +135,8 @@ public class TesseractFrame extends JFrame {
         listPages.getList().setCellRenderer(new PageListCellRenderer());
 
         listPages.setMinimumSize(new Dimension(250, 100));
-        listPages.getList().setSelectionMode(
-                ListSelectionModel.SINGLE_SELECTION);
-        listPages.setBorder(BorderFactory.createTitledBorder("Page"));
+        listPages.getList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        listPages.setBorder(BorderFactory.createTitledBorder("Image"));
 
         // filtered string list
         listTrainingFiles =
@@ -162,7 +161,7 @@ public class TesseractFrame extends JFrame {
                     return Optional.ofNullable(filter);
                 });
 
-        listTrainingFiles.setBorder(BorderFactory.createTitledBorder("Training File"));
+        listTrainingFiles.setBorder(BorderFactory.createTitledBorder("Traineddata File"));
 
         setTitle(Labels.getLabel(getLocale(), "frame_title"));
 
@@ -425,7 +424,7 @@ public class TesseractFrame extends JFrame {
         return evaluationPane;
     }
 
-    public FilteredList<String> getTrainingFiles() {
+    public FilteredList<String> getTraineddataFiles() {
         return listTrainingFiles;
     }
 }
