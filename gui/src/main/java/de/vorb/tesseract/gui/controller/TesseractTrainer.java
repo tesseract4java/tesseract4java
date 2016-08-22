@@ -432,8 +432,7 @@ public class TesseractTrainer extends JDialog {
                     }
 
                     if (combine.waitFor() != 0) {
-                        throw new Exception(
-                                "Unable to combine the training files.");
+                        throw new Exception("Unable to combine the traineddata files.");
                     }
 
                     Dialogs.showInfo(TesseractTrainer.this,

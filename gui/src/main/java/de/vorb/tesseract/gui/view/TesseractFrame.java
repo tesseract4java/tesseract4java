@@ -161,7 +161,7 @@ public class TesseractFrame extends JFrame {
                     return Optional.ofNullable(filter);
                 });
 
-        listTrainingFiles.setBorder(BorderFactory.createTitledBorder("Training File"));
+        listTrainingFiles.setBorder(BorderFactory.createTitledBorder("Traineddata File"));
 
         setTitle(Labels.getLabel(getLocale(), "frame_title"));
 
@@ -424,7 +424,7 @@ public class TesseractFrame extends JFrame {
         return evaluationPane;
     }
 
-    public FilteredList<String> getTrainingFiles() {
+    public FilteredList<String> getTraineddataFiles() {
         return listTrainingFiles;
     }
 }
