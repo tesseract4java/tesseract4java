@@ -135,9 +135,8 @@ public class TesseractFrame extends JFrame {
         listPages.getList().setCellRenderer(new PageListCellRenderer());
 
         listPages.setMinimumSize(new Dimension(250, 100));
-        listPages.getList().setSelectionMode(
-                ListSelectionModel.SINGLE_SELECTION);
-        listPages.setBorder(BorderFactory.createTitledBorder("Page"));
+        listPages.getList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        listPages.setBorder(BorderFactory.createTitledBorder("Image"));
 
         // filtered string list
         listTrainingFiles =
