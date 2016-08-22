@@ -7,7 +7,7 @@ import de.vorb.tesseract.gui.model.ApplicationMode;
 import de.vorb.tesseract.gui.model.BatchExportModel;
 import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.model.FilteredListModel;
-import de.vorb.tesseract.gui.model.GlobalPrefs;
+import de.vorb.tesseract.gui.model.PreferencesUtil;
 import de.vorb.tesseract.gui.model.ImageModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
@@ -222,7 +222,7 @@ public class TesseractController extends WindowAdapter implements
             trainingFilesList.setModel(
                     new FilteredListModel<>(trainingFilesModel));
 
-            lastTrainingFile = GlobalPrefs.getPrefs().get(
+            lastTrainingFile = PreferencesUtil.getPreferences().get(
                     KEY_TRAINING_FILE,
                     RecognitionProducer.DEFAULT_TRAINING_FILE);
 
@@ -719,7 +719,7 @@ public class TesseractController extends WindowAdapter implements
 
         final JFileChooser fc = new JFileChooser();
 
-        final String lastBoxFile = GlobalPrefs.getPrefs().get(KEY_BOX_FILE, null);
+        final String lastBoxFile = PreferencesUtil.getPreferences().get(KEY_BOX_FILE, null);
         if (lastBoxFile != null) {
             final Path dir = Paths.get(lastBoxFile).getParent();
             if (Files.isDirectory(dir)) {
@@ -760,7 +760,7 @@ public class TesseractController extends WindowAdapter implements
 
                 view.getScale().setTo100Percent();
 
-                GlobalPrefs.getPrefs().put(KEY_BOX_FILE, boxFile.toAbsolutePath().toString());
+                PreferencesUtil.getPreferences().put(KEY_BOX_FILE, boxFile.toAbsolutePath().toString());
 
                 setBoxFileModel(Optional.of(new BoxFileModel(boxFile, image, boxes)));
             } catch (IOException | IndexOutOfBoundsException e) {
@@ -1055,7 +1055,7 @@ public class TesseractController extends WindowAdapter implements
         final String trainingFile = view.getTrainingFiles().getList().getSelectedValue();
 
         if (trainingFile != null) {
-            GlobalPrefs.getPrefs().put(KEY_TRAINING_FILE, trainingFile);
+            PreferencesUtil.getPreferences().put(KEY_TRAINING_FILE, trainingFile);
 
             pageRecognitionProducer.setTrainingFile(trainingFile);
 
@@ -1134,7 +1134,7 @@ public class TesseractController extends WindowAdapter implements
         final PreferencesDialog prefDialog = new PreferencesDialog();
         final ResultState result = prefDialog.showPreferencesDialog(view);
         if (result == ResultState.APPROVE) {
-            final Preferences globalPrefs = GlobalPrefs.getPrefs();
+            final Preferences globalPrefs = PreferencesUtil.getPreferences();
             try {
                 final Path execDir = Paths.get(prefDialog.getTfExecutablesDir().getText());
                 if (Files.isDirectory(execDir)
