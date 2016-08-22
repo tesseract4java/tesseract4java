@@ -1130,14 +1130,6 @@ public class TesseractController extends WindowAdapter implements
         if (result == ResultState.APPROVE) {
             final Preferences globalPrefs = PreferencesUtil.getPreferences();
             try {
-                final Path execDir = Paths.get(prefDialog.getTfExecutablesDir().getText());
-                if (Files.isDirectory(execDir)
-                        && (Files.isExecutable(execDir.resolve("tesseract")) || Files.isExecutable(
-                        execDir.resolve("tesseract.exe")))) {
-
-                    globalPrefs.put(PreferencesDialog.KEY_EXEC_DIR, execDir.toString());
-                }
-
                 final Path langdataDir = Paths.get(prefDialog.getTfLangdataDir().getText());
                 if (Files.isDirectory(langdataDir)) {
                     globalPrefs.put(PreferencesDialog.KEY_LANGDATA_DIR, langdataDir.toString());
