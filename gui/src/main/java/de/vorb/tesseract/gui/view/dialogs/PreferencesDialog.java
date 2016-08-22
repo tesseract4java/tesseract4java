@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.view.dialogs;
 
-import de.vorb.tesseract.gui.model.GlobalPrefs;
+import de.vorb.tesseract.gui.model.PreferencesUtil;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -26,7 +26,6 @@ public class PreferencesDialog extends JDialog {
     public static final String KEY_LANGDATA_DIR = "langdata_dir";
 
     private final JPanel contentPanel = new JPanel();
-    private JTextField tfExecutablesDir;
     private JTextField tfLangdataDir;
 
     private ResultState resultState = ResultState.CANCEL;
@@ -40,7 +39,7 @@ public class PreferencesDialog extends JDialog {
      */
     public PreferencesDialog() {
         setIconImage(Toolkit.getDefaultToolkit().getImage(PreferencesDialog.class.getResource("/logos/logo_16.png")));
-        final Preferences pref = GlobalPrefs.getPrefs();
+        final Preferences pref = PreferencesUtil.getPreferences();
 
         setModalityType(ModalityType.APPLICATION_MODAL);
         setTitle("General Preferences");
@@ -55,54 +54,6 @@ public class PreferencesDialog extends JDialog {
                 Double.MIN_VALUE};
         gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
         contentPanel.setLayout(gbl_contentPanel);
-        {
-            JLabel lblTesseractExecutables = new JLabel(
-                    "Tesseract executables directory:");
-            GridBagConstraints gbc_lblTesseractExecutables = new GridBagConstraints();
-            gbc_lblTesseractExecutables.insets = new Insets(0, 0, 5, 5);
-            gbc_lblTesseractExecutables.anchor = GridBagConstraints.EAST;
-            gbc_lblTesseractExecutables.gridx = 0;
-            gbc_lblTesseractExecutables.gridy = 0;
-            contentPanel.add(lblTesseractExecutables,
-                    gbc_lblTesseractExecutables);
-        }
-        {
-            tfExecutablesDir = new JTextField(pref.get(KEY_EXEC_DIR, ""));
-            GridBagConstraints gbc_textField = new GridBagConstraints();
-            gbc_textField.insets = new Insets(0, 0, 5, 5);
-            gbc_textField.fill = GridBagConstraints.HORIZONTAL;
-            gbc_textField.gridx = 1;
-            gbc_textField.gridy = 0;
-            contentPanel.add(tfExecutablesDir, gbc_textField);
-            tfExecutablesDir.setColumns(30);
-        }
-        {
-            JButton btnSelect = new JButton("Select...");
-            btnSelect.addActionListener(evt -> {
-                final JFileChooser fc = new JFileChooser();
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-                try {
-                    final File currentDir = new File(
-                            tfExecutablesDir.getText());
-                    if (currentDir.isDirectory()) {
-                        fc.setCurrentDirectory(currentDir);
-                    }
-                } catch (Exception e) {
-                }
-
-                final int result = fc.showOpenDialog(PreferencesDialog.this);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    tfExecutablesDir.setText(fc.getSelectedFile().getAbsolutePath());
-                }
-            });
-            GridBagConstraints gbc_btnSelect = new GridBagConstraints();
-            gbc_btnSelect.anchor = GridBagConstraints.WEST;
-            gbc_btnSelect.insets = new Insets(0, 0, 5, 0);
-            gbc_btnSelect.gridx = 2;
-            gbc_btnSelect.gridy = 0;
-            contentPanel.add(btnSelect, gbc_btnSelect);
-        }
         {
             JLabel lbllangdataDirectory = new JLabel("\"Langdata\" directory:");
             GridBagConstraints gbc_lbllangdataDirectory = new GridBagConstraints();
@@ -179,10 +130,6 @@ public class PreferencesDialog extends JDialog {
 
     private void setState(ResultState state) {
         this.resultState = state;
-    }
-
-    public JTextField getTfExecutablesDir() {
-        return tfExecutablesDir;
     }
 
     public JTextField getTfLangdataDir() {
