@@ -19,13 +19,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.Optional;
 
 public class EvaluationPane extends JPanel implements PageModelComponent {
@@ -33,23 +31,7 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
 
     private static final Insets BUTTON_MARGIN = new Insets(2, 4, 2, 4);
 
-    private static final Font FONT_TRANSCRIPTION;
-
-    static {
-        Font transcription;
-        try {
-            transcription = Font.createFont(
-                    Font.TRUETYPE_FONT,
-                    EvaluationPane.class.getResourceAsStream(
-                            "/fonts/DejaVuSansMono.ttf")).deriveFont(
-                    Font.PLAIN, 13);
-        } catch (FontFormatException | IOException e) {
-            // fallback
-            transcription = new Font("Monospace", Font.PLAIN, 13);
-        }
-
-        FONT_TRANSCRIPTION = transcription;
-    }
+    private static final Font FONT_TRANSCRIPTION = new Font(Font.MONOSPACED, Font.PLAIN, 13);
 
     private final Scale scale;
     private final EvaluationPaneRenderer renderer;
