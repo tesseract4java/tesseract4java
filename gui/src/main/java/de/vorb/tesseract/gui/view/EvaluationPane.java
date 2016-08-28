@@ -19,37 +19,17 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.Optional;
 
 public class EvaluationPane extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;
 
     private static final Insets BUTTON_MARGIN = new Insets(2, 4, 2, 4);
-
-    private static final Font FONT_TRANSCRIPTION;
-
-    static {
-        Font transcription;
-        try {
-            transcription = Font.createFont(
-                    Font.TRUETYPE_FONT,
-                    EvaluationPane.class.getResourceAsStream(
-                            "/fonts/DejaVuSansMono.ttf")).deriveFont(
-                    Font.PLAIN, 13);
-        } catch (FontFormatException | IOException e) {
-            // fallback
-            transcription = new Font("Monospace", Font.PLAIN, 13);
-        }
-
-        FONT_TRANSCRIPTION = transcription;
-    }
 
     private final Scale scale;
     private final EvaluationPaneRenderer renderer;
@@ -69,7 +49,7 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
      *
      * @param scale
      */
-    public EvaluationPane(final Scale scale) {
+    public EvaluationPane(final Scale scale, final String editorFont) {
         setLayout(new BorderLayout(0, 0));
 
         this.scale = scale;
@@ -93,9 +73,9 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         splitPane.setRightComponent(scrollPane_1);
 
         textAreaTranscript = new JTextArea();
-        textAreaTranscript.setFont(FONT_TRANSCRIPTION);
         textAreaTranscript.setEnabled(false);
         scrollPane_1.setViewportView(textAreaTranscript);
+        setEditorFont(editorFont);
 
         JLabel lblReferenceText = new JLabel("Transcription");
         lblReferenceText.setBorder(new EmptyBorder(0, 4, 0, 0));
@@ -255,5 +235,9 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         } else {
             return Optional.empty();
         }
+    }
+
+    public void setEditorFont(String editorFont) {
+        textAreaTranscript.setFont(new Font(editorFont, Font.PLAIN, 13));
     }
 }

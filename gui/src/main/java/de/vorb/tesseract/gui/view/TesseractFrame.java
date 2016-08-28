@@ -1,9 +1,11 @@
 package de.vorb.tesseract.gui.view;
 
 import de.vorb.tesseract.gui.model.PageThumbnail;
+import de.vorb.tesseract.gui.model.PreferencesUtil;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.util.Filter;
 import de.vorb.tesseract.gui.util.Resources;
+import de.vorb.tesseract.gui.view.dialogs.PreferencesDialog;
 import de.vorb.tesseract.gui.view.i18n.Labels;
 import de.vorb.tesseract.gui.view.renderer.PageListCellRenderer;
 
@@ -25,6 +27,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
@@ -36,6 +39,7 @@ import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.prefs.Preferences;
 
 /**
  * Swing component that allows to compare the results of Tesseract.
@@ -101,11 +105,15 @@ public class TesseractFrame extends JFrame {
         preprocessingPane = new PreprocessingPane();
         boxEditor = new BoxEditor(scale);
         glyphOverview = new SymbolOverview();
-        recognitionPane = new RecognitionPane(scale);
-        evaluationPane = new EvaluationPane(scale);
+
+        final Preferences prefs = PreferencesUtil.getPreferences();
+        final String renderingFont = prefs.get(PreferencesDialog.KEY_RENDERING_FONT, Font.SANS_SERIF);
+        final String editorFont = prefs.get(PreferencesDialog.KEY_EDITOR_FONT, Font.MONOSPACED);
+
+        recognitionPane = new RecognitionPane(scale, renderingFont);
+        evaluationPane = new EvaluationPane(scale, editorFont);
         evaluationPane.getGenerateReportButton().setIcon(
-                new ImageIcon(
-                        TesseractFrame.class.getResource("/icons/report.png")));
+                new ImageIcon(TesseractFrame.class.getResource("/icons/report.png")));
         pbLoadPage = new JProgressBar();
         spMain = new JSplitPane();
 

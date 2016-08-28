@@ -7,10 +7,10 @@ import de.vorb.tesseract.gui.model.ApplicationMode;
 import de.vorb.tesseract.gui.model.BatchExportModel;
 import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.model.FilteredListModel;
-import de.vorb.tesseract.gui.model.PreferencesUtil;
 import de.vorb.tesseract.gui.model.ImageModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.PageThumbnail;
+import de.vorb.tesseract.gui.model.PreferencesUtil;
 import de.vorb.tesseract.gui.model.ProjectModel;
 import de.vorb.tesseract.gui.model.SymbolListModel;
 import de.vorb.tesseract.gui.model.SymbolOrder;
@@ -1134,6 +1134,19 @@ public class TesseractController extends WindowAdapter implements
                 if (Files.isDirectory(langdataDir)) {
                     globalPrefs.put(PreferencesDialog.KEY_LANGDATA_DIR, langdataDir.toString());
                 }
+
+                final String renderingFont = (String) prefDialog.getComboRenderingFont().getSelectedItem();
+                globalPrefs.put(PreferencesDialog.KEY_RENDERING_FONT, renderingFont);
+
+                final String editorFont = (String) prefDialog.getComboEditorFont().getSelectedItem();
+                globalPrefs.put(PreferencesDialog.KEY_EDITOR_FONT, editorFont);
+
+                view.getRecognitionPane().setRenderingFont(renderingFont);
+                if (view.getActiveComponent() == view.getRecognitionPane()) {
+                    view.getRecognitionPane().render();
+                }
+
+                view.getEvaluationPane().setEditorFont(editorFont);
             } catch (Exception e) {
                 Dialogs.showWarning(view, "Error", "Could not save the preferences.");
             }
