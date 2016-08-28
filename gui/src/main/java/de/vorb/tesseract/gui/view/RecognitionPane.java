@@ -27,6 +27,7 @@ import javax.swing.event.MouseInputAdapter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -40,22 +41,6 @@ import java.util.TimerTask;
 
 public class RecognitionPane extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;
-
-    public enum FontSelection {
-        ANTIQUA("Antiqua"),
-        FRAKTUR("Fraktur");
-
-        private final String sel;
-
-        FontSelection(String sel) {
-            this.sel = sel;
-        }
-
-        @Override
-        public String toString() {
-            return sel;
-        }
-    }
 
     private static final int SCROLL_UNITS = 12;
 
@@ -71,7 +56,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
     private final JCheckBox cbSymbolBoxes;
     private final JCheckBox cbLineNumbers;
     private final JCheckBox cbBaselines;
-    private final JComboBox<FontSelection> comboFont;
+    private final JComboBox<String> comboFont;
 
     private Optional<PageModel> model = Optional.empty();
 
@@ -181,18 +166,24 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
                         popupMenu.add(String.format("Font size = %dpx",
                                 fa.getSize()));
 
-                        if (fa.isBold())
+                        if (fa.isBold()) {
                             popupMenu.add("Bold");
-                        if (fa.isItalic())
+                        }
+                        if (fa.isItalic()) {
                             popupMenu.add("Italic");
-                        if (fa.isSerif())
+                        }
+                        if (fa.isSerif()) {
                             popupMenu.add("Serif");
-                        if (fa.isMonospace())
+                        }
+                        if (fa.isMonospace()) {
                             popupMenu.add("Monospace");
-                        if (fa.isSmallCaps())
+                        }
+                        if (fa.isSmallCaps()) {
                             popupMenu.add("Small Caps");
-                        if (fa.isUnderlined())
+                        }
+                        if (fa.isUnderlined()) {
                             popupMenu.add("Underlined");
+                        }
 
                         popupMenu.show(e.getComponent(), e.getX(), e.getY());
                     }
@@ -259,8 +250,15 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         cbSymbolBoxes.addItemListener(checkBoxListener);
 
         comboFont = new JComboBox<>();
-        comboFont.addItem(FontSelection.ANTIQUA);
-        comboFont.addItem(FontSelection.FRAKTUR);
+
+        final GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+        for (String fontFamily : graphicsEnvironment.getAvailableFontFamilyNames()) {
+            comboFont.addItem(fontFamily);
+        }
+
+        comboFont.setSelectedItem(RecognitionRenderer.DEFAULT_FONT_FAMILY);
+        comboFont.addItemListener(renderer);
 
         cbLineNumbers = new JCheckBox("Line numbers");
         cbLineNumbers.setBackground(Color.WHITE);
@@ -492,7 +490,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         return lblRecognition;
     }
 
-    public JComboBox<FontSelection> getComboFont() {
+    public JComboBox<String> getComboFont() {
         return comboFont;
     }
 

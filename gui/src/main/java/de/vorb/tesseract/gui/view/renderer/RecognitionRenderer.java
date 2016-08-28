@@ -3,7 +3,6 @@ package de.vorb.tesseract.gui.view.renderer;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.Colors;
 import de.vorb.tesseract.gui.view.RecognitionPane;
-import de.vorb.tesseract.gui.view.RecognitionPane.FontSelection;
 import de.vorb.tesseract.util.Baseline;
 import de.vorb.tesseract.util.Block;
 import de.vorb.tesseract.util.Box;
@@ -18,107 +17,25 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;
 
-public class RecognitionRenderer implements PageRenderer {
-    // Fallback fonts
-    private static final Font FONT_FALLBACK_NORMAL = new Font("SansSerif", Font.PLAIN, 12);
-    private static final Font FONT_FALLBACK_ITALIC = new Font("SansSerif", Font.ITALIC, 12);
-    private static final Font FONT_FALLBACK_BOLD = new Font("SansSerif", Font.BOLD, 12);
-    private static final Font FONT_FALLBACK_BOLD_ITALIC = new Font("SansSerif", Font.BOLD | Font.ITALIC, 12);
+public class RecognitionRenderer implements PageRenderer, ItemListener {
 
-    private final static Font FONT_LINE_NUMBERS = new Font("Dialog", Font.PLAIN, 12);
+    public static final String DEFAULT_FONT_FAMILY = Font.SANS_SERIF;
+    public static final int DEFAULT_FONT_SIZE = 12;
 
-    private static final Font FONT_ANTIQUA_NORMAL;
-    private static final Font FONT_ANTIQUA_ITALIC;
-    private static final Font FONT_ANTIQUA_BOLD;
-    private static final Font FONT_ANTIQUA_BOLD_ITALIC;
+    private static final Font FONT_LINE_NUMBERS = new Font("Dialog", Font.PLAIN, DEFAULT_FONT_SIZE);
 
-    private static final Font FONT_FRAKTUR_NORMAL;
-    private static final Font FONT_FRAKTUR_BOLD;
-
-    static {
-        // load fonts
-
-        // ---------------------------------------------------------------------
-        // ANTIQUA:
-        // ---------------------------------------------------------------------
-
-        // normal
-        Font loaded = FONT_FALLBACK_NORMAL;
-        try {
-            loaded = Font.createFont(
-                    Font.TRUETYPE_FONT,
-                    RecognitionPane.class.getResourceAsStream("/fonts/RobotoCondensed-Regular.ttf"));
-        } catch (FontFormatException | IOException e) {
-            System.err.println("Could not load normal font.");
-            e.printStackTrace();
-        }
-        FONT_ANTIQUA_NORMAL = loaded;
-
-        // bold
-        loaded = FONT_FALLBACK_ITALIC;
-        try {
-            loaded = Font.createFont(
-                    Font.TRUETYPE_FONT,
-                    RecognitionPane.class.getResourceAsStream("/fonts/RobotoCondensed-Italic.ttf"));
-        } catch (FontFormatException | IOException e) {
-            System.err.println("Could not load italic font.");
-        }
-        FONT_ANTIQUA_ITALIC = loaded;
-
-        // bold
-        loaded = FONT_FALLBACK_BOLD;
-        try {
-            loaded = Font.createFont(
-                    Font.TRUETYPE_FONT,
-                    RecognitionPane.class.getResourceAsStream("/fonts/RobotoCondensed-Bold.ttf"));
-        } catch (FontFormatException | IOException e) {
-            System.err.println("Could not load bold font.");
-        }
-        FONT_ANTIQUA_BOLD = loaded;
-
-        // bold & italic
-        loaded = FONT_FALLBACK_BOLD_ITALIC;
-        try {
-            loaded = Font.createFont(
-                    Font.TRUETYPE_FONT,
-                    RecognitionPane.class.getResourceAsStream("/fonts/RobotoCondensed-BoldItalic.ttf"));
-        } catch (FontFormatException | IOException e) {
-            System.err.println("Could not load bold italic font.");
-        }
-        FONT_ANTIQUA_BOLD_ITALIC = loaded;
-
-        // ---------------------------------------------------------------------
-        // FRAKTUR:
-        // ---------------------------------------------------------------------
-
-        // normal
-        loaded = FONT_FALLBACK_NORMAL;
-        try {
-            loaded = Font.createFont(
-                    Font.TRUETYPE_FONT,
-                    RecognitionPane.class.getResourceAsStream("/fonts/Normalfraktur.ttf"));
-        } catch (FontFormatException | IOException e) {
-            System.err.println("Could not load Fraktur font.");
-        }
-        FONT_FRAKTUR_NORMAL = loaded;
-
-        // bold
-        FONT_FRAKTUR_BOLD = loaded;
-
-        // currently there is no bold Fraktur font
-    }
-
-    private final RecognitionPane rp;
+    private final RecognitionPane recognitionPane;
     private SwingWorker<Void, Void> renderWorker;
 
     private PageModel lastPageModel = null;
@@ -127,8 +44,33 @@ public class RecognitionRenderer implements PageRenderer {
     private float minimumConfidence = 0;
     private float lastScale;
 
+    private final AtomicReference<Font> fontNormal;
+    private final AtomicReference<Font> fontBold;
+    private final AtomicReference<Font> fontItalic;
+    private final AtomicReference<Font> fontBoldItalic;
+
     public RecognitionRenderer(RecognitionPane pane) {
-        this.rp = pane;
+        recognitionPane = pane;
+
+        fontNormal = new AtomicReference<>(new Font(DEFAULT_FONT_FAMILY, Font.PLAIN, DEFAULT_FONT_SIZE));
+        fontBold = new AtomicReference<>(new Font(DEFAULT_FONT_FAMILY, Font.BOLD, DEFAULT_FONT_SIZE));
+        fontItalic = new AtomicReference<>(new Font(DEFAULT_FONT_FAMILY, Font.ITALIC, DEFAULT_FONT_SIZE));
+        fontBoldItalic = new AtomicReference<>(
+                new Font(DEFAULT_FONT_FAMILY, Font.BOLD | Font.ITALIC, DEFAULT_FONT_SIZE));
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        if (e.getStateChange() != ItemEvent.SELECTED || e.getSource() != recognitionPane.getComboFont()) {
+            return;
+        }
+
+        final String selectedFontFamily = (String) e.getItem();
+
+        fontNormal.set(new Font(selectedFontFamily, Font.PLAIN, DEFAULT_FONT_SIZE));
+        fontBold.set(new Font(selectedFontFamily, Font.BOLD, DEFAULT_FONT_SIZE));
+        fontItalic.set(new Font(selectedFontFamily, Font.ITALIC, DEFAULT_FONT_SIZE));
+        fontBoldItalic.set(new Font(selectedFontFamily, Font.BOLD | Font.ITALIC, DEFAULT_FONT_SIZE));
     }
 
     public void setMinimumConfidence(float min) {
@@ -146,8 +88,8 @@ public class RecognitionRenderer implements PageRenderer {
         if (!pageModel.isPresent()) {
             renderWorker = null;
 
-            rp.getCanvasOriginal().setIcon(null);
-            rp.getCanvasRecognition().setIcon(null);
+            recognitionPane.getCanvasOriginal().setIcon(null);
+            recognitionPane.getCanvasRecognition().setIcon(null);
 
             original = null;
             recognition = null;
@@ -184,34 +126,19 @@ public class RecognitionRenderer implements PageRenderer {
             scaledHeight = original.getHeight();
         }
 
-        final boolean useFraktur =
-                rp.getComboFont().getSelectedItem() == FontSelection.FRAKTUR;
-
         // set the base fonts
         final Font baseFontNormal;
         final Font baseFontItalic;
         final Font baseFontBold;
         final Font baseFontBoldItalic;
 
-        if (useFraktur) {
-            baseFontNormal = FONT_FRAKTUR_NORMAL;
-            baseFontItalic = FONT_FRAKTUR_NORMAL;
-            baseFontBold = FONT_FRAKTUR_BOLD;
-            baseFontBoldItalic = FONT_FRAKTUR_BOLD;
-        } else {
-            baseFontNormal = FONT_ANTIQUA_NORMAL;
-            baseFontItalic = FONT_ANTIQUA_ITALIC;
-            baseFontBold = FONT_ANTIQUA_BOLD;
-            baseFontBoldItalic = FONT_ANTIQUA_BOLD_ITALIC;
-        }
-
-        final boolean showWordBoxes = rp.getWordBoxes().isSelected();
-        final boolean showSymbolBoxes = rp.getSymbolBoxes().isSelected();
-        final boolean showLineNumbers = rp.getLineNumbers().isSelected();
-        final boolean showBaselines = rp.getBaselines().isSelected();
-        // final boolean showXLines = rp.getXLines().isSelected();
-        final boolean showBlocks = rp.getBlocks().isSelected();
-        final boolean showParagraphs = rp.getParagraphs().isSelected();
+        final boolean showWordBoxes = recognitionPane.getWordBoxes().isSelected();
+        final boolean showSymbolBoxes = recognitionPane.getSymbolBoxes().isSelected();
+        final boolean showLineNumbers = recognitionPane.getLineNumbers().isSelected();
+        final boolean showBaselines = recognitionPane.getBaselines().isSelected();
+        // final boolean showXLines = recognitionPane.getXLines().isSelected();
+        final boolean showBlocks = recognitionPane.getBlocks().isSelected();
+        final boolean showParagraphs = recognitionPane.getParagraphs().isSelected();
 
         renderWorker = new SwingWorker<Void, Void>() {
             private Graphics2D origGfx, recogGfx;
@@ -267,20 +194,18 @@ public class RecognitionRenderer implements PageRenderer {
 
                 // text coordinates
                 final int tx = scX;
-                final int ty = scaled(
-                        bY + bH - word.getBaseline().getYOffset(),
-                        scale);
+                final int ty = scaled(bY + bH - word.getBaseline().getYOffset(), scale);
 
                 // set font
                 final Font font;
                 if (!italic && !bold) {
-                    font = baseFontNormal.deriveFont(scFontSize);
+                    font = fontNormal.get().deriveFont(scFontSize);
                 } else if (italic && !bold) {
-                    font = baseFontItalic.deriveFont(scFontSize);
+                    font = fontItalic.get().deriveFont(scFontSize);
                 } else if (bold && !italic) {
-                    font = baseFontBold.deriveFont(scFontSize);
+                    font = fontBold.get().deriveFont(scFontSize);
                 } else {
-                    font = baseFontBoldItalic.deriveFont(scFontSize);
+                    font = fontBoldItalic.get().deriveFont(scFontSize);
                 }
 
                 recogGfx.setFont(font);
@@ -422,8 +347,8 @@ public class RecognitionRenderer implements PageRenderer {
             @Override
             protected void done() {
                 try {
-                    rp.getCanvasOriginal().setIcon(new ImageIcon(original));
-                    rp.getCanvasRecognition().setIcon(
+                    recognitionPane.getCanvasOriginal().setIcon(new ImageIcon(original));
+                    recognitionPane.getCanvasRecognition().setIcon(
                             new ImageIcon(recognition));
                 } catch (Exception e) {
                 } finally {
