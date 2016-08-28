@@ -31,8 +31,6 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
 
     private static final Insets BUTTON_MARGIN = new Insets(2, 4, 2, 4);
 
-    private static final Font FONT_TRANSCRIPTION = new Font(Font.MONOSPACED, Font.PLAIN, 13);
-
     private final Scale scale;
     private final EvaluationPaneRenderer renderer;
 
@@ -51,7 +49,7 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
      *
      * @param scale
      */
-    public EvaluationPane(final Scale scale) {
+    public EvaluationPane(final Scale scale, final String editorFont) {
         setLayout(new BorderLayout(0, 0));
 
         this.scale = scale;
@@ -75,9 +73,9 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         splitPane.setRightComponent(scrollPane_1);
 
         textAreaTranscript = new JTextArea();
-        textAreaTranscript.setFont(FONT_TRANSCRIPTION);
         textAreaTranscript.setEnabled(false);
         scrollPane_1.setViewportView(textAreaTranscript);
+        setEditorFont(editorFont);
 
         JLabel lblReferenceText = new JLabel("Transcription");
         lblReferenceText.setBorder(new EmptyBorder(0, 4, 0, 0));
@@ -237,5 +235,9 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         } else {
             return Optional.empty();
         }
+    }
+
+    public void setEditorFont(String editorFont) {
+        textAreaTranscript.setFont(new Font(editorFont, Font.PLAIN, 13));
     }
 }

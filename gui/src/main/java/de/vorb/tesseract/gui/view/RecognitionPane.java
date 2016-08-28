@@ -56,7 +56,6 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
     private final JCheckBox cbSymbolBoxes;
     private final JCheckBox cbLineNumbers;
     private final JCheckBox cbBaselines;
-    private final JComboBox<String> comboFont;
 
     private Optional<PageModel> model = Optional.empty();
 
@@ -74,10 +73,10 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
      *
      * @param scale
      */
-    public RecognitionPane(final Scale scale) {
+    public RecognitionPane(final Scale scale, final String renderingFont) {
         setLayout(new BorderLayout(0, 0));
 
-        renderer = new RecognitionRenderer(this);
+        renderer = new RecognitionRenderer(this, renderingFont);
         this.scale = scale;
 
         JSplitPane splitPane = new JSplitPane();
@@ -249,17 +248,6 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         cbSymbolBoxes.setSelected(false);
         cbSymbolBoxes.addItemListener(checkBoxListener);
 
-        comboFont = new JComboBox<>();
-
-        final GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-
-        for (String fontFamily : graphicsEnvironment.getAvailableFontFamilyNames()) {
-            comboFont.addItem(fontFamily);
-        }
-
-        comboFont.setSelectedItem(RecognitionRenderer.DEFAULT_FONT_FAMILY);
-        comboFont.addItemListener(renderer);
-
         cbLineNumbers = new JCheckBox("Line numbers");
         cbLineNumbers.setBackground(Color.WHITE);
         GridBagConstraints gbc_cbLineNumbers = new GridBagConstraints();
@@ -307,22 +295,6 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         gbc_horizontalStrut.gridy = 0;
         panel_1.add(horizontalStrut, gbc_horizontalStrut);
 
-        lblFont = new JLabel("Font:");
-        GridBagConstraints gbc_lblFont = new GridBagConstraints();
-        gbc_lblFont.insets = new Insets(0, 0, 0, 5);
-        gbc_lblFont.anchor = GridBagConstraints.EAST;
-        gbc_lblFont.gridx = 7;
-        gbc_lblFont.gridy = 0;
-        panel_1.add(lblFont, gbc_lblFont);
-
-        comboFont.setBackground(Color.WHITE);
-        GridBagConstraints gbc_comboFont = new GridBagConstraints();
-        gbc_comboFont.insets = new Insets(0, 0, 0, 5);
-        gbc_comboFont.anchor = GridBagConstraints.WEST;
-        gbc_comboFont.gridx = 8;
-        gbc_comboFont.gridy = 0;
-        panel_1.add(comboFont, gbc_comboFont);
-
         final Insets btnMargin = new Insets(2, 4, 2, 4);
 
         btZoomOut = new JButton(new ImageIcon(
@@ -369,7 +341,6 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         panel_1.add(btZoomIn, gbc_btZoomIn);
         // comboFont.setModel(new DefaultComboBoxModel<String>(new String[] {
         // "Antiqua", "Fraktur" }));
-        comboFont.addActionListener(ev -> render());
 
         spOriginal.getViewport().addChangeListener(e -> {
             spHOCR.getHorizontalScrollBar().setModel(
@@ -451,7 +422,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         render();
     }
 
-    private void render() {
+    public void render() {
         delayer.purge();
 
         delayer.schedule(new TimerTask() {
@@ -490,10 +461,6 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         return lblRecognition;
     }
 
-    public JComboBox<String> getComboFont() {
-        return comboFont;
-    }
-
     public JCheckBox getWordBoxes() {
         return cbWordBoxes;
     }
@@ -516,5 +483,9 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
     public JCheckBox getParagraphs() {
         return cbParagraphs;
+    }
+
+    public void setRenderingFont(String renderingFont) {
+        renderer.setRenderingFont(renderingFont);
     }
 }

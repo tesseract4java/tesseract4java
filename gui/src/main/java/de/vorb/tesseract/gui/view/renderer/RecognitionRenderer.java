@@ -19,8 +19,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.Optional;
@@ -28,10 +26,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;
 
-public class RecognitionRenderer implements PageRenderer, ItemListener {
+public class RecognitionRenderer implements PageRenderer {
 
-    public static final String DEFAULT_FONT_FAMILY = Font.SANS_SERIF;
-    public static final int DEFAULT_FONT_SIZE = 12;
+    private static final int DEFAULT_FONT_SIZE = 12;
 
     private static final Font FONT_LINE_NUMBERS = new Font("Dialog", Font.PLAIN, DEFAULT_FONT_SIZE);
 
@@ -44,28 +41,19 @@ public class RecognitionRenderer implements PageRenderer, ItemListener {
     private float minimumConfidence = 0;
     private float lastScale;
 
-    private final AtomicReference<Font> fontNormal;
-    private final AtomicReference<Font> fontBold;
-    private final AtomicReference<Font> fontItalic;
-    private final AtomicReference<Font> fontBoldItalic;
+    private final AtomicReference<Font> fontNormal = new AtomicReference<>();
+    private final AtomicReference<Font> fontBold = new AtomicReference<>();
+    private final AtomicReference<Font> fontItalic = new AtomicReference<>();
+    private final AtomicReference<Font> fontBoldItalic = new AtomicReference<>();
 
-    public RecognitionRenderer(RecognitionPane pane) {
+    public RecognitionRenderer(RecognitionPane pane, String renderingFont) {
         recognitionPane = pane;
 
-        fontNormal = new AtomicReference<>(new Font(DEFAULT_FONT_FAMILY, Font.PLAIN, DEFAULT_FONT_SIZE));
-        fontBold = new AtomicReference<>(new Font(DEFAULT_FONT_FAMILY, Font.BOLD, DEFAULT_FONT_SIZE));
-        fontItalic = new AtomicReference<>(new Font(DEFAULT_FONT_FAMILY, Font.ITALIC, DEFAULT_FONT_SIZE));
-        fontBoldItalic = new AtomicReference<>(
-                new Font(DEFAULT_FONT_FAMILY, Font.BOLD | Font.ITALIC, DEFAULT_FONT_SIZE));
+        setRenderingFont(renderingFont);
     }
 
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-        if (e.getStateChange() != ItemEvent.SELECTED || e.getSource() != recognitionPane.getComboFont()) {
-            return;
-        }
-
-        final String selectedFontFamily = (String) e.getItem();
+    public void setRenderingFont(String renderingFont) {
+        final String selectedFontFamily = renderingFont;
 
         fontNormal.set(new Font(selectedFontFamily, Font.PLAIN, DEFAULT_FONT_SIZE));
         fontBold.set(new Font(selectedFontFamily, Font.BOLD, DEFAULT_FONT_SIZE));

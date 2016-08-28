@@ -3,6 +3,7 @@ package de.vorb.tesseract.gui.view.dialogs;
 import de.vorb.tesseract.gui.model.PreferencesUtil;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -12,21 +13,28 @@ import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.io.File;
+import java.util.Arrays;
 import java.util.prefs.Preferences;
 
 public class PreferencesDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    public static final String KEY_EXEC_DIR = "exec_dir";
     public static final String KEY_LANGDATA_DIR = "langdata_dir";
+    public static final String KEY_RENDERING_FONT = "rendering_font";
+    public static final String KEY_EDITOR_FONT = "editor_font";
 
     private final JPanel contentPanel = new JPanel();
     private JTextField tfLangdataDir;
+
+    private final JComboBox<String> comboRenderingFont;
+    private final JComboBox<String> comboEditorFont;
 
     private ResultState resultState = ResultState.CANCEL;
 
@@ -50,8 +58,7 @@ public class PreferencesDialog extends JDialog {
         GridBagLayout gbl_contentPanel = new GridBagLayout();
         gbl_contentPanel.columnWidths = new int[]{0, 0, 0, 0};
         gbl_contentPanel.rowHeights = new int[]{0, 0, 0};
-        gbl_contentPanel.columnWeights = new double[]{0.0, 1.0, 0.0,
-                Double.MIN_VALUE};
+        gbl_contentPanel.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
         gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
         contentPanel.setLayout(gbl_contentPanel);
         {
@@ -124,6 +131,52 @@ public class PreferencesDialog extends JDialog {
             }
         }
 
+        final GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        final String[] availableFontFamilyNames = graphicsEnvironment.getAvailableFontFamilyNames();
+
+        {
+            JLabel lblRenderingFont = new JLabel("Rendering font:");
+            GridBagConstraints gbc_lblRenderingFont = new GridBagConstraints();
+            gbc_lblRenderingFont.anchor = GridBagConstraints.EAST;
+            gbc_lblRenderingFont.insets = new Insets(0, 0, 0, 5);
+            gbc_lblRenderingFont.gridx = 0;
+            gbc_lblRenderingFont.gridy = 2;
+            contentPanel.add(lblRenderingFont, gbc_lblRenderingFont);
+        }
+        {
+            comboRenderingFont = new JComboBox<>();
+            GridBagConstraints gbc_comboRenderingFont = new GridBagConstraints();
+            gbc_comboRenderingFont.insets = new Insets(0, 0, 0, 5);
+            gbc_comboRenderingFont.fill = GridBagConstraints.HORIZONTAL;
+            gbc_comboRenderingFont.gridx = 1;
+            gbc_comboRenderingFont.gridy = 2;
+            contentPanel.add(comboRenderingFont, gbc_comboRenderingFont);
+
+            Arrays.stream(availableFontFamilyNames).forEach(comboRenderingFont::addItem);
+            comboRenderingFont.setSelectedItem(pref.get(PreferencesDialog.KEY_RENDERING_FONT, Font.SANS_SERIF));
+        }
+        {
+            JLabel lblEditorFont = new JLabel("Editor font:");
+            GridBagConstraints gbc_lblEditorFont = new GridBagConstraints();
+            gbc_lblEditorFont.anchor = GridBagConstraints.EAST;
+            gbc_lblEditorFont.insets = new Insets(0, 0, 0, 5);
+            gbc_lblEditorFont.gridx = 0;
+            gbc_lblEditorFont.gridy = 3;
+            contentPanel.add(lblEditorFont, gbc_lblEditorFont);
+        }
+        {
+            comboEditorFont = new JComboBox<>();
+            GridBagConstraints gbc_comboEditorFont = new GridBagConstraints();
+            gbc_comboEditorFont.insets = new Insets(0, 0, 0, 5);
+            gbc_comboEditorFont.fill = GridBagConstraints.HORIZONTAL;
+            gbc_comboEditorFont.gridx = 1;
+            gbc_comboEditorFont.gridy = 3;
+            contentPanel.add(comboEditorFont, gbc_comboEditorFont);
+
+            Arrays.stream(availableFontFamilyNames).forEach(comboEditorFont::addItem);
+            comboEditorFont.setSelectedItem(pref.get(PreferencesDialog.KEY_EDITOR_FONT, Font.MONOSPACED));
+        }
+
         pack();
         setMinimumSize(getSize());
     }
@@ -134,6 +187,14 @@ public class PreferencesDialog extends JDialog {
 
     public JTextField getTfLangdataDir() {
         return tfLangdataDir;
+    }
+
+    public JComboBox<String> getComboRenderingFont() {
+        return comboRenderingFont;
+    }
+
+    public JComboBox<String> getComboEditorFont() {
+        return comboEditorFont;
     }
 
     public ResultState showPreferencesDialog(Component parent) {
