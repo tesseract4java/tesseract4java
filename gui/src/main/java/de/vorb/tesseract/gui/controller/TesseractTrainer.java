@@ -104,7 +104,7 @@ public class TesseractTrainer extends JDialog {
         gbc_lblExecutablesDirectory.gridy = 0;
         contentPane.add(lblExecutablesDirectory, gbc_lblExecutablesDirectory);
 
-        tfExecutablesDir = new JTextField(PreferencesUtil.getPreferences().get(PreferencesDialog.KEY_EXEC_DIR, ""));
+        tfExecutablesDir = new JTextField();
         GridBagConstraints gbc_tfExecutablesDir = new GridBagConstraints();
         gbc_tfExecutablesDir.insets = new Insets(0, 0, 5, 5);
         gbc_tfExecutablesDir.fill = GridBagConstraints.HORIZONTAL;
@@ -122,7 +122,6 @@ public class TesseractTrainer extends JDialog {
             if (result == JFileChooser.APPROVE_OPTION) {
                 final File dir = fc.getSelectedFile();
                 tfExecutablesDir.setText(dir.getAbsolutePath());
-                PreferencesUtil.getPreferences().put(PreferencesDialog.KEY_EXEC_DIR, dir.getAbsolutePath());
             }
         });
         GridBagConstraints gbc_btnSelectExecutablesDir = new GridBagConstraints();
