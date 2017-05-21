@@ -30,7 +30,7 @@ public class BlobSizeFilter implements ImageFilter {
     }
 
     @Override
-    public void filter(BufferedImage image) {
+    public void apply(BufferedImage image) {
         if (image.getType() != BufferedImage.TYPE_BYTE_BINARY) {
             throw new IllegalArgumentException("not a binary image");
         }
