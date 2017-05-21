@@ -40,7 +40,7 @@ import de.vorb.tesseract.gui.work.PreprocessingWorker;
 import de.vorb.tesseract.gui.work.RecognitionWorker;
 import de.vorb.tesseract.gui.work.ThumbnailWorker;
 import de.vorb.tesseract.gui.work.ThumbnailWorker.Task;
-import de.vorb.tesseract.tools.preprocessing.DefaultPreprocessor;
+import de.vorb.tesseract.tools.preprocessing.BinarizationWithFiltersPreprocessor;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.tesseract.tools.recognition.RecognitionProducer;
 import de.vorb.tesseract.tools.training.Unicharset;
@@ -145,8 +145,6 @@ public class TesseractController extends WindowAdapter implements
     private static final String KEY_TRAINING_FILE = "training_file";
     private static final String KEY_BOX_FILE = "box_file";
 
-    public static final Preprocessor DEFAULT_PREPROCESSOR = new DefaultPreprocessor();
-
     // components references
     private final TesseractFrame view;
 
@@ -176,7 +174,7 @@ public class TesseractController extends WindowAdapter implements
     private String lastTraineddataFile;
 
     // preprocessing
-    private Preprocessor defaultPreprocessor = new DefaultPreprocessor();
+    private Preprocessor defaultPreprocessor = new BinarizationWithFiltersPreprocessor();
     private final Map<Path, Preprocessor> preprocessors = new HashMap<>();
 
     private Set<Path> changedPreprocessors = new HashSet<>();

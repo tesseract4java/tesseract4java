@@ -8,33 +8,26 @@ import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
 
-public class DefaultPreprocessor implements Preprocessor {
+public class BinarizationWithFiltersPreprocessor implements Preprocessor {
+
     private final Binarization binarization;
     private final List<ImageFilter> filters;
 
-    public DefaultPreprocessor(Binarization binarization,
-            List<ImageFilter> filters) {
+    public BinarizationWithFiltersPreprocessor(Binarization binarization, List<ImageFilter> filters) {
         this.binarization = binarization;
         this.filters = filters;
     }
 
-    public DefaultPreprocessor() {
+    public BinarizationWithFiltersPreprocessor() {
         this(new Otsu(), Collections.emptyList());
-    }
-
-    public DefaultPreprocessor(Binarization binarization) {
-        this(binarization, Collections.emptyList());
     }
 
     @Override
     public BufferedImage process(BufferedImage image) {
-        // apply binarization
+
         final BufferedImage result = binarization.binarize(image);
 
-        // apply filters
-        for (final ImageFilter f : filters) {
-            f.filter(result);
-        }
+        filters.forEach(filter -> filter.apply(result));
 
         return result;
     }

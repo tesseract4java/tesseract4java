@@ -7,7 +7,9 @@ import de.vorb.util.FileNames;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -35,20 +37,46 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
         final Path destFile = destinationDir.resolve(FileNames.replaceExtension(
                 sourceFile, "png").getFileName());
 
-        final BufferedImage sourceImg = ImageIO.read(sourceFile.toFile());
+        final BufferedImage sourceImg = readRgbImageFromFile(sourceFile);
 
         final BufferedImage preprocessedImg = preprocessor.process(sourceImg);
+
         ImageIO.write(preprocessedImg, "PNG", destFile.toFile());
 
         return new ImageModel(sourceFile, sourceImg, destFile, preprocessedImg);
+    }
+
+    private BufferedImage readRgbImageFromFile(Path imageFile) throws IOException {
+
+        final BufferedImage originalImage = ImageIO.read(imageFile.toFile());
+
+        final BufferedImage rgbImage;
+        if (originalImage.getType() != BufferedImage.TYPE_INT_RGB) {
+            rgbImage = getImageAsRgb(originalImage);
+        } else {
+            rgbImage = originalImage;
+        }
+
+        return rgbImage;
+    }
+
+    private BufferedImage getImageAsRgb(BufferedImage originalImage) {
+
+        final BufferedImage rgbImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(),
+                BufferedImage.TYPE_INT_RGB);
+
+        final Graphics2D g2d = rgbImage.createGraphics();
+        g2d.drawImage(originalImage, 0, 0, null);
+        g2d.dispose();
+
+        return rgbImage;
     }
 
     @Override
     protected void done() {
         try {
             controller.setImageModel(Optional.of(get()));
-        } catch (InterruptedException | ExecutionException
-                | CancellationException e) {
+        } catch (InterruptedException | ExecutionException | CancellationException e) {
         } finally {
             controller.getView().getProgressBar().setIndeterminate(false);
         }

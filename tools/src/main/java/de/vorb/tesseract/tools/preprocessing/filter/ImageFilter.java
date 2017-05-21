@@ -15,5 +15,5 @@ public interface ImageFilter {
      *
      * @param image source image
      */
-    void filter(BufferedImage image);
+    void apply(BufferedImage image);
 }

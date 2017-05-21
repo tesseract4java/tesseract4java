@@ -20,7 +20,8 @@ public final class BinarizationUtilities {
             return image;
         } else if (image.getType() == BufferedImage.TYPE_BYTE_GRAY) {
             grayscale = image;
-        } else if (image.getType() == BufferedImage.TYPE_INT_RGB
+        } else if (image.getType() == BufferedImage.TYPE_3BYTE_BGR
+                || image.getType() == BufferedImage.TYPE_INT_RGB
                 || image.getType() == BufferedImage.TYPE_BYTE_INDEXED) {
             grayscale = new BufferedImage(image.getWidth(), image.getHeight(),
                     BufferedImage.TYPE_BYTE_GRAY);

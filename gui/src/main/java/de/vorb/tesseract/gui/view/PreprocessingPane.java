@@ -1,7 +1,7 @@
 package de.vorb.tesseract.gui.view;
 
 import de.vorb.tesseract.gui.model.ImageModel;
-import de.vorb.tesseract.tools.preprocessing.DefaultPreprocessor;
+import de.vorb.tesseract.tools.preprocessing.BinarizationWithFiltersPreprocessor;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.tesseract.tools.preprocessing.binarization.Binarization;
 import de.vorb.tesseract.tools.preprocessing.binarization.BinarizationMethod;
@@ -269,12 +269,12 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     }
 
     public Preprocessor getPreprocessor() {
-        return new DefaultPreprocessor(getBinarization(), getFilters());
+        return new BinarizationWithFiltersPreprocessor(getBinarization(), getFilters());
     }
 
     public void setPreprocessor(Preprocessor preprocessor) {
-        if (preprocessor instanceof DefaultPreprocessor) {
-            final DefaultPreprocessor p = (DefaultPreprocessor) preprocessor;
+        if (preprocessor instanceof BinarizationWithFiltersPreprocessor) {
+            final BinarizationWithFiltersPreprocessor p = (BinarizationWithFiltersPreprocessor) preprocessor;
             final Binarization b = p.getBinarization();
             if (b instanceof Sauvola) {
                 comboBinarization.setSelectedItem(BinarizationMethod.SAUVOLA);
