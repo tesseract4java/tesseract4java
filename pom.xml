@@ -4,9 +4,9 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.vorb</groupId>
+    <groupId>de.vorb.tesseract</groupId>
     <artifactId>tesseract4java</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -24,16 +24,33 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>de.vorb</groupId>
+                <groupId>de.vorb.tesseract</groupId>
                 <artifactId>tools</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>de.vorb</groupId>
+                <groupId>de.vorb.tesseract</groupId>
                 <artifactId>ocrevalUAtion</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>1.12.0</version>
+                <configuration>
+                    <versionDigitToIncrement>1</versionDigitToIncrement>
+                    <useSnapshotInRelease>true</useSnapshotInRelease>
+                    <useSnapshotInHotfix>true</useSnapshotInHotfix>
+                    <pushRemote>false</pushRemote>
+                    <keepBranch>false</keepBranch>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

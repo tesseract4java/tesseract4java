@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>de.vorb</groupId>
+        <groupId>de.vorb.tesseract</groupId>
         <artifactId>tesseract4java</artifactId>
-        <version>0.2.0</version>
+        <version>0.2.1</version>
     </parent>
 
     <artifactId>tools</artifactId>
@@ -33,7 +33,7 @@
             <version>1.4.9</version>
         </dependency>
         <dependency>
-            <groupId>de.vorb</groupId>
+            <groupId>de.vorb.tesseract</groupId>
             <artifactId>ocrevalUAtion</artifactId>
         </dependency>
         <dependency>
