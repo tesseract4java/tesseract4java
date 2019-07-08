@@ -13,13 +13,13 @@
     <artifactId>tools</artifactId>
 
     <properties>
-        <tesseract.version>4.0.0-rc2-1.4.3</tesseract.version>
+        <tesseract.version>4.0.0-1.4.4</tesseract.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
-            <artifactId>tesseract</artifactId>
+            <artifactId>tesseract-platform</artifactId>
             <version>${tesseract.version}</version>
         </dependency>
         <dependency>
