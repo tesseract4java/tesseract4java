@@ -6,7 +6,7 @@
 
     <groupId>de.vorb.tesseract</groupId>
     <artifactId>tesseract4java</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -35,5 +35,22 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>1.12.0</version>
+                <configuration>
+                    <versionDigitToIncrement>1</versionDigitToIncrement>
+                    <useSnapshotInRelease>true</useSnapshotInRelease>
+                    <useSnapshotInHotfix>true</useSnapshotInHotfix>
+                    <pushRemote>false</pushRemote>
+                    <keepBranch>false</keepBranch>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
