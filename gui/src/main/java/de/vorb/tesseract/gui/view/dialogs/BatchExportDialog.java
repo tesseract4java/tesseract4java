@@ -3,13 +3,28 @@ package de.vorb.tesseract.gui.view.dialogs;
 import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.gui.model.BatchExportModel;
 
-import com.google.common.base.Optional;
-
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -17,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 public class BatchExportDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = 1L;
@@ -92,13 +108,13 @@ public class BatchExportDialog extends JDialog implements ActionListener {
                 new Color(0, 0, 0)), new EmptyBorder(4, 4, 4, 4)));
         panel_1.add(panel_3);
         GridBagLayout gbl_panel_3 = new GridBagLayout();
-        gbl_panel_3.columnWidths = new int[] { 0, 0, 0, 0 };
-        gbl_panel_3.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
-        gbl_panel_3.columnWeights = new double[] { 0.0, 1.0, 0.0,
-                Double.MIN_VALUE };
-        gbl_panel_3.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
+        gbl_panel_3.columnWidths = new int[]{0, 0, 0, 0};
+        gbl_panel_3.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0};
+        gbl_panel_3.columnWeights = new double[]{0.0, 1.0, 0.0,
+                Double.MIN_VALUE};
+        gbl_panel_3.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0,
                 0.0,
-                Double.MIN_VALUE };
+                Double.MIN_VALUE};
         panel_3.setLayout(gbl_panel_3);
 
         lblDestinationDir = new JLabel("Destination Directory");
@@ -192,10 +208,10 @@ public class BatchExportDialog extends JDialog implements ActionListener {
                 null, new Color(0, 0, 0)), new EmptyBorder(4, 4, 4, 4)));
         panel_1.add(panel_2);
         GridBagLayout gbl_panel_2 = new GridBagLayout();
-        gbl_panel_2.columnWidths = new int[] { 67, 44, 0 };
-        gbl_panel_2.rowHeights = new int[] { 20, 0 };
-        gbl_panel_2.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-        gbl_panel_2.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        gbl_panel_2.columnWidths = new int[]{67, 44, 0};
+        gbl_panel_2.rowHeights = new int[]{20, 0};
+        gbl_panel_2.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+        gbl_panel_2.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         panel_2.setLayout(gbl_panel_2);
 
         JLabel lblWorkerThreads = new JLabel("Number of Worker Threads");
@@ -248,7 +264,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         final BatchExportDialog dialog = new BatchExportDialog(controller);
         dialog.setVisible(true);
 
-        return Optional.fromNullable(dialog.exportModel);
+        return Optional.ofNullable(dialog.exportModel);
     }
 
     @Override
@@ -287,12 +303,10 @@ public class BatchExportDialog extends JDialog implements ActionListener {
                 final boolean openDestination = chckbxOpenDestination.isSelected();
                 final int numThreads = (Integer) spinnerWorkerThreads.getValue();
 
-                final BatchExportModel export = new BatchExportModel(
+                exportModel = new BatchExportModel(
                         destinationDir, exportTXT, exportHTML, exportXML,
                         exportImages, exportReports, numThreads,
                         openDestination);
-
-                exportModel = export;
 
                 this.setVisible(false);
             } catch (InvalidPathException e) {

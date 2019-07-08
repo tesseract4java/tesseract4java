@@ -1,11 +1,19 @@
 package de.vorb.tesseract.gui.view.dialogs;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -22,19 +30,6 @@ public class ImportTranscriptionDialog extends JDialog {
     private boolean approved = false;
 
     /**
-     * Launch the application.
-     */
-    public static void main(String[] args) {
-        try {
-            ImportTranscriptionDialog dialog = new ImportTranscriptionDialog();
-            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            dialog.setVisible(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Create the dialog.
      */
     public ImportTranscriptionDialog() {
@@ -47,12 +42,12 @@ public class ImportTranscriptionDialog extends JDialog {
         contentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         GridBagLayout gbl_contentPanel = new GridBagLayout();
-        gbl_contentPanel.columnWidths = new int[] { 0, 0, 0, 0 };
-        gbl_contentPanel.rowHeights = new int[] { 0, 0, 0, 0 };
-        gbl_contentPanel.columnWeights = new double[] { 0.0, 1.0, 0.0,
-                Double.MIN_VALUE };
-        gbl_contentPanel.rowWeights = new double[] { 0.0, 0.0, 0.0,
-                Double.MIN_VALUE };
+        gbl_contentPanel.columnWidths = new int[]{0, 0, 0, 0};
+        gbl_contentPanel.rowHeights = new int[]{0, 0, 0, 0};
+        gbl_contentPanel.columnWeights = new double[]{0.0, 1.0, 0.0,
+                Double.MIN_VALUE};
+        gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0,
+                Double.MIN_VALUE};
         contentPanel.setLayout(gbl_contentPanel);
         {
             JLabel lblTranscriptionFile = new JLabel("Transcription File");
@@ -75,28 +70,26 @@ public class ImportTranscriptionDialog extends JDialog {
         }
         {
             JButton btnSelect = new JButton("Select...");
-            btnSelect.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent evt) {
-                    final JFileChooser fc = new JFileChooser();
-                    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                    fc.setFileFilter(new FileFilter() {
-                        @Override
-                        public String getDescription() {
-                            return "Plain text (*.txt)";
-                        }
-
-                        @Override
-                        public boolean accept(File f) {
-                            return f.canRead() && (f.isDirectory() ||
-                                    f.getName().endsWith(".txt"));
-                        }
-                    });
-
-                    final int result = fc.showOpenDialog(
-                            ImportTranscriptionDialog.this);
-                    if (result == JFileChooser.APPROVE_OPTION) {
-                        tfFile.setText(fc.getSelectedFile().toString());
+            btnSelect.addActionListener(evt -> {
+                final JFileChooser fc = new JFileChooser();
+                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                fc.setFileFilter(new FileFilter() {
+                    @Override
+                    public String getDescription() {
+                        return "Plain text (*.txt)";
                     }
+
+                    @Override
+                    public boolean accept(File f) {
+                        return f.canRead() && (f.isDirectory() ||
+                                f.getName().endsWith(".txt"));
+                    }
+                });
+
+                final int result = fc.showOpenDialog(
+                        ImportTranscriptionDialog.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    tfFile.setText(fc.getSelectedFile().toString());
                 }
             });
             GridBagConstraints gbc_btnSelect = new GridBagConstraints();
@@ -151,25 +144,23 @@ public class ImportTranscriptionDialog extends JDialog {
             getContentPane().add(buttonPane, BorderLayout.SOUTH);
             {
                 JButton okButton = new JButton("Import");
-                okButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) {
-                        if (getTranscriptionFile() != null) {
-                            if (getPageSeparator().isEmpty()) {
-                                Dialogs.showWarning(
-                                        ImportTranscriptionDialog.this,
-                                        "Empty Separator",
-                                        "The separator must not be empty.");
-                                return;
-                            }
-
-                            approved = true;
-
-                            ImportTranscriptionDialog.this.dispose();
-                        } else {
-                            Dialogs.showWarning(ImportTranscriptionDialog.this,
-                                    "Invalid File",
-                                    "The given transcription file is invalid.");
+                okButton.addActionListener(evt -> {
+                    if (getTranscriptionFile() != null) {
+                        if (getPageSeparator().isEmpty()) {
+                            Dialogs.showWarning(
+                                    ImportTranscriptionDialog.this,
+                                    "Empty Separator",
+                                    "The separator must not be empty.");
+                            return;
                         }
+
+                        approved = true;
+
+                        ImportTranscriptionDialog.this.dispose();
+                    } else {
+                        Dialogs.showWarning(ImportTranscriptionDialog.this,
+                                "Invalid File",
+                                "The given transcription file is invalid.");
                     }
                 });
 
@@ -178,12 +169,10 @@ public class ImportTranscriptionDialog extends JDialog {
             }
             {
                 JButton cancelButton = new JButton("Cancel");
-                cancelButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) {
-                        approved = false;
+                cancelButton.addActionListener(evt -> {
+                    approved = false;
 
-                        ImportTranscriptionDialog.this.dispose();
-                    }
+                    ImportTranscriptionDialog.this.dispose();
                 });
                 buttonPane.add(cancelButton);
             }

@@ -8,12 +8,12 @@ import de.vorb.tesseract.tools.recognition.PageRecognitionConsumer;
 import de.vorb.tesseract.util.Block;
 import de.vorb.tesseract.util.Page;
 
-import com.google.common.base.Optional;
-
-import javax.swing.*;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class RecognitionWorker extends SwingWorker<PageModel, Void> {
@@ -33,12 +33,9 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
     @Override
     protected PageModel doInBackground() throws Exception {
         // set the progress bar state to indeterminate
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                controller.setPageModel(Optional.<PageModel> absent());
-                controller.getView().getProgressBar().setIndeterminate(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            controller.setPageModel(Optional.empty());
+            controller.getView().getProgressBar().setIndeterminate(true);
         });
 
         if (trainingFile != null) {
@@ -74,9 +71,9 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
         } catch (ExecutionException e) {
             e.printStackTrace();
 
-            final String message = "The page could not be recognized";
+            final String message = "The image could not be recognized";
 
-            controller.setPageModel(Optional.<PageModel> absent());
+            controller.setPageModel(Optional.empty());
 
             Dialogs.showError(controller.getView(), "Error during recognition",
                     message);

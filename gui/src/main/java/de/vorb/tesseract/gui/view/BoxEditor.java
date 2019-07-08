@@ -1,21 +1,31 @@
 package de.vorb.tesseract.gui.view;
 
-import de.vorb.tesseract.gui.event.SelectionListener;
 import de.vorb.tesseract.gui.model.BoxFileModel;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.model.SingleSelectionModel;
 import de.vorb.tesseract.gui.model.SymbolTableModel;
 import de.vorb.tesseract.gui.util.Filter;
-import de.vorb.tesseract.gui.util.FilterProvider;
 import de.vorb.tesseract.gui.view.renderer.BoxFileRenderer;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Point;
 import de.vorb.tesseract.util.Symbol;
 
-import com.google.common.base.Optional;
-
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -25,9 +35,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableColumnModel;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -35,6 +50,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;
 import static de.vorb.tesseract.gui.model.Scale.unscaled;
@@ -51,8 +67,8 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
     private final Scale scale;
     private boolean changed = false;
 
-    private Optional<BoxFileModel> model = Optional.absent();
-    private Optional<PageModel> pageModel = Optional.absent();
+    private Optional<BoxFileModel> model = Optional.empty();
+    private Optional<PageModel> pageModel = Optional.empty();
 
     private final SingleSelectionModel selectionModel =
             new SingleSelectionModel();
@@ -88,18 +104,18 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
                     // if the source is one of the JSpinners for x, y, width and
                     // height, update the bounding box
                     if (source instanceof JSpinner) {
-                        // get coords
+                        // get coordinates
                         final int x = (int) spinnerX.getValue();
                         final int y = (int) spinnerY.getValue();
                         final int width = (int) spinnerWidth.getValue();
                         final int height = (int) spinnerHeight.getValue();
 
                         // update bounding box
-                        final Box bbox = currentSymbol.get().getBoundingBox();
-                        bbox.setX(x);
-                        bbox.setY(y);
-                        bbox.setWidth(width);
-                        bbox.setHeight(height);
+                        final Box boundingBox = currentSymbol.get().getBoundingBox();
+                        boundingBox.setX(x);
+                        boundingBox.setY(y);
+                        boundingBox.setWidth(width);
+                        boundingBox.setHeight(height);
 
                         // re-render the whole model
                         renderer.render(getBoxFileModel(), scale.current());
@@ -125,38 +141,32 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         this.scale = scale;
 
         // create table first, so it can be used by the property change listener
-        tabSymbols = new FilteredTable<Symbol>(new SymbolTableModel(),
-                new FilterProvider<Symbol>() {
-                    @Override
-                    public Optional<Filter<Symbol>> getFilterFor(
-                            String filterText) {
-                        final Filter<Symbol> filter;
+        tabSymbols = new FilteredTable<>(new SymbolTableModel(),
+                filterText -> {
+                    final Filter<Symbol> filter;
 
-                        if (filterText.isEmpty()) {
-                            filter = null;
-                        } else {
-                            // split filter text into terms
-                            final String[] terms =
-                                    filterText.toLowerCase().split("\\s+");
+                    if (filterText.isEmpty()) {
+                        filter = null;
+                    } else {
+                        // split filter text into terms
+                        final String[] terms =
+                                filterText.toLowerCase().split("\\s+");
 
-                            filter = new Filter<Symbol>() {
-                                @Override
-                                public boolean accept(Symbol item) {
-                                    // accept if at least one term is contained
-                                    final String symbolText =
-                                            item.getText().toLowerCase();
+                        filter = item -> {
+                            // accept if at least one term is contained
+                            final String symbolText =
+                                    item.getText().toLowerCase();
 
-                                    for (String term : terms) {
-                                        if (symbolText.contains(term))
-                                            return true;
-                                    }
-                                    return false;
+                            for (String term : terms) {
+                                if (symbolText.contains(term)) {
+                                    return true;
                                 }
-                            };
-                        }
-
-                        return Optional.fromNullable(filter);
+                            }
+                            return false;
+                        };
                     }
+
+                    return Optional.ofNullable(filter);
                 });
 
         tabSymbols.getListModel().addListDataListener(new ListDataListener() {
@@ -220,14 +230,13 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
                             return;
                         }
 
-                        final Box bbox =
-                                getSelectedSymbol().get().getBoundingBox();
+                        final Box boundingBox = getSelectedSymbol().get().getBoundingBox();
 
                         final Rectangle scaled = new Rectangle(
-                                scaled(bbox.getX() - 10, scale.current()),
-                                scaled(bbox.getY() - 10, scale.current()),
-                                scaled(bbox.getWidth() + 10, scale.current()),
-                                scaled(bbox.getHeight() + 10, scale.current()));
+                                scaled(boundingBox.getX() - 10, scale.current()),
+                                scaled(boundingBox.getY() - 10, scale.current()),
+                                scaled(boundingBox.getWidth() + 10, scale.current()),
+                                scaled(boundingBox.getHeight() + 10, scale.current()));
 
                         lblCanvas.scrollRectToVisible(scaled);
 
@@ -247,12 +256,12 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         JSplitPane splitMain = new JSplitPane();
         add(splitMain, BorderLayout.CENTER);
         GridBagLayout gbl_toolbar = new GridBagLayout();
-        gbl_toolbar.columnWidths = new int[] { 0, 56, 15, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 36, 0, 0 };
-        gbl_toolbar.rowHeights = new int[] { 0, 0 };
-        gbl_toolbar.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
-        gbl_toolbar.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        gbl_toolbar.columnWidths = new int[]{0, 56, 15, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 36, 0, 0};
+        gbl_toolbar.rowHeights = new int[]{0, 0};
+        gbl_toolbar.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
+        gbl_toolbar.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         toolbar.setLayout(gbl_toolbar);
 
         JLabel lblSymbol = new JLabel("Symbol");
@@ -264,23 +273,21 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         toolbar.add(lblSymbol, gbc_lblSymbol);
 
         tfSymbol = new JTextField();
-        tfSymbol.addActionListener(new ActionListener() {
+        tfSymbol.addActionListener(e -> {
+            final Optional<Symbol> symbol = getSelectedSymbol();
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final Optional<Symbol> symbol = getSelectedSymbol();
+            if (!symbol.isPresent()) {
+                return;
+            }
 
-                if (!symbol.isPresent())
-                    return;
+            symbol.get().setText(tfSymbol.getText());
+            table.tableChanged(new TableModelEvent(table.getModel(),
+                    table.getSelectedRow()));
 
-                symbol.get().setText(tfSymbol.getText());
-                table.tableChanged(new TableModelEvent(table.getModel(),
-                        table.getSelectedRow()));
-
-                int newSel = table.getSelectedRow() + 1;
-                if (newSel < table.getModel().getRowCount())
-                    table.getSelectionModel().setSelectionInterval(newSel,
-                            newSel);
+            int newSel = table.getSelectedRow() + 1;
+            if (newSel < table.getModel().getRowCount()) {
+                table.getSelectionModel().setSelectionInterval(newSel,
+                        newSel);
             }
         });
 
@@ -376,8 +383,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         btnZoomOut.setMargin(btnMargin);
         btnZoomOut.setToolTipText("Zoom out");
         btnZoomOut.setBackground(Color.WHITE);
-        btnZoomOut.setIcon(new ImageIcon(
-                BoxEditor.class.getResource("/icons/magifier_zoom_out.png")));
+        btnZoomOut.setIcon(new ImageIcon(BoxEditor.class.getResource("/icons/magnifier_zoom_out.png")));
         GridBagConstraints gbc_btnZoomOut = new GridBagConstraints();
         gbc_btnZoomOut.insets = new Insets(0, 0, 0, 5);
         gbc_btnZoomOut.gridx = 12;
@@ -388,39 +394,34 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         btnZoomIn.setMargin(btnMargin);
         btnZoomIn.setToolTipText("Zoom in");
         btnZoomIn.setBackground(Color.WHITE);
-        btnZoomIn.setIcon(new ImageIcon(
-                BoxEditor.class.getResource("/icons/magnifier_zoom_in.png")));
+        btnZoomIn.setIcon(new ImageIcon(BoxEditor.class.getResource("/icons/magnifier_zoom_in.png")));
         GridBagConstraints gbc_btnZoomIn = new GridBagConstraints();
         gbc_btnZoomIn.gridx = 13;
         gbc_btnZoomIn.gridy = 0;
         toolbar.add(btnZoomIn, gbc_btnZoomIn);
 
-        btnZoomOut.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                if (scale.hasPrevious()) {
-                    renderer.render(getBoxFileModel(), scale.previous());
-                }
-
-                if (!scale.hasPrevious()) {
-                    btnZoomOut.setEnabled(false);
-                }
-
-                btnZoomIn.setEnabled(true);
+        btnZoomOut.addActionListener(evt -> {
+            if (scale.hasPrevious()) {
+                renderer.render(getBoxFileModel(), scale.previous());
             }
+
+            if (!scale.hasPrevious()) {
+                btnZoomOut.setEnabled(false);
+            }
+
+            btnZoomIn.setEnabled(true);
         });
 
-        btnZoomIn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                if (scale.hasNext()) {
-                    renderer.render(getBoxFileModel(), scale.next());
-                }
-
-                if (!scale.hasNext()) {
-                    btnZoomIn.setEnabled(false);
-                }
-
-                btnZoomOut.setEnabled(true);
+        btnZoomIn.addActionListener(evt -> {
+            if (scale.hasNext()) {
+                renderer.render(getBoxFileModel(), scale.next());
             }
+
+            if (!scale.hasNext()) {
+                btnZoomIn.setEnabled(false);
+            }
+
+            btnZoomOut.setEnabled(true);
         });
 
         Dimension tabSize = new Dimension(260, 0);
@@ -467,9 +468,9 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
 
                 boolean selection = false;
                 for (int i = 0; it.hasNext(); i++) {
-                    final Box bbox = it.next().getBoundingBox();
+                    final Box boundingBox = it.next().getBoundingBox();
 
-                    if (bbox.contains(p)) {
+                    if (boundingBox.contains(p)) {
                         selection = true;
                         selectionModel.setSelectedIndex(i);
                         sel.setSelectionInterval(i, i);
@@ -488,36 +489,33 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
             }
         });
 
-        selectionModel.addSelectionListener(new SelectionListener() {
-            @Override
-            public void selectionChanged(int index) {
-                if (index < 0) {
-                    return;
-                }
-
-                final SymbolTableModel tabModel =
-                        (SymbolTableModel) tabSymbols.getTable().getModel();
-                final Symbol symbol = tabModel.getSymbol(index);
-
-                final String symbolText = symbol.getText();
-                tfSymbol.setText(symbolText);
-
-                // tooltip with codepoints
-                final StringBuilder tooltip = new StringBuilder("[ ");
-                for (int i = 0; i < symbolText.length(); i++) {
-                    tooltip.append(Integer.toHexString(symbolText.codePointAt(
-                            i))).append(' ');
-                }
-                tfSymbol.setToolTipText(tooltip.append(']').toString());
-
-                final Box bbox = symbol.getBoundingBox();
-                spinnerX.setValue(bbox.getX());
-                spinnerY.setValue(bbox.getY());
-                spinnerWidth.setValue(bbox.getWidth());
-                spinnerHeight.setValue(bbox.getHeight());
-
-                lblCanvas.scrollRectToVisible(bbox.toRectangle());
+        selectionModel.addSelectionListener(index -> {
+            if (index < 0) {
+                return;
             }
+
+            final SymbolTableModel tabModel =
+                    (SymbolTableModel) tabSymbols.getTable().getModel();
+            final Symbol symbol = tabModel.getSymbol(index);
+
+            final String symbolText = symbol.getText();
+            tfSymbol.setText(symbolText);
+
+            // tooltip with codePoints
+            final StringBuilder tooltip = new StringBuilder("[ ");
+            for (int i = 0; i < symbolText.length(); i++) {
+                tooltip.append(Integer.toHexString(symbolText.codePointAt(i)))
+                        .append(' ');
+            }
+            tfSymbol.setToolTipText(tooltip.append(']').toString());
+
+            final Box boundingBox = symbol.getBoundingBox();
+            spinnerX.setValue(boundingBox.getX());
+            spinnerY.setValue(boundingBox.getY());
+            spinnerWidth.setValue(boundingBox.getWidth());
+            spinnerHeight.setValue(boundingBox.getHeight());
+
+            lblCanvas.scrollRectToVisible(boundingBox.toRectangle());
         });
 
         spinnerX.addPropertyChangeListener(spinnerListener);
@@ -540,11 +538,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
 
         if (model.isPresent()) {
             // fill table model and render the page
-            final Iterator<Symbol> it = model.get().getBoxes().iterator();
-
-            while (it.hasNext()) {
-                source.addElement(it.next());
-            }
+            model.get().getBoxes().forEach(source::addElement);
         }
 
         renderer.render(model, scale.current());
@@ -556,7 +550,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
             setBoxFileModel(Optional.of(model.get().toBoxFileModel()));
             pageModel = model;
         } else {
-            setBoxFileModel(Optional.<BoxFileModel> absent());
+            setBoxFileModel(Optional.empty());
             pageModel = model;
         }
     }
@@ -588,7 +582,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         final int index = tabSymbols.getTable().getSelectedRow();
 
         if (index < 0) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         return Optional.of(((SymbolTableModel) tabSymbols.getTable().getModel())

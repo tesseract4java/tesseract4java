@@ -1,9 +1,8 @@
 package de.vorb.tesseract.gui.model;
 
-import com.google.common.base.Optional;
-
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public class PageThumbnail {
     private final Path file;

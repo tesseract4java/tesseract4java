@@ -2,10 +2,13 @@ package de.vorb.tesseract.img;
 
 import java.awt.image.BufferedImage;
 
-public class BinaryImage {
+public final class BinaryImage {
+
+    private BinaryImage() {}
+
     /**
      * Require <code>img</code> to be a binary (monochrome) image.
-     * 
+     *
      * @param img
      */
     public static void requireBinary(BufferedImage img) {
@@ -15,7 +18,7 @@ public class BinaryImage {
 
     /**
      * Counts all black pixels in <code>img</code>.
-     * 
+     *
      * @param img
      * @return number of black pixels in <code>img</code>.
      */

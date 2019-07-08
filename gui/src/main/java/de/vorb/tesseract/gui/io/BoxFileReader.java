@@ -11,16 +11,16 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BoxFileReader {
+public final class BoxFileReader {
+
+    private BoxFileReader() {}
 
     public static List<Symbol> readBoxFile(Path boxFile, int pageHeight)
             throws IOException {
-        final BufferedReader boxReader =
-                Files.newBufferedReader(boxFile, StandardCharsets.UTF_8);
 
         final List<Symbol> boxes = new LinkedList<>();
-        try {
-            String line = null;
+        try (final BufferedReader boxReader = Files.newBufferedReader(boxFile, StandardCharsets.UTF_8)) {
+            String line;
             while ((line = boxReader.readLine()) != null) {
                 final String[] components = line.split("\\s+");
                 if (components.length < 5) {
@@ -38,8 +38,6 @@ public class BoxFileReader {
             }
         } catch (NumberFormatException e) {
             throw new IOException();
-        } finally {
-            boxReader.close();
         }
 
         return boxes;

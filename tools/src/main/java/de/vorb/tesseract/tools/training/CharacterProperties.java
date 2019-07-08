@@ -7,7 +7,7 @@ public class CharacterProperties {
     private final static int BIT_LOWER = 1;
     private final static int BIT_UPPER = 2;
     private final static int BIT_DIGIT = 3;
-    private final static int BIT_PUNCT = 4;
+    private final static int BIT_PUNCTUATION = 4;
 
     private final byte code;
 
@@ -20,13 +20,13 @@ public class CharacterProperties {
     }
 
     public CharacterProperties(boolean isAlpha, boolean isDigit,
-            boolean isUpper, boolean isLower, boolean isPunct) {
+            boolean isUpper, boolean isLower, boolean isPunctuation) {
         byte code = 0;
         code |= isAlpha ? 1 : 0;
         code |= isLower ? 2 : 0;
         code |= isUpper ? 4 : 0;
         code |= isDigit ? 8 : 0;
-        code |= isPunct ? 16 : 0;
+        code |= isPunctuation ? 16 : 0;
         this.code = code;
     }
 
@@ -46,7 +46,7 @@ public class CharacterProperties {
             Pattern.UNICODE_CHARACTER_CLASS);
     private final static Pattern LOWER = Pattern.compile("\\p{Lower}+",
             Pattern.UNICODE_CHARACTER_CLASS);
-    private final static Pattern PUNCT = Pattern.compile("\\p{Punct}+",
+    private final static Pattern PUNCTUATION = Pattern.compile("\\p{Punct}+",
             Pattern.UNICODE_CHARACTER_CLASS);
 
     public static CharacterProperties forCharacter(char c) {
@@ -58,10 +58,10 @@ public class CharacterProperties {
         final boolean isDigit = DIGIT.matcher(cs).matches();
         final boolean isUpper = UPPER.matcher(cs).matches();
         final boolean isLower = LOWER.matcher(cs).matches();
-        final boolean isPunct = PUNCT.matcher(cs).matches();
+        final boolean isPunctuation = PUNCTUATION.matcher(cs).matches();
 
         return new CharacterProperties(isAlpha, isDigit, isUpper, isLower,
-                isPunct);
+                isPunctuation);
     }
 
     public boolean isAlpha() {
@@ -80,8 +80,8 @@ public class CharacterProperties {
         return getBit(BIT_DIGIT);
     }
 
-    public boolean isPunct() {
-        return getBit(BIT_PUNCT);
+    public boolean isPunctuation() {
+        return getBit(BIT_PUNCTUATION);
     }
 
     public byte toByteCode() {
@@ -104,23 +104,23 @@ public class CharacterProperties {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        } else if (obj == null) {
             return false;
-        if (!(obj instanceof CharacterProperties))
+        } else if (!(obj instanceof CharacterProperties)) {
             return false;
+        }
         CharacterProperties other = (CharacterProperties) obj;
-        if (isAlpha() != other.isAlpha())
+        if (isAlpha() != other.isAlpha()) {
             return false;
-        if (isDigit() != other.isDigit())
+        } else if (isDigit() != other.isDigit()) {
             return false;
-        if (isLower() != other.isLower())
+        } else if (isLower() != other.isLower()) {
             return false;
-        if (isPunct() != other.isPunct())
+        } else if (isPunctuation() != other.isPunctuation()) {
             return false;
-        if (isUpper() != other.isUpper())
-            return false;
-        return true;
+        }
+        return isUpper() == other.isUpper();
     }
 }

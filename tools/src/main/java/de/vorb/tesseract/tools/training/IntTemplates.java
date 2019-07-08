@@ -46,7 +46,7 @@ public class IntTemplates {
         if (!buf.readInt())
             throw new IOException("invalid header");
         // only needed by older formats
-        @SuppressWarnings("unused")
+        @SuppressWarnings({"unused", "UnusedAssignment"})
         final int unicharsetSize = buf.getInt();
 
         if (!buf.readInt())

@@ -9,41 +9,38 @@ import de.vorb.tesseract.util.FontAttributes;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
 
-import com.google.common.base.Optional;
-
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class RecognitionPane extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;
-
-    public static enum FontSelection {
-        ANTIQUA("Antiqua"),
-        FRAKTUR("Fraktur");
-
-        private final String sel;
-
-        private FontSelection(String sel) {
-            this.sel = sel;
-        }
-
-        @Override
-        public String toString() {
-            return sel;
-        }
-    }
 
     private static final int SCROLL_UNITS = 12;
 
@@ -59,9 +56,8 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
     private final JCheckBox cbSymbolBoxes;
     private final JCheckBox cbLineNumbers;
     private final JCheckBox cbBaselines;
-    private final JComboBox<FontSelection> comboFont;
 
-    private Optional<PageModel> model = Optional.absent();
+    private Optional<PageModel> model = Optional.empty();
 
     private final Timer delayer = new Timer(true);
     private JButton btZoomOut;
@@ -74,13 +70,13 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
     /**
      * Create the panel.
-     * 
+     *
      * @param scale
      */
-    public RecognitionPane(final Scale scale) {
+    public RecognitionPane(final Scale scale, final String renderingFont) {
         setLayout(new BorderLayout(0, 0));
 
-        renderer = new RecognitionRenderer(this);
+        renderer = new RecognitionRenderer(this, renderingFont);
         this.scale = scale;
 
         JSplitPane splitPane = new JSplitPane();
@@ -169,18 +165,24 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
                         popupMenu.add(String.format("Font size = %dpx",
                                 fa.getSize()));
 
-                        if (fa.isBold())
+                        if (fa.isBold()) {
                             popupMenu.add("Bold");
-                        if (fa.isItalic())
+                        }
+                        if (fa.isItalic()) {
                             popupMenu.add("Italic");
-                        if (fa.isSerif())
+                        }
+                        if (fa.isSerif()) {
                             popupMenu.add("Serif");
-                        if (fa.isMonospace())
+                        }
+                        if (fa.isMonospace()) {
                             popupMenu.add("Monospace");
-                        if (fa.isSmallcaps())
+                        }
+                        if (fa.isSmallCaps()) {
                             popupMenu.add("Small Caps");
-                        if (fa.isUnderlined())
+                        }
+                        if (fa.isUnderlined()) {
                             popupMenu.add("Underlined");
+                        }
 
                         popupMenu.show(e.getComponent(), e.getX(), e.getY());
                     }
@@ -214,14 +216,14 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         panel_1.setBackground(Color.WHITE);
         add(panel_1, BorderLayout.NORTH);
         GridBagLayout gbl_panel_1 = new GridBagLayout();
-        gbl_panel_1.columnWidths = new int[] { 83, 91, 89, 65, 0, 0, 0, 0,
+        gbl_panel_1.columnWidths = new int[]{83, 91, 89, 65, 0, 0, 0, 0,
                 28, 0, 0, 0,
-                0 };
-        gbl_panel_1.rowHeights = new int[] { 23, 0 };
-        gbl_panel_1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0,
+                0};
+        gbl_panel_1.rowHeights = new int[]{23, 0};
+        gbl_panel_1.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0,
                 0.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
-        gbl_panel_1.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+                0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
+        gbl_panel_1.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         panel_1.setLayout(gbl_panel_1);
 
         cbWordBoxes = new JCheckBox("Word boxes");
@@ -245,10 +247,6 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         panel_1.add(cbSymbolBoxes, gbc_cbSymbolBoxes);
         cbSymbolBoxes.setSelected(false);
         cbSymbolBoxes.addItemListener(checkBoxListener);
-
-        comboFont = new JComboBox<FontSelection>();
-        comboFont.addItem(FontSelection.ANTIQUA);
-        comboFont.addItem(FontSelection.FRAKTUR);
 
         cbLineNumbers = new JCheckBox("Line numbers");
         cbLineNumbers.setBackground(Color.WHITE);
@@ -297,38 +295,20 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         gbc_horizontalStrut.gridy = 0;
         panel_1.add(horizontalStrut, gbc_horizontalStrut);
 
-        lblFont = new JLabel("Font:");
-        GridBagConstraints gbc_lblFont = new GridBagConstraints();
-        gbc_lblFont.insets = new Insets(0, 0, 0, 5);
-        gbc_lblFont.anchor = GridBagConstraints.EAST;
-        gbc_lblFont.gridx = 7;
-        gbc_lblFont.gridy = 0;
-        panel_1.add(lblFont, gbc_lblFont);
-
-        comboFont.setBackground(Color.WHITE);
-        GridBagConstraints gbc_comboFont = new GridBagConstraints();
-        gbc_comboFont.insets = new Insets(0, 0, 0, 5);
-        gbc_comboFont.anchor = GridBagConstraints.WEST;
-        gbc_comboFont.gridx = 8;
-        gbc_comboFont.gridy = 0;
-        panel_1.add(comboFont, gbc_comboFont);
-
         final Insets btnMargin = new Insets(2, 4, 2, 4);
 
         btZoomOut = new JButton(new ImageIcon(
                 RecognitionPane.class.getResource("/icons/zoom_out.png")));
-        btZoomOut.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ev) {
-                if (scale.hasPrevious()) {
-                    renderer.render(getPageModel(), scale.previous());
-                }
-
-                if (!scale.hasPrevious()) {
-                    btZoomOut.setEnabled(false);
-                }
-
-                btZoomIn.setEnabled(true);
+        btZoomOut.addActionListener(ev -> {
+            if (scale.hasPrevious()) {
+                renderer.render(getPageModel(), scale.previous());
             }
+
+            if (!scale.hasPrevious()) {
+                btZoomOut.setEnabled(false);
+            }
+
+            btZoomIn.setEnabled(true);
         });
         btZoomOut.setMargin(btnMargin);
         btZoomOut.setToolTipText("Zoom out");
@@ -341,18 +321,16 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
         btZoomIn = new JButton(new ImageIcon(
                 RecognitionPane.class.getResource("/icons/zoom_in.png")));
-        btZoomIn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ev) {
-                if (scale.hasNext()) {
-                    renderer.render(getPageModel(), scale.next());
-                }
-
-                if (!scale.hasPrevious()) {
-                    btZoomIn.setEnabled(false);
-                }
-
-                btZoomOut.setEnabled(true);
+        btZoomIn.addActionListener(ev -> {
+            if (scale.hasNext()) {
+                renderer.render(getPageModel(), scale.next());
             }
+
+            if (!scale.hasPrevious()) {
+                btZoomIn.setEnabled(false);
+            }
+
+            btZoomOut.setEnabled(true);
         });
         btZoomIn.setMargin(btnMargin);
         btZoomIn.setToolTipText("Zoom in");
@@ -363,37 +341,25 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         panel_1.add(btZoomIn, gbc_btZoomIn);
         // comboFont.setModel(new DefaultComboBoxModel<String>(new String[] {
         // "Antiqua", "Fraktur" }));
-        comboFont.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ev) {
-                render();
-            }
+
+        spOriginal.getViewport().addChangeListener(e -> {
+            spHOCR.getHorizontalScrollBar().setModel(
+                    spOriginal.getHorizontalScrollBar().getModel());
+            spHOCR.getVerticalScrollBar().setModel(
+                    spOriginal.getVerticalScrollBar().getModel());
         });
 
-        spOriginal.getViewport().addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                spHOCR.getHorizontalScrollBar().setModel(
-                        spOriginal.getHorizontalScrollBar().getModel());
-                spHOCR.getVerticalScrollBar().setModel(
-                        spOriginal.getVerticalScrollBar().getModel());
-            }
-        });
-
-        spHOCR.getViewport().addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                spOriginal.getHorizontalScrollBar().setModel(
-                        spHOCR.getHorizontalScrollBar().getModel());
-                spOriginal.getVerticalScrollBar().setModel(
-                        spHOCR.getVerticalScrollBar().getModel());
-            }
+        spHOCR.getViewport().addChangeListener(e -> {
+            spOriginal.getHorizontalScrollBar().setModel(
+                    spHOCR.getHorizontalScrollBar().getModel());
+            spOriginal.getVerticalScrollBar().setModel(
+                    spHOCR.getVerticalScrollBar().getModel());
         });
     }
 
     private Optional<Symbol> findSymbolAt(int x, int y) {
         if (!model.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         final Iterator<Symbol> symbolIt =
@@ -415,12 +381,12 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<Word> findWordAt(int x, int y) {
         if (!model.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         final Iterator<Word> wordIt =
@@ -443,7 +409,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public Optional<PageModel> getPageModel() {
@@ -456,7 +422,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         render();
     }
 
-    private void render() {
+    public void render() {
         delayer.purge();
 
         delayer.schedule(new TimerTask() {
@@ -483,7 +449,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         if (model.isPresent()) {
             return Optional.of(model.get().toBoxFileModel());
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -493,10 +459,6 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
     public JLabel getCanvasRecognition() {
         return lblRecognition;
-    }
-
-    public JComboBox<FontSelection> getComboFont() {
-        return comboFont;
     }
 
     public JCheckBox getWordBoxes() {
@@ -521,5 +483,9 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
 
     public JCheckBox getParagraphs() {
         return cbParagraphs;
+    }
+
+    public void setRenderingFont(String renderingFont) {
+        renderer.setRenderingFont(renderingFont);
     }
 }

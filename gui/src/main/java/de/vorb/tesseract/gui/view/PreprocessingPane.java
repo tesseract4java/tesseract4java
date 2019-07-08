@@ -10,18 +10,34 @@ import de.vorb.tesseract.tools.preprocessing.binarization.Sauvola;
 import de.vorb.tesseract.tools.preprocessing.filter.BlobSizeFilter;
 import de.vorb.tesseract.tools.preprocessing.filter.ImageFilter;
 
-import com.google.common.base.Optional;
-
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class PreprocessingPane extends JPanel implements ImageModelComponent {
     private static final long serialVersionUID = 1L;
@@ -38,7 +54,7 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     private final JButton btnApplyToPage;
     private final JButton btnApplyToAllPages;
 
-    private Optional<ImageModel> imageModel = Optional.absent();
+    private Optional<ImageModel> imageModel = Optional.empty();
 
     /**
      * Create the panel.
@@ -62,10 +78,10 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
                 TitledBorder.LEADING, TitledBorder.TOP, null,
                 new Color(0, 0, 0)), new EmptyBorder(4, 4, 4, 4)));
         GridBagLayout gbl_panel = new GridBagLayout();
-        gbl_panel.columnWidths = new int[] { 0, 0, 0 };
-        gbl_panel.rowHeights = new int[] { 0, 0, 0 };
-        gbl_panel.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
-        gbl_panel.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+        gbl_panel.columnWidths = new int[]{0, 0, 0};
+        gbl_panel.rowHeights = new int[]{0, 0, 0};
+        gbl_panel.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
+        gbl_panel.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
         panel.setLayout(gbl_panel);
 
         JLabel lblMethod = new JLabel("Method");
@@ -123,10 +139,10 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
                 TitledBorder.LEADING, TitledBorder.TOP, null,
                 new Color(0, 0, 0)), new EmptyBorder(4, 4, 4, 4)));
         GridBagLayout gbl_panel_1 = new GridBagLayout();
-        gbl_panel_1.columnWidths = new int[] { 0, 0, 0 };
-        gbl_panel_1.rowHeights = new int[] { 0, 0, 0 };
-        gbl_panel_1.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-        gbl_panel_1.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+        gbl_panel_1.columnWidths = new int[]{0, 0, 0};
+        gbl_panel_1.rowHeights = new int[]{0, 0, 0};
+        gbl_panel_1.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+        gbl_panel_1.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
         panel_1.setLayout(gbl_panel_1);
 
         JLabel lblBlobMinSizeFilter = new JLabel("Blob size filter (min)");
@@ -224,14 +240,14 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
 
         final Binarization binarization;
         switch (method) {
-        case SAUVOLA:
-            binarization = new Sauvola((int) spinnerWindowRadius.getValue());
-            break;
-        case OTSU:
-            binarization = new Otsu();
-            break;
-        default:
-            binarization = new Sauvola();
+            case SAUVOLA:
+                binarization = new Sauvola((int) spinnerWindowRadius.getValue());
+                break;
+            case OTSU:
+                binarization = new Otsu();
+                break;
+            default:
+                binarization = new Sauvola();
         }
 
         return binarization;
@@ -291,8 +307,7 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
         imageModel = model;
 
         if (model.isPresent()) {
-            lblPreview.setIcon(new ImageIcon(
-                    model.get().getPreprocessedImage()));
+            lblPreview.setIcon(new ImageIcon(model.get().getPreprocessedImage()));
         } else {
             lblPreview.setIcon(null);
         }

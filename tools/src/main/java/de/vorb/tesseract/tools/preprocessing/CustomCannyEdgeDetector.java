@@ -5,18 +5,18 @@ import java.util.Arrays;
 
 /**
  * Canny edge detector.
- * 
+ * <p>
  * <em>This class is based on the implementation by Tom Gibara, which has been
  * released into the public domain. <strong>Please read the notes in this source
  * file for additional information.</strong></em>
- * 
+ * <p>
  * This class provides a configurable implementation of the Canny edge detection
  * algorithm. <em>This class is designed for single threaded use only.</em>
- * 
+ * <p>
  * <p>
  * Sample usage:
  * </p>
- * 
+ * <p>
  * <pre>
  * <code>
  * //create the detector
@@ -30,7 +30,7 @@ import java.util.Arrays;
  * BufferedImage edges = detector.getEdgesImage();
  * </code>
  * </pre>
- * 
+ *
  * @author Tom Gibara
  * @author Paul Vorbach
  */
@@ -61,15 +61,11 @@ public class CustomCannyEdgeDetector {
 
     /**
      * Use custom settings.
-     * 
-     * @param lowThreshold
-     *            must not be negative
-     * @param highThreshold
-     *            must not be negative
-     * @param gaussianKernelRadius
-     *            must be >= 0.1
-     * @param gaussianKernelWidth
-     *            must be >= 2
+     *
+     * @param lowThreshold         must not be negative
+     * @param highThreshold        must not be negative
+     * @param gaussianKernelRadius must be >= 0.1
+     * @param gaussianKernelWidth  must be >= 2
      * @param contrastNormalized
      */
     public CustomCannyEdgeDetector(
@@ -103,9 +99,8 @@ public class CustomCannyEdgeDetector {
 
     /**
      * Detects the edges using Canny edge detection.
-     * 
-     * @param src
-     *            input image - either an (A)RGB or grayscale image
+     *
+     * @param src input image - either an (A)RGB or grayscale image
      * @return binary image with black edges on white
      */
     public BufferedImage detectEdges(BufferedImage src) {
@@ -138,26 +133,26 @@ public class CustomCannyEdgeDetector {
         final int imageType = src.getType();
         switch (imageType) {
 
-        case BufferedImage.TYPE_INT_RGB:
-        case BufferedImage.TYPE_INT_ARGB:
-            // retrieve the image data as an int[]
-            final int[] rgb = (int[]) src.getData().getDataElements(0, 0,
-                    width, height, null);
+            case BufferedImage.TYPE_INT_RGB:
+            case BufferedImage.TYPE_INT_ARGB:
+                // retrieve the image data as an int[]
+                final int[] rgb = (int[]) src.getData().getDataElements(0, 0,
+                        width, height, null);
 
-            data = new byte[size];
-            // get the luminance for every pixel
-            for (int i = 0; i < size; i++) {
-                data[i] = rgbToLuminance(rgb[i]);
-            }
-            break;
+                data = new byte[size];
+                // get the luminance for every pixel
+                for (int i = 0; i < size; i++) {
+                    data[i] = rgbToLuminance(rgb[i]);
+                }
+                break;
 
-        case BufferedImage.TYPE_BYTE_GRAY:
-            data = (byte[]) src.getData().getDataElements(0, 0, width,
-                    height, null);
-            break;
+            case BufferedImage.TYPE_BYTE_GRAY:
+                data = (byte[]) src.getData().getDataElements(0, 0, width,
+                        height, null);
+                break;
 
-        default:
-            throw new IllegalArgumentException("unsupported image type");
+            default:
+                throw new IllegalArgumentException("unsupported image type");
         }
 
         // TODO
@@ -201,7 +196,7 @@ public class CustomCannyEdgeDetector {
                 int xOffset = 1;
                 int yOffset = width;
 
-                for (; xOffset < k;) {
+                for (; xOffset < k; ) {
                     sumY += kernel[xOffset]
                             * (data[index - yOffset] + data[index + yOffset]);
                     sumX += kernel[xOffset]
@@ -303,24 +298,24 @@ public class CustomCannyEdgeDetector {
                  */
                 if (xGrad * yGrad <= (float) 0 /* (1) */
                         ? Math.abs(xGrad) >= Math.abs(yGrad) /* (2) */
-                                ? (tmp = Math.abs(xGrad * gradMag)) >= Math.abs(yGrad
-                                        * neMag - (xGrad + yGrad) * eMag) /* (3) */
-                                        && tmp > Math.abs(yGrad * swMag
-                                                - (xGrad + yGrad) * wMag) /* (4) */
-                                : (tmp = Math.abs(yGrad * gradMag)) >= Math.abs(xGrad
-                                        * neMag - (yGrad + xGrad) * nMag) /* (3) */
-                                        && tmp > Math.abs(xGrad * swMag
-                                                - (yGrad + xGrad) * sMag) /* (4) */
+                        ? (tmp = Math.abs(xGrad * gradMag)) >= Math.abs(yGrad
+                        * neMag - (xGrad + yGrad) * eMag) /* (3) */
+                        && tmp > Math.abs(yGrad * swMag
+                        - (xGrad + yGrad) * wMag) /* (4) */
+                        : (tmp = Math.abs(yGrad * gradMag)) >= Math.abs(xGrad
+                        * neMag - (yGrad + xGrad) * nMag) /* (3) */
+                        && tmp > Math.abs(xGrad * swMag
+                        - (yGrad + xGrad) * sMag) /* (4) */
                         : Math.abs(xGrad) >= Math.abs(yGrad) /* (2) */
-                                ? (tmp = Math.abs(xGrad * gradMag)) >= Math.abs(yGrad
-                                        * seMag + (xGrad - yGrad) * eMag) /* (3) */
-                                        && tmp > Math.abs(yGrad * nwMag
-                                                + (xGrad - yGrad) * wMag) /* (4) */
-                                : (tmp = Math.abs(yGrad * gradMag)) >= Math.abs(xGrad
-                                        * seMag + (yGrad - xGrad) * sMag) /* (3) */
-                                        && tmp > Math.abs(xGrad * nwMag
-                                                + (yGrad - xGrad) * nMag) /* (4) */
-                ) {
+                        ? (tmp = Math.abs(xGrad * gradMag)) >= Math.abs(yGrad
+                        * seMag + (xGrad - yGrad) * eMag) /* (3) */
+                        && tmp > Math.abs(yGrad * nwMag
+                        + (xGrad - yGrad) * wMag) /* (4) */
+                        : (tmp = Math.abs(yGrad * gradMag)) >= Math.abs(xGrad
+                        * seMag + (yGrad - xGrad) * sMag) /* (3) */
+                        && tmp > Math.abs(xGrad * nwMag
+                        + (yGrad - xGrad) * nMag) /* (4) */
+                        ) {
                     magnitude[index] = gradMag >= MAGNITUDE_LIMIT ? MAGNITUDE_MAX
                             : (int) (MAGNITUDE_SCALE * gradMag);
                     // NOTE: The orientation of the edge is not employed by this
@@ -387,7 +382,7 @@ public class CustomCannyEdgeDetector {
 
     /**
      * Byte comparison that takes bytes as if they were unsigned.
-     * 
+     *
      * @param a
      * @param b
      * @return

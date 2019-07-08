@@ -19,16 +19,16 @@ import java.util.List;
 
 /**
  * Methods for creating box files.
- * 
+ *
  * @author Paul Vorbach
  */
-public class BoxFiles {
-    private BoxFiles() {
-    }
+public final class BoxFiles {
+
+    private BoxFiles() {}
 
     /**
      * Writes a single page to the given Writer in the box file format.
-     * 
+     *
      * @param out
      * @param page
      * @param pageIndex
@@ -59,7 +59,7 @@ public class BoxFiles {
 
     /**
      * Writes multiple pages to the given Writer in the box file format.
-     * 
+     *
      * @param out
      * @param pages
      * @throws IOException
@@ -75,7 +75,7 @@ public class BoxFiles {
     /**
      * Creates or overwrites the given file with multiple pages in the box file
      * format.
-     * 
+     *
      * @param file
      * @param pages
      * @throws IOException

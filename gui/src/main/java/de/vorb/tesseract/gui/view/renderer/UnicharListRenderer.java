@@ -2,8 +2,9 @@ package de.vorb.tesseract.gui.view.renderer;
 
 import de.vorb.tesseract.tools.training.Char;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JList;
+import java.awt.Component;
 
 public class UnicharListRenderer extends DefaultListCellRenderer {
     private static final long serialVersionUID = 1L;

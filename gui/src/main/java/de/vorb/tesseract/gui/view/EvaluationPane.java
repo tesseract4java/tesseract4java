@@ -5,37 +5,31 @@ import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.view.renderer.EvaluationPaneRenderer;
 
-import com.google.common.base.Optional;
-
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.util.Optional;
 
 public class EvaluationPane extends JPanel implements PageModelComponent {
     private static final long serialVersionUID = 1L;
 
     private static final Insets BUTTON_MARGIN = new Insets(2, 4, 2, 4);
-
-    private static final Font FONT_TRANSCRIPTION;
-
-    static {
-        Font transcription;
-        try {
-            transcription = Font.createFont(
-                    Font.TRUETYPE_FONT,
-                    EvaluationPane.class.getResourceAsStream(
-                            "/fonts/DejaVuSansMono.ttf")).deriveFont(
-                    Font.PLAIN, 13);
-        } catch (FontFormatException | IOException e) {
-            // fallback
-            transcription = new Font("Monospace", Font.PLAIN, 13);
-        }
-
-        FONT_TRANSCRIPTION = transcription;
-    }
 
     private final Scale scale;
     private final EvaluationPaneRenderer renderer;
@@ -52,10 +46,10 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
 
     /**
      * Create the panel.
-     * 
+     *
      * @param scale
      */
-    public EvaluationPane(final Scale scale) {
+    public EvaluationPane(final Scale scale, final String editorFont) {
         setLayout(new BorderLayout(0, 0));
 
         this.scale = scale;
@@ -79,9 +73,9 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         splitPane.setRightComponent(scrollPane_1);
 
         textAreaTranscript = new JTextArea();
-        textAreaTranscript.setFont(FONT_TRANSCRIPTION);
         textAreaTranscript.setEnabled(false);
         scrollPane_1.setViewportView(textAreaTranscript);
+        setEditorFont(editorFont);
 
         JLabel lblReferenceText = new JLabel("Transcription");
         lblReferenceText.setBorder(new EmptyBorder(0, 4, 0, 0));
@@ -108,11 +102,11 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         add(panel_2, BorderLayout.NORTH);
         panel_2.setBackground(Color.WHITE);
         GridBagLayout gbl_panel_2 = new GridBagLayout();
-        gbl_panel_2.columnWidths = new int[] { 67, 29, 0, 0, 0, 0 };
-        gbl_panel_2.rowHeights = new int[] { 25, 0 };
-        gbl_panel_2.columnWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 1.0,
-                Double.MIN_VALUE };
-        gbl_panel_2.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        gbl_panel_2.columnWidths = new int[]{67, 29, 0, 0, 0, 0};
+        gbl_panel_2.rowHeights = new int[]{25, 0};
+        gbl_panel_2.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 1.0,
+                Double.MIN_VALUE};
+        gbl_panel_2.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         panel_2.setLayout(gbl_panel_2);
 
         JLabel lblOcrevaluation = new JLabel("ocrevalUAtion");
@@ -179,18 +173,16 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         gbc_btnUseOcrResult.gridy = 0;
         panel_2.add(btnUseOcrResult, gbc_btnUseOcrResult);
 
-        btnZoomIn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                if (scale.hasNext()) {
-                    renderer.render(getPageModel(), scale.next());
-                }
-
-                if (!scale.hasNext()) {
-                    btnZoomIn.setEnabled(false);
-                }
-
-                btnZoomOut.setEnabled(true);
+        btnZoomIn.addActionListener(evt -> {
+            if (scale.hasNext()) {
+                renderer.render(getPageModel(), scale.next());
             }
+
+            if (!scale.hasNext()) {
+                btnZoomIn.setEnabled(false);
+            }
+
+            btnZoomOut.setEnabled(true);
         });
     }
 
@@ -241,7 +233,11 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         if (model.isPresent()) {
             return Optional.of(model.get().toBoxFileModel());
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
+    }
+
+    public void setEditorFont(String editorFont) {
+        textAreaTranscript.setFont(new Font(editorFont, Font.PLAIN, 13));
     }
 }

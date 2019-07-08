@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 public class Feature3D {
     private final byte x, y, theta; // features
     private final byte cpMisses; // cp misses
-    private final int outlineIndex; // idx of the outl containing this feature
+    private final int outlineIndex; // index of the outline containing this feature
 
     public Feature3D(int x, int y, int theta) {
         this.x = (byte) x;

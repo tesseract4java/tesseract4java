@@ -7,7 +7,7 @@ public enum SymbolOrder {
 
     private final String name;
 
-    private SymbolOrder(String name) {
+    SymbolOrder(String name) {
         this.name = name;
     }
 

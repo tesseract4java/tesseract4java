@@ -2,8 +2,14 @@ package de.vorb.tesseract.gui.view.dialogs;
 
 import de.vorb.tesseract.gui.model.CharTableModel;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import java.awt.BorderLayout;
 
 public class CharTableDialog extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -31,7 +37,7 @@ public class CharTableDialog extends JDialog {
         JPanel panel_1 = new JPanel();
         panel.add(panel_1, BorderLayout.WEST);
 
-        JLabel label = new JLabel("Codepoint");
+        JLabel label = new JLabel("Code point");
         panel_1.add(label);
 
         textField = new JFormattedTextField();
@@ -54,10 +60,5 @@ public class CharTableDialog extends JDialog {
         table.setModel(new CharTableModel());
         table.getColumnModel().getColumn(1).setPreferredWidth(300);
         scrollPane.setViewportView(table);
-    }
-
-    public static void main(String[] args) {
-        final JDialog d = new CharTableDialog();
-        d.setVisible(true);
     }
 }

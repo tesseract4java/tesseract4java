@@ -25,10 +25,8 @@ public class Char {
         this.normed = normed;
     }
 
-    public Char(String text, CharacterProperties properties, String script,
-            int otherCase) {
-        this(text, properties, CharacterDimensions.DEFAULT, script, otherCase,
-                0, 0, "");
+    public Char(String text, CharacterProperties properties, String script, int otherCase) {
+        this(text, properties, CharacterDimensions.DEFAULT, script, otherCase, 0, 0, "");
     }
 
     public String getText() {

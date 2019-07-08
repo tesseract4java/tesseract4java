@@ -4,7 +4,10 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-public class Labels {
+public final class Labels {
+
+    private Labels() {}
+
     public static String getLabel(Locale locale, String key) {
         final ResourceBundle labels = ResourceBundle.getBundle("l10n/labels",
                 locale);

@@ -4,7 +4,7 @@ import de.vorb.tesseract.img.BinaryImage;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 
-import javax.swing.*;
+import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.awt.image.BufferedImage;
@@ -18,28 +18,20 @@ public class SymbolListModel implements ListModel<Symbol> {
     private final LinkedList<ListDataListener> listeners = new LinkedList<>();
     private final BufferedImage page;
 
-    private Comparator<Symbol> confidenceComp = new Comparator<Symbol>() {
-        @Override
-        public int compare(Symbol s1, Symbol s2) {
-            final float conf1 = s1.getConfidence();
-            final float conf2 = s2.getConfidence();
+    private Comparator<Symbol> confidenceComp = (s1, s2) -> {
+        final float conf1 = s1.getConfidence();
+        final float conf2 = s2.getConfidence();
 
-            if (conf1 > conf2)
-                return -1;
-            if (conf1 < conf2)
-                return 1;
+        if (conf1 > conf2)
+            return -1;
+        if (conf1 < conf2)
+            return 1;
 
-            return 0;
-        }
+        return 0;
     };
 
-    private Comparator<Symbol> sizeComp = new Comparator<Symbol>() {
-        @Override
-        public int compare(Symbol s1, Symbol s2) {
-            return s2.getBoundingBox().getArea()
-                    - s1.getBoundingBox().getArea();
-        }
-    };
+    private Comparator<Symbol> sizeComp = (s1, s2) -> s2.getBoundingBox().getArea()
+            - s1.getBoundingBox().getArea();
 
     private Comparator<Symbol> weightComp = new Comparator<Symbol>() {
         // TODO implement cache
@@ -66,14 +58,14 @@ public class SymbolListModel implements ListModel<Symbol> {
         final Comparator<Symbol> comparator;
 
         switch (order) {
-        case CONFIDENCE:
-            comparator = confidenceComp;
-            break;
-        case SIZE:
-            comparator = sizeComp;
-            break;
-        default:
-            comparator = weightComp;
+            case CONFIDENCE:
+                comparator = confidenceComp;
+                break;
+            case SIZE:
+                comparator = sizeComp;
+                break;
+            default:
+                comparator = weightComp;
         }
 
         Collections.sort(data, comparator);

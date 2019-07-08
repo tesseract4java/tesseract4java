@@ -4,7 +4,10 @@ import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 
-public class BinarizationUtilities {
+public final class BinarizationUtilities {
+
+    private BinarizationUtilities() {}
+
     private static final ColorConvertOp RGB_TO_GRAYSCALE = new ColorConvertOp(
             ColorSpace.getInstance(ColorSpace.CS_sRGB),
             ColorSpace.getInstance(ColorSpace.CS_GRAY), null);

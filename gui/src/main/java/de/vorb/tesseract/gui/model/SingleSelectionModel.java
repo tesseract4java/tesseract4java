@@ -17,9 +17,8 @@ public class SingleSelectionModel {
 
     /**
      * Creates a selection model with the given initial selection index.
-     * 
-     * @param index
-     *            initial selection index.
+     *
+     * @param index initial selection index.
      */
     public SingleSelectionModel(int index) {
         this.index = index;
@@ -27,7 +26,7 @@ public class SingleSelectionModel {
 
     /**
      * Determines if nothing is selected.
-     * 
+     *
      * @return true on empty selection.
      */
     public boolean isSelectionEmpty() {
@@ -43,10 +42,9 @@ public class SingleSelectionModel {
 
     /**
      * Sets the selected index.
-     * 
-     * @param index
-     *            Selected index. Negative values are considered as no
-     *            selection.
+     *
+     * @param index Selected index. Negative values are considered as no
+     *              selection.
      */
     public void setSelectedIndex(int index) {
         this.index = index;

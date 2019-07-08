@@ -7,35 +7,34 @@
     <parent>
         <groupId>de.vorb</groupId>
         <artifactId>tesseract4java</artifactId>
-        <version>0.1.0</version>
+        <version>0.2.0</version>
     </parent>
 
     <artifactId>tools</artifactId>
 
     <properties>
-        <tesseract.version>3.04.01-1.2</tesseract.version>
+        <tesseract.version>4.0.0-1.4.4</tesseract.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
-            <artifactId>tesseract</artifactId>
+            <artifactId>tesseract-platform</artifactId>
             <version>${tesseract.version}</version>
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
-            <version>1.48v</version>
+            <version>1.52h</version>
         </dependency>
         <dependency>
             <groupId>de.biomedical-imaging.ij</groupId>
             <artifactId>ij_blob</artifactId>
-            <version>1.3.3</version>
+            <version>1.4.9</version>
         </dependency>
         <dependency>
-            <groupId>eu.digitisation</groupId>
+            <groupId>de.vorb</groupId>
             <artifactId>ocrevalUAtion</artifactId>
-            <version>1.3.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

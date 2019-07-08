@@ -3,8 +3,19 @@ package de.vorb.tesseract.gui.view;
 import de.vorb.tesseract.gui.model.SymbolOrder;
 import de.vorb.tesseract.util.Symbol;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -38,14 +49,14 @@ public class SymbolVariantList extends JPanel {
 
         cbOrdering = new JComboBox<>();
         cbOrdering.setBackground(Color.WHITE);
-        cbOrdering.setModel(new DefaultComboBoxModel<SymbolOrder>(
+        cbOrdering.setModel(new DefaultComboBoxModel<>(
                 SymbolOrder.values()));
         panel.add(cbOrdering);
 
         JScrollPane scrollPane = new JScrollPane();
         add(scrollPane, BorderLayout.CENTER);
 
-        glyphList = new JList<Symbol>();
+        glyphList = new JList<>();
         glyphList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         glyphList.setVisibleRowCount(-1);
         scrollPane.setViewportView(glyphList);

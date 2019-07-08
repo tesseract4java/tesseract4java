@@ -1,10 +1,10 @@
 package de.vorb.tesseract.gui.view;
 
-import java.awt.*;
+import java.awt.Color;
 
-public class Colors {
-    private Colors() {
-    }
+public final class Colors {
+
+    private Colors() {}
 
     public static final Color NORMAL = new Color(0xCC0000FF, true);
     public static final Color SELECTION = new Color(0xCCFF0000, true);

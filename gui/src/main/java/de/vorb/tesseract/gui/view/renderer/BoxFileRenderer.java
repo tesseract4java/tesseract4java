@@ -7,11 +7,13 @@ import de.vorb.tesseract.gui.view.Strokes;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 
-import com.google.common.base.Optional;
-
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.ListModel;
+import javax.swing.SwingWorker;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -28,7 +30,7 @@ public class BoxFileRenderer {
 
     public void render(final Optional<BoxFileModel> model, final float scale) {
         if (!model.isPresent()) {
-            // remove image, if no pagemodel is given and free resources
+            // remove image, if no page model is given and free resources
             final Icon icon = boxEditor.getCanvas().getIcon();
             if (icon != null && icon instanceof ImageIcon) {
                 ((ImageIcon) icon).getImage().flush();
@@ -126,23 +128,23 @@ public class BoxFileRenderer {
 
     private void drawSymbolBox(final Graphics2D g2d, final Symbol symbol,
             final float scale, final boolean isSelected) {
-        final Box bbox = symbol.getBoundingBox();
+        final Box boundingBox = symbol.getBoundingBox();
 
         // set selected colors
         if (isSelected) {
             g2d.setPaint(Colors.SELECTION_BG);
-            g2d.fillRect(scaled(bbox.getX(), scale),
-                    scaled(bbox.getY(), scale),
-                    scaled(bbox.getWidth(), scale),
-                    scaled(bbox.getHeight(), scale));
+            g2d.fillRect(scaled(boundingBox.getX(), scale),
+                    scaled(boundingBox.getY(), scale),
+                    scaled(boundingBox.getWidth(), scale),
+                    scaled(boundingBox.getHeight(), scale));
 
             g2d.setPaint(Colors.SELECTION);
             g2d.setStroke(Strokes.SELECTION);
         }
 
         // draw the box
-        g2d.drawRect(scaled(bbox.getX(), scale), scaled(bbox.getY(), scale),
-                scaled(bbox.getWidth(), scale), scaled(bbox.getHeight(), scale));
+        g2d.drawRect(scaled(boundingBox.getX(), scale), scaled(boundingBox.getY(), scale),
+                scaled(boundingBox.getWidth(), scale), scaled(boundingBox.getHeight(), scale));
 
         // unset selected colors
         if (isSelected) {
