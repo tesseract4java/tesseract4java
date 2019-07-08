@@ -25,7 +25,6 @@
         <dependency>
             <groupId>de.vorb</groupId>
             <artifactId>tools</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
