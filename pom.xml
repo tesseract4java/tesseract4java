@@ -36,4 +36,21 @@
         </dependencies>
     </dependencyManagement>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>1.12.0</version>
+                <configuration>
+                    <versionDigitToIncrement>1</versionDigitToIncrement>
+                    <useSnapshotInRelease>true</useSnapshotInRelease>
+                    <useSnapshotInHotfix>true</useSnapshotInHotfix>
+                    <pushRemote>false</pushRemote>
+                    <keepBranch>false</keepBranch>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
