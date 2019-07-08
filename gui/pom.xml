@@ -25,12 +25,11 @@
         <dependency>
             <groupId>de.vorb</groupId>
             <artifactId>tools</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-tiff</artifactId>
-            <version>3.1.1</version>
+            <version>3.4.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
