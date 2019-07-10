@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.view;
 
-import de.vorb.tesseract.gui.model.BoxFileModel;
+import de.vorb.tesseract.gui.model.BoxFile;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.model.SingleSelectionModel;
@@ -67,7 +67,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
     private final Scale scale;
     private boolean changed = false;
 
-    private Optional<BoxFileModel> model = Optional.empty();
+    private Optional<BoxFile> model = Optional.empty();
     private Optional<PageModel> pageModel = Optional.empty();
 
     private final SingleSelectionModel selectionModel =
@@ -525,7 +525,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
     }
 
     @Override
-    public void setBoxFileModel(Optional<BoxFileModel> model) {
+    public void setBoxFileModel(Optional<BoxFile> model) {
         this.model = model;
 
         final SymbolTableModel tabModel =
@@ -556,7 +556,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
     }
 
     @Override
-    public Optional<BoxFileModel> getBoxFileModel() {
+    public Optional<BoxFile> getBoxFileModel() {
         return model;
     }
 

@@ -16,10 +16,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.nio.file.Path;
 
-/**
- * @author Paul Vorbach
- * @deprecated
- */
 public class PageListCellRenderer extends DefaultListCellRenderer {
     private static final long serialVersionUID = 1L;
 
@@ -32,13 +28,14 @@ public class PageListCellRenderer extends DefaultListCellRenderer {
     private static final Border SAFE_NO_FOCUS_BORDER = new EmptyBorder(1, 1, 1, 1);
     private static final Border DEFAULT_NO_FOCUS_BORDER = new EmptyBorder(1, 1,
             1, 1);
-    protected static Border noFocusBorder = DEFAULT_NO_FOCUS_BORDER;
+    private static Border noFocusBorder = DEFAULT_NO_FOCUS_BORDER;
 
     private Border getNoFocusBorder() {
         Border border = DefaultLookup.getBorder(this, ui, "List.cellNoFocusBorder");
         if (System.getSecurityManager() != null) {
-            if (border != null)
+            if (border != null) {
                 return border;
+            }
             return SAFE_NO_FOCUS_BORDER;
         } else {
             if (border != null &&
@@ -50,11 +47,7 @@ public class PageListCellRenderer extends DefaultListCellRenderer {
         }
     }
 
-    public Component getListCellRendererComponent(
-            JList<?> list,
-            Object value,
-            int index,
-            boolean isSelected,
+    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
             boolean cellHasFocus) {
         setComponentOrientation(list.getComponentOrientation());
 

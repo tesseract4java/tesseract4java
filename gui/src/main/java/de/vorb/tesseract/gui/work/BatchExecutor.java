@@ -1,8 +1,8 @@
 package de.vorb.tesseract.gui.work;
 
 import de.vorb.tesseract.gui.controller.TesseractController;
-import de.vorb.tesseract.gui.model.BatchExportModel;
-import de.vorb.tesseract.gui.model.ProjectModel;
+import de.vorb.tesseract.gui.model.BatchExport;
+import de.vorb.tesseract.gui.model.Project;
 import de.vorb.tesseract.gui.util.DocumentWriter;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
@@ -37,21 +37,22 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BatchExecutor {
-    private final TesseractController controller;
-    private final ProjectModel project;
-    private final BatchExportModel export;
 
-    public BatchExecutor(TesseractController controller, ProjectModel project,
-            BatchExportModel export) {
+    private final TesseractController controller;
+    private final Project project;
+    private final BatchExport batchExport;
+
+    public BatchExecutor(TesseractController controller, Project project,
+            BatchExport batchExport) {
 
         this.controller = controller;
         this.project = project;
-        this.export = export;
+        this.batchExport = batchExport;
     }
 
     public void start(final ProgressMonitor progressMonitor,
             final Writer errorLog) throws IOException, InterruptedException {
-        final int numThreads = export.getNumThreads();
+        final int numThreads = batchExport.getNumThreads();
 
         final ExecutorService threadPool =
                 Executors.newFixedThreadPool(numThreads);
@@ -76,7 +77,7 @@ public class BatchExecutor {
         Files.createDirectories(project.getEvaluationDir());
         Files.createDirectories(project.getTranscriptionDir());
         Files.createDirectories(project.getOCRDir());
-        Files.createDirectories(export.getDestinationDir());
+        Files.createDirectories(batchExport.getDestinationDir());
 
         // holds progress count
         final AtomicInteger progress = new AtomicInteger(0);
@@ -96,7 +97,7 @@ public class BatchExecutor {
                     controller.hasPreprocessorChanged(sourceFile);
 
             final OCRTask task = new OCRTask(sourceFile,
-                    project, export, preprocessor, recognizers,
+                    project, batchExport, preprocessor, recognizers,
                     hasPreprocessorChanged, equivalencesFile, progressMonitor,
                     progress, errorLog, errors);
 
@@ -109,8 +110,9 @@ public class BatchExecutor {
                 int cancelled = 0;
 
                 for (Future<?> future : futures) {
-                    if (future.cancel(mayInterruptIfRunning))
+                    if (future.cancel(mayInterruptIfRunning)) {
                         cancelled++;
+                    }
                 }
 
                 return cancelled > 0;
@@ -207,7 +209,7 @@ public class BatchExecutor {
             } catch (InterruptedException | ExecutionException e) {
             } finally {
                 all = null;
-                if (export.exportReports()) {
+                if (batchExport.exportReports()) {
                     progressMonitor.setNote("Final report");
                     // create a single report for all transcriptions
                     DirectoryStream<Path> transcriptions;
@@ -224,7 +226,7 @@ public class BatchExecutor {
 
                         final Report report = new Report(batch, params);
 
-                        final Path projectReport = export.getDestinationDir()
+                        final Path projectReport = batchExport.getDestinationDir()
                                 .resolve("project.report.html");
 
                         // write report html
@@ -232,7 +234,7 @@ public class BatchExecutor {
 
                         // write report csv
                         final BufferedWriter csv = Files.newBufferedWriter(
-                                export.getDestinationDir().resolve(
+                                batchExport.getDestinationDir().resolve(
                                         "project.report.csv"),
                                 StandardCharsets.UTF_8);
                         csv.write(report.getStats().asCSV("\n", ",").toString());
@@ -246,10 +248,10 @@ public class BatchExecutor {
                     }
                 }
 
-                if (export.openDestination()) {
+                if (batchExport.openDestination()) {
                     try {
                         Desktop.getDesktop().browse(
-                                export.getDestinationDir().toUri());
+                                batchExport.getDestinationDir().toUri());
                     } catch (IOException e) {
                         errors.incrementAndGet();
 
@@ -279,7 +281,7 @@ public class BatchExecutor {
                         if (investigate) {
                             try {
                                 Desktop.getDesktop().open(
-                                        export.getDestinationDir().resolve(
+                                        batchExport.getDestinationDir().resolve(
                                                 "errors.log").toFile());
                             } catch (IOException e) {
                                 Dialogs.showError(controller.getView(),

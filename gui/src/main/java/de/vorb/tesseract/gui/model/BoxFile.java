@@ -7,19 +7,19 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-public class BoxFileModel {
-    private final Path file;
+public class BoxFile {
+    private final Path filePath;
     private final BufferedImage image;
     private final List<Symbol> boxes;
 
-    public BoxFileModel(Path file, BufferedImage image, List<Symbol> boxes) {
-        this.file = file;
+    public BoxFile(Path filePath, BufferedImage image, List<Symbol> boxes) {
+        this.filePath = filePath;
         this.image = image;
         this.boxes = boxes;
     }
 
-    public Path getFile() {
-        return file;
+    public Path getFilePath() {
+        return filePath;
     }
 
     public BufferedImage getImage() {

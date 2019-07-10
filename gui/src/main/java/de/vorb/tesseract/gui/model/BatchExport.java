@@ -2,7 +2,7 @@ package de.vorb.tesseract.gui.model;
 
 import java.nio.file.Path;
 
-public class BatchExportModel {
+public class BatchExport {
 
     private final Path destinationDir;
     private final boolean exportTXT;
@@ -13,7 +13,7 @@ public class BatchExportModel {
     private final boolean openDestination;
     private final int numThreads;
 
-    public BatchExportModel(Path destinationDir, boolean exportTXT,
+    public BatchExport(Path destinationDir, boolean exportTXT,
             boolean exportHTML, boolean exportXML, boolean exportImages,
             boolean exportReports, int numThreads, boolean openDestination) {
         this.destinationDir = destinationDir;

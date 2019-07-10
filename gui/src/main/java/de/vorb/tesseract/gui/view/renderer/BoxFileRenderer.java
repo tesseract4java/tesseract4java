@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import de.vorb.tesseract.gui.model.BoxFileModel;
+import de.vorb.tesseract.gui.model.BoxFile;
 import de.vorb.tesseract.gui.view.BoxEditor;
 import de.vorb.tesseract.gui.view.Colors;
 import de.vorb.tesseract.gui.view.Strokes;
@@ -28,7 +28,7 @@ public class BoxFileRenderer {
         this.boxEditor = boxEditor;
     }
 
-    public void render(final Optional<BoxFileModel> model, final float scale) {
+    public void render(final Optional<BoxFile> model, final float scale) {
         if (!model.isPresent()) {
             // remove image, if no page model is given and free resources
             final Icon icon = boxEditor.getCanvas().getIcon();

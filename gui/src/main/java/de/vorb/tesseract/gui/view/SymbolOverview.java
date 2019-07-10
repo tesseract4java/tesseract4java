@@ -1,7 +1,7 @@
 package de.vorb.tesseract.gui.view;
 
 import de.vorb.tesseract.gui.event.SymbolLinkListener;
-import de.vorb.tesseract.gui.model.BoxFileModel;
+import de.vorb.tesseract.gui.model.BoxFile;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.renderer.SymbolVariantListCellRenderer;
 import de.vorb.tesseract.util.Symbol;
@@ -27,7 +27,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     private final SymbolGroupList glyphSelectionPane;
     private final SymbolVariantList glyphListPane;
 
-    private Optional<BoxFileModel> model = Optional.empty();
+    private Optional<BoxFile> model = Optional.empty();
     private Optional<PageModel> pageModel = Optional.empty();
 
     private final LinkedList<SymbolLinkListener> listeners = new LinkedList<>();
@@ -70,7 +70,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     }
 
     @Override
-    public Optional<BoxFileModel> getBoxFileModel() {
+    public Optional<BoxFile> getBoxFileModel() {
         return model;
     }
 
@@ -83,7 +83,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     }
 
     @Override
-    public void setBoxFileModel(Optional<BoxFileModel> model) {
+    public void setBoxFileModel(Optional<BoxFile> model) {
         this.model = model;
 
         if (!model.isPresent()) {
@@ -98,7 +98,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
 
         final HashMap<String, List<Symbol>> glyphs = new HashMap<>();
 
-        final BoxFileModel boxFile = model.get();
+        final BoxFile boxFile = model.get();
 
         getSymbolVariantList().getList().setModel(
                 new DefaultListModel<>());

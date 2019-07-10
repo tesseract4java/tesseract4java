@@ -11,16 +11,14 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.Optional;
 
-public class PageListCellRenderer extends JLabel implements
-        ListCellRenderer<PageThumbnail> {
+public class PageListCellRenderer extends JLabel implements ListCellRenderer<PageThumbnail> {
     private static final long serialVersionUID = 1L;
 
     private static final ImageIcon ICON_PLACEHOLDER = new ImageIcon(
             PageListCellRenderer.class.getResource("/page_loading.png"));
 
-    public static final Color COLOR_SELECT = new Color(0x4477FF);
+    private static final Color COLOR_SELECT = new Color(0x4477FF);
 
     public PageListCellRenderer() {
         setOpaque(true);
@@ -40,8 +38,7 @@ public class PageListCellRenderer extends JLabel implements
             int index, boolean isSelected, boolean cellHasFocus) {
         String filename = value.getFile().getFileName().toString();
         if (filename.length() > 32) {
-            filename = filename.substring(0, 10) + "..."
-                    + filename.substring(filename.length() - 16);
+            filename = filename.substring(0, 10) + "..." + filename.substring(filename.length() - 16);
         }
 
         setText(filename);
@@ -54,10 +51,9 @@ public class PageListCellRenderer extends JLabel implements
             setForeground(Color.BLACK);
         }
 
-        final Optional<BufferedImage> opt = value.getThumbnail();
+        final BufferedImage thumbnail = value.getThumbnail();
 
-        if (opt.isPresent()) {
-            final BufferedImage thumbnail = opt.get();
+        if (thumbnail != null) {
             final Graphics2D g2d = (Graphics2D) thumbnail.getGraphics();
 
             // set color
@@ -71,8 +67,7 @@ public class PageListCellRenderer extends JLabel implements
                 g2d.setColor(Color.BLACK);
             }
 
-            g2d.drawRect(0, 0, thumbnail.getWidth() - 1,
-                    thumbnail.getHeight() - 1);
+            g2d.drawRect(0, 0, thumbnail.getWidth() - 1, thumbnail.getHeight() - 1);
             g2d.dispose();
 
             setIcon(new ImageIcon(thumbnail));

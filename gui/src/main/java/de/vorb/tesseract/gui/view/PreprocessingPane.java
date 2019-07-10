@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.view;
 
-import de.vorb.tesseract.gui.model.ImageModel;
+import de.vorb.tesseract.gui.model.Image;
 import de.vorb.tesseract.tools.preprocessing.DefaultPreprocessor;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.tesseract.tools.preprocessing.binarization.Binarization;
@@ -54,7 +54,7 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     private final JButton btnApplyToPage;
     private final JButton btnApplyToAllPages;
 
-    private Optional<ImageModel> imageModel = Optional.empty();
+    private Optional<Image> imageModel = Optional.empty();
 
     /**
      * Create the panel.
@@ -303,7 +303,7 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     }
 
     @Override
-    public void setImageModel(Optional<ImageModel> model) {
+    public void setImageModel(Optional<Image> model) {
         imageModel = model;
 
         if (model.isPresent()) {
@@ -314,7 +314,7 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     }
 
     @Override
-    public Optional<ImageModel> getImageModel() {
+    public Optional<Image> getImageModel() {
         return imageModel;
     }
 

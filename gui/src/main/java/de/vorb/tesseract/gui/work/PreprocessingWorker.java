@@ -1,7 +1,7 @@
 package de.vorb.tesseract.gui.work;
 
 import de.vorb.tesseract.gui.controller.TesseractController;
-import de.vorb.tesseract.gui.model.ImageModel;
+import de.vorb.tesseract.gui.model.Image;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.util.FileNames;
 
@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
-public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
+public class PreprocessingWorker extends SwingWorker<Image, Void> {
     private final TesseractController controller;
     private final Preprocessor preprocessor;
     private final Path sourceFile;
@@ -29,7 +29,7 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
     }
 
     @Override
-    protected ImageModel doInBackground() throws Exception {
+    protected Image doInBackground() throws Exception {
         Files.createDirectories(destinationDir);
 
         final Path destFile = destinationDir.resolve(FileNames.replaceExtension(
@@ -40,7 +40,7 @@ public class PreprocessingWorker extends SwingWorker<ImageModel, Void> {
         final BufferedImage preprocessedImg = preprocessor.process(sourceImg);
         ImageIO.write(preprocessedImg, "PNG", destFile.toFile());
 
-        return new ImageModel(sourceFile, sourceImg, destFile, preprocessedImg);
+        return new Image(sourceFile, sourceImg, destFile, preprocessedImg);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.view.dialogs;
 
-import de.vorb.tesseract.gui.model.ProjectModel;
+import de.vorb.tesseract.gui.model.Project;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -53,7 +53,7 @@ public class NewProjectDialog extends JDialog implements ActionListener,
     private final JButton btnCreate;
     private final JButton btnCancel;
 
-    private Optional<ProjectModel> result = Optional.empty();
+    private Optional<Project> result = Optional.empty();
 
     /**
      * Create the dialog.
@@ -208,7 +208,7 @@ public class NewProjectDialog extends JDialog implements ActionListener,
             // set result if settings are valid
             if (isStateValid()) {
                 Path dir = Paths.get(tfPath.getText());
-                this.result = Optional.of(new ProjectModel(dir,
+                this.result = Optional.of(new Project(dir,
                         cbTiff.isSelected(), cbPng.isSelected(),
                         cbJpeg.isSelected()));
             }
@@ -258,7 +258,7 @@ public class NewProjectDialog extends JDialog implements ActionListener,
         return Preferences.userNodeForPackage(getClass());
     }
 
-    public static Optional<ProjectModel> showDialog(Window parent) {
+    public static Optional<Project> showDialog(Window parent) {
         final NewProjectDialog dialog = new NewProjectDialog(parent);
         dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 

@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.view;
 
-import de.vorb.tesseract.gui.model.BoxFileModel;
+import de.vorb.tesseract.gui.model.BoxFile;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.view.renderer.EvaluationPaneRenderer;
@@ -229,7 +229,7 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
     }
 
     @Override
-    public Optional<BoxFileModel> getBoxFileModel() {
+    public Optional<BoxFile> getBoxFileModel() {
         if (model.isPresent()) {
             return Optional.of(model.get().toBoxFileModel());
         } else {

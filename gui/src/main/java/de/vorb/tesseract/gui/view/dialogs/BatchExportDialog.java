@@ -1,7 +1,7 @@
 package de.vorb.tesseract.gui.view.dialogs;
 
 import de.vorb.tesseract.gui.controller.TesseractController;
-import de.vorb.tesseract.gui.model.BatchExportModel;
+import de.vorb.tesseract.gui.model.BatchExport;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -56,7 +56,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
 
     private final TesseractController controller;
 
-    private BatchExportModel exportModel = null;
+    private BatchExport exportModel = null;
     private JCheckBox chckbxExportImages;
     private JLabel lblExport;
     private JCheckBox chckbxXml;
@@ -259,7 +259,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         return tfDestinationDir;
     }
 
-    public static Optional<BatchExportModel> showBatchExportDialog(
+    public static Optional<BatchExport> showBatchExportDialog(
             TesseractController controller) {
         final BatchExportDialog dialog = new BatchExportDialog(controller);
         dialog.setVisible(true);
@@ -272,8 +272,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
         if (evt.getSource() == btnCancel) {
             this.dispose();
         } else if (evt.getSource() == btnDestinationDir) {
-            final JFileChooser dirChooser = new JFileChooser(
-                    controller.getProjectModel().get().getProjectDir().toFile());
+            final JFileChooser dirChooser = new JFileChooser(controller.getProject().getProjectDir().toFile());
             dirChooser.setDialogTitle("Choose Destination Directory");
             dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             final int result = dirChooser.showOpenDialog(controller.getView());
@@ -303,7 +302,7 @@ public class BatchExportDialog extends JDialog implements ActionListener {
                 final boolean openDestination = chckbxOpenDestination.isSelected();
                 final int numThreads = (Integer) spinnerWorkerThreads.getValue();
 
-                exportModel = new BatchExportModel(
+                exportModel = new BatchExport(
                         destinationDir, exportTXT, exportHTML, exportXML,
                         exportImages, exportReports, numThreads,
                         openDestination);

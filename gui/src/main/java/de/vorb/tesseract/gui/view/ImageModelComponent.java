@@ -1,11 +1,11 @@
 package de.vorb.tesseract.gui.view;
 
-import de.vorb.tesseract.gui.model.ImageModel;
+import de.vorb.tesseract.gui.model.Image;
 
 import java.util.Optional;
 
 public interface ImageModelComponent extends MainComponent {
-    void setImageModel(Optional<ImageModel> model);
+    void setImageModel(Optional<Image> model);
 
-    Optional<ImageModel> getImageModel();
+    Optional<Image> getImageModel();
 }

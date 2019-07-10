@@ -31,8 +31,7 @@ public class PageRecognitionProducer extends RecognitionProducer {
     private final TesseractController controller;
     private final HashMap<String, String> variables = new HashMap<>();
 
-    public PageRecognitionProducer(TesseractController controller,
-            Path tessdataDir, String trainingFile) {
+    public PageRecognitionProducer(TesseractController controller, Path tessdataDir, String trainingFile) {
         super(trainingFile);
 
         this.controller = controller;
@@ -122,12 +121,11 @@ public class PageRecognitionProducer extends RecognitionProducer {
         g2d.dispose();
 
         // FIXME
-        if (!controller.getProjectModel().isPresent()) {
+        if (controller.getProject() == null) {
             return Collections.emptyList();
         }
 
-        final String symbolFile = controller.getProjectModel().get().getProjectDir().resolve(
-                "symbol.png").toString();
+        final String symbolFile = controller.getProject().getProjectDir().resolve("symbol.png").toString();
         try {
             ImageIO.write(symbolWithPadding, "PNG", new File(symbolFile));
         } catch (IOException e) {

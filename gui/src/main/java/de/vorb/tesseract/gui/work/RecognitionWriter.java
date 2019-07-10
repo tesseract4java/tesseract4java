@@ -6,5 +6,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 public interface RecognitionWriter {
+
     void write(Page page, Writer writer) throws IOException;
+
 }

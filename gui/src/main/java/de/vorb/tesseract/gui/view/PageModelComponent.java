@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.view;
 
-import de.vorb.tesseract.gui.model.BoxFileModel;
+import de.vorb.tesseract.gui.model.BoxFile;
 import de.vorb.tesseract.gui.model.PageModel;
 
 import java.util.Optional;
@@ -10,5 +10,5 @@ public interface PageModelComponent extends MainComponent {
 
     Optional<PageModel> getPageModel();
 
-    Optional<BoxFileModel> getBoxFileModel();
+    Optional<BoxFile> getBoxFileModel();
 }

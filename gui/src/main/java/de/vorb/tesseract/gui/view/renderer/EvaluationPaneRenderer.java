@@ -26,7 +26,7 @@ public class EvaluationPaneRenderer implements PageRenderer {
 
         if (modelPresent) {
             final BufferedImage img =
-                    pageModel.get().getImageModel().getSourceImage();
+                    pageModel.get().getImage().getSourceImage();
 
             final int w = Scale.scaled(img.getWidth(), scale);
             final int h = Scale.scaled(img.getHeight(), scale);

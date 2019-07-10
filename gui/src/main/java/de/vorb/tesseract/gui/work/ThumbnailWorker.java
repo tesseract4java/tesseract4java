@@ -1,7 +1,7 @@
 package de.vorb.tesseract.gui.work;
 
 import de.vorb.tesseract.gui.model.PageThumbnail;
-import de.vorb.tesseract.gui.model.ProjectModel;
+import de.vorb.tesseract.gui.model.Project;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
@@ -11,13 +11,12 @@ import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ThumbnailWorker extends
         SwingWorker<Void, ThumbnailWorker.Task> {
-    private final ProjectModel projectModel;
+    private final Project project;
     private final DefaultListModel<PageThumbnail> pages;
 
     private final Queue<Task> tasks = new ConcurrentLinkedQueue<>();
@@ -37,9 +36,9 @@ public class ThumbnailWorker extends
         }
     }
 
-    public ThumbnailWorker(final ProjectModel project,
+    public ThumbnailWorker(final Project project,
             DefaultListModel<PageThumbnail> pages) {
-        this.projectModel = project;
+        this.project = project;
         this.pages = pages;
     }
 
@@ -49,7 +48,7 @@ public class ThumbnailWorker extends
 
     @Override
     protected Void doInBackground() throws Exception {
-        final Path thumbsDir = projectModel.getThumbnailDir();
+        final Path thumbsDir = project.getThumbnailDir();
 
         // mkdir -p thumbsDir
         Files.createDirectories(thumbsDir);
@@ -96,12 +95,11 @@ public class ThumbnailWorker extends
                     // release system resources used by this image
                     img.flush();
 
-                    // write the thumnail to disk
+                    // write the thumbnail to disk
                     ImageIO.write(thumb, "PNG", thumbFile.toFile());
                 }
 
-                publish(new Task(task.index, new PageThumbnail(imageFile,
-                        Optional.of(thumb))));
+                publish(new Task(task.index, new PageThumbnail(imageFile, thumb)));
             } else {
                 Thread.sleep(500L);
             }

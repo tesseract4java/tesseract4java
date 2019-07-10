@@ -1,8 +1,8 @@
 package de.vorb.tesseract.gui.work;
 
 import de.vorb.tesseract.gui.io.PlainTextWriter;
-import de.vorb.tesseract.gui.model.BatchExportModel;
-import de.vorb.tesseract.gui.model.ProjectModel;
+import de.vorb.tesseract.gui.model.BatchExport;
+import de.vorb.tesseract.gui.model.Project;
 import de.vorb.tesseract.gui.util.DocumentWriter;
 import de.vorb.tesseract.tools.preprocessing.Preprocessor;
 import de.vorb.tesseract.tools.recognition.PageRecognitionConsumer;
@@ -33,8 +33,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class OCRTask implements Callable<Void> {
     private final Path sourceFile;
-    private final ProjectModel project;
-    private final BatchExportModel export;
+    private final Project project;
+    private final BatchExport export;
     private final Preprocessor preprocessor;
     private final LinkedBlockingQueue<PageRecognitionProducer> recognizers;
     private final boolean hasPreprocessorChanged;
@@ -46,12 +46,10 @@ public class OCRTask implements Callable<Void> {
     private final Writer errorLog;
     private final AtomicInteger errors;
 
-    public OCRTask(Path sourceFile, ProjectModel project,
-            BatchExportModel export, Preprocessor preprocessor,
-            LinkedBlockingQueue<PageRecognitionProducer> recognizers,
-            boolean hasPreprocessorChanged, Path equivalencesFile,
-            ProgressMonitor progressMonitor, AtomicInteger progress,
-            Writer errorLog, AtomicInteger errors) {
+    OCRTask(Path sourceFile, Project project, BatchExport export, Preprocessor preprocessor,
+            LinkedBlockingQueue<PageRecognitionProducer> recognizers, boolean hasPreprocessorChanged,
+            Path equivalencesFile, ProgressMonitor progressMonitor, AtomicInteger progress, Writer errorLog,
+            AtomicInteger errors) {
         this.sourceFile = sourceFile;
         this.project = project;
         this.export = export;

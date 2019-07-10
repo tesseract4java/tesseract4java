@@ -5,7 +5,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class ProjectModel {
+public class Project {
 
     private static final String PROJECT_DIR = "tesseract-project";
     private static final String THUMBNAIL_DIR = "tesseract-project/thumbs";
@@ -14,15 +14,15 @@ public class ProjectModel {
     private static final String OCR_DIR = "tesseract-project/ocr";
     private static final String EVALUATION_DIR = "tesseract-project/evaluation";
 
-    private final String projectName;
+    private final String name;
 
     private final Path imageDir;
 
     private final DirectoryStream.Filter<Path> filter;
 
-    public ProjectModel(Path projectDir, boolean includeTiffFiles, boolean includePngFiles, boolean includeJpegFiles) {
+    public Project(Path projectDir, boolean includeTiffFiles, boolean includePngFiles, boolean includeJpegFiles) {
 
-        projectName = projectDir.getFileName().toString();
+        name = projectDir.getFileName().toString();
 
         this.imageDir = projectDir;
 
@@ -43,8 +43,8 @@ public class ProjectModel {
         };
     }
 
-    public String getProjectName() {
-        return projectName;
+    public String getName() {
+        return name;
     }
 
     public Path getImageDir() {

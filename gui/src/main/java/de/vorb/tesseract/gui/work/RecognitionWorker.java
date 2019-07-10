@@ -1,7 +1,7 @@
 package de.vorb.tesseract.gui.work;
 
 import de.vorb.tesseract.gui.controller.TesseractController;
-import de.vorb.tesseract.gui.model.ImageModel;
+import de.vorb.tesseract.gui.model.Image;
 import de.vorb.tesseract.gui.model.PageModel;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.tools.recognition.PageRecognitionConsumer;
@@ -18,14 +18,14 @@ import java.util.concurrent.ExecutionException;
 
 public class RecognitionWorker extends SwingWorker<PageModel, Void> {
     private final TesseractController controller;
-    private final ImageModel imageModel;
+    private final Image image;
     private final String trainingFile;
     private final PageRecognitionProducer producer;
 
     public RecognitionWorker(TesseractController controller,
-            ImageModel imageModel, String trainingFile) {
+            Image image, String trainingFile) {
         this.controller = controller;
-        this.imageModel = imageModel;
+        this.image = image;
         this.trainingFile = trainingFile;
         this.producer = controller.getPageRecognitionProducer();
     }
@@ -44,12 +44,12 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
 
         producer.reset();
 
-        producer.loadImage(imageModel.getPreprocessedFile());
+        producer.loadImage(image.getPreprocessedFile());
 
         final List<Block> blocks = new ArrayList<>(1);
 
         // Get images
-        final BufferedImage image = imageModel.getPreprocessedImage();
+        final BufferedImage image = this.image.getPreprocessedImage();
 
         producer.recognize(new PageRecognitionConsumer(blocks) {
             @Override
@@ -58,10 +58,10 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
             }
         });
 
-        final Page page = new Page(imageModel.getPreprocessedFile(),
+        final Page page = new Page(this.image.getPreprocessedFile(),
                 image.getWidth(), image.getHeight(), 300, blocks);
 
-        return new PageModel(imageModel, page, "");
+        return new PageModel(this.image, page, "");
     }
 
     @Override

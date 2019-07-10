@@ -9,7 +9,7 @@ public abstract class FilteredTableModel<T> extends AbstractTableModel {
 
     private final FilteredListModel<T> source;
 
-    protected FilteredTableModel(FilteredListModel<T> source) {
+    FilteredTableModel(FilteredListModel<T> source) {
         this.source = source;
 
         source.addListDataListener(new ListDataListener() {

@@ -1,60 +1,61 @@
 package de.vorb.tesseract.gui.model;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
-import java.util.Optional;
+import java.util.Objects;
 
 public class PageThumbnail {
-    private final Path file;
-    private Optional<BufferedImage> thumbnail;
 
-    public PageThumbnail(Path file, Optional<BufferedImage> thumbnail) {
+    @NonNull
+    private final Path file;
+
+    @Nullable
+    private BufferedImage thumbnail;
+
+    public PageThumbnail(@NonNull Path file, @Nullable BufferedImage thumbnail) {
         this.file = file;
         this.thumbnail = thumbnail;
     }
 
+    @NonNull
     public Path getFile() {
         return file;
     }
 
-    public Optional<BufferedImage> getThumbnail() {
+    @Nullable
+    public BufferedImage getThumbnail() {
         return thumbnail;
     }
 
-    public void setThumbnail(Optional<BufferedImage> thumbnail) {
+    public void setThumbnail(@Nullable BufferedImage thumbnail) {
         this.thumbnail = thumbnail;
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((file == null) ? 0 : file.hashCode());
-        result = prime * result
-                + ((thumbnail == null) ? 0 : thumbnail.hashCode());
-        return result;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final PageThumbnail that = (PageThumbnail) o;
+
+        if (!file.equals(that.file)) {
+            return false;
+        }
+        return Objects.equals(thumbnail, that.thumbnail);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (!(obj instanceof PageThumbnail))
-            return false;
-        PageThumbnail other = (PageThumbnail) obj;
-        if (file == null) {
-            if (other.file != null)
-                return false;
-        } else if (!file.equals(other.file))
-            return false;
-        if (thumbnail == null) {
-            if (other.thumbnail != null)
-                return false;
-        } else if (!thumbnail.equals(other.thumbnail))
-            return false;
-        return true;
+    public int hashCode() {
+        int result = file.hashCode();
+        result = 31 * result + (thumbnail != null ? thumbnail.hashCode() : 0);
+        return result;
     }
 
 }

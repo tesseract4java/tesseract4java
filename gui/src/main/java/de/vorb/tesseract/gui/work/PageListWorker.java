@@ -1,22 +1,20 @@
 package de.vorb.tesseract.gui.work;
 
 import de.vorb.tesseract.gui.model.PageThumbnail;
-import de.vorb.tesseract.gui.model.ProjectModel;
+import de.vorb.tesseract.gui.model.Project;
 
 import javax.swing.DefaultListModel;
 import javax.swing.SwingWorker;
-import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 public class PageListWorker extends SwingWorker<Void, PageThumbnail> {
-    private final ProjectModel projectModel;
+    private final Project project;
     private final DefaultListModel<PageThumbnail> pages;
 
-    public PageListWorker(final ProjectModel projectModel,
+    public PageListWorker(final Project project,
             DefaultListModel<PageThumbnail> pages) {
-        this.projectModel = projectModel;
+        this.project = project;
         this.pages = pages;
 
         pages.clear();
@@ -24,12 +22,9 @@ public class PageListWorker extends SwingWorker<Void, PageThumbnail> {
 
     @Override
     protected Void doInBackground() throws Exception {
-        // no thumbnail
-        final Optional<BufferedImage> thumbnail = Optional.empty();
-
         // publish a placeholder (no thumbnail) for every image file
-        for (final Path file : projectModel.getImageFiles()) {
-            publish(new PageThumbnail(file, thumbnail));
+        for (final Path file : project.getImageFiles()) {
+            publish(new PageThumbnail(file, null));
         }
 
         return null;

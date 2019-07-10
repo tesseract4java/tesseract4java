@@ -87,7 +87,7 @@ public class RecognitionRenderer implements PageRenderer {
 
         final Page page = pageModel.get().getPage();
         final BufferedImage preprocessed =
-                pageModel.get().getImageModel().getPreprocessedImage();
+                pageModel.get().getImage().getPreprocessedImage();
         final int width = preprocessed.getWidth();
         final int height = preprocessed.getHeight();
 
