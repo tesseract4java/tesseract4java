@@ -6,41 +6,41 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ProjectModel {
-    public static final String PROJECT_DIR = "tesseract-project";
-    public static final String THUMBNAIL_DIR = "tesseract-project/thumbs";
-    public static final String PREPROCESSED_DIR = "tesseract-project/preprocessed";
-    public static final String TRANSCRIPTION_DIR = "tesseract-project/transcriptions";
-    public static final String OCR_DIR = "tesseract-project/ocr";
-    public static final String EVALUATION_DIR = "tesseract-project/evaluation";
+
+    private static final String PROJECT_DIR = "tesseract-project";
+    private static final String THUMBNAIL_DIR = "tesseract-project/thumbs";
+    private static final String PREPROCESSED_DIR = "tesseract-project/preprocessed";
+    private static final String TRANSCRIPTION_DIR = "tesseract-project/transcriptions";
+    private static final String OCR_DIR = "tesseract-project/ocr";
+    private static final String EVALUATION_DIR = "tesseract-project/evaluation";
 
     private final String projectName;
 
     private final Path imageDir;
 
-    private final boolean tiffFiles;
-    private final boolean pngFiles;
-    private final boolean jpegFiles;
+    private final DirectoryStream.Filter<Path> filter;
 
-    private final DirectoryStream.Filter<Path> filter = entry -> {
-        final String e = entry.getFileName().toString();
+    public ProjectModel(Path projectDir, boolean includeTiffFiles, boolean includePngFiles, boolean includeJpegFiles) {
 
-        if (png() && e.endsWith(".png")) {
-            return true;
-        } else if (tiff() && (e.endsWith(".tif") || e.endsWith(".tiff"))) {
-            return true;
-        } else {
-            return jpeg() && (e.endsWith(".jpg") || e.endsWith(".jpeg"));
-        }
-    };
-
-    public ProjectModel(Path projectDir, boolean tiffFiles, boolean pngFiles, boolean jpegFiles) {
         projectName = projectDir.getFileName().toString();
 
         this.imageDir = projectDir;
 
-        this.tiffFiles = tiffFiles;
-        this.pngFiles = pngFiles;
-        this.jpegFiles = jpegFiles;
+        //noinspection Convert2Lambda
+        this.filter = new DirectoryStream.Filter<Path>() {
+            @Override
+            public boolean accept(Path entry) {
+                final String fileName = entry.getFileName().toString();
+
+                if (includePngFiles && fileName.endsWith(".png")) {
+                    return true;
+                } else if (includeTiffFiles && (fileName.endsWith(".tif") || fileName.endsWith(".tiff"))) {
+                    return true;
+                } else {
+                    return includeJpegFiles && (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg"));
+                }
+            }
+        };
     }
 
     public String getProjectName() {
@@ -75,19 +75,8 @@ public class ProjectModel {
         return imageDir.resolve(EVALUATION_DIR);
     }
 
-    public Iterable<Path> getImageFiles() throws IOException {
+    public DirectoryStream<Path> getImageFiles() throws IOException {
         return Files.newDirectoryStream(imageDir, filter);
     }
 
-    public boolean tiff() {
-        return tiffFiles;
-    }
-
-    public boolean png() {
-        return pngFiles;
-    }
-
-    public boolean jpeg() {
-        return jpegFiles;
-    }
 }

@@ -141,13 +141,11 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
-    // constants
     private static final String KEY_TRAINING_FILE = "training_file";
     private static final String KEY_BOX_FILE = "box_file";
 
     public static final Preprocessor DEFAULT_PREPROCESSOR = new DefaultPreprocessor();
 
-    // components references
     private final TesseractFrame view;
 
     private ApplicationMode mode = ApplicationMode.NONE;
@@ -169,13 +167,11 @@ public class TesseractController extends WindowAdapter implements
 
     private final List<Task> tasks = new LinkedList<>();
 
-    // models
     private Optional<ProjectModel> projectModel = Optional.empty();
     private Optional<PageThumbnail> pageThumbnail = Optional.empty();
 
     private String lastTraineddataFile;
 
-    // preprocessing
     private Preprocessor defaultPreprocessor = new DefaultPreprocessor();
     private final Map<Path, Preprocessor> preprocessors = new HashMap<>();
 
