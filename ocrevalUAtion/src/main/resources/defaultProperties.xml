@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties> 
+  <!--max number of chars in input file. If zero, no limit is applied (computation may take long)-->
+  <entry key="maxlen">
+ 	0
+  </entry>
+  <!--Schema location for the different types of XML documents 
+      (used to identify the type of document).-->
+  <entry key="schemaLocation.PAGE">
+	http://schema.primaresearch.org/PAGE/gts/pagecontent/2010-03-19 
+	http://schema.primaresearch.org/PAGE/gts/pagecontent/2010-03-19/pagecontent.xsd
+	http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15 
+	http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15/pagecontent.xsd
+  </entry>
+  <entry key="schemaLocation.FR10">
+ 	http://www.abbyy.com/FineReader_xml/FineReader10-schema-v1.xml 
+  </entry>
+  <entry key="schemaLocation.ALTO">
+    http://www.loc.gov/standards/alto/alto-v2.0.xsd 
+    http://schema.ccs-gmbh.com/ALTO
+  </entry>
+</properties>
