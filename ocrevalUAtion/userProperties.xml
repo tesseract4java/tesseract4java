@@ -1,0 +1,9 @@
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties> 
+  <!--Addtional Schema locations for the different types of XML documents 
+  (used to identify the type of document).-->
+   <!--max number of chars in input file. If zero, no limit is applied (computation may take long)-->
+   <entry key="maxlen">
+    100000
+   </entry>
+</properties>
