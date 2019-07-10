@@ -1,10 +1,11 @@
 package de.vorb.tesseract.gui.view;
 
-import de.vorb.tesseract.gui.event.SymbolLinkListener;
 import de.vorb.tesseract.gui.model.BoxFile;
-import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.Page;
 import de.vorb.tesseract.gui.view.renderer.SymbolVariantListCellRenderer;
 import de.vorb.tesseract.util.Symbol;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -13,40 +14,30 @@ import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-public class SymbolOverview extends JPanel implements BoxFileModelComponent {
+public class SymbolOverview extends JPanel implements BoxFileComponent {
+
     private static final long serialVersionUID = 1L;
 
     private final SymbolGroupList glyphSelectionPane;
     private final SymbolVariantList glyphListPane;
 
-    private Optional<BoxFile> model = Optional.empty();
-    private Optional<PageModel> pageModel = Optional.empty();
+    @Nullable
+    private BoxFile boxFile = null;
+    private Page page = null;
 
-    private final LinkedList<SymbolLinkListener> listeners = new LinkedList<>();
-
-    public static final Comparator<Entry<String, List<Symbol>>> SYMBOL_GROUP_COMP =
-            (o1, o2) -> o2.getValue().size() - o1.getValue().size();
-
-    public static final Comparator<Symbol> SYMBOL_COMP = (o1, o2) -> {
-        if (o2.getConfidence() >= o1.getConfidence()) {
-            return 1;
-        }
-
-        return -1;
-    };
+    private static final Comparator<Entry<String, List<Symbol>>> SYMBOL_GROUP_COMP =
+            Comparator.comparingInt(symbolGroup -> symbolGroup.getValue().size());
 
     /**
      * Create the panel.
      */
-    public SymbolOverview() {
+    SymbolOverview() {
         super();
         setLayout(new BorderLayout(0, 0));
 
@@ -60,18 +51,14 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
         splitPane.setRightComponent(glyphListPane);
     }
 
-    public void addSymbolLinkListener(SymbolLinkListener listener) {
-        listeners.add(listener);
-    }
-
     @Override
     public Component asComponent() {
         return this;
     }
 
     @Override
-    public Optional<BoxFile> getBoxFileModel() {
-        return model;
+    public @Nullable BoxFile getBoxFile() {
+        return boxFile;
     }
 
     public SymbolGroupList getSymbolGroupList() {
@@ -83,12 +70,11 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     }
 
     @Override
-    public void setBoxFileModel(Optional<BoxFile> model) {
-        this.model = model;
+    public void setBoxFile(@Nullable BoxFile boxFile) {
+        this.boxFile = boxFile;
 
-        if (!model.isPresent()) {
-            glyphSelectionPane.getList().setModel(
-                    new DefaultListModel<>());
+        if (boxFile == null) {
+            glyphSelectionPane.getList().setModel(new DefaultListModel<>());
             glyphListPane.getList().setModel(new DefaultListModel<>());
             return;
         }
@@ -97,8 +83,6 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
                 getSymbolGroupList().getList();
 
         final HashMap<String, List<Symbol>> glyphs = new HashMap<>();
-
-        final BoxFile boxFile = model.get();
 
         getSymbolVariantList().getList().setModel(
                 new DefaultListModel<>());
@@ -121,7 +105,7 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
         final ArrayList<Entry<String, List<Symbol>>> entries = new ArrayList<>(
                 glyphs.entrySet());
 
-        Collections.sort(entries, SYMBOL_GROUP_COMP);
+        entries.sort(SYMBOL_GROUP_COMP);
 
         final DefaultListModel<Entry<String, List<Symbol>>> listModel =
                 new DefaultListModel<>();
@@ -132,26 +116,20 @@ public class SymbolOverview extends JPanel implements BoxFileModelComponent {
     }
 
     @Override
-    public void setPageModel(Optional<PageModel> model) {
-        if (model.isPresent()) {
-            setBoxFileModel(Optional.of(model.get().toBoxFileModel()));
-            pageModel = model;
-        } else {
-            setBoxFileModel(Optional.empty());
-            pageModel = model;
-        }
+    public void setPage(Page page) {
+        this.page = page;
+        setBoxFile(Optional.ofNullable(page).map(Page::toBoxFileModel).orElse(null));
     }
 
     @Override
-    public Optional<PageModel> getPageModel() {
-        return pageModel;
+    public @Nullable Page getPage() {
+        return page;
     }
 
     @Override
     public void freeResources() {
-        getSymbolGroupList().getList().setModel(
-                new DefaultListModel<>());
-        getSymbolVariantList().getList().setModel(
-                new DefaultListModel<>());
+        getSymbolGroupList().getList().setModel(new DefaultListModel<>());
+        getSymbolVariantList().getList().setModel(new DefaultListModel<>());
     }
+
 }

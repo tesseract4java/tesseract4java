@@ -1,5 +1,6 @@
 package de.vorb.tesseract.gui.view;
 
+import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.FilteredTableModel;
 import de.vorb.tesseract.gui.util.FilterProvider;
 
@@ -16,15 +17,13 @@ import java.awt.BorderLayout;
 import java.awt.SystemColor;
 
 public class FilteredTable<T> extends JPanel {
+
     private static final long serialVersionUID = 1L;
 
     private final JTable table;
     private final SearchField filterField;
 
-    /**
-     * Create the panel.
-     */
-    public FilteredTable(final FilteredTableModel<T> model,
+    FilteredTable(final FilteredTableModel<T> model,
             final FilterProvider<T> filterProvider) {
         setLayout(new BorderLayout(0, 0));
 
@@ -73,7 +72,7 @@ public class FilteredTable<T> extends JPanel {
                                 filterField.getTextField().getText();
 
                         filteredModel.getSource().setFilter(
-                                filterProvider.getFilterFor(query));
+                                filterProvider.getFilterFor(query).orElseGet(FilteredListModel::createMatchAllFilter));
                     }
                 });
     }

@@ -71,7 +71,7 @@ public class FilteredList<T> extends JPanel {
                                 filterField.getTextField().getText();
 
                         filteredModel.setFilter(
-                                filterProvider.getFilterFor(query));
+                                filterProvider.getFilterFor(query).orElseGet(FilteredListModel::createMatchAllFilter));
                     }
                 });
     }

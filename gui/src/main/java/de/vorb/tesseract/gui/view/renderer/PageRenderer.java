@@ -1,21 +1,11 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.Page;
 
-import java.util.Optional;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-/**
- * Page renderer.
- *
- * @author Paul Vorbach
- */
 public interface PageRenderer {
 
-    /**
-     * Renders the information of a page on an optionally given background.
-     *
-     * @param pageModel page model to render
-     * @param scale     scaling factor
-     */
-    void render(final Optional<PageModel> pageModel, final float scale);
+    void render(@Nullable final Page page, final float scale);
+
 }

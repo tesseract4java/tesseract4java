@@ -7,13 +7,14 @@ import de.vorb.tesseract.gui.view.Strokes;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.ListModel;
 import javax.swing.SwingWorker;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -22,17 +23,18 @@ import static de.vorb.tesseract.gui.model.Scale.scaled;
 public class BoxFileRenderer {
     private final BoxEditor boxEditor;
 
+    @Nullable
     private SwingWorker<BufferedImage, Void> renderWorker;
 
     public BoxFileRenderer(BoxEditor boxEditor) {
         this.boxEditor = boxEditor;
     }
 
-    public void render(final Optional<BoxFile> model, final float scale) {
-        if (!model.isPresent()) {
+    public void render(@Nullable final BoxFile boxFile, final float scale) {
+        if (boxFile == null) {
             // remove image, if no page model is given and free resources
             final Icon icon = boxEditor.getCanvas().getIcon();
-            if (icon != null && icon instanceof ImageIcon) {
+            if (icon instanceof ImageIcon) {
                 ((ImageIcon) icon).getImage().flush();
             }
 
@@ -43,9 +45,8 @@ public class BoxFileRenderer {
             return;
         }
 
-        // TODO add a version of render() that takes two rectangles and a new
-        // box and updates the necessary area only
-        final BufferedImage image = model.get().getImage();
+        // TODO add a version of render() that takes two rectangles and a new box and updates the necessary area only
+        final BufferedImage image = boxFile.getImage();
 
         // calculate image dimensions
         final int w = image.getWidth();
@@ -83,7 +84,7 @@ public class BoxFileRenderer {
         // worker that renders the boxes to a new buffered image
         renderWorker = new SwingWorker<BufferedImage, Void>() {
             @Override
-            protected BufferedImage doInBackground() throws Exception {
+            protected BufferedImage doInBackground() {
                 final BufferedImage rendered = new BufferedImage(scaledW,
                         scaledH, BufferedImage.TYPE_INT_RGB);
 
@@ -94,8 +95,7 @@ public class BoxFileRenderer {
                 g2d.setStroke(Strokes.NORMAL);
 
                 // draw the scaled image
-                g2d.drawImage(image, 0, 0, scaledW, scaledH, 0, 0,
-                        w - 1, h - 1, null);
+                g2d.drawImage(image, 0, 0, scaledW, scaledH, 0, 0, w - 1, h - 1, null);
 
                 for (final Symbol symbol : symbols) {
                     final boolean isSelected = symbol == selectedSymbol;

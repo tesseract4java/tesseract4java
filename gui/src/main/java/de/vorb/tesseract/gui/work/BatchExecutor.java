@@ -12,6 +12,7 @@ import eu.digitisation.input.Batch;
 import eu.digitisation.input.Parameters;
 import eu.digitisation.input.WarningException;
 import eu.digitisation.output.Report;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
@@ -42,8 +43,8 @@ public class BatchExecutor {
     private final Project project;
     private final BatchExport batchExport;
 
-    public BatchExecutor(TesseractController controller, Project project,
-            BatchExport batchExport) {
+    public BatchExecutor(@NonNull TesseractController controller, @NonNull Project project,
+            @NonNull BatchExport batchExport) {
 
         this.controller = controller;
         this.project = project;

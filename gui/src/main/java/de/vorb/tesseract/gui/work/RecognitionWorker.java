@@ -2,21 +2,19 @@ package de.vorb.tesseract.gui.work;
 
 import de.vorb.tesseract.gui.controller.TesseractController;
 import de.vorb.tesseract.gui.model.Image;
-import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.Page;
 import de.vorb.tesseract.gui.view.dialogs.Dialogs;
 import de.vorb.tesseract.tools.recognition.PageRecognitionConsumer;
 import de.vorb.tesseract.util.Block;
-import de.vorb.tesseract.util.Page;
 
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-public class RecognitionWorker extends SwingWorker<PageModel, Void> {
+public class RecognitionWorker extends SwingWorker<Page, Void> {
     private final TesseractController controller;
     private final Image image;
     private final String trainingFile;
@@ -31,10 +29,10 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
     }
 
     @Override
-    protected PageModel doInBackground() throws Exception {
+    protected Page doInBackground() throws Exception {
         // set the progress bar state to indeterminate
         SwingUtilities.invokeLater(() -> {
-            controller.setPageModel(Optional.empty());
+            controller.setPage(null);
             controller.getView().getProgressBar().setIndeterminate(true);
         });
 
@@ -58,22 +56,22 @@ public class RecognitionWorker extends SwingWorker<PageModel, Void> {
             }
         });
 
-        final Page page = new Page(this.image.getPreprocessedFile(),
+        final de.vorb.tesseract.util.Page page = new de.vorb.tesseract.util.Page(this.image.getPreprocessedFile(),
                 image.getWidth(), image.getHeight(), 300, blocks);
 
-        return new PageModel(this.image, page, "");
+        return new Page(this.image, page, "");
     }
 
     @Override
     protected void done() {
         try {
-            controller.setPageModel(Optional.of(get()));
+            controller.setPage(get());
         } catch (ExecutionException e) {
             e.printStackTrace();
 
             final String message = "The image could not be recognized";
 
-            controller.setPageModel(Optional.empty());
+            controller.setPage(null);
 
             Dialogs.showError(controller.getView(), "Error during recognition",
                     message);

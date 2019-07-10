@@ -8,20 +8,20 @@ import de.vorb.tesseract.gui.model.BatchExport;
 import de.vorb.tesseract.gui.model.BoxFile;
 import de.vorb.tesseract.gui.model.FilteredListModel;
 import de.vorb.tesseract.gui.model.Image;
-import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.Page;
 import de.vorb.tesseract.gui.model.PageThumbnail;
 import de.vorb.tesseract.gui.model.PreferencesUtil;
 import de.vorb.tesseract.gui.model.Project;
 import de.vorb.tesseract.gui.model.SymbolListModel;
 import de.vorb.tesseract.gui.model.SymbolOrder;
 import de.vorb.tesseract.gui.util.DocumentWriter;
-import de.vorb.tesseract.gui.view.BoxFileModelComponent;
+import de.vorb.tesseract.gui.view.BoxFileComponent;
 import de.vorb.tesseract.gui.view.EvaluationPane;
 import de.vorb.tesseract.gui.view.FeatureDebugger;
 import de.vorb.tesseract.gui.view.FilteredTable;
 import de.vorb.tesseract.gui.view.ImageModelComponent;
 import de.vorb.tesseract.gui.view.MainComponent;
-import de.vorb.tesseract.gui.view.PageModelComponent;
+import de.vorb.tesseract.gui.view.PageComponent;
 import de.vorb.tesseract.gui.view.PreprocessingPane;
 import de.vorb.tesseract.gui.view.SymbolOverview;
 import de.vorb.tesseract.gui.view.TesseractFrame;
@@ -145,8 +145,6 @@ public class TesseractController extends WindowAdapter implements
     private static final String KEY_TRAINING_FILE = "training_file";
     private static final String KEY_BOX_FILE = "box_file";
 
-    public static final Preprocessor DEFAULT_PREPROCESSOR = new DefaultPreprocessor();
-
     private final TesseractFrame view;
 
     private ApplicationMode mode = ApplicationMode.NONE;
@@ -155,22 +153,22 @@ public class TesseractController extends WindowAdapter implements
     private MainComponent activeComponent;
 
     private final PageRecognitionProducer pageRecognitionProducer;
-    private Optional<PreprocessingWorker> preprocessingWorker = Optional.empty();
+    private PreprocessingWorker preprocessingWorker = null;
 
     // IO workers, timers and tasks
-    private Optional<ThumbnailWorker> thumbnailLoader = Optional.empty();
+    private ThumbnailWorker thumbnailLoader = null;
     private final Timer pageSelectionTimer = new Timer("PageSelectionTimer");
 
-    private Optional<TimerTask> lastPageSelectionTask = Optional.empty();
+    private TimerTask lastPageSelectionTask = null;
     private final Timer thumbnailLoadTimer = new Timer("ThumbnailLoadTimer");
 
-    private Optional<TimerTask> lastThumbnailLoadTask = Optional.empty();
+    private TimerTask lastThumbnailLoadTask = null;
 
     private final List<Task> tasks = new LinkedList<>();
 
     @Nullable
     private Project project = null;
-    private Optional<PageThumbnail> pageThumbnail = Optional.empty();
+    private PageThumbnail pageThumbnail = null;
 
     private String lastTraineddataFile;
 
@@ -179,9 +177,9 @@ public class TesseractController extends WindowAdapter implements
 
     private Set<Path> changedPreprocessors = new HashSet<>();
 
-    private Optional<RecognitionWorker> recognitionWorker = Optional.empty();
+    private RecognitionWorker recognitionWorker = null;
 
-    public TesseractController() {
+    private TesseractController() {
         // create new tesseract frame
         view = new TesseractFrame();
         featureDebugger = new FeatureDebugger(view);
@@ -356,14 +354,15 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
-    public Optional<PageModel> getPageModel() {
+    @Nullable
+    private Page getPage() {
         final MainComponent active = view.getActiveComponent();
 
-        if (active instanceof PageModelComponent) {
-            return ((PageModelComponent) active).getPageModel();
+        if (active instanceof PageComponent) {
+            return ((PageComponent) active).getPage();
         }
 
-        return Optional.empty();
+        return null;
     }
 
     public PageRecognitionProducer getPageRecognitionProducer() {
@@ -375,14 +374,11 @@ public class TesseractController extends WindowAdapter implements
         return project;
     }
 
-    public Optional<Path> getSelectedPage() {
+    @Nullable
+    private Path getSelectedPage() {
         final PageThumbnail thumbnail = view.getPages().getList().getSelectedValue();
 
-        if (thumbnail == null) {
-            return Optional.empty();
-        } else {
-            return Optional.of(thumbnail.getFile());
-        }
+        return Optional.ofNullable(thumbnail).map(PageThumbnail::getFile).orElse(null);
     }
 
     public Optional<String> getTrainingFile() {
@@ -404,9 +400,9 @@ public class TesseractController extends WindowAdapter implements
         if (mode == ApplicationMode.BOX_FILE) {
             // if we're in box file mode, everything is simple
             if (active == view.getBoxEditor()) {
-                view.getBoxEditor().setBoxFileModel(view.getSymbolOverview().getBoxFileModel());
+                view.getBoxEditor().setBoxFile(view.getSymbolOverview().getBoxFile());
             } else {
-                view.getSymbolOverview().setBoxFileModel(view.getBoxEditor().getBoxFileModel());
+                view.getSymbolOverview().setBoxFile(view.getBoxEditor().getBoxFile());
             }
         } else if (mode == ApplicationMode.PROJECT) {
             // in project mode, it's a bit more complicated
@@ -414,28 +410,28 @@ public class TesseractController extends WindowAdapter implements
             if (active instanceof ImageModelComponent) {
                 if (activeComponent instanceof ImageModelComponent) {
                     // ImageModelComponent -> ImageModelComponent
-                    setImageModel(((ImageModelComponent) activeComponent).getImageModel());
-                } else if (activeComponent instanceof PageModelComponent) {
-                    // PageModelComponent -> ImageModelComponent
-                    final Optional<PageModel> pm = ((PageModelComponent) activeComponent).getPageModel();
+                    setImage(((ImageModelComponent) activeComponent).getImageModel());
+                } else if (activeComponent instanceof PageComponent) {
+                    // PageComponent -> ImageModelComponent
+                    final Page pm = ((PageComponent) activeComponent).getPage();
 
-                    if (pm.isPresent()) {
-                        setImageModel(Optional.of(pm.get().getImage()));
+                    if (pm != null) {
+                        setImage(pm.getImage());
                     } else {
-                        setImageModel(Optional.empty());
+                        setImage(null);
                     }
                 } else {
-                    setImageModel(Optional.empty());
+                    setImage(null);
                 }
-            } else if (active instanceof PageModelComponent) {
-                if (activeComponent instanceof PageModelComponent) {
-                    // PageModelComponent -> PageModelComponent
-                    setPageModel(((PageModelComponent) activeComponent).getPageModel());
+            } else if (active instanceof PageComponent) {
+                if (activeComponent instanceof PageComponent) {
+                    // PageComponent -> PageComponent
+                    setPage(((PageComponent) activeComponent).getPage());
                 } else if (activeComponent instanceof ImageModelComponent) {
-                    // ImageModelComponent -> PageModelComponent
-                    setImageModel(((ImageModelComponent) activeComponent).getImageModel());
+                    // ImageModelComponent -> PageComponent
+                    setImage(((ImageModelComponent) activeComponent).getImageModel());
                 } else {
-                    setPageModel(Optional.empty());
+                    setPage(null);
                 }
             }
         }
@@ -446,19 +442,23 @@ public class TesseractController extends WindowAdapter implements
     private void handleOpenProjectDirectory() {
         if (Desktop.isDesktopSupported()) {
             try {
-                Desktop.getDesktop().browse(project.getProjectDir().toUri());
+                if (project != null) {
+                    Desktop.getDesktop().browse(project.getProjectDir().toUri());
+                } else {
+                    Dialogs.showError(view, "Exception", "No project directory defined.");
+                }
             } catch (IOException e) {
-                Dialogs.showError(view, "Exception",
-                        "Project directory could not be opened.");
+                Dialogs.showError(view, "Exception", "Project directory could not be opened.");
             }
         }
     }
 
     private void handleUseOCRResult() {
-        if (getPageModel().isPresent()) {
+        final Page page = getPage();
+        if (page != null) {
             final StringWriter ocrResult = new StringWriter();
             try {
-                new PlainTextWriter(true).write(getPageModel().get().getPage(), ocrResult);
+                new PlainTextWriter(true).write(page.getPage(), ocrResult);
 
                 view.getEvaluationPane().getTextAreaTranscript().setText(ocrResult.toString());
             } catch (IOException e) {
@@ -531,11 +531,11 @@ public class TesseractController extends WindowAdapter implements
         final Optional<BatchExport> export = BatchExportDialog.showBatchExportDialog(this);
 
         if (export.isPresent()) {
-            final BatchExecutor batchExec = new BatchExecutor(this, this.getProject(), export.get());
+            final Project project = this.getProject();
+            final BatchExecutor batchExec = new BatchExecutor(this, project, export.get());
 
             try {
-                final int totalFiles =
-                        (int) Lists.newArrayList(this.getProject().getImageFiles()).stream().count();
+                final int totalFiles = Lists.newArrayList(project.getImageFiles()).size();
 
                 final ProgressMonitor progressMonitor = new ProgressMonitor(view, "Processing:", "", 0, totalFiles + 1);
                 progressMonitor.setProgress(0);
@@ -556,9 +556,9 @@ public class TesseractController extends WindowAdapter implements
     private void handleCompareSymbolToPrototype() {
         final Symbol selected = view.getSymbolOverview().getSymbolVariantList().getList().getSelectedValue();
 
-        final Optional<PageModel> pm = getPageModel();
-        if (pm.isPresent()) {
-            final BufferedImage pageImg = pm.get().getImage().getPreprocessedImage();
+        final Page pm = getPage();
+        if (pm != null) {
+            final BufferedImage pageImg = pm.getImage().getPreprocessedImage();
             final Box symbolBox = selected.getBoundingBox();
             final BufferedImage symbolImg = pageImg.getSubimage(
                     symbolBox.getX(), symbolBox.getY(),
@@ -579,7 +579,7 @@ public class TesseractController extends WindowAdapter implements
             return;
         }
 
-        final Path sourceFile = getPageModel().get().getImage().getSourceFile();
+        final Path sourceFile = getPage().getImage().getSourceFile();
         final Path fname = FileNames.replaceExtension(sourceFile, "txt").getFileName();
         final Path repName = FileNames.replaceExtension(fname, "html");
         final Path plain = project.getOCRDir().resolve(fname);
@@ -633,13 +633,12 @@ public class TesseractController extends WindowAdapter implements
 
     private Optional<Path> handleTranscriptionSave() {
         try {
-            if (project != null && getPageModel().isPresent()) {
+            final Page page = getPage();
+            if (project != null && page != null) {
                 Files.createDirectories(project.getTranscriptionDir());
 
-                final Path sourceFile =
-                        getPageModel().get().getImage().getSourceFile();
-                final Path fileName =
-                        FileNames.replaceExtension(sourceFile, "txt").getFileName();
+                final Path sourceFile = page.getImage().getSourceFile();
+                final Path fileName = FileNames.replaceExtension(sourceFile, "txt").getFileName();
 
                 final Path transcriptionFile = project.getTranscriptionDir().resolve(fileName);
 
@@ -678,9 +677,8 @@ public class TesseractController extends WindowAdapter implements
 
         final DefaultListModel<PageThumbnail> pages = view.getPages().getListModel();
 
-        final ThumbnailWorker thumbnailLoader = new ThumbnailWorker(project, pages);
+        this.thumbnailLoader = new ThumbnailWorker(project, pages);
         thumbnailLoader.execute();
-        this.thumbnailLoader = Optional.of(thumbnailLoader);
 
         final PageListWorker pageListLoader = new PageListWorker(project, pages);
 
@@ -753,7 +751,7 @@ public class TesseractController extends WindowAdapter implements
 
                 PreferencesUtil.getPreferences().put(KEY_BOX_FILE, boxFile.toAbsolutePath().toString());
 
-                setBoxFileModel(Optional.of(new BoxFile(boxFile, image, boxes)));
+                setBoxFile(new BoxFile(boxFile, image, boxes));
             } catch (IOException | IndexOutOfBoundsException e) {
                 Dialogs.showError(view, "Error", "Box file could not be opened.");
             }
@@ -808,11 +806,11 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handleSaveBoxFile() {
-        final Optional<BoxFile> boxFileModel = getBoxFileModel();
+        final BoxFile boxFile = getBoxFile();
 
-        if (boxFileModel.isPresent()) {
+        if (boxFile != null) {
             try {
-                BoxFileWriter.writeBoxFile(boxFileModel.get());
+                BoxFileWriter.writeBoxFile(boxFile);
 
                 Dialogs.showInfo(view, "Saved", "The box file has been saved.");
             } catch (IOException e) {
@@ -823,25 +821,25 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
-    private Optional<BoxFile> getBoxFileModel() {
+    @Nullable
+    private BoxFile getBoxFile() {
         if (mode == ApplicationMode.NONE) {
-            return Optional.empty();
+            return null;
         } else if (mode == ApplicationMode.BOX_FILE) {
             // first check box editor, then symbol overview
-            final Optional<BoxFile> model = view.getBoxEditor().getBoxFileModel();
-
-            if (model.isPresent()) {
-                return model;
-            } else {
-                return view.getSymbolOverview().getBoxFileModel();
+            final TesseractFrame view = getView();
+            if (view == null) {
+                return null;
             }
+            return Optional.ofNullable(view.getBoxEditor().getBoxFile())
+                    .orElseGet(() -> view.getSymbolOverview().getBoxFile());
         } else {
             final MainComponent active = view.getActiveComponent();
 
-            if (active instanceof PageModelComponent) {
-                return ((PageModelComponent) active).getBoxFileModel();
+            if (active instanceof PageComponent) {
+                return ((PageComponent) active).getBoxFile();
             } else {
-                return Optional.empty();
+                return null;
             }
         }
     }
@@ -850,7 +848,7 @@ public class TesseractController extends WindowAdapter implements
         final boolean really = Dialogs.ask(view, "Confirmation", "Do you really want to close this project?");
 
         if (really) {
-            setPageModel(Optional.empty());
+            setPage(null);
             setProject(null);
             setApplicationMode(ApplicationMode.NONE);
         }
@@ -863,7 +861,7 @@ public class TesseractController extends WindowAdapter implements
                 "Do you really want to close this box file? All unsaved changes will be lost.");
 
         if (really) {
-            setBoxFileModel(Optional.empty());
+            setBoxFile(null);
 
             setApplicationMode(ApplicationMode.NONE);
         }
@@ -891,7 +889,7 @@ public class TesseractController extends WindowAdapter implements
 
             if (!changePage) {
                 // reselect the old page
-                view.getPages().getList().setSelectedValue(pageThumbnail.get(), true);
+                view.getPages().getList().setSelectedValue(pageThumbnail, true);
                 // don't change the page
                 return;
             }
@@ -899,11 +897,11 @@ public class TesseractController extends WindowAdapter implements
             view.getSymbolOverview().freeResources();
         }
 
-        pageThumbnail = Optional.of(pt);
+        pageThumbnail = pt;
 
         // cancel the last page loading task if it is present
-        if (lastPageSelectionTask.isPresent()) {
-            lastPageSelectionTask.get().cancel();
+        if (lastPageSelectionTask != null) {
+            lastPageSelectionTask.cancel();
         }
 
         // new task
@@ -911,18 +909,16 @@ public class TesseractController extends WindowAdapter implements
             @Override
             public void run() {
                 // cancel last task
-                if (preprocessingWorker.isPresent()) {
-                    preprocessingWorker.get().cancel(false);
+                if (preprocessingWorker != null) {
+                    preprocessingWorker.cancel(false);
                 }
 
                 // create SwingWorker to preprocess page
-                final PreprocessingWorker pw = new PreprocessingWorker(
-                        TesseractController.this,
-                        getPreprocessor(pt.getFile()), pt.getFile(),
-                        getProject().getPreprocessedDir());
+                final PreprocessingWorker pw = new PreprocessingWorker(TesseractController.this,
+                        getPreprocessor(pt.getFile()), pt.getFile(), getProject().getPreprocessedDir());
 
                 // save reference
-                preprocessingWorker = Optional.of(pw);
+                preprocessingWorker = pw;
 
                 view.getProgressBar().setIndeterminate(true);
                 // execute it
@@ -935,7 +931,7 @@ public class TesseractController extends WindowAdapter implements
         pageSelectionTimer.schedule(task, 500);
 
         // set as new timer task
-        lastPageSelectionTask = Optional.of(task);
+        lastPageSelectionTask = task;
     }
 
     private void handleShowSymbolInBoxEditor() {
@@ -961,8 +957,9 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handleSymbolGroupSelection() {
-        final JList<Entry<String, List<Symbol>>> selectionList =
-                view.getSymbolOverview().getSymbolGroupList().getList();
+        final JList<Entry<String, List<Symbol>>> selectionList = view.getSymbolOverview()
+                .getSymbolGroupList()
+                .getList();
 
         final int index = selectionList.getSelectedIndex();
         if (index == -1) {
@@ -971,13 +968,13 @@ public class TesseractController extends WindowAdapter implements
 
         final List<Symbol> symbols = selectionList.getModel().getElementAt(index).getValue();
 
-        final Optional<BoxFile> bfm = view.getSymbolOverview().getBoxFileModel();
+        final BoxFile boxFile = view.getSymbolOverview().getBoxFile();
 
-        if (!bfm.isPresent()) {
+        if (boxFile == null) {
             return;
         }
 
-        final SymbolListModel model = new SymbolListModel(bfm.get().getImage());
+        final SymbolListModel model = new SymbolListModel(boxFile.getImage());
         symbols.forEach(model::addElement);
 
         // get combo box
@@ -1002,16 +999,18 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handleThumbnailLoading() {
-        if (!thumbnailLoader.isPresent()) {
+        if (thumbnailLoader == null) {
             return;
         }
 
-        final ThumbnailWorker thumbnailLoader = this.thumbnailLoader.get();
+        final ThumbnailWorker thumbnailLoader = this.thumbnailLoader;
 
         tasks.forEach(Task::cancel);
         tasks.clear();
 
-        lastThumbnailLoadTask.ifPresent(TimerTask::cancel);
+        if (lastThumbnailLoadTask != null) {
+            lastThumbnailLoadTask.cancel();
+        }
 
         thumbnailLoadTimer.schedule(new TimerTask() {
             @Override
@@ -1067,10 +1066,10 @@ public class TesseractController extends WindowAdapter implements
     }
 
     private void handlePreprocessorPreview() {
-        final Optional<Path> selectedPage = getSelectedPage();
+        final Path selectedPage = getSelectedPage();
 
         // if no page is selected, simply ignore it
-        if (!selectedPage.isPresent()) {
+        if (selectedPage == null) {
             Dialogs.showWarning(view, "No page selection",
                     "No page has been selected. You need to select a page first.");
             return;
@@ -1087,13 +1086,14 @@ public class TesseractController extends WindowAdapter implements
         final Preprocessor preprocessor =
                 view.getPreprocessingPane().getPreprocessor();
 
-        preprocessingWorker.ifPresent(worker -> worker.cancel(false));
+        if (preprocessingWorker != null) {
+            preprocessingWorker.cancel(false);
+        }
 
-        final PreprocessingWorker pw = new PreprocessingWorker(this,
-                preprocessor, selectedPage.get(),
+        final PreprocessingWorker pw = new PreprocessingWorker(this, preprocessor, selectedPage,
                 project.getProjectDir());
 
-        preprocessingWorker = Optional.of(pw);
+        preprocessingWorker = pw;
 
         view.getProgressBar().setIndeterminate(true);
         pw.execute();
@@ -1108,11 +1108,11 @@ public class TesseractController extends WindowAdapter implements
             defaultPreprocessor = preprocessor;
             preprocessors.clear();
 
-            if (getSelectedPage().isPresent()) {
+            if (getSelectedPage() != null) {
                 handlePreprocessorPreview();
             }
-        } else if (getSelectedPage().isPresent()) {
-            setPreprocessor(getSelectedPage().get(), preprocessor);
+        } else if (getSelectedPage() != null) {
+            setPreprocessor(getSelectedPage(), preprocessor);
 
             handlePreprocessorPreview();
         }
@@ -1235,12 +1235,14 @@ public class TesseractController extends WindowAdapter implements
         trainer.setVisible(true);
     }
 
-    public void setPageModel(Optional<PageModel> model) {
-        if (project != null && model.isPresent()) {
+    public void setPage(@Nullable final Page page) {
+
+        Page updatedPage = page;
+        if (project != null && page != null) {
             try {
                 // plain text file name
                 final Path filename =
-                        FileNames.replaceExtension(model.get().getImage().getSourceFile().getFileName(), "txt");
+                        FileNames.replaceExtension(page.getImage().getSourceFile().getFileName(), "txt");
 
                 // create ocr directory
                 Files.createDirectories(project.getOCRDir());
@@ -1249,7 +1251,7 @@ public class TesseractController extends WindowAdapter implements
                 final Path plain = project.getOCRDir().resolve(filename);
 
                 final Writer writer = Files.newBufferedWriter(plain, StandardCharsets.UTF_8);
-                new PlainTextWriter(true).write(model.get().getPage(), writer);
+                new PlainTextWriter(true).write(page.getPage(), writer);
                 writer.close();
 
                 // read the transcription file
@@ -1259,7 +1261,7 @@ public class TesseractController extends WindowAdapter implements
                     final byte[] bytes = Files.readAllBytes(transcriptionFile);
                     final String transcription = new String(bytes, StandardCharsets.UTF_8);
 
-                    model = Optional.of(model.get().withTranscription(transcription));
+                    updatedPage = page.withTranscription(transcription);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -1268,35 +1270,34 @@ public class TesseractController extends WindowAdapter implements
 
         final MainComponent active = view.getActiveComponent();
 
-        if (active instanceof PageModelComponent) {
-            ((PageModelComponent) active).setPageModel(model);
-        } else if (active instanceof BoxFileModelComponent) {
-            if (model.isPresent()) {
-                ((BoxFileModelComponent) active).setBoxFileModel(Optional.of(model.get().toBoxFileModel()));
-            } else {
-                ((BoxFileModelComponent) active).setBoxFileModel(Optional.empty());
-            }
+        if (active instanceof PageComponent) {
+            ((PageComponent) active).setPage(updatedPage);
+        }
+
+        if (active instanceof BoxFileComponent) {
+            final BoxFile boxFile = Optional.ofNullable(updatedPage).map(Page::toBoxFileModel).orElse(null);
+            ((BoxFileComponent) active).setBoxFile(boxFile);
         }
     }
 
-    public void setBoxFileModel(Optional<BoxFile> model) {
+    private void setBoxFile(@Nullable BoxFile model) {
         final MainComponent active = view.getActiveComponent();
-        if (active instanceof BoxFileModelComponent) {
-            ((BoxFileModelComponent) active).setBoxFileModel(model);
+        if (active instanceof BoxFileComponent) {
+            ((BoxFileComponent) active).setBoxFile(model);
         } else {
             Dialogs.showWarning(view, "Illegal Action", "Could not set the box file");
         }
     }
 
-    public void setImageModel(Optional<Image> model) {
+    public void setImage(@Nullable Image model) {
         view.getProgressBar().setIndeterminate(false);
         final MainComponent active = view.getActiveComponent();
 
-        if (active instanceof PageModelComponent) {
-            ((PageModelComponent) active).setPageModel(Optional.empty());
+        if (active instanceof PageComponent) {
+            ((PageComponent) active).setPage(null);
 
-            if (recognitionWorker.isPresent()) {
-                recognitionWorker.get().cancel(false);
+            if (recognitionWorker != null) {
+                recognitionWorker.cancel(false);
             }
 
             final Optional<String> trainingFile = getTrainingFile();
@@ -1304,32 +1305,31 @@ public class TesseractController extends WindowAdapter implements
             if (!trainingFile.isPresent()) {
                 Dialogs.showWarning(view, "Warning", "Please select a traineddata file.");
                 return;
-            } else if (!model.isPresent()) {
+            } else if (model == null) {
                 return;
             }
 
-            final RecognitionWorker rw = new RecognitionWorker(this, model.get(), trainingFile.get());
+            final RecognitionWorker rw = new RecognitionWorker(this, model, trainingFile.get());
 
             rw.execute();
 
-            recognitionWorker = Optional.of(rw);
+            recognitionWorker = rw;
 
             return;
         } else if (!(active instanceof ImageModelComponent)) {
             return;
         }
 
-        if (!model.isPresent()) {
-            ((ImageModelComponent) active).setImageModel(model);
+        if (model == null) {
+            ((ImageModelComponent) active).setImageModel(null);
             return;
         }
 
-        final Path sourceFile = model.get().getSourceFile();
-        final Optional<Path> selectedPage = getSelectedPage();
+        final Path sourceFile = model.getSourceFile();
+        final Path selectedPage = getSelectedPage();
 
-        if (!selectedPage.isPresent() || !sourceFile.equals(selectedPage.get())) {
-
-            ((ImageModelComponent) active).setImageModel(Optional.empty());
+        if (!sourceFile.equals(selectedPage)) {
+            ((ImageModelComponent) active).setImageModel(null);
             return;
         }
 
@@ -1420,12 +1420,12 @@ public class TesseractController extends WindowAdapter implements
         pageSelectionTimer.cancel();
         thumbnailLoadTimer.cancel();
 
-        if (preprocessingWorker.isPresent()) {
-            preprocessingWorker.get().cancel(true);
+        if (preprocessingWorker != null) {
+            preprocessingWorker.cancel(true);
         }
 
-        if (recognitionWorker.isPresent()) {
-            recognitionWorker.get().cancel(true);
+        if (recognitionWorker != null) {
+            recognitionWorker.cancel(true);
         }
 
         view.dispose();
@@ -1440,10 +1440,6 @@ public class TesseractController extends WindowAdapter implements
         } catch (InterruptedException e) {
             System.exit(0);
         }
-    }
-
-    public Preprocessor getDefaultPreprocessor() {
-        return defaultPreprocessor;
     }
 
     public Preprocessor getPreprocessor(Path sourceFile) {
@@ -1461,11 +1457,7 @@ public class TesseractController extends WindowAdapter implements
         return changedPreprocessors.contains(sourceFile);
     }
 
-    public void setDefaultPreprocessor(Preprocessor preprocessor) {
-        defaultPreprocessor = preprocessor;
-    }
-
-    public void setPreprocessor(Path sourceFile, Preprocessor preprocessor) {
+    private void setPreprocessor(Path sourceFile, Preprocessor preprocessor) {
         if (preprocessor.equals(defaultPreprocessor)) {
             preprocessors.remove(sourceFile);
         } else {
@@ -1473,15 +1465,7 @@ public class TesseractController extends WindowAdapter implements
         }
     }
 
-    public void setPreprocessorChanged(Path sourceFile, boolean changed) {
-        if (changed) {
-            changedPreprocessors.add(sourceFile);
-        } else {
-            changedPreprocessors.remove(sourceFile);
-        }
-    }
-
-    public void setApplicationMode(ApplicationMode mode) {
+    private void setApplicationMode(ApplicationMode mode) {
         this.mode = mode;
         final JTabbedPane mainTabs = view.getMainTabs();
 
@@ -1529,7 +1513,4 @@ public class TesseractController extends WindowAdapter implements
                 .setVisible(projectEnabled);
     }
 
-    public ApplicationMode getApplicationMode() {
-        return mode;
-    }
 }

@@ -1,7 +1,7 @@
 package de.vorb.tesseract.gui.view;
 
 import de.vorb.tesseract.gui.model.BoxFile;
-import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.Page;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.model.SingleSelectionModel;
 import de.vorb.tesseract.gui.model.SymbolTableModel;
@@ -10,6 +10,8 @@ import de.vorb.tesseract.gui.view.renderer.BoxFileRenderer;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Point;
 import de.vorb.tesseract.util.Symbol;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -27,8 +29,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
@@ -47,15 +47,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;
 import static de.vorb.tesseract.gui.model.Scale.unscaled;
 
-public class BoxEditor extends JPanel implements BoxFileModelComponent {
+public class BoxEditor extends JPanel implements BoxFileComponent {
     private static final long serialVersionUID = 1L;
 
     private static final Dimension DEFAULT_SPINNER_DIMENSION =
@@ -63,12 +61,12 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
 
     private final BoxFileRenderer renderer;
 
-    // state
     private final Scale scale;
     private boolean changed = false;
 
-    private Optional<BoxFile> model = Optional.empty();
-    private Optional<PageModel> pageModel = Optional.empty();
+    @Nullable
+    private BoxFile boxFile = null;
+    private Page page = null;
 
     private final SingleSelectionModel selectionModel =
             new SingleSelectionModel();
@@ -82,58 +80,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
     private final JSpinner spinnerWidth;
     private final JSpinner spinnerHeight;
 
-    // events
-    private final List<ChangeListener> changeListeners = new ArrayList<>();
-
-    private final PropertyChangeListener spinnerListener =
-            new PropertyChangeListener() {
-                @Override
-                public void propertyChange(PropertyChangeEvent evt) {
-                    if (!evt.getPropertyName().startsWith("SPIN")) {
-                        return;
-                    }
-
-                    // don't do anything if no symbol is selected
-                    final Optional<Symbol> currentSymbol = getSelectedSymbol();
-                    if (!currentSymbol.isPresent()) {
-                        return;
-                    }
-
-                    final Object source = evt.getSource();
-
-                    // if the source is one of the JSpinners for x, y, width and
-                    // height, update the bounding box
-                    if (source instanceof JSpinner) {
-                        // get coordinates
-                        final int x = (int) spinnerX.getValue();
-                        final int y = (int) spinnerY.getValue();
-                        final int width = (int) spinnerWidth.getValue();
-                        final int height = (int) spinnerHeight.getValue();
-
-                        // update bounding box
-                        final Box boundingBox = currentSymbol.get().getBoundingBox();
-                        boundingBox.setX(x);
-                        boundingBox.setY(y);
-                        boundingBox.setWidth(width);
-                        boundingBox.setHeight(height);
-
-                        // re-render the whole model
-                        renderer.render(getBoxFileModel(), scale.current());
-                    }
-
-                    // propagate table change
-                    final JTable table = tabSymbols.getTable();
-                    table.tableChanged(new TableModelEvent(table.getModel(),
-                            table.getSelectedRow()));
-
-                    changed = true;
-                }
-            };
-
-    /**
-     * Create the panel.
-     */
-    public BoxEditor(final Scale scale) {
+    BoxEditor(final Scale scale) {
         setLayout(new BorderLayout(0, 0));
 
         renderer = new BoxFileRenderer(this);
@@ -190,7 +137,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
             private void update() {
                 long now = System.currentTimeMillis();
                 if (now - last > 1000) {
-                    renderer.render(model, scale.current());
+                    renderer.render(boxFile, scale.current());
                 }
                 last = now;
             }
@@ -244,7 +191,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
                                 selectedRow, 0, true);
                         tabSymbols.getTable().scrollRectToVisible(cell);
 
-                        renderer.render(model, scale.current());
+                        renderer.render(boxFile, scale.current());
                     }
                 });
 
@@ -256,11 +203,10 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         JSplitPane splitMain = new JSplitPane();
         add(splitMain, BorderLayout.CENTER);
         GridBagLayout gbl_toolbar = new GridBagLayout();
-        gbl_toolbar.columnWidths = new int[]{0, 56, 15, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 36, 0, 0};
+        gbl_toolbar.columnWidths = new int[]{0, 56, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 36, 0, 0};
         gbl_toolbar.rowHeights = new int[]{0, 0};
-        gbl_toolbar.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
+        gbl_toolbar.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+                Double.MIN_VALUE};
         gbl_toolbar.rowWeights = new double[]{0.0, Double.MIN_VALUE};
         toolbar.setLayout(gbl_toolbar);
 
@@ -402,7 +348,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
 
         btnZoomOut.addActionListener(evt -> {
             if (scale.hasPrevious()) {
-                renderer.render(getBoxFileModel(), scale.previous());
+                renderer.render(getBoxFile(), scale.previous());
             }
 
             if (!scale.hasPrevious()) {
@@ -414,7 +360,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
 
         btnZoomIn.addActionListener(evt -> {
             if (scale.hasNext()) {
-                renderer.render(getBoxFileModel(), scale.next());
+                renderer.render(getBoxFile(), scale.next());
             }
 
             if (!scale.hasNext()) {
@@ -452,7 +398,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
             }
 
             private void clicked(MouseEvent e) {
-                if (!model.isPresent()) {
+                if (boxFile == null) {
                     // ignore clicks if no model is present
                     return;
                 }
@@ -460,11 +406,9 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
                 final Point p = new Point(unscaled(e.getX(), scale.current()),
                         unscaled(e.getY(), scale.current()));
 
-                final Iterator<Symbol> it =
-                        model.get().getBoxes().iterator();
+                final Iterator<Symbol> it = boxFile.getBoxes().iterator();
 
-                final ListSelectionModel sel =
-                        tabSymbols.getTable().getSelectionModel();
+                final ListSelectionModel sel = tabSymbols.getTable().getSelectionModel();
 
                 boolean selection = false;
                 for (int i = 0; it.hasNext(); i++) {
@@ -485,7 +429,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
                     contextMenu.show(e.getComponent(), e.getX(), e.getY());
                 }
 
-                renderer.render(model, scale.current());
+                renderer.render(boxFile, scale.current());
             }
         });
 
@@ -518,6 +462,54 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
             lblCanvas.scrollRectToVisible(boundingBox.toRectangle());
         });
 
+        // don't do anything if no symbol is selected
+        // if the source is one of the JSpinners for x, y, width and
+        // height, update the bounding box
+        // get coordinates
+        // update bounding box
+        // re-render the whole boxFile
+        // propagate table change
+        final PropertyChangeListener spinnerListener = (PropertyChangeEvent propertyChangeEvent) -> {
+            if (!propertyChangeEvent.getPropertyName().startsWith("SPIN")) {
+                return;
+            }
+
+            // don't do anything if no symbol is selected
+            final Optional<Symbol> currentSymbol = getSelectedSymbol();
+            if (!currentSymbol.isPresent()) {
+                return;
+            }
+
+            final Object source = propertyChangeEvent.getSource();
+
+            // if the source is one of the JSpinners for x, y, width and
+            // height, update the bounding box
+            if (source instanceof JSpinner) {
+                // get coordinates
+                final int x = (int) spinnerX.getValue();
+                final int y = (int) spinnerY.getValue();
+                final int width = (int) spinnerWidth.getValue();
+                final int height = (int) spinnerHeight.getValue();
+
+                // update bounding box
+                final Box boundingBox = currentSymbol.get().getBoundingBox();
+                boundingBox.setX(x);
+                boundingBox.setY(y);
+                boundingBox.setWidth(width);
+                boundingBox.setHeight(height);
+
+                // re-render the whole boxFile
+                renderer.render(getBoxFile(), scale.current());
+            }
+
+            // propagate table change
+            final JTable table1 = tabSymbols.getTable();
+            table1.tableChanged(new TableModelEvent(table1.getModel(),
+                    table1.getSelectedRow()));
+
+            changed = true;
+        };
+
         spinnerX.addPropertyChangeListener(spinnerListener);
         spinnerY.addPropertyChangeListener(spinnerListener);
         spinnerWidth.addPropertyChangeListener(spinnerListener);
@@ -525,8 +517,8 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
     }
 
     @Override
-    public void setBoxFileModel(Optional<BoxFile> model) {
-        this.model = model;
+    public void setBoxFile(@Nullable BoxFile boxFile) {
+        this.boxFile = boxFile;
 
         final SymbolTableModel tabModel =
                 (SymbolTableModel) tabSymbols.getTable().getModel();
@@ -536,33 +528,27 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
 
         source.clear();
 
-        if (model.isPresent()) {
+        if (boxFile != null) {
             // fill table model and render the page
-            model.get().getBoxes().forEach(source::addElement);
+            boxFile.getBoxes().forEach(source::addElement);
         }
 
-        renderer.render(model, scale.current());
+        renderer.render(boxFile, scale.current());
+    }
+
+    public void setPage(Page page) {
+        this.page = page;
+        setBoxFile(Optional.ofNullable(page).map(Page::toBoxFileModel).orElse(null));
     }
 
     @Override
-    public void setPageModel(Optional<PageModel> model) {
-        if (model.isPresent()) {
-            setBoxFileModel(Optional.of(model.get().toBoxFileModel()));
-            pageModel = model;
-        } else {
-            setBoxFileModel(Optional.empty());
-            pageModel = model;
-        }
+    public @Nullable BoxFile getBoxFile() {
+        return null;
     }
 
     @Override
-    public Optional<BoxFile> getBoxFileModel() {
-        return model;
-    }
-
-    @Override
-    public Optional<PageModel> getPageModel() {
-        return pageModel;
+    public Page getPage() {
+        return page;
     }
 
     public JLabel getCanvas() {
@@ -578,7 +564,7 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
         return this;
     }
 
-    public Optional<Symbol> getSelectedSymbol() {
+    private Optional<Symbol> getSelectedSymbol() {
         final int index = tabSymbols.getTable().getSelectedRow();
 
         if (index < 0) {
@@ -589,49 +575,13 @@ public class BoxEditor extends JPanel implements BoxFileModelComponent {
                 .getSymbol(index));
     }
 
-    public JTextField getSymbolTextField() {
-        return tfSymbol;
-    }
-
-    public JSpinner getXSpinner() {
-        return spinnerX;
-    }
-
-    public JSpinner getYSpinner() {
-        return spinnerY;
-    }
-
-    public JSpinner getWidthSpinner() {
-        return spinnerWidth;
-    }
-
-    public JSpinner getHeightSpinner() {
-        return spinnerHeight;
-    }
-
-    public void addChangeListener(ChangeListener listener) {
-        changeListeners.add(listener);
-    }
-
-    public void removeChangeListener(ChangeListener listener) {
-        changeListeners.remove(listener);
-    }
-
     public boolean hasChanged() {
         return changed;
-    }
-
-    public void setChanged(boolean b) {
-        changed = b;
-
-        final ChangeEvent evt = new ChangeEvent(this);
-        for (ChangeListener l : changeListeners) {
-            l.stateChanged(evt);
-        }
     }
 
     @Override
     public void freeResources() {
         lblCanvas.setIcon(null);
     }
+
 }

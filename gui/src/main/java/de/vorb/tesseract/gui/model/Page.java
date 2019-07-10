@@ -1,6 +1,5 @@
 package de.vorb.tesseract.gui.model;
 
-import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.util.FileNames;
 
@@ -9,19 +8,19 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class PageModel {
+public class Page {
 
     private final Image image;
-    private final Page page;
+    private final de.vorb.tesseract.util.Page page;
     private final String transcription;
 
-    public PageModel(Image image, Page page, String string) {
+    public Page(Image image, de.vorb.tesseract.util.Page page, String string) {
         this.image = image;
         this.page = page;
         this.transcription = string;
     }
 
-    public Page getPage() {
+    public de.vorb.tesseract.util.Page getPage() {
         return page;
     }
 
@@ -33,12 +32,12 @@ public class PageModel {
         return transcription;
     }
 
-    public PageModel withTranscription(String transcription) {
+    public Page withTranscription(String transcription) {
         if (transcription.equals(this.transcription)) {
             return this;
         }
 
-        return new PageModel(image, page, transcription);
+        return new Page(image, page, transcription);
     }
 
     public BoxFile toBoxFileModel() {
@@ -53,4 +52,5 @@ public class PageModel {
 
         return new BoxFile(boxFile, image, boxes);
     }
+
 }

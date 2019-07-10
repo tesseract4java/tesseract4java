@@ -1,9 +1,11 @@
 package de.vorb.tesseract.gui.view;
 
 import de.vorb.tesseract.gui.model.BoxFile;
-import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.Page;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.view.renderer.EvaluationPaneRenderer;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -24,9 +26,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Optional;
 
-public class EvaluationPane extends JPanel implements PageModelComponent {
+public class EvaluationPane extends JPanel implements PageComponent {
+
     private static final long serialVersionUID = 1L;
 
     private static final Insets BUTTON_MARGIN = new Insets(2, 4, 2, 4);
@@ -34,7 +36,8 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
     private final Scale scale;
     private final EvaluationPaneRenderer renderer;
 
-    private Optional<PageModel> model;
+    @Nullable
+    private Page model;
     private final JLabel lblOriginal;
     private final JTextArea textAreaTranscript;
     private final JButton btnSaveTranscription;
@@ -44,12 +47,7 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
     private final JButton btnZoomIn;
     private final JButton btnUseOcrResult;
 
-    /**
-     * Create the panel.
-     *
-     * @param scale
-     */
-    public EvaluationPane(final Scale scale, final String editorFont) {
+    EvaluationPane(final Scale scale, final String editorFont) {
         setLayout(new BorderLayout(0, 0));
 
         this.scale = scale;
@@ -134,7 +132,7 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
         btnZoomOut.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 if (scale.hasPrevious()) {
-                    renderer.render(getPageModel(), scale.previous());
+                    renderer.render(getPage(), scale.previous());
                 }
 
                 if (!scale.hasPrevious()) {
@@ -175,7 +173,7 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
 
         btnZoomIn.addActionListener(evt -> {
             if (scale.hasNext()) {
-                renderer.render(getPageModel(), scale.next());
+                renderer.render(getPage(), scale.next());
             }
 
             if (!scale.hasNext()) {
@@ -212,14 +210,14 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
     }
 
     @Override
-    public void setPageModel(Optional<PageModel> model) {
+    public void setPage(@Nullable Page model) {
         this.model = model;
 
         renderer.render(model, scale.current());
     }
 
     @Override
-    public Optional<PageModel> getPageModel() {
+    public @Nullable Page getPage() {
         return model;
     }
 
@@ -229,15 +227,15 @@ public class EvaluationPane extends JPanel implements PageModelComponent {
     }
 
     @Override
-    public Optional<BoxFile> getBoxFileModel() {
-        if (model.isPresent()) {
-            return Optional.of(model.get().toBoxFileModel());
+    public @Nullable BoxFile getBoxFile() {
+        if (model != null) {
+            return model.toBoxFileModel();
         } else {
-            return Optional.empty();
+            return null;
         }
     }
 
-    public void setEditorFont(String editorFont) {
+    public void setEditorFont(@Nullable String editorFont) {
         textAreaTranscript.setFont(new Font(editorFont, Font.PLAIN, 13));
     }
 }

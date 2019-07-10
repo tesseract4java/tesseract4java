@@ -3,19 +3,21 @@ package de.vorb.tesseract.gui.view;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.Symbol;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import javax.swing.ListModel;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.Optional;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;
 
 public class BoxFileCanvas extends Canvas {
+
     private static final long serialVersionUID = 1L;
 
     private float scale;
-    private Optional<ListModel<Symbol>> symbols =
-            Optional.empty();
+    @Nullable
+    private ListModel<Symbol> symbols = null;
     private int selectedIndex = -1;
 
     public BoxFileCanvas() {
@@ -25,8 +27,7 @@ public class BoxFileCanvas extends Canvas {
         this.scale = scale;
     }
 
-    public void setSymbols(Optional<ListModel<Symbol>> symbols,
-            int selectedIndex) {
+    public void setSymbols(@Nullable ListModel<Symbol> symbols, int selectedIndex) {
         this.symbols = symbols;
         this.selectedIndex = -1;
     }
@@ -35,10 +36,10 @@ public class BoxFileCanvas extends Canvas {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (!this.symbols.isPresent())
+        if (symbols == null) {
             return;
+        }
 
-        final ListModel<Symbol> symbols = this.symbols.get();
         final int size = symbols.getSize();
 
         for (int i = 0; i < size; i++) {

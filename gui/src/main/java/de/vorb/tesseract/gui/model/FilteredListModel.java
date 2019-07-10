@@ -2,26 +2,26 @@ package de.vorb.tesseract.gui.model;
 
 import de.vorb.tesseract.gui.util.Filter;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import javax.swing.AbstractListModel;
 import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.util.ArrayList;
-import java.util.Optional;
 
 public class FilteredListModel<T> extends AbstractListModel<T> {
+
     private static final long serialVersionUID = 1L;
 
     private final ListModel<T> source;
     private final ArrayList<T> filtered = new ArrayList<>();
 
-    // if filter is absent, all items are shown
-    private Optional<Filter<T>> filter = Optional.empty();
+    @NonNull
+    private Filter<T> filter = createMatchAllFilter();
 
-    public FilteredListModel(ListModel<T> source) {
-        if (source == null) {
-            throw new IllegalArgumentException("model was null");
-        }
+    public FilteredListModel(@NonNull ListModel<T> source) {
 
         this.source = source;
 
@@ -45,17 +45,14 @@ public class FilteredListModel<T> extends AbstractListModel<T> {
     }
 
     private void applyFilter() {
-        if (filter.isPresent()) {
-            final Filter<T> f = filter.get();
-            filtered.clear();
+        filtered.clear();
 
-            // apply filter to every item in source model
-            final int sourceSize = source.getSize();
-            for (int i = 0; i < sourceSize; ++i) {
-                final T item = source.getElementAt(i);
-                if (f.accept(item)) {
-                    filtered.add(item);
-                }
+        // apply filter to every item in source model
+        final int sourceSize = source.getSize();
+        for (int i = 0; i < sourceSize; ++i) {
+            final T item = source.getElementAt(i);
+            if (filter.accept(item)) {
+                filtered.add(item);
             }
         }
 
@@ -63,19 +60,16 @@ public class FilteredListModel<T> extends AbstractListModel<T> {
         fireContentsChanged(this, 0, getSize() - 1);
     }
 
-    public void setFilter(Optional<Filter<T>> filter) {
+    public void setFilter(@NonNull Filter<T> filter) {
         this.filter = filter;
         applyFilter();
     }
 
+    @Nullable
     @Override
     public T getElementAt(int index) {
         if (index < 0) {
             return null;
-        }
-
-        if (!filter.isPresent()) {
-            return source.getElementAt(index);
         }
 
         return filtered.get(index);
@@ -83,14 +77,15 @@ public class FilteredListModel<T> extends AbstractListModel<T> {
 
     @Override
     public int getSize() {
-        if (!filter.isPresent()) {
-            return source.getSize();
-        }
-
         return filtered.size();
     }
 
     public ListModel<T> getSource() {
         return source;
     }
+
+    public static <T> Filter<T> createMatchAllFilter() {
+        return item -> true;
+    }
+
 }

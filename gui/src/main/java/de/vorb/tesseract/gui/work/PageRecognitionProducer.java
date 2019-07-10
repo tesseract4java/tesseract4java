@@ -22,11 +22,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 public class PageRecognitionProducer extends RecognitionProducer {
+
     private final Path tessdataDir;
-    private Optional<lept.PIX> lastPix = Optional.empty();
+    private lept.PIX lastPix = null;
 
     private final TesseractController controller;
     private final HashMap<String, String> variables = new HashMap<>();
@@ -75,34 +75,34 @@ public class PageRecognitionProducer extends RecognitionProducer {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         tesseract.TessBaseAPIDelete(getHandle());
     }
 
-    public void loadImage(Path imageFile) {
-        if (lastPix.isPresent()) {
+    void loadImage(Path imageFile) {
+        if (lastPix != null) {
             // destroy old pix
-            lept.pixDestroy(lastPix.get());
+            lept.pixDestroy(lastPix);
         }
 
         final lept.PIX pix = lept.pixRead(imageFile.toString());
 
         tesseract.TessBaseAPISetImage2(getHandle(), pix);
 
-        lastPix = Optional.of(pix);
+        lastPix = pix;
     }
 
-    public Optional<lept.PIX> getImage() {
+    public lept.PIX getImage() {
         return lastPix;
     }
 
-    public Optional<lept.PIX> getThresholdedImage() {
-        return Optional.ofNullable(tesseract.TessBaseAPIGetThresholdedImage(getHandle()));
+    public lept.PIX getThresholdedImage() {
+        return tesseract.TessBaseAPIGetThresholdedImage(getHandle());
     }
 
     public List<Feature3D> getFeaturesForSymbol(BufferedImage symbol) {
-        if (!lastPix.isPresent()) {
-            return new LinkedList<>();
+        if (lastPix == null) {
+            return Collections.emptyList();
         }
 
         final int padding = 5;
@@ -164,7 +164,4 @@ public class PageRecognitionProducer extends RecognitionProducer {
         }
     }
 
-    public void setVariable(String key, String value) {
-        variables.put(key, value);
-    }
 }

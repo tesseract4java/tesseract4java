@@ -5,6 +5,8 @@ import de.vorb.tesseract.tools.training.IntTemplates;
 import de.vorb.tesseract.util.feat.Feature3D;
 import de.vorb.tesseract.util.feat.Feature4D;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -20,29 +22,23 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Line2D.Double;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.Optional;
 
 public class FeatureDebugger extends JDialog {
+
     private static final long serialVersionUID = 1L;
 
     private static final double PI2 = Math.PI + Math.PI;
-    private static final double FEATURE_RADIUS = 3.5d;
+    private static final double FEATURE_RADIUS = 3.5;
     private static final int WIDTH = 256;
     private static final int HEIGHT = 256;
 
-    private final JPanel contentPanel = new JPanel();
-    private final BufferedImage canvas = new BufferedImage(WIDTH, HEIGHT,
-            BufferedImage.TYPE_INT_RGB);
+    private final BufferedImage canvas = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
     private final JLabel lblCanvas;
 
     private List<Feature3D> features;
-    private Optional<IntTemplates> prototypes = Optional.empty();
+    @Nullable
+    private IntTemplates prototypes = null;
 
-    /**
-     * Create the dialog.
-     *
-     * @param parent
-     */
     public FeatureDebugger(Window parent) {
         super(parent);
         setLocationByPlatform(true);
@@ -50,6 +46,7 @@ public class FeatureDebugger extends JDialog {
         setModalityType(ModalityType.APPLICATION_MODAL);
 
         getContentPane().setLayout(new BorderLayout());
+        final JPanel contentPanel = new JPanel();
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(new BorderLayout(0, 0));
@@ -68,10 +65,6 @@ public class FeatureDebugger extends JDialog {
         redraw();
     }
 
-    public void setPrototypes(Optional<IntTemplates> prototypes) {
-        this.prototypes = prototypes;
-    }
-
     private void redraw() {
         final Graphics2D g2d = canvas.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -81,11 +74,11 @@ public class FeatureDebugger extends JDialog {
         g2d.clearRect(0, 0, WIDTH, HEIGHT);
 
         final Double line = new Line2D.Double(0d, 0d, 0d, 0d);
-        if (prototypes.isPresent()) {
-            final List<IntClass> classes = prototypes.get().getClasses();
+        if (prototypes != null) {
+            final List<IntClass> classes = prototypes.getClasses();
             for (final Feature4D feat : classes.get(0).getProtoSets().get(0).getProtos()) {
                 // transform the angle back to radians
-                final double angle = feat.getAngle() / 256d * PI2;
+                final double angle = feat.getAngle() / 256.0 * PI2;
                 final double dx = Math.cos(angle) * feat.getC();
                 final double dy = Math.sin(angle) * feat.getC();
                 final double x1 = feat.getA();

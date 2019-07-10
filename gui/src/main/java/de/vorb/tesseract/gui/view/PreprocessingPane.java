@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class PreprocessingPane extends JPanel implements ImageModelComponent {
+
     private static final long serialVersionUID = 1L;
 
     private final JComboBox<BinarizationMethod> comboBinarization;
@@ -54,12 +55,9 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     private final JButton btnApplyToPage;
     private final JButton btnApplyToAllPages;
 
-    private Optional<Image> imageModel = Optional.empty();
+    private Image imageModel = null;
 
-    /**
-     * Create the panel.
-     */
-    public PreprocessingPane() {
+    PreprocessingPane() {
         setBackground(Color.WHITE);
         setLayout(new BorderLayout(0, 0));
 
@@ -234,7 +232,7 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
         return lblPreview;
     }
 
-    public Binarization getBinarization() {
+    private Binarization getBinarization() {
         final BinarizationMethod method =
                 (BinarizationMethod) comboBinarization.getSelectedItem();
 
@@ -253,7 +251,7 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
         return binarization;
     }
 
-    public List<ImageFilter> getFilters() {
+    private List<ImageFilter> getFilters() {
         int min = (int) spinnerBlobMinSize.getModel().getValue();
         int max = (int) spinnerBlobMaxSize.getModel().getValue();
 
@@ -303,18 +301,15 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     }
 
     @Override
-    public void setImageModel(Optional<Image> model) {
+    public void setImageModel(Image model) {
         imageModel = model;
 
-        if (model.isPresent()) {
-            lblPreview.setIcon(new ImageIcon(model.get().getPreprocessedImage()));
-        } else {
-            lblPreview.setIcon(null);
-        }
+        lblPreview.setIcon(
+                Optional.ofNullable(model).map(Image::getPreprocessedImage).map(ImageIcon::new).orElse(null));
     }
 
     @Override
-    public Optional<Image> getImageModel() {
+    public Image getImageModel() {
         return imageModel;
     }
 

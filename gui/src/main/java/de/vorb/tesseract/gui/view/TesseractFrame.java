@@ -9,6 +9,8 @@ import de.vorb.tesseract.gui.view.dialogs.PreferencesDialog;
 import de.vorb.tesseract.gui.view.i18n.Labels;
 import de.vorb.tesseract.gui.view.renderer.PageListCellRenderer;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -224,8 +226,7 @@ public class TesseractFrame extends JFrame {
 
         mnBatchExport = new JMenuItem("Batch Export...");
         mnBatchExport.setEnabled(false);
-        mnBatchExport.setIcon(new ImageIcon(
-                TesseractFrame.class.getResource("/icons/book_next.png")));
+        mnBatchExport.setIcon(new ImageIcon(TesseractFrame.class.getResource("/icons/book_next.png")));
         mnBatchExport.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,
                 InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
         mnFile.add(mnBatchExport);
@@ -242,8 +243,7 @@ public class TesseractFrame extends JFrame {
         menuBar.add(mnEdit);
 
         mnPreferences = new JMenuItem("Preferences");
-        mnPreferences.setIcon(new ImageIcon(
-                TesseractFrame.class.getResource("/icons/cog.png")));
+        mnPreferences.setIcon(new ImageIcon(TesseractFrame.class.getResource("/icons/cog.png")));
         mnEdit.add(mnPreferences);
 
         mnTools = new JMenu("Tools");
@@ -256,16 +256,15 @@ public class TesseractFrame extends JFrame {
         mnTools.add(mnInspectUnicharset);
 
         mnTesseractTrainer = new JMenuItem("Tesseract Trainer...");
-        mnTesseractTrainer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T,
-                InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+        mnTesseractTrainer.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
         mnTools.add(mnTesseractTrainer);
 
         final JMenu mnHelp = new JMenu(
                 Labels.getLabel(getLocale(), "menu_help"));
         menuBar.add(mnHelp);
 
-        final JMenuItem mntmAbout = new JMenuItem(Labels.getLabel(getLocale(),
-                "menu_about"));
+        final JMenuItem mntmAbout = new JMenuItem(Labels.getLabel(getLocale(), "menu_about"));
         mntmAbout.setIcon(new ImageIcon(
                 TesseractFrame.class.getResource("/icons/information.png")));
         mntmAbout.addActionListener(e -> JOptionPane.showMessageDialog(TesseractFrame.this,
@@ -304,10 +303,10 @@ public class TesseractFrame extends JFrame {
         gbc_lblScaleFactor.gridy = 0;
         panel.add(lblScaleFactor, gbc_lblScaleFactor);
 
-        GridBagConstraints gbc_pbRegognitionProgress = new GridBagConstraints();
-        gbc_pbRegognitionProgress.gridx = 3;
-        gbc_pbRegognitionProgress.gridy = 0;
-        panel.add(pbLoadPage, gbc_pbRegognitionProgress);
+        GridBagConstraints gbc_pbRecognitionProgress = new GridBagConstraints();
+        gbc_pbRecognitionProgress.gridx = 3;
+        gbc_pbRecognitionProgress.gridy = 0;
+        panel.add(pbLoadPage, gbc_pbRecognitionProgress);
         getContentPane().add(spMain, BorderLayout.CENTER);
 
         tabsMain = new JTabbedPane();
@@ -424,7 +423,7 @@ public class TesseractFrame extends JFrame {
         return lblScaleFactor;
     }
 
-    public SymbolOverview getSymbolOverview() {
+    public @NonNull SymbolOverview getSymbolOverview() {
         return glyphOverview;
     }
 

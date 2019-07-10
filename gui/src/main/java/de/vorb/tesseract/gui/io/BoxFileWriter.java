@@ -18,14 +18,13 @@ public final class BoxFileWriter {
     private BoxFileWriter() {
     }
 
-    public static void writeBoxFile(BoxFile model) throws IOException {
-        try (
-                final BufferedWriter boxFileWriter = Files.newBufferedWriter(model.getFilePath(),
-                        StandardCharsets.UTF_8, CREATE, TRUNCATE_EXISTING, WRITE)) {
+    public static void writeBoxFile(BoxFile boxFile) throws IOException {
+        try (final BufferedWriter boxFileWriter = Files.newBufferedWriter(boxFile.getFilePath(),
+                StandardCharsets.UTF_8, CREATE, TRUNCATE_EXISTING, WRITE)) {
 
-            final int pageHeight = model.getImage().getHeight();
+            final int pageHeight = boxFile.getImage().getHeight();
 
-            for (Symbol symbol : model.getBoxes()) {
+            for (Symbol symbol : boxFile.getBoxes()) {
 
                 final Box boundingBox = symbol.getBoundingBox();
                 final int x0 = boundingBox.getX();
@@ -33,8 +32,7 @@ public final class BoxFileWriter {
                 final int x1 = x0 + boundingBox.getWidth();
                 final int y1 = y0 + boundingBox.getHeight();
 
-                boxFileWriter.write(String.format("%s %d %d %d %d 0\n",
-                        symbol.getText(), x0, y0, x1, y1));
+                boxFileWriter.write(String.format("%s %d %d %d %d 0\n", symbol.getText(), x0, y0, x1, y1));
             }
         }
     }

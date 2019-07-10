@@ -1,6 +1,6 @@
 package de.vorb.tesseract.gui.view.renderer;
 
-import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.Page;
 import de.vorb.tesseract.gui.view.Colors;
 import de.vorb.tesseract.gui.view.RecognitionPane;
 import de.vorb.tesseract.util.Baseline;
@@ -8,10 +8,11 @@ import de.vorb.tesseract.util.Block;
 import de.vorb.tesseract.util.Box;
 import de.vorb.tesseract.util.FontAttributes;
 import de.vorb.tesseract.util.Line;
-import de.vorb.tesseract.util.Page;
 import de.vorb.tesseract.util.Paragraph;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
@@ -21,7 +22,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static de.vorb.tesseract.gui.model.Scale.scaled;
@@ -33,12 +33,19 @@ public class RecognitionRenderer implements PageRenderer {
     private static final Font FONT_LINE_NUMBERS = new Font("Dialog", Font.PLAIN, DEFAULT_FONT_SIZE);
 
     private final RecognitionPane recognitionPane;
+
+    @Nullable
     private SwingWorker<Void, Void> renderWorker;
 
-    private PageModel lastPageModel = null;
+    @Nullable
+    private Page lastPage = null;
+
+    @Nullable
     private BufferedImage original = null;
+
+    @Nullable
     private BufferedImage recognition = null;
-    private float minimumConfidence = 0;
+
     private float lastScale;
 
     private final AtomicReference<Font> fontNormal = new AtomicReference<>();
@@ -52,28 +59,21 @@ public class RecognitionRenderer implements PageRenderer {
         setRenderingFont(renderingFont);
     }
 
-    public void setRenderingFont(String renderingFont) {
-        final String selectedFontFamily = renderingFont;
-
-        fontNormal.set(new Font(selectedFontFamily, Font.PLAIN, DEFAULT_FONT_SIZE));
-        fontBold.set(new Font(selectedFontFamily, Font.BOLD, DEFAULT_FONT_SIZE));
-        fontItalic.set(new Font(selectedFontFamily, Font.ITALIC, DEFAULT_FONT_SIZE));
-        fontBoldItalic.set(new Font(selectedFontFamily, Font.BOLD | Font.ITALIC, DEFAULT_FONT_SIZE));
-    }
-
-    public void setMinimumConfidence(float min) {
-        this.minimumConfidence = min;
+    public void setRenderingFont(@Nullable String renderingFont) {
+        fontNormal.set(new Font(renderingFont, Font.PLAIN, DEFAULT_FONT_SIZE));
+        fontBold.set(new Font(renderingFont, Font.BOLD, DEFAULT_FONT_SIZE));
+        fontItalic.set(new Font(renderingFont, Font.ITALIC, DEFAULT_FONT_SIZE));
+        fontBoldItalic.set(new Font(renderingFont, Font.BOLD | Font.ITALIC, DEFAULT_FONT_SIZE));
     }
 
     @Override
-    public void render(Optional<PageModel> pageModel, final float scale) {
-        if (renderWorker != null && !renderWorker.isCancelled()
-                && !renderWorker.isDone()) {
+    public void render(@Nullable Page page, final float scale) {
+        if (renderWorker != null && !renderWorker.isCancelled() && !renderWorker.isDone()) {
             renderWorker.cancel(true);
         }
 
         // if no page model is present, remove the images and render worker
-        if (!pageModel.isPresent()) {
+        if (page == null) {
             renderWorker = null;
 
             recognitionPane.getCanvasOriginal().setIcon(null);
@@ -85,18 +85,17 @@ public class RecognitionRenderer implements PageRenderer {
             return;
         }
 
-        final Page page = pageModel.get().getPage();
-        final BufferedImage preprocessed =
-                pageModel.get().getImage().getPreprocessedImage();
+        final de.vorb.tesseract.util.Page internalPage = page.getPage();
+        final BufferedImage preprocessed = page.getImage().getPreprocessedImage();
         final int width = preprocessed.getWidth();
         final int height = preprocessed.getHeight();
 
         final int scaledWidth;
         final int scaledHeight;
-        if (lastPageModel != pageModel.get() || lastScale != scale) {
+        if (lastPage != page || lastScale != scale) {
             // prepare the images if the model has changed
 
-            lastPageModel = pageModel.get();
+            lastPage = page;
             lastScale = scale;
 
             // calculate the width and height of the scene
@@ -113,12 +112,6 @@ public class RecognitionRenderer implements PageRenderer {
             scaledWidth = original.getWidth();
             scaledHeight = original.getHeight();
         }
-
-        // set the base fonts
-        final Font baseFontNormal;
-        final Font baseFontItalic;
-        final Font baseFontBold;
-        final Font baseFontBoldItalic;
 
         final boolean showWordBoxes = recognitionPane.getWordBoxes().isSelected();
         final boolean showSymbolBoxes = recognitionPane.getSymbolBoxes().isSelected();
@@ -137,8 +130,7 @@ public class RecognitionRenderer implements PageRenderer {
 
                 final String num = String.valueOf(lineNumber);
                 final int x = scaled(20, scale);
-                final int y = scaled(box.getY() + box.getHeight()
-                        - line.getBaseline().getYOffset(), scale);
+                final int y = scaled(box.getY() + box.getHeight() - line.getBaseline().getYOffset(), scale);
 
                 origGfx.setFont(FONT_LINE_NUMBERS);
                 origGfx.setPaint(Colors.LINE_NUMBER);
@@ -149,7 +141,7 @@ public class RecognitionRenderer implements PageRenderer {
                 recogGfx.drawString(num, x, y);
             }
 
-            private void drawWord(final Line line, final Word word) {
+            private void drawWord(final Word word) {
                 // bounding box
                 final Box box = word.getBoundingBox();
 
@@ -181,7 +173,7 @@ public class RecognitionRenderer implements PageRenderer {
                 final int scH = scaled(bH, scale);
 
                 // text coordinates
-                final int tx = scX;
+                @SuppressWarnings("UnnecessaryLocalVariable") final int tx = scX;
                 final int ty = scaled(bY + bH - word.getBaseline().getYOffset(), scale);
 
                 // set font
@@ -190,7 +182,7 @@ public class RecognitionRenderer implements PageRenderer {
                     font = fontNormal.get().deriveFont(scFontSize);
                 } else if (italic && !bold) {
                     font = fontItalic.get().deriveFont(scFontSize);
-                } else if (bold && !italic) {
+                } else if (!italic) {
                     font = fontBold.get().deriveFont(scFontSize);
                 } else {
                     font = fontBoldItalic.get().deriveFont(scFontSize);
@@ -205,7 +197,7 @@ public class RecognitionRenderer implements PageRenderer {
                     if (showWordBoxes) {
                         origGfx.drawRect(scX, scY, scW, scH);
                         recogGfx.drawRect(scX, scY, scW, scH);
-                    } else if (showSymbolBoxes) {
+                    } else {
                         for (final Symbol sym : word.getSymbols()) {
 
                             final Box symbolBoundingBox = sym.getBoundingBox();
@@ -258,7 +250,7 @@ public class RecognitionRenderer implements PageRenderer {
             }
 
             @Override
-            protected Void doInBackground() throws Exception {
+            protected Void doInBackground() {
                 // init graphics contexts
                 origGfx = original.createGraphics();
                 recogGfx = recognition.createGraphics();
@@ -277,7 +269,7 @@ public class RecognitionRenderer implements PageRenderer {
                 if (showBlocks) {
                     origGfx.setPaint(Colors.BLOCK);
                     recogGfx.setPaint(Colors.BLOCK);
-                    final Iterator<Block> blocks = page.blockIterator();
+                    final Iterator<Block> blocks = internalPage.blockIterator();
                     while (blocks.hasNext()) {
                         final Block block = blocks.next();
                         final Box boundingBox = block.getBoundingBox();
@@ -295,7 +287,7 @@ public class RecognitionRenderer implements PageRenderer {
                 if (showParagraphs) {
                     origGfx.setPaint(Colors.PARAGRAPH);
                     recogGfx.setPaint(Colors.PARAGRAPH);
-                    final Iterator<Paragraph> paragraphs = page.paragraphIterator();
+                    final Iterator<Paragraph> paragraphs = internalPage.paragraphIterator();
                     while (paragraphs.hasNext()) {
                         final Paragraph paragraph = paragraphs.next();
                         final Box boundingBox = paragraph.getBoundingBox();
@@ -311,7 +303,7 @@ public class RecognitionRenderer implements PageRenderer {
                 }
 
                 int lineNumber = 1;
-                final Iterator<Line> lines = page.lineIterator();
+                final Iterator<Line> lines = internalPage.lineIterator();
                 while (lines.hasNext()) {
                     final Line line = lines.next();
                     if (scale >= 0.5f && showLineNumbers) {
@@ -323,7 +315,7 @@ public class RecognitionRenderer implements PageRenderer {
                             RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
                     for (final Word word : line.getWords()) {
-                        drawWord(line, word);
+                        drawWord(word);
                     }
 
                     lineNumber++;
@@ -336,8 +328,7 @@ public class RecognitionRenderer implements PageRenderer {
             protected void done() {
                 try {
                     recognitionPane.getCanvasOriginal().setIcon(new ImageIcon(original));
-                    recognitionPane.getCanvasRecognition().setIcon(
-                            new ImageIcon(recognition));
+                    recognitionPane.getCanvasRecognition().setIcon(new ImageIcon(recognition));
                 } catch (Exception e) {
                 } finally {
                     System.gc();
@@ -348,7 +339,4 @@ public class RecognitionRenderer implements PageRenderer {
         renderWorker.execute();
     }
 
-    public void freeResources() {
-        lastPageModel = null;
-    }
 }

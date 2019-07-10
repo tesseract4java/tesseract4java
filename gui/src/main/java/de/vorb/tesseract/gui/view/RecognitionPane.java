@@ -1,13 +1,15 @@
 package de.vorb.tesseract.gui.view;
 
 import de.vorb.tesseract.gui.model.BoxFile;
-import de.vorb.tesseract.gui.model.PageModel;
+import de.vorb.tesseract.gui.model.Page;
 import de.vorb.tesseract.gui.model.Scale;
 import de.vorb.tesseract.gui.view.renderer.RecognitionRenderer;
 import de.vorb.tesseract.util.AlternativeChoice;
 import de.vorb.tesseract.util.FontAttributes;
 import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.Word;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -37,7 +39,7 @@ import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class RecognitionPane extends JPanel implements PageModelComponent {
+public class RecognitionPane extends JPanel implements PageComponent {
     private static final long serialVersionUID = 1L;
 
     private static final int SCROLL_UNITS = 12;
@@ -55,7 +57,8 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
     private final JCheckBox cbLineNumbers;
     private final JCheckBox cbBaselines;
 
-    private Optional<PageModel> model = Optional.empty();
+    @Nullable
+    private Page page = null;
 
     private final Timer delayer = new Timer(true);
     private JButton btZoomOut;
@@ -299,7 +302,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
                 RecognitionPane.class.getResource("/icons/zoom_out.png")));
         btZoomOut.addActionListener(ev -> {
             if (scale.hasPrevious()) {
-                renderer.render(getPageModel(), scale.previous());
+                renderer.render(getPage(), scale.previous());
             }
 
             if (!scale.hasPrevious()) {
@@ -321,7 +324,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
                 RecognitionPane.class.getResource("/icons/zoom_in.png")));
         btZoomIn.addActionListener(ev -> {
             if (scale.hasNext()) {
-                renderer.render(getPageModel(), scale.next());
+                renderer.render(getPage(), scale.next());
             }
 
             if (!scale.hasPrevious()) {
@@ -356,25 +359,14 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
     }
 
     private Optional<Symbol> findSymbolAt(int x, int y) {
-        if (!model.isPresent()) {
+        if (page == null) {
             return Optional.empty();
         }
 
-        final Iterator<Symbol> symbolIt =
-                model.get().getPage().symbolIterator();
+        final Iterator<Symbol> symbolIt = page.getPage().symbolIterator();
         while (symbolIt.hasNext()) {
             final Symbol symb = symbolIt.next();
-            final de.vorb.tesseract.util.Box bbox = symb.getBoundingBox();
-
-            final int scaledX0 = Scale.scaled(bbox.getX(), scale.current());
-            final int scaledY0 = Scale.scaled(bbox.getY(), scale.current());
-            final int scaledX1 = scaledX0
-                    + Scale.scaled(bbox.getWidth(), scale.current());
-            final int scaledY1 = scaledY0
-                    + Scale.scaled(bbox.getHeight(), scale.current());
-
-            if (x >= scaledX0 && x <= scaledX1 && y >= scaledY0
-                    && y <= scaledY1) {
+            if (boundingBoxContainsPoint(symb.getBoundingBox(), x, y)) {
                 return Optional.of(symb);
             }
         }
@@ -383,26 +375,15 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
     }
 
     private Optional<Word> findWordAt(int x, int y) {
-        if (!model.isPresent()) {
+        if (page == null) {
             return Optional.empty();
         }
 
-        final Iterator<Word> wordIt =
-                model.get().getPage().wordIterator();
+        final Iterator<Word> wordIt = page.getPage().wordIterator();
 
         while (wordIt.hasNext()) {
             final Word word = wordIt.next();
-            final de.vorb.tesseract.util.Box bbox = word.getBoundingBox();
-
-            final int scaledX0 = Scale.scaled(bbox.getX(), scale.current());
-            final int scaledY0 = Scale.scaled(bbox.getY(), scale.current());
-            final int scaledX1 = scaledX0
-                    + Scale.scaled(bbox.getWidth(), scale.current());
-            final int scaledY1 = scaledY0
-                    + Scale.scaled(bbox.getHeight(), scale.current());
-
-            if (x >= scaledX0 && x <= scaledX1 && y >= scaledY0
-                    && y <= scaledY1) {
+            if (boundingBoxContainsPoint(word.getBoundingBox(), x, y)) {
                 return Optional.of(word);
             }
         }
@@ -410,12 +391,24 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         return Optional.empty();
     }
 
-    public Optional<PageModel> getPageModel() {
-        return model;
+    private boolean boundingBoxContainsPoint(de.vorb.tesseract.util.Box boundingBox, int x, int y) {
+
+        final int scaledX0 = Scale.scaled(boundingBox.getX(), scale.current());
+        final int scaledY0 = Scale.scaled(boundingBox.getY(), scale.current());
+        final int scaledX1 = scaledX0 + Scale.scaled(boundingBox.getWidth(), scale.current());
+        final int scaledY1 = scaledY0 + Scale.scaled(boundingBox.getHeight(), scale.current());
+
+        return x >= scaledX0 && x <= scaledX1 && y >= scaledY0 && y <= scaledY1;
     }
 
-    public void setPageModel(Optional<PageModel> page) {
-        model = page;
+    @Override
+    public @Nullable Page getPage() {
+        return page;
+    }
+
+    @Override
+    public void setPage(@Nullable Page page) {
+        this.page = page;
 
         render();
     }
@@ -426,7 +419,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         delayer.schedule(new TimerTask() {
             @Override
             public void run() {
-                renderer.render(model, scale.current());
+                renderer.render(page, scale.current());
             }
         }, 200);
     }
@@ -443,11 +436,11 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
     }
 
     @Override
-    public Optional<BoxFile> getBoxFileModel() {
-        if (model.isPresent()) {
-            return Optional.of(model.get().toBoxFileModel());
+    public @Nullable BoxFile getBoxFile() {
+        if (page != null) {
+            return page.toBoxFileModel();
         } else {
-            return Optional.empty();
+            return null;
         }
     }
 
@@ -483,7 +476,7 @@ public class RecognitionPane extends JPanel implements PageModelComponent {
         return cbParagraphs;
     }
 
-    public void setRenderingFont(String renderingFont) {
+    public void setRenderingFont(@Nullable String renderingFont) {
         renderer.setRenderingFont(renderingFont);
     }
 }
