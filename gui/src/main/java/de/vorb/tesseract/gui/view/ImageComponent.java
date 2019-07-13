@@ -4,11 +4,11 @@ import de.vorb.tesseract.gui.model.Image;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public interface ImageModelComponent extends MainComponent {
+public interface ImageComponent extends MainComponent {
 
-    void setImageModel(@Nullable Image model);
+    void setImage(@Nullable Image image);
 
     @Nullable
-    Image getImageModel();
+    Image getImage();
 
 }

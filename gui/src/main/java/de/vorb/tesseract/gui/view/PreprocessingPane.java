@@ -39,7 +39,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-public class PreprocessingPane extends JPanel implements ImageModelComponent {
+public class PreprocessingPane extends JPanel implements ImageComponent {
 
     private static final long serialVersionUID = 1L;
 
@@ -301,15 +301,15 @@ public class PreprocessingPane extends JPanel implements ImageModelComponent {
     }
 
     @Override
-    public void setImageModel(Image model) {
-        imageModel = model;
+    public void setImage(Image image) {
+        imageModel = image;
 
         lblPreview.setIcon(
-                Optional.ofNullable(model).map(Image::getPreprocessedImage).map(ImageIcon::new).orElse(null));
+                Optional.ofNullable(image).map(Image::getPreprocessedImage).map(ImageIcon::new).orElse(null));
     }
 
     @Override
-    public Image getImageModel() {
+    public Image getImage() {
         return imageModel;
     }
 

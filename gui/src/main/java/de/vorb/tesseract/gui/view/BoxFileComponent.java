@@ -6,6 +6,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface BoxFileComponent extends PageComponent {
 
-    void setBoxFile(@Nullable BoxFile model);
+    void setBoxFile(@Nullable BoxFile boxFile);
 
 }

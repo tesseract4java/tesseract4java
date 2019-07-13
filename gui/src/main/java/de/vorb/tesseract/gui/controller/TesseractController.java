@@ -19,7 +19,7 @@ import de.vorb.tesseract.gui.view.BoxFileComponent;
 import de.vorb.tesseract.gui.view.EvaluationPane;
 import de.vorb.tesseract.gui.view.FeatureDebugger;
 import de.vorb.tesseract.gui.view.FilteredTable;
-import de.vorb.tesseract.gui.view.ImageModelComponent;
+import de.vorb.tesseract.gui.view.ImageComponent;
 import de.vorb.tesseract.gui.view.MainComponent;
 import de.vorb.tesseract.gui.view.PageComponent;
 import de.vorb.tesseract.gui.view.PreprocessingPane;
@@ -92,6 +92,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -109,6 +110,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.prefs.Preferences;
+
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 public class TesseractController extends WindowAdapter implements
         ActionListener, ListSelectionListener, Observer, ChangeListener {
@@ -144,6 +149,7 @@ public class TesseractController extends WindowAdapter implements
 
     private static final String KEY_TRAINING_FILE = "training_file";
     private static final String KEY_BOX_FILE = "box_file";
+    private static final OpenOption[] CREATE_OR_REPLACE = {CREATE, WRITE, TRUNCATE_EXISTING};
 
     private final TesseractFrame view;
 
@@ -407,12 +413,12 @@ public class TesseractController extends WindowAdapter implements
         } else if (mode == ApplicationMode.PROJECT) {
             // in project mode, it's a bit more complicated
 
-            if (active instanceof ImageModelComponent) {
-                if (activeComponent instanceof ImageModelComponent) {
-                    // ImageModelComponent -> ImageModelComponent
-                    setImage(((ImageModelComponent) activeComponent).getImageModel());
+            if (active instanceof ImageComponent) {
+                if (activeComponent instanceof ImageComponent) {
+                    // ImageComponent -> ImageComponent
+                    setImage(((ImageComponent) activeComponent).getImage());
                 } else if (activeComponent instanceof PageComponent) {
-                    // PageComponent -> ImageModelComponent
+                    // PageComponent -> ImageComponent
                     final Page pm = ((PageComponent) activeComponent).getPage();
 
                     if (pm != null) {
@@ -427,9 +433,9 @@ public class TesseractController extends WindowAdapter implements
                 if (activeComponent instanceof PageComponent) {
                     // PageComponent -> PageComponent
                     setPage(((PageComponent) activeComponent).getPage());
-                } else if (activeComponent instanceof ImageModelComponent) {
-                    // ImageModelComponent -> PageComponent
-                    setImage(((ImageModelComponent) activeComponent).getImageModel());
+                } else if (activeComponent instanceof ImageComponent) {
+                    // ImageComponent -> PageComponent
+                    setImage(((ImageComponent) activeComponent).getImage());
                 } else {
                     setPage(null);
                 }
@@ -485,35 +491,36 @@ public class TesseractController extends WindowAdapter implements
 
                     // for every file
                     for (final Path imgFile : project.getImageFiles()) {
+
                         final Path filename = FileNames.replaceExtension(imgFile, "txt").getFileName();
                         final Path transcription = project.getTranscriptionDir().resolve(filename);
 
-                        final BufferedWriter writer = Files.newBufferedWriter(transcription, StandardCharsets.UTF_8);
+                        try (final BufferedWriter writer = Files.newBufferedWriter(transcription,
+                                StandardCharsets.UTF_8, CREATE_OR_REPLACE)) {
 
-                        int lines = 0;
+                            int lines = 0;
 
-                        // read file line by line
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            // if the line equals the separator, create the next
-                            // file
-                            if (line.equals(sep)) {
-                                break;
+                            // read file line by line
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                // if the line equals the separator, create the next file
+                                if (line.equals(sep)) {
+                                    break;
+                                }
+
+                                lines++;
+                                // otherwise write the line to the current file
+                                writer.write(line);
+                                writer.write('\n');
                             }
 
-                            lines++;
-                            // otherwise write the line to the current file
-                            writer.write(line);
+                            // if a transcription file is empty, delete it
+                            if (lines == 0) {
+                                Files.deleteIfExists(transcription);
+                            }
+
                             writer.write('\n');
                         }
-
-                        // if a transcription file is empty, delete it
-                        if (lines == 0) {
-                            Files.delete(transcription);
-                        }
-
-                        writer.write('\n');
-                        writer.close();
                     }
 
                 }
@@ -541,8 +548,8 @@ public class TesseractController extends WindowAdapter implements
                 progressMonitor.setProgress(0);
 
                 try (final BufferedWriter errorLog = Files.newBufferedWriter(
-                        export.get().getDestinationDir().resolve("errors.log"),
-                        StandardCharsets.UTF_8)) {
+                        export.get().getDestinationDir().resolve("errors.log"), StandardCharsets.UTF_8,
+                        CREATE_OR_REPLACE)) {
 
                     batchExec.start(progressMonitor, errorLog);
 
@@ -642,7 +649,8 @@ public class TesseractController extends WindowAdapter implements
 
                 final Path transcriptionFile = project.getTranscriptionDir().resolve(fileName);
 
-                try (final Writer writer = Files.newBufferedWriter(transcriptionFile, StandardCharsets.UTF_8)) {
+                try (final Writer writer = Files.newBufferedWriter(transcriptionFile, StandardCharsets.UTF_8,
+                        CREATE_OR_REPLACE)) {
 
                     final String transcription = view.getEvaluationPane().getTextAreaTranscript().getText();
 
@@ -1166,8 +1174,7 @@ public class TesseractController extends WindowAdapter implements
         if (approved == JFileChooser.APPROVE_OPTION) {
             final Path textFile = fc.getSelectedFile().toPath();
 
-            try {
-                final BufferedReader reader = Files.newBufferedReader(textFile, StandardCharsets.UTF_8);
+            try (final BufferedReader reader = Files.newBufferedReader(textFile, StandardCharsets.UTF_8)) {
 
                 final Map<Character, Integer> histogram = new TreeMap<>();
 
@@ -1275,21 +1282,21 @@ public class TesseractController extends WindowAdapter implements
         }
 
         if (active instanceof BoxFileComponent) {
-            final BoxFile boxFile = Optional.ofNullable(updatedPage).map(Page::toBoxFileModel).orElse(null);
+            final BoxFile boxFile = Optional.ofNullable(updatedPage).map(Page::toBoxFile).orElse(null);
             ((BoxFileComponent) active).setBoxFile(boxFile);
         }
     }
 
-    private void setBoxFile(@Nullable BoxFile model) {
+    private void setBoxFile(@Nullable BoxFile boxFile) {
         final MainComponent active = view.getActiveComponent();
         if (active instanceof BoxFileComponent) {
-            ((BoxFileComponent) active).setBoxFile(model);
+            ((BoxFileComponent) active).setBoxFile(boxFile);
         } else {
             Dialogs.showWarning(view, "Illegal Action", "Could not set the box file");
         }
     }
 
-    public void setImage(@Nullable Image model) {
+    public void setImage(@Nullable Image image) {
         view.getProgressBar().setIndeterminate(false);
         final MainComponent active = view.getActiveComponent();
 
@@ -1305,35 +1312,35 @@ public class TesseractController extends WindowAdapter implements
             if (!trainingFile.isPresent()) {
                 Dialogs.showWarning(view, "Warning", "Please select a traineddata file.");
                 return;
-            } else if (model == null) {
+            } else if (image == null) {
                 return;
             }
 
-            final RecognitionWorker rw = new RecognitionWorker(this, model, trainingFile.get());
+            final RecognitionWorker rw = new RecognitionWorker(this, image, trainingFile.get());
 
             rw.execute();
 
             recognitionWorker = rw;
 
             return;
-        } else if (!(active instanceof ImageModelComponent)) {
+        } else if (!(active instanceof ImageComponent)) {
             return;
         }
 
-        if (model == null) {
-            ((ImageModelComponent) active).setImageModel(null);
+        if (image == null) {
+            ((ImageComponent) active).setImage(null);
             return;
         }
 
-        final Path sourceFile = model.getSourceFile();
+        final Path sourceFile = image.getSourceFile();
         final Path selectedPage = getSelectedPage();
 
         if (!sourceFile.equals(selectedPage)) {
-            ((ImageModelComponent) active).setImageModel(null);
+            ((ImageComponent) active).setImage(null);
             return;
         }
 
-        ((ImageModelComponent) active).setImageModel(model);
+        ((ImageComponent) active).setImage(image);
     }
 
     // TODO prototype loading?

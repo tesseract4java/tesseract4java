@@ -210,10 +210,10 @@ public class EvaluationPane extends JPanel implements PageComponent {
     }
 
     @Override
-    public void setPage(@Nullable Page model) {
-        this.model = model;
+    public void setPage(@Nullable Page page) {
+        this.model = page;
 
-        renderer.render(model, scale.current());
+        renderer.render(page, scale.current());
     }
 
     @Override
@@ -229,7 +229,7 @@ public class EvaluationPane extends JPanel implements PageComponent {
     @Override
     public @Nullable BoxFile getBoxFile() {
         if (model != null) {
-            return model.toBoxFileModel();
+            return model.toBoxFile();
         } else {
             return null;
         }

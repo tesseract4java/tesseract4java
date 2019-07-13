@@ -40,7 +40,7 @@ public class Page {
         return new Page(image, page, transcription);
     }
 
-    public BoxFile toBoxFileModel() {
+    public BoxFile toBoxFile() {
         final Path boxFile = FileNames.replaceExtension(image.getPreprocessedFile(), "box");
         final BufferedImage image = this.image.getPreprocessedImage();
 

@@ -47,7 +47,9 @@ import java.util.prefs.Preferences;
  * Swing component that allows to compare the results of Tesseract.
  */
 public class TesseractFrame extends JFrame {
+
     private static final long serialVersionUID = 1L;
+
     private final FilteredList<PageThumbnail> listPages;
     private final FilteredList<String> listTrainingFiles;
     private final PreprocessingPane preprocessingPane;

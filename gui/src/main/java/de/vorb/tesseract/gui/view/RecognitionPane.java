@@ -438,7 +438,7 @@ public class RecognitionPane extends JPanel implements PageComponent {
     @Override
     public @Nullable BoxFile getBoxFile() {
         if (page != null) {
-            return page.toBoxFileModel();
+            return page.toBoxFile();
         } else {
             return null;
         }

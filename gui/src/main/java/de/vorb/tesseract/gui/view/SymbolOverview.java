@@ -118,7 +118,7 @@ public class SymbolOverview extends JPanel implements BoxFileComponent {
     @Override
     public void setPage(Page page) {
         this.page = page;
-        setBoxFile(Optional.ofNullable(page).map(Page::toBoxFileModel).orElse(null));
+        setBoxFile(Optional.ofNullable(page).map(Page::toBoxFile).orElse(null));
     }
 
     @Override

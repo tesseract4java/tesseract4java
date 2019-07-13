@@ -7,7 +7,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface PageComponent extends MainComponent {
 
-    void setPage(@Nullable Page model);
+    void setPage(@Nullable Page page);
 
     @Nullable
     Page getPage();
