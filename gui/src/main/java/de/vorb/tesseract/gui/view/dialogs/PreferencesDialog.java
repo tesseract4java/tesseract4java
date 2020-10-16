@@ -26,15 +26,35 @@ import java.util.prefs.Preferences;
 public class PreferencesDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
+    private static final String[] PSM_MODES = {
+            "0 - PSM_OSD_ONLY",
+            "1 - PSM_AUTO_OSD",
+            "2 - PSM_AUTO_ONLY",
+            "3 - (DEFAULT) PSM_AUTO",
+            "4 - PSM_SINGLE_COLUMN",
+            "5 - PSM_SINGLE_BLOCK_VERT_TEXT",
+            "6 - PSM_SINGLE_BLOCK",
+            "7 - PSM_SINGLE_LINE",
+            "8 - PSM_SINGLE_WORD",
+            "9 - PSM_CIRCLE_WORD",
+            "10 - PSM_SINGLE_CHAR",
+            "11 - PSM_SPARSE_TEXT",
+            "12 - PSM_SPARSE_TEXT_OSD",
+            "13 - PSM_RAW_LINE",
+    };
+    public static final int DEFAULT_PSM_MODE = 3;
+
     public static final String KEY_LANGDATA_DIR = "langdata_dir";
     public static final String KEY_RENDERING_FONT = "rendering_font";
     public static final String KEY_EDITOR_FONT = "editor_font";
+    public static final String KEY_PAGE_SEG_MODE = "page_seg_mode";
 
     private final JPanel contentPanel = new JPanel();
     private JTextField tfLangdataDir;
 
     private final JComboBox<String> comboRenderingFont;
     private final JComboBox<String> comboEditorFont;
+    private final JComboBox<String> comboPageSegMode;
 
     private ResultState resultState = ResultState.CANCEL;
 
@@ -134,48 +154,20 @@ public class PreferencesDialog extends JDialog {
         final GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         final String[] availableFontFamilyNames = graphicsEnvironment.getAvailableFontFamilyNames();
 
-        {
-            JLabel lblRenderingFont = new JLabel("Rendering font:");
-            GridBagConstraints gbc_lblRenderingFont = new GridBagConstraints();
-            gbc_lblRenderingFont.anchor = GridBagConstraints.EAST;
-            gbc_lblRenderingFont.insets = new Insets(0, 0, 0, 5);
-            gbc_lblRenderingFont.gridx = 0;
-            gbc_lblRenderingFont.gridy = 2;
-            contentPanel.add(lblRenderingFont, gbc_lblRenderingFont);
-        }
-        {
-            comboRenderingFont = new JComboBox<>();
-            GridBagConstraints gbc_comboRenderingFont = new GridBagConstraints();
-            gbc_comboRenderingFont.insets = new Insets(0, 0, 0, 5);
-            gbc_comboRenderingFont.fill = GridBagConstraints.HORIZONTAL;
-            gbc_comboRenderingFont.gridx = 1;
-            gbc_comboRenderingFont.gridy = 2;
-            contentPanel.add(comboRenderingFont, gbc_comboRenderingFont);
+        // Rendering font
+        addGridLabel(0, 2, "Rendering font:");
+        final String initialFontFamilyName = pref.get(PreferencesDialog.KEY_EDITOR_FONT, Font.SANS_SERIF);
+        comboRenderingFont = createGridComboBox(1, 2, availableFontFamilyNames, initialFontFamilyName);
 
-            Arrays.stream(availableFontFamilyNames).forEach(comboRenderingFont::addItem);
-            comboRenderingFont.setSelectedItem(pref.get(PreferencesDialog.KEY_RENDERING_FONT, Font.SANS_SERIF));
-        }
-        {
-            JLabel lblEditorFont = new JLabel("Editor font:");
-            GridBagConstraints gbc_lblEditorFont = new GridBagConstraints();
-            gbc_lblEditorFont.anchor = GridBagConstraints.EAST;
-            gbc_lblEditorFont.insets = new Insets(0, 0, 0, 5);
-            gbc_lblEditorFont.gridx = 0;
-            gbc_lblEditorFont.gridy = 3;
-            contentPanel.add(lblEditorFont, gbc_lblEditorFont);
-        }
-        {
-            comboEditorFont = new JComboBox<>();
-            GridBagConstraints gbc_comboEditorFont = new GridBagConstraints();
-            gbc_comboEditorFont.insets = new Insets(0, 0, 0, 5);
-            gbc_comboEditorFont.fill = GridBagConstraints.HORIZONTAL;
-            gbc_comboEditorFont.gridx = 1;
-            gbc_comboEditorFont.gridy = 3;
-            contentPanel.add(comboEditorFont, gbc_comboEditorFont);
+        // Editor font
+        addGridLabel(0, 3, "Editor font:");
+        final String initialEditorFontFamilyName = pref.get(PreferencesDialog.KEY_RENDERING_FONT, Font.MONOSPACED);
+        comboEditorFont = createGridComboBox(1, 3, availableFontFamilyNames, initialEditorFontFamilyName);
 
-            Arrays.stream(availableFontFamilyNames).forEach(comboEditorFont::addItem);
-            comboEditorFont.setSelectedItem(pref.get(PreferencesDialog.KEY_EDITOR_FONT, Font.MONOSPACED));
-        }
+        // Page Segmentation Modes
+        addGridLabel(0, 4, "Page Segmentation Mode:");
+        final int pageSegMode = pref.getInt(PreferencesDialog.KEY_PAGE_SEG_MODE, DEFAULT_PSM_MODE);
+        comboPageSegMode = createGridComboBox(1, 4, PSM_MODES, PSM_MODES[pageSegMode]);
 
         pack();
         setMinimumSize(getSize());
@@ -197,9 +189,39 @@ public class PreferencesDialog extends JDialog {
         return comboEditorFont;
     }
 
+    public int getPageSegmentationMode() {
+        return comboPageSegMode.getSelectedIndex();
+    }
+
     public ResultState showPreferencesDialog(Component parent) {
         setLocationRelativeTo(parent);
         setVisible(true);
         return resultState;
     }
+
+    private Component addGridLabel(int gridX, int gridY, String label) {
+        JLabel jLabel = new JLabel(label);
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.insets = new Insets(0, 0, 0, 5);
+        constraints.gridx = gridX;
+        constraints.gridy = gridY;
+        contentPanel.add(jLabel, constraints);
+        return jLabel;
+    }
+
+    private <T> JComboBox<T> createGridComboBox(int gridX, int gridY, T[] options, T selectedItem) {
+        JComboBox<T> jComboBox = new JComboBox<>();
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.insets = new Insets(0, 0, 0, 5);
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = gridX;
+        constraints.gridy = gridY;
+        contentPanel.add(jComboBox, constraints);
+
+        Arrays.stream(options).forEach(jComboBox::addItem);
+        jComboBox.setSelectedItem(selectedItem);
+        return jComboBox;
+    }
+
 }

@@ -1,5 +1,6 @@
 package de.vorb.tesseract.gui.controller;
 
+import com.google.common.collect.Lists;
 import de.vorb.tesseract.gui.io.BoxFileReader;
 import de.vorb.tesseract.gui.io.BoxFileWriter;
 import de.vorb.tesseract.gui.io.PlainTextWriter;
@@ -49,8 +50,6 @@ import de.vorb.tesseract.util.Symbol;
 import de.vorb.tesseract.util.TraineddataFiles;
 import de.vorb.tesseract.util.feat.Feature3D;
 import de.vorb.util.FileNames;
-
-import com.google.common.collect.Lists;
 import eu.digitisation.input.Batch;
 import eu.digitisation.input.Parameters;
 import eu.digitisation.input.WarningException;
@@ -231,6 +230,8 @@ public class TesseractController extends WindowAdapter implements
 
         try {
             pageRecognitionProducer.init();
+            pageRecognitionProducer.setPageSegmentationMode(getPageSegmentationMode());
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1141,6 +1142,21 @@ public class TesseractController extends WindowAdapter implements
                 final String editorFont = (String) prefDialog.getComboEditorFont().getSelectedItem();
                 globalPrefs.put(PreferencesDialog.KEY_EDITOR_FONT, editorFont);
 
+                // Update the page segmentation mode if necessary
+                int currentPageSegMode = getPageSegmentationMode();
+                int pageSegMode = prefDialog.getPageSegmentationMode();
+                boolean hasPageSegModeChanged = currentPageSegMode != pageSegMode;
+                if (hasPageSegModeChanged) {
+                    globalPrefs.putInt(PreferencesDialog.KEY_PAGE_SEG_MODE, pageSegMode);
+                    pageRecognitionProducer.setPageSegmentationMode(pageSegMode);
+
+                    // Update model with new segmentation mode
+                    if (activeComponent instanceof PageModelComponent) {
+                        final Optional<PageModel> pm = ((PageModelComponent) activeComponent).getPageModel();
+                        pm.ifPresent(it -> setImageModel(Optional.of(it.getImageModel())));
+                    }
+                }
+
                 view.getRecognitionPane().setRenderingFont(renderingFont);
                 if (view.getActiveComponent() == view.getRecognitionPane()) {
                     view.getRecognitionPane().render();
@@ -1239,6 +1255,10 @@ public class TesseractController extends WindowAdapter implements
         final TesseractTrainer trainer = new TesseractTrainer();
         trainer.setLocationRelativeTo(view);
         trainer.setVisible(true);
+    }
+
+    private int getPageSegmentationMode() {
+        return PreferencesUtil.getPreferences().getInt(PreferencesDialog.KEY_PAGE_SEG_MODE, PreferencesDialog.DEFAULT_PSM_MODE);
     }
 
     public void setPageModel(Optional<PageModel> model) {
