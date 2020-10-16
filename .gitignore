@@ -2,3 +2,7 @@
 *.iml
 target/
 /gui/hs_err_pid*.log
+**/.vscode
+**/.settings
+**/.classpath
+**/.project
