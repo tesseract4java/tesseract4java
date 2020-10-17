@@ -25,6 +25,7 @@ public final class BinarizationUtilities {
             case BufferedImage.TYPE_INT_RGB:
             case BufferedImage.TYPE_BYTE_INDEXED:
             case BufferedImage.TYPE_3BYTE_BGR:
+            case BufferedImage.TYPE_4BYTE_ABGR:
                 grayscale = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
                 RGB_TO_GRAYSCALE.filter(image, grayscale);
                 break;

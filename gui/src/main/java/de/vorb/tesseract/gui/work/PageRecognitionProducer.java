@@ -30,6 +30,7 @@ public class PageRecognitionProducer extends RecognitionProducer {
 
     private final TesseractController controller;
     private final HashMap<String, String> variables = new HashMap<>();
+    private int pageSegmentationMode = tesseract.PSM_AUTO;
 
     public PageRecognitionProducer(TesseractController controller,
             Path tessdataDir, String trainingFile) {
@@ -67,7 +68,7 @@ public class PageRecognitionProducer extends RecognitionProducer {
                 tesseract.OEM_DEFAULT);
 
         // set page segmentation mode
-        tesseract.TessBaseAPISetPageSegMode(getHandle(), tesseract.PSM_AUTO);
+        tesseract.TessBaseAPISetPageSegMode(getHandle(), pageSegmentationMode);
 
         // set variables
         for (Entry<String, String> var : variables.entrySet()) {
@@ -78,6 +79,11 @@ public class PageRecognitionProducer extends RecognitionProducer {
     @Override
     public void close() throws IOException {
         tesseract.TessBaseAPIDelete(getHandle());
+    }
+
+    public void setPageSegmentationMode(int pageSegmentationMode) {
+        this.pageSegmentationMode = pageSegmentationMode;
+        tesseract.TessBaseAPISetPageSegMode(getHandle(), pageSegmentationMode);
     }
 
     public void loadImage(Path imageFile) {
