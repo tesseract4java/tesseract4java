@@ -226,6 +226,24 @@
             <artifactId>tika-parsers</artifactId>
             <version>1.4</version>
             <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.gagravarr</groupId>
+                    <artifactId>vorbis-java-core</artifactId>
+                </exclusion>  
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion> 
+                <exclusion>
+                    <groupId>rome</groupId>
+                    <artifactId>rome</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
