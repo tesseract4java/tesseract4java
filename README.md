@@ -11,6 +11,8 @@ by Paul Vorbach (German).
 
 [![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LF8T2JP2YUUUE)
 
+## Usage
+Basic usage is documented on [our wiki page](https://github.com/tesseract4java/tesseract4java/wiki/Usage)
 
 ## Download
 
